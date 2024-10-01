@@ -1,6 +1,6 @@
-import DarkModeToggle from "@/components/dark-mode-toogle";
-import Footer from "@/components/footer/page";
-import Header from "@/components/header/page";
+import FooterService from "@/components/LayoutClient/footerService";
+
+import HeaderService from "@/components/LayoutClient/headerService";
 
 export default function Layout({
   children,
@@ -10,12 +10,7 @@ export default function Layout({
   return (
     <div className="flex min-h-screen w-full flex-col relative">
       {/* Phần header */}
-      <Header />
-
-      {/* Nút darkmode */}
-      <div className="ml-auto">
-        <DarkModeToggle />
-      </div>
+      <HeaderService />
 
       {/* phần main */}
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
@@ -23,7 +18,7 @@ export default function Layout({
       </main>
 
       {/* Phần footer */}
-      <Footer />
+      <FooterService />
     </div>
   );
 }

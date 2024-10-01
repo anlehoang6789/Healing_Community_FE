@@ -18,15 +18,22 @@ export default function DarkModeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
+        {/* <Button
+          variant="headerIcon"
           size="icon"
-          className="rounded-full w-10 h-10"
+          className="rounded-full border-gray-500"
         >
-          <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all text-gray-800 dark:-rotate-90 dark:scale-0" />
-          <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          <SunIcon
+            className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all text-gray-800 dark:-rotate-90 dark:scale-0"
+            strokeWidth="1.5px"
+          />
+          <MoonIcon
+            className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+            strokeWidth="1.5px"
+          />
           <span className="sr-only">Toggle theme</span>
-        </Button>
+        </Button> */}
+        <span>Chế độ sáng tối</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>

@@ -46,17 +46,19 @@ const socialLinks = [
 
 export default function Footer() {
   return (
-    <div className=" mx-auto bg-custom-gray py-12 px-12">
+    <div className=" bg-black py-12 px-12">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {footerSections.map((section, index) => (
           <div key={index} className="flex flex-col items-center">
-            <h2 className="text-lg font-semibold mb-4">{section.title}</h2>
+            <h2 className="text-lg font-semibold mb-4 text-white">
+              {section.title}
+            </h2>
             <ul className="flex flex-col space-y-2 items-center">
               {section.links.map((link, linkIndex) => (
                 <li key={linkIndex}>
                   <Link
                     href={link.href}
-                    className="text-gray-600 hover:text-gray-900"
+                    className="text-white hover:text-gray-900"
                   >
                     {link.text}
                   </Link>
@@ -66,7 +68,7 @@ export default function Footer() {
           </div>
         ))}
         <div className="flex flex-col items-center">
-          <h2 className="text-lg font-semibold mb-4 items-center">
+          <h2 className="text-lg font-semibold mb-4 items-center text-white">
             Theo dõi chúng tôi
           </h2>
           <div className="flex flex-col space-y-2">
@@ -75,10 +77,10 @@ export default function Footer() {
                 <Link
                   href={social.href}
                   aria-label={social.label}
-                  className="flex space-x-2"
+                  className="flex space-x-2 "
                 >
-                  <social.icon className="w-6 h-6 text-gray-600 hover:text-gray-900" />
-                  <span className="text-gray-600">{social.label}</span>
+                  <social.icon className="w-6 h-6 text-white hover:text-gray-900" />
+                  <span className="text-white">{social.label}</span>
                 </Link>
               </div>
             ))}
