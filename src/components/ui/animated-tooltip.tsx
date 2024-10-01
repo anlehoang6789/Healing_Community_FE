@@ -9,6 +9,7 @@ import {
   useSpring,
 } from "framer-motion";
 
+
 export const AnimatedTooltip = ({
   children,
   content,
@@ -17,14 +18,10 @@ export const AnimatedTooltip = ({
   content: string;
 }) => {
   const [hovered, setHovered] = useState(false);
-  const springConfig = { stiffness: 100, damping: 5 };
+  const springConfig = { stiffness: 150, damping: 5 };
   const x = useMotionValue(0);
   const rotate = useSpring(
-    useTransform(x, [-100, 100], [-15, 15]),
-    springConfig
-  );
-  const translateX = useSpring(
-    useTransform(x, [-100, 100], [-30, 30]),
+    useTransform(x, [-150, 150], [-30, 30]),
     springConfig
   );
 
@@ -35,7 +32,7 @@ export const AnimatedTooltip = ({
     x.set(event.nativeEvent.offsetX - halfWidth);
   };
 
-  const tooltipOffsetY = 20; // khoảng cách giữa tooltip và con trỏ chuột
+  const tooltipOffsetY = 30; // khoảng cách giữa tooltip và con trỏ chuột
 
   return (
     <div
@@ -59,7 +56,7 @@ export const AnimatedTooltip = ({
             }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             style={{
-              translateX: translateX,
+              translateX: "-50%", // Căn giữa tooltip so với con trỏ chuột
               translateY: `calc(-100% + ${tooltipOffsetY}px)`, // điều chỉnh vị trí y
               rotate: rotate,
               whiteSpace: "nowrap",

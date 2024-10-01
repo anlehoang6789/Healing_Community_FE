@@ -51,10 +51,18 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
-        custom: {
-          green: "#98FF98",
-          blue: "#A4DDED",
-          gray: "#FAF9F6",
+        headericon: {
+          DEFAULT: "hsl(var(--backgroud-icon-header))",
+          foreground: "hsl(var(--foreground-icon-header))",
+        },
+        headerborder: {
+          border: "hsl(var(--border-icon-header))",
+        },
+        headerinput: {
+          DEFAULT: "hsl(var(--background-input-header))",
+          foreground: "hsl(var(--foreground-input-header))",
+          border: "hsl(var(--border-input-header))",
+          
         },
       },
       borderRadius: {
