@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import {
@@ -12,11 +12,9 @@ import {
   Settings,
   Music,
   UserRoundPen,
-  FilePenLine,
-  LockKeyhole,
+  FlaskConical,
   LogOut,
   MessageCircle,
-  ArrowRight,
 } from "lucide-react";
 import {
   Sheet,
@@ -47,16 +45,8 @@ export default function Header() {
   const { theme } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log(theme);
   return (
-    <div
-      // className={`flex h-14 items-center justify-between top-0 z-50 w-full border-b ${
-      //   theme === "dark"
-      //     ? "bg-black border-white/20 text-white"
-      //     : "bg-white text-black shadow-md"
-      // } px-4 py-10`}
-      className="flex h-14 items-center justify-between top-0 z-50 w-full border-b px-4 py-10"
-    >
+    <div className="flex h-14 items-center justify-between top-0 z-50 w-full border-b px-4 py-10">
       {/* Logo and Search */}
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link
@@ -68,22 +58,16 @@ export default function Header() {
             alt="Logo"
             width={50}
             height={50}
+            style={{ width: "auto", height: "auto" }}
           />
         </Link>
         <div className="relative hidden md:block">
-          <Search
-            // className={`absolute left-2 top-2.5 h-4 w-4 ${
-            //   theme === "dark" ? "text-white" : "text-muted-foreground"
-            // }`}
-            className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]"
-          />
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]" />
           <Input
             placeholder="Tìm kiếm..."
-            // className={`pl-8 w-[300px] md:w-[120px] lg:w-[300px] xl:w-[400px] ${
-            //   theme === "dark" ? "bg-gray-700 text-white" : ""
-            // }`}
             className="pl-8 w-[300px] md:w-[120px] lg:w-[300px] xl:w-[400px]"
             variant="headerInput"
+            id="search-input"
           />
         </div>
       </div>
@@ -92,12 +76,7 @@ export default function Header() {
       <nav className="hidden md:flex items-center space-x-10">
         {navItems.map((item, index) => (
           <AnimatedTooltip key={index} content={item.label}>
-            <Link
-              href={item.href}
-              // className={`transition-colors ${
-              //   theme === "dark" ? "text-white" : "text-foreground/60"
-              // } hover:text-foreground/80`}
-            >
+            <Link href={item.href}>
               <Button variant="headerIconNoBorder">
                 <item.icon className="h-6 w-6" />
               </Button>
@@ -125,11 +104,13 @@ export default function Header() {
         >
           <Bell className="h-5 w-5" strokeWidth="1.5px" />
         </Button>
+        {/* chuyển đổi giao diện */}
+        <DarkModeToggle />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0 border-[1.5px] border-gradient-custom "
+              className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0"
             >
               <Image
                 src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
@@ -158,20 +139,12 @@ export default function Header() {
               <span>Bookmark</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <FilePenLine className="mr-2 h-4 w-4" />
-              <span>Bài viết nháp</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <LockKeyhole className="mr-2 h-4 w-4" />
-              <span>Thay đổi mật khẩu</span>
+              <FlaskConical className="mr-2 h-4 w-4" />
+              <span>Bài test tâm lý</span>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Settings className="mr-2 h-4 w-4" />
               <span>Cài đặt khác</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <DarkModeToggle />
-              <ArrowRight className="ml-auto h-4 w-4" />
             </DropdownMenuItem>
             <DropdownMenuItem>
               <LogOut className="mr-2 h-4 w-4" />

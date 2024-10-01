@@ -62,7 +62,9 @@ const config: Config = {
           DEFAULT: "hsl(var(--background-input-header))",
           foreground: "hsl(var(--foreground-input-header))",
           border: "hsl(var(--border-input-header))",
-          
+        },
+        tabsActive: {
+          DEFAULT: "hsl(var(--backgroud-tabs-active))",
         },
       },
       borderRadius: {

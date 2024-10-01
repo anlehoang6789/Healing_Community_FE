@@ -1,4 +1,4 @@
-// import { Role } from '@/constants/type'
+import { Career } from "@/constants/career.type";
 import z from "zod";
 
 //body login
@@ -16,12 +16,6 @@ export const LoginRes = z.object({
   data: z.object({
     accessToken: z.string(),
     refreshToken: z.string(),
-    // account: z.object({
-    //   id: z.number(),
-    //   name: z.string(),
-    //   email: z.string(),
-    //   role: z.enum([Role.Registered_User, Role.Moderator, Role.Admin])
-    // })
   }),
   message: z.string(),
 });
@@ -91,3 +85,47 @@ export const RegisterBody = z
   });
 
 export type RegisterBodyType = z.TypeOf<typeof RegisterBody>;
+
+//body register-expert
+export const RegisterExpertBody = z
+  .object({
+    email: z.string().email(),
+    username: z.string().min(6).max(100),
+    // career: z.enum([
+    //   Career.Psychotherapist,
+    //   Career.Life_Consultant,
+    //   Career.Health_Psychologist,
+    //   Career.Clinical_Psychologist,
+    // ]),
+    file: z
+      .instanceof(File)
+      .refine(
+        (file) => file.size <= 5 * 1024 * 1024, // Max file size 5MB
+        "File size must be less than 5MB"
+      )
+      .refine(
+        (file) =>
+          ["image/jpeg", "image/png", "application/pdf"].includes(file.type),
+        "File must be an image (JPEG/PNG) or a PDF"
+      ),
+    password: z
+      .string()
+      .min(8)
+      .max(100)
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "Mật khẩu phải có ít nhất 1 chữ Hoa, 1 chữ thường, 1 số và 1 kí tự đặc biệt"
+      ),
+    confirmPassword: z.string().min(8).max(100),
+  })
+  .strict()
+  .superRefine(({ confirmPassword, password }, ctx) => {
+    if (confirmPassword !== password) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Mật khẩu không khớp",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+export type RegisterExpertBodyType = z.TypeOf<typeof RegisterExpertBody>;
