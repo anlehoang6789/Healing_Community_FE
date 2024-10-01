@@ -18,7 +18,7 @@ export default function DarkModeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        {/* <Button
+        <Button
           variant="headerIcon"
           size="icon"
           className="rounded-full border-gray-500"
@@ -32,18 +32,17 @@ export default function DarkModeToggle() {
             strokeWidth="1.5px"
           />
           <span className="sr-only">Toggle theme</span>
-        </Button> */}
-        <span>Chế độ sáng tối</span>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
+          Giao diện sáng
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
+          Giao diện tối
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
+          Tự động
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -5,22 +5,23 @@ import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Upload, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
-  RegisterBody,
-  RegisterBodyType,
+  RegisterExpertBody,
+  RegisterExpertBodyType,
 } from "@/schemaValidations/auth.schema";
 
-export default function RegisterForm() {
+export default function RegisterExpertForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const form = useForm<RegisterBodyType>({
-    resolver: zodResolver(RegisterBody),
+  // const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const form = useForm<RegisterExpertBodyType>({
+    resolver: zodResolver(RegisterExpertBody),
     defaultValues: {
       email: "",
       username: "",
@@ -29,17 +30,34 @@ export default function RegisterForm() {
     },
   });
 
+  // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = event.target.files?.[0];
+  //   if (file) {
+  //     setSelectedFile(file);
+  //   }
+  // };
+
+  // const handleRemoveFile = () => {
+  //   setSelectedFile(null);
+  // };
+
+  // const onSubmit = (data: RegisterExpertBodyType) => {
+  //   console.log("Form data:", data);
+  // };
+
   return (
     <div>
       <Form {...form}>
         <form
           className="space-y-4 max-w-[600px] flex-shrink-0 w-full"
           noValidate
+          // onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="grid gap-4">
             <h1 className="text-4xl font-bold text-black text-center">
-              Đăng ký
+              Đăng ký chuyên gia
             </h1>
+            {/* Email field */}
             <FormField
               control={form.control}
               name="email"
@@ -66,6 +84,7 @@ export default function RegisterForm() {
                 </FormItem>
               )}
             />
+            {/* Username field */}
             <FormField
               control={form.control}
               name="username"
@@ -92,6 +111,64 @@ export default function RegisterForm() {
                 </FormItem>
               )}
             />
+            {/* Chỗ hiển thị combobox */}
+            {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label htmlFor="username" className="text-black">
+                          Tên tài khoản
+                        </Label>
+                        <span className="text-red-500 ml-1">*</span>
+                      </div>
+                      <Input
+                        id="username"
+                        type="text"
+                        placeholder="abcdef"
+                        required
+                        {...field}
+                        autoComplete="username"
+                        className="w-full"
+                      />
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="career"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label
+                          htmlFor="career"
+                          className="text-black"
+                          id="career-label"
+                        >
+                          Nghề nghiệp
+                        </Label>
+                        <span className="text-red-500 ml-1">*</span>
+                      </div>
+                      <CareerCombobox
+                        id="career"
+                        aria-labelledby="career-label"
+                        value={field.value}
+                        onChange={field.onChange}
+                      />
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div> */}
+
+            {/* Password field */}
             <FormField
               control={form.control}
               name="password"
@@ -138,6 +215,7 @@ export default function RegisterForm() {
                 </FormItem>
               )}
             />
+            {/* Confirm password field */}
             <FormField
               control={form.control}
               name="confirmPassword"
@@ -158,7 +236,7 @@ export default function RegisterForm() {
                         {...field}
                         autoComplete="current-password"
                         placeholder="Mk@12345"
-                        className="placeholder:text-[#919BA4] border-[0.5px] border-[#666]"
+                        className="placeholder:text-[#919BA4] border-[0.5px] border-[#666] "
                       />
                       <span
                         onClick={() =>
@@ -186,6 +264,58 @@ export default function RegisterForm() {
                 </FormItem>
               )}
             />
+            {/* File Upload Field */}
+            {/* <FormItem>
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="file" className="text-black font-semibold">
+                    Tải lên chứng chỉ
+                  </Label>
+                  <span className="text-red-500 ml-1">*</span>
+                </div>
+                <div className="flex items-center justify-center w-full">
+                  <label
+                    htmlFor="file"
+                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                  >
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <Upload className="w-10 h-10 mb-3 text-gray-400" />
+                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                        <span className="font-semibold">Click to upload</span>{" "}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        JPEG, JPG, PNG or PDF (MAX. 5MB)
+                      </p>
+                    </div>
+                    <Input
+                      id="file"
+                      type="file"
+                      accept=".jpeg,.jpg,.png,.pdf"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                {selectedFile && (
+                  <div className="flex items-center justify-between bg-gray-100 p-2 rounded-md">
+                    <span className="text-sm text-gray-600 truncate">
+                      {selectedFile.name}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleRemoveFile}
+                      className="h-8 w-8"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+                <FormMessage />
+              </div>
+            </FormItem> */}
             <Button
               type="submit"
               className="w-full bg-black hover:bg-gray-800 rounded-[20px] mt-2"

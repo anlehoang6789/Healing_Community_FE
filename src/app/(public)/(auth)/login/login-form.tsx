@@ -53,6 +53,7 @@ export default function LoginForm() {
                       required
                       {...field}
                       autoComplete="email"
+                      className="placeholder:text-[#919BA4] border-[0.5px] border-[#666]"
                     />
                     <FormMessage />
                   </div>
@@ -79,6 +80,7 @@ export default function LoginForm() {
                         {...field}
                         autoComplete="current-password"
                         placeholder="Mk@12345"
+                        className="placeholder:text-[#919BA4] border-[0.5px] border-[#666]"
                       />
                       <span
                         onClick={() => setShowPassword(!showPassword)}

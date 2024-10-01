@@ -42,7 +42,7 @@ body {
     --primary-hover: 162, 80%, 17%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
+    --muted: 210 50% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
@@ -66,6 +66,8 @@ body {
     --background-input-header: 100, 100%, 100%;
     --foreground-input-header: 0, 0%, 0%;
     --border-input-header: 0, 0%, 0%;
+    /* mau cho tabs khi duoc active */
+    --backgroud-tabs-active: 100, 100%, 100%;
   }
   /* màu cho dark mode */
   .dark {
@@ -80,8 +82,8 @@ body {
     --primary-hover: 0, 0%, 10%; /* màu hover của primary #00001A */
     --secondary: 210, 28%, 19%; /* màu secondary */
     --secondary-foreground: 30, 34%, 53%; /* màu chữ trên secondary */
-    --muted: 204, 18%, 68%; /* màu muted */
-    --muted-foreground: 215 20.2% 65.1%; /*màu chữ trên muted
+    --muted: 180, 7%, 19%; /* màu muted */
+    --muted-foreground: 204, 26%, 90%; /*màu chữ trên muted
     /* --muted-foreground: 0, 0%, 0%; */
     --accent: 208, 23%, 41%; /* màu accent #526D82. */
     --accent-foreground: 204, 26%, 90%; /* màu chữ trên accent #DDE6ED*/
@@ -104,6 +106,8 @@ body {
     --background-input-header: 180, 7%, 19%;
     --foreground-input-header: 0, 0%, 0%;
     --border-input-header: 204, 18%, 68%;
+    /* mau cho tabs khi duoc active */
+    --backgroud-tabs-active: 180, 20%, 5%;
   }
 }
 
