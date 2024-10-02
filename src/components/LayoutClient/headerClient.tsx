@@ -65,7 +65,7 @@ export default function Header() {
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]" />
           <Input
             placeholder="Tìm kiếm..."
-            className="pl-8 w-[300px] md:w-[120px] lg:w-[300px] xl:w-[400px]"
+            className="pl-8 w-[300px] md:w-[120px] lg:w-[300px] xl:w-[400px] rounded-[20px]"
             variant="headerInput"
             id="search-input"
           />
@@ -87,7 +87,7 @@ export default function Header() {
 
       {/* User Actions and Dropdown */}
       <div className="flex items-center 2xl:space-x-5 xl:space-x-5 lg:space-x-5 md:space-x-1 space-x-5 justify-end overflow-hidden ">
-        <Button className="hidden sm:inline-flex bg-gradient-custom text-black flex-shrink-0">
+        <Button className="hidden sm:inline-flex bg-gradient-custom text-black flex-shrink-0 font-normal rounded-[20px]">
           Viết bài chia sẻ
         </Button>
         <Button
@@ -220,7 +220,8 @@ export default function Header() {
                 placeholder="Tìm kiếm..."
                 className={`w-[200px] ${
                   theme === "dark" ? "bg-gray-700 text-white" : ""
-                }`}
+                } rounded-[20px]`}
+                id="search-input-mobile"
               />
             </div>
           </div>
