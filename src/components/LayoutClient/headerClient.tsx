@@ -86,7 +86,7 @@ export default function Header() {
       </nav>
 
       {/* User Actions and Dropdown */}
-      <div className="flex items-center space-x-5 justify-end overflow-hidden ">
+      <div className="flex items-center 2xl:space-x-5 xl:space-x-5 lg:space-x-5 md:space-x-1 space-x-5 justify-end overflow-hidden ">
         <Button className="hidden sm:inline-flex bg-gradient-custom text-black flex-shrink-0">
           Viết bài chia sẻ
         </Button>
@@ -105,7 +105,9 @@ export default function Header() {
           <Bell className="h-5 w-5" strokeWidth="1.5px" />
         </Button>
         {/* chuyển đổi giao diện */}
+
         <DarkModeToggle />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
