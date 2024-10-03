@@ -26,12 +26,14 @@ export default function ProfileTabs() {
     <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center py-4 border-b">
         <Button
-          className="w-full sm:w-auto rounded-[20px] bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2"
+          className="w-full sm:w-auto rounded-[20px] bg-[#E5E6EC] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2"
           asChild
         >
           <Link href="/new-post">
-            <Pencil className="mr-2 w-4 h-4" />
-            <span>Đăng bài viết mới</span>
+            <Pencil className="mr-2 w-4 h-4 text-black" />
+            <span className="bg-gradient-to-r from-[#f070b0] to-violet-500 bg-clip-text text-transparent text-lg font-semibold">
+              Đăng bài viết mới
+            </span>
           </Link>
         </Button>
 
@@ -43,7 +45,7 @@ export default function ProfileTabs() {
                 : "gradientHoverUnderline"
             }
             onClick={() => setActiveTab("home")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none"
+            className=" md:text-lg sm:text-sm text-xs flex-1 sm:flex-none"
           >
             Tường nhà
           </Button>
@@ -54,7 +56,7 @@ export default function ProfileTabs() {
                 : "gradientHoverUnderline"
             }
             onClick={() => setActiveTab("info")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none"
+            className="md:text-lg sm:text-sm text-xs flex-1 sm:flex-none"
           >
             Thông tin cá nhân
           </Button>
@@ -65,7 +67,7 @@ export default function ProfileTabs() {
                 : "gradientHoverUnderline"
             }
             onClick={() => setActiveTab("password")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none"
+            className="md:text-lg sm:text-sm text-xs flex-1 sm:flex-none"
           >
             Đổi mật khẩu
           </Button>
