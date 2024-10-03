@@ -43,7 +43,7 @@ export default function ProfileTabs() {
                 : "gradientHoverUnderline"
             }
             onClick={() => setActiveTab("home")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none"
+            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
           >
             Tường nhà
           </Button>
@@ -54,7 +54,7 @@ export default function ProfileTabs() {
                 : "gradientHoverUnderline"
             }
             onClick={() => setActiveTab("info")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none"
+            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
           >
             Thông tin cá nhân
           </Button>
@@ -65,7 +65,7 @@ export default function ProfileTabs() {
                 : "gradientHoverUnderline"
             }
             onClick={() => setActiveTab("password")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none"
+            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
           >
             Đổi mật khẩu
           </Button>

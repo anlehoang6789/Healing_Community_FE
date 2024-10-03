@@ -38,3 +38,20 @@ export const ChangePasswordBody = (registeredPassword: string) =>
 export type ChangePasswordBodyType = z.TypeOf<
   ReturnType<typeof ChangePasswordBody>
 >;
+
+// personal information body
+export const PersonalInformationBody = z
+  .object({
+    displayName: z.string().min(3).max(15),
+    username: z.string().min(1).max(12),
+    description: z.string().max(1000),
+    twitterLink: z.string(),
+    facebookLink: z.string(),
+    instagramLink: z.string(),
+    linkedinLink: z.string(),
+  })
+  .strict();
+
+export type PersonalInformationBodyType = z.TypeOf<
+  typeof PersonalInformationBody
+>;
