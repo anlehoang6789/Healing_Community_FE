@@ -8,7 +8,7 @@ const inputVariants = cva(
   {
     variants: {
       variant: {
-        default: "text-black bg-white",
+        default: "text-black bg-white placeholder:text-placeholderInput",
         outline: "border border-input bg-transparent",
         subtle: "bg-subtle text-subtle-foreground",
         destructive: "bg-destructive text-destructive-foreground",

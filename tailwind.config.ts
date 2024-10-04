@@ -66,6 +66,9 @@ const config: Config = {
         tabsActive: {
           DEFAULT: "hsl(var(--backgroud-tabs-active))",
         },
+        placeholderInput: {
+          DEFAULT: "hsl(var(--placeholder-input))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
