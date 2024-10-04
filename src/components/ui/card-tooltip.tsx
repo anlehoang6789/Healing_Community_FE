@@ -1,15 +1,13 @@
-"use client";
-
 import React, { useState } from "react";
 import {
   motion,
-  useTransform,
   AnimatePresence,
   useMotionValue,
   useSpring,
+  useTransform,
 } from "framer-motion";
 
-export const AnimatedTooltip = ({
+export const CardTooltip = ({
   children,
   content,
 }: {
@@ -31,7 +29,7 @@ export const AnimatedTooltip = ({
     x.set(event.nativeEvent.offsetX - halfWidth);
   };
 
-  const tooltipOffsetY = 30; // khoảng cách giữa tooltip và con trỏ chuột
+  const tooltipOffsetY = 10; // Adjust the Y-offset for positioning above the card
 
   return (
     <div
@@ -55,14 +53,14 @@ export const AnimatedTooltip = ({
             }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             style={{
-              translateX: "-50%", // Căn giữa tooltip so với con trỏ chuột
-              translateY: `calc(-100% + ${tooltipOffsetY}px)`, // điều chỉnh vị trí y
+              translateX: "-50%",
+              translateY: `${tooltipOffsetY}px`,
               rotate: rotate,
               whiteSpace: "nowrap",
             }}
-            className="absolute top-10 left-1/2 transform -translate-x-1/2 flex text-xs flex-col items-center justify-center rounded-md bg-black z-50 shadow-xl px-4 py-2"
+            className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 text-xs flex items-center justify-center rounded-md bg-black text-white shadow-xl px-4 py-2"
           >
-            <div className="text-white text-xs font-medium">{content}</div>
+            {content}
           </motion.div>
         )}
       </AnimatePresence>
