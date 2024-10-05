@@ -66,6 +66,7 @@ export default function JoinedGroup() {
                     width={100}
                     height={100}
                     className="w-full h-auto rounded-lg object-cover"
+                    priority
                   />
 
                   <p className="mt-2 text-center text-sm font-medium text-gray-700 truncate">

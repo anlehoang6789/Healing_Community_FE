@@ -1,7 +1,7 @@
-import FollowedUser from "@/components/LayoutClient/followedUser";
-import JoinedGroup from "@/components/LayoutClient/joinedGroup";
-import OwnPost from "@/components/LayoutClient/ownPost";
-import PostTopics from "@/components/LayoutClient/postTopics";
+import FollowedUser from "@/components/personalWall/followedUser";
+import JoinedGroup from "@/components/personalWall/joinedGroup";
+import OwnPost from "@/components/personalWall/ownPost";
+import PostTopics from "@/components/personalWall/postTopics";
 import React from "react";
 
 export default function PersonalWall() {

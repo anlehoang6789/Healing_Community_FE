@@ -61,6 +61,7 @@ export default function FollowedUser() {
                 width={40}
                 height={40}
                 className="rounded-full object-cover w-10 h-10 md:w-7 md:h-7 sm:w-10 sm:h-10 lg:w-10 lg:h-10"
+                priority
               />
               <div className="flex flex-col">
                 <p className="truncate max-w-[100px] bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 text-base sm:text-base md:text-xs lg:text-base">
