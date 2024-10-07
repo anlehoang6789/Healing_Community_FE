@@ -43,7 +43,9 @@ const followedUsers: User[] = [
 export default function FollowedUser() {
   return (
     <div className="p-4 rounded-lg shadow-lg border">
-      <h2 className="text-lg font-bold pb-2 text-gray-500">Đã theo dõi</h2>
+      <h2 className="text-lg font-bold pb-2 text-muted-foreground">
+        Đã theo dõi
+      </h2>
 
       <ul className="space-y-5">
         {followedUsers.map((user) => (

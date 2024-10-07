@@ -165,7 +165,7 @@ export default function OwnPost() {
           !isExpanded && shouldTruncate ? "max-h-[600px] overflow-hidden" : ""
         }`}
       >
-        <div className="whitespace-pre-wrap mb-4 text-gray-500">
+        <div className="whitespace-pre-wrap mb-4 text-muted-foreground">
           {post.content.split("\n\n").map((paragraph, index) => (
             <p key={index} className="mb-4">
               {paragraph}
@@ -187,7 +187,9 @@ export default function OwnPost() {
         {!isExpanded && shouldTruncate && (
           <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-white to-transparent"></div>
         )}
-        <p className="whitespace-pre-wrap mb-4 text-gray-500">{post.content}</p>
+        <p className="whitespace-pre-wrap mb-4 text-muted-foreground">
+          {post.content}
+        </p>
       </div>
       {shouldTruncate && (
         <div className="flex justify-end">
