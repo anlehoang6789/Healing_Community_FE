@@ -20,11 +20,11 @@ const topics = [
 export default function PostTopics() {
   return (
     <div className="p-4 rounded-lg shadow-lg border">
-      <h2 className="text-lg font-bold pb-2 text-gray-500">
+      <h2 className="text-lg font-bold pb-2 text-muted-foreground">
         Chủ đề bài đã viết
       </h2>
 
-      <div className="overflow-x-auto mt-2 ">
+      <div className="overflow-x-auto mt-2">
         <div className="flex flex-nowrap gap-2 mb-4">
           {topics.map((topic) => (
             <Button
