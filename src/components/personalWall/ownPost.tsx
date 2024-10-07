@@ -177,9 +177,10 @@ export default function OwnPost() {
             <Image
               src={post.image}
               alt="Post image"
-              width={500}
-              height={300}
-              layout="responsive"
+              width={600}
+              height={600}
+              style={{ width: "auto", height: "auto" }}
+              loading="lazy"
               className="rounded-lg"
             />
           </div>
@@ -249,7 +250,7 @@ export default function OwnPost() {
                   <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                     {comment.user.name}
                   </span>
-                  <p>{comment.content}</p>
+                  <p className="text-black">{comment.content}</p>
                 </div>
                 <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 mb-4">
                   <button className="hover:underline">Thích</button>
