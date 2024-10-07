@@ -81,7 +81,9 @@ const bookmarks: Bookmark[] = [
 export default function BookMarkList() {
   return (
     <div className="flex flex-col gap-4 p-4 rounded-lg shadow-lg border">
-      <h2 className="font-bold text-gray-500 text-xl">Các bài viết đã lưu</h2>
+      <h2 className="font-bold  text-xl text-muted-foreground">
+        Các bài viết đã lưu
+      </h2>
       {bookmarks.map((bookmark) => (
         <Card key={bookmark.id} className="flex items-center gap-4 p-4">
           <Image

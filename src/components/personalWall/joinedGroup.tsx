@@ -47,7 +47,7 @@ export default function JoinedGroup() {
   return (
     <div className="p-4 rounded-lg shadow-lg border">
       <div className="flex justify-between items-center ">
-        <h2 className="text-lg font-bold text-gray-500">Nhóm đã tham gia</h2>
+        <h2 className="text-lg font-bold text-muted-foreground">Nhóm đã tham gia</h2>
       </div>
       <p className="text-sm text-gray-500 mb-4">10 nhóm</p>
 

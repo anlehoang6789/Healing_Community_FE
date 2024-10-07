@@ -13,6 +13,28 @@
   }
 }
 
+::-webkit-scrollbar {
+  height: 8px;
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #cccccc;
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #878787;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #959494;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
@@ -63,7 +85,7 @@ body {
     --radius: 0.5rem;
     /* mau cho icon header */
     --backgroud-icon-header: 100, 100%, 100%;
-    --foreground-icon-header: 0, 0%, 0%;
+    --foreground-icon-header: 220, 6%, 46%;
     --border-icon-header: 0, 0%, 0%;
     /* mau cho input header */
     --background-input-header: 100, 100%, 100%;
