@@ -76,7 +76,7 @@ export default function FollowedUser() {
             <div className="flex items-center space-x-1 sm:space-x-1 md:space-x-1 lg:space-x-2">
               <Button
                 variant="outline"
-                className="flex items-center bg-[#A4DDED] text-black text-xs rounded-full border-none px-4 py-2 md:px-1 md:py-0 sm:px-4 sm:py-2 lg:px-3 lg:py-1 sm:text-xs md:text-[10px] lg:text-xs"
+                className="flex items-center bg-[#c2eaf7] hover:bg-[#d2f5ff] text-black text-xs rounded-full border-none px-4 py-2 md:px-1 md:py-0 sm:px-4 sm:py-2 lg:px-3 lg:py-1 sm:text-xs md:text-[10px] lg:text-xs"
               >
                 <BadgeCheck
                   className="w-5 h-5 mr-1 text-green-700 lg:w-5 lg:h-5 md:w-4 md:h-4 sm:w-5 sm:h-5"

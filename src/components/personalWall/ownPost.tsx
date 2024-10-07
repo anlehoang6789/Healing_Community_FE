@@ -177,8 +177,8 @@ export default function OwnPost() {
             <Image
               src={post.image}
               alt="Post image"
-              width={600}
-              height={600}
+              width={700}
+              height={700}
               style={{ width: "auto", height: "auto" }}
               className="rounded-lg"
             />
