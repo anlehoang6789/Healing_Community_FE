@@ -24,7 +24,7 @@ export default function PostTopics() {
         Chủ đề bài đã viết
       </h2>
 
-      <div className="overflow-x-auto mt-2 ">
+      <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 mt-2">
         <div className="flex flex-nowrap gap-2 mb-4">
           {topics.map((topic) => (
             <Button

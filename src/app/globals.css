@@ -36,7 +36,7 @@ body {
     --background: 0, 0%, 87%;
     --foreground: 204, 50%, 5%;
     /* --foreground: 0, 0%, 0%; */
-    --card: 0, 0%, 87%;
+    --card: 100, 100%, 100%;
     --card-foreground: 204, 50%, 5%;
     --popover: 0, 0%, 87%;
     --popover-foreground: 204, 50%, 5%;

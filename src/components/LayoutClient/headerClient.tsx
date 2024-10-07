@@ -62,10 +62,10 @@ export default function Header() {
           />
         </Link>
         <div className="relative hidden md:block">
-          <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]" />
+          <Search className="absolute left-2 top-[4px] h-4 w-4 text-[#919BA4]" />
           <Input
             placeholder="Tìm kiếm..."
-            className="pl-8 w-[300px] md:w-[120px] lg:w-[300px] xl:w-[400px] rounded-[20px]"
+            className="pl-8 w-[300px] h-[25px] md:w-[120px] lg:w-[300px] xl:w-[400px] rounded-[20px]"
             variant="headerInput"
             id="search-input"
           />
