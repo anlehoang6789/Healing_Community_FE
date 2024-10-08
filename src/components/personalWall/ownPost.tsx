@@ -180,6 +180,7 @@ export default function OwnPost() {
               width={700}
               height={700}
               style={{ width: "auto", height: "auto" }}
+              loading="lazy"
               className="rounded-lg"
             />
           </div>

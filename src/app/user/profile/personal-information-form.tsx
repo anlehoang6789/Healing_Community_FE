@@ -118,8 +118,42 @@ export default function PersonalInformationForm() {
                   placeholder="tên-người-dùng"
                   className="rounded-l-none"
                   autoComplete="username"
+                  disabled
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label
+                htmlFor="display-phone"
+                className="text-right text-muted-foreground"
+              >
+                Số điện thoại
+              </Label>
+              <Input
+                id="display-phone"
+                type="tel"
+                name="display-phone"
+                placeholder="Nhập tên số điện thoại của bạn"
+                className="col-span-3"
+                autoComplete="phone"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label
+                htmlFor="display-email"
+                className="text-right text-muted-foreground"
+              >
+                Email
+              </Label>
+              <Input
+                id="display-email"
+                type="email"
+                name="display-email"
+                placeholder="Nhập email của bạn"
+                className="col-span-3"
+                autoComplete="email"
+                disabled
+              />
             </div>
           </div>
         </div>
