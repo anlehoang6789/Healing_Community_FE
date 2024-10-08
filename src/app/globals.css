@@ -13,10 +13,51 @@
   }
 }
 
+::-webkit-scrollbar {
+  height: 8px;
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #cccccc;
+  border-radius: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #878787;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #959494;
+}
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: "Roboto", sans-serif;
+  .fr-toolbar .fr-dropdown .fr-command.fr-active {
+    all: unset;
+  }
+
+  .fr-view h1 {
+    @apply text-3xl font-bold text-black; /* Apply Tailwind styles */
+  }
+
+  .fr-view h2 {
+    @apply text-2xl font-semibold text-black;
+  }
+
+  .fr-view h3 {
+    @apply text-xl font-semibold text-black;
+  }
+
+  .fr-second-toolbar a {
+    display: none;
+  }
 }
 
 @layer utilities {
@@ -36,13 +77,13 @@ body {
     --background: 0, 0%, 87%;
     --foreground: 204, 50%, 5%;
     /* --foreground: 0, 0%, 0%; */
-    --card: 0, 0%, 87%;
+    --card: 100, 100%, 100%;
     --card-foreground: 204, 50%, 5%;
     --popover: 0, 0%, 87%;
     --popover-foreground: 204, 50%, 5%;
-    --primary: 162, 100%, 17%;
+    --primary: 0, 0%, 0%;
     --primary-foreground: 210 40% 98%;
-    --primary-hover: 162, 80%, 17%;
+    --primary-hover: 0, 0%, 30%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 50% 96.1%;
@@ -63,7 +104,7 @@ body {
     --radius: 0.5rem;
     /* mau cho icon header */
     --backgroud-icon-header: 100, 100%, 100%;
-    --foreground-icon-header: 0, 0%, 0%;
+    --foreground-icon-header: 220, 6%, 46%;
     --border-icon-header: 0, 0%, 0%;
     /* mau cho input header */
     --background-input-header: 100, 100%, 100%;
@@ -71,6 +112,8 @@ body {
     --border-input-header: 0, 0%, 0%;
     /* mau cho tabs khi duoc active */
     --backgroud-tabs-active: 100, 100%, 100%;
+    /* mau placeholder input */
+    --placeholder-input: 204, 26%, 60%;
   }
   /* màu cho dark mode */
   .dark {
@@ -80,9 +123,9 @@ body {
     --card-foreground: 45, 23%, 82%; /* màu chữ trên card #dcd7c9 */
     --popover: 180, 7%, 19%; /* màu popover #262626 */
     --popover-foreground: 45, 23%, 82%; /* màu chữ trên popover #dcd7c9 */
-    --primary: 100, 90%, 100%; /* màu primary #0F0F0F */
+    --primary: 180, 7%, 19%; /* màu primary #0F0F0F */
     --primary-foreground: 100, 100%, 100%; /* màu chữ trên primary #ffffff */
-    --primary-hover: 0, 0%, 10%; /* màu hover của primary #00001A */
+    --primary-hover: 180, 7%, 35%; /* màu hover của primary #00001A */
     --secondary: 210, 28%, 19%; /* màu secondary */
     --secondary-foreground: 30, 34%, 53%; /* màu chữ trên secondary */
     --muted: 180, 7%, 19%; /* màu muted */
@@ -93,8 +136,8 @@ body {
     --destructive: 0 62.8% 30.6%; /* màu destructive */
     --destructive-foreground: 210 40% 98%;
     --border: 210, 28%, 19%;
-    /* --input: 204, 18%, 68%; */
-    --input: 0, 0%, 0%;
+    --input: 204, 18%, 68%;
+    /* --input: 0, 0%, 0%; */
     --ring: 212.7 26.8% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -111,6 +154,8 @@ body {
     --border-input-header: 204, 18%, 68%;
     /* mau cho tabs khi duoc active */
     --backgroud-tabs-active: 180, 20%, 5%;
+    /* mau placeholder input */
+    --placeholder-input: 180, 7%, 19%;
   }
 }
 

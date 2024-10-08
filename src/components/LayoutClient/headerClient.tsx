@@ -65,7 +65,7 @@ export default function Header() {
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]" />
           <Input
             placeholder="Tìm kiếm..."
-            className="pl-8 w-[300px] md:w-[120px] lg:w-[300px] xl:w-[400px] rounded-[20px]"
+            className="pl-8 w-[200px] md:w-[120px] lg:w-[300px] xl:w-[300px] rounded-[20px]"
             variant="headerInput"
             id="search-input"
           />
@@ -73,7 +73,7 @@ export default function Header() {
       </div>
 
       {/* Navigation Items */}
-      <nav className="hidden md:flex items-center space-x-10">
+      <nav className="hidden md:flex items-center space-x-8">
         {navItems.map((item, index) => (
           <AnimatedTooltip key={index} content={item.label}>
             <Link href={item.href}>
@@ -222,6 +222,7 @@ export default function Header() {
                   theme === "dark" ? "bg-gray-700 text-white" : ""
                 } rounded-[20px]`}
                 id="search-input-mobile"
+                variant="headerInput"
               />
             </div>
           </div>

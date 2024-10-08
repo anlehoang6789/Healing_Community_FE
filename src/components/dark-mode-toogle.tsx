@@ -19,12 +19,12 @@ export default function DarkModeToggle() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="headerIcon"
+          variant="iconDarkMod"
           size="icon"
-          className="rounded-full border-gray-500"
+          className="rounded-full border border-gray-500"
         >
           <SunIcon
-            className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all text-gray-800 dark:-rotate-90 dark:scale-0"
+            className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
             strokeWidth="1.5px"
           />
           <MoonIcon

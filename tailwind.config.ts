@@ -66,6 +66,9 @@ const config: Config = {
         tabsActive: {
           DEFAULT: "hsl(var(--backgroud-tabs-active))",
         },
+        placeholderInput: {
+          DEFAULT: "hsl(var(--placeholder-input))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -74,6 +77,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
 };
 export default config;

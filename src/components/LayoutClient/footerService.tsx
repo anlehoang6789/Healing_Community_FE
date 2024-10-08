@@ -1,4 +1,4 @@
-import Footer from "@/components/LayoutClient/footerClient";
+import Footer from "@/components/layoutClient/footerClient";
 import React from "react";
 
 export default function FooterService() {

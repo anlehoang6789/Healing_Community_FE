@@ -21,11 +21,15 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         headerIcon:
           "bg-headericon text-headericon-foreground border border-headerborder-border",
-        headerIconNoBorder: "bg-headericon text-headericon-foreground",
+        headerIconNoBorder:
+          "text-headericon-foreground bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#98FF98] after:to-[#A4DDED] after:scale-x-0 after:transition-transform after:duration-300 focus:after:scale-x-100 active:after:scale-x-100 aria-selected:after:scale-x-100 text-mute text-headericon-foreground",
         gradientUnderline:
-          "bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#98FF98] after:to-[#A4DDED] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 focus:after:scale-x-100 active:after:scale-x-100 aria-selected:after:scale-x-100 text-primary",
+          "bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#98FF98] after:to-[#A4DDED] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 focus:after:scale-x-100 active:after:scale-x-100 aria-selected:after:scale-x-100 text-mute",
         gradientHoverUnderline:
-          "bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#98FF98] after:to-[#A4DDED] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 text-primary",
+          "bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#98FF98] after:to-[#A4DDED] after:scale-x-0 after:transition-transform after:duration-300 hover:after:scale-x-100 text-mute",
+        gradientNoHoverUnderline:
+          "bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#98FF98] after:to-[#A4DDED] after:scale-x-0 after:transition-transform after:duration-300 focus:after:scale-x-100 active:after:scale-x-100 aria-selected:after:scale-x-100 text-mute text-headericon-foreground",
+        iconDarkMod: "text-headericon-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",
