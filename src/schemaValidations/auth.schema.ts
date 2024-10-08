@@ -1,4 +1,3 @@
-import { Career } from "@/constants/career.type";
 import z from "zod";
 
 //body login

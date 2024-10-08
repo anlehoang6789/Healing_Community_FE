@@ -39,6 +39,25 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: "Roboto", sans-serif;
+  .fr-toolbar .fr-dropdown .fr-command.fr-active {
+    all: unset;
+  }
+
+  .fr-view h1 {
+    @apply text-3xl font-bold text-black; /* Apply Tailwind styles */
+  }
+
+  .fr-view h2 {
+    @apply text-2xl font-semibold text-black;
+  }
+
+  .fr-view h3 {
+    @apply text-xl font-semibold text-black;
+  }
+
+  .fr-second-toolbar a {
+    display: none;
+  }
 }
 
 @layer utilities {

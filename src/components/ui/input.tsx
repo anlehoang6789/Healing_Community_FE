@@ -20,6 +20,8 @@ const inputVariants = cva(
           "bg-headerinput text-headerinput-foreground border border-headerinput-border focus-visible:ring-1 focus-visible:ring-ring",
         bottomBorder:
           "border-0 border-b-2 border-gray-400 focus:border-b-2 focus:border-gray-600 focus:outline-none focus:ring-0 rounded-none shadow-none",
+        borderless:
+          "border-0 focus:ring-0 focus-visible:outline-none rounded-none shadow-none",
       },
       sizeVariant: {
         default: "h-9 px-3",
