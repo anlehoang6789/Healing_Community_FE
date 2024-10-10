@@ -1,4 +1,4 @@
-import BookMarkList from "@/components/bookmark/bookMarkList";
+import BookMarkList from "@/components/bookmark/bookmarkList";
 import ProfileUser from "@/components/bookmark/profileUser";
 import React from "react";
 

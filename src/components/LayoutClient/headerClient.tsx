@@ -136,10 +136,12 @@ export default function Header() {
               <UserRoundPen className="mr-2 h-4 w-4" />
               <span>Trang cá nhân</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Bookmark className="mr-2 h-4 w-4" />
-              <span>Bookmark</span>
-            </DropdownMenuItem>
+            <Link href="/user/bookmark">
+              <DropdownMenuItem>
+                <Bookmark className="mr-2 h-4 w-4" />
+                <span>Bookmark</span>
+              </DropdownMenuItem>
+            </Link>
             <DropdownMenuItem>
               <FlaskConical className="mr-2 h-4 w-4" />
               <span>Bài test tâm lý</span>
