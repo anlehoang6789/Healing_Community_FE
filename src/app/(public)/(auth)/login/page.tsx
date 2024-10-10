@@ -4,7 +4,7 @@ import React from "react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 md:px-8 lg:px-16 ">
+    <div className="min-h-screen flex items-center justify-center px-4 md:px-8 lg:px-16">
       <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="flex flex-col md:flex-row">
           <div className="w-full md:w-1/2 bg-gradient-custom p-8">
