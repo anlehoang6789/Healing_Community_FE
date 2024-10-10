@@ -114,7 +114,7 @@ export default function BookMarkList() {
               </div>
             </Link>
           </div>
-          <Button variant="headerIconNoBorder">
+          <Button variant="iconDarkMod">
             <Bookmark
               className="ml-auto w-7 h-7"
               strokeWidth="1px"
