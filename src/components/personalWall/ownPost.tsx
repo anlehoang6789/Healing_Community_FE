@@ -213,24 +213,15 @@ export default function OwnPost() {
         </div>
 
         <div className="flex items-center justify-between w-full">
-          <Button
-            variant="headerIconNoBorder"
-            className="flex items-center gap-2 p-0"
-          >
+          <Button variant="iconDarkMod" className="flex items-center gap-2 p-0">
             <ThumbsUp className="w-4 h-4" />
             Thích
           </Button>
-          <Button
-            variant="headerIconNoBorder"
-            className="flex items-center gap-2 p-0"
-          >
+          <Button variant="iconDarkMod" className="flex items-center gap-2 p-0">
             <MessageSquare className="w-4 h-4" />
             Bình luận
           </Button>
-          <Button
-            variant="headerIconNoBorder"
-            className="flex items-center gap-2 p-0"
-          >
+          <Button variant="iconDarkMod" className="flex items-center gap-2 p-0">
             <Share2 className="w-4 h-4" />
             Chia sẻ
           </Button>

@@ -12,6 +12,10 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
+import { useLoginMutation } from "@/queries/useAuth";
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,12 +27,32 @@ export default function LoginForm() {
     },
   });
 
+  const loginMutation = useLoginMutation();
+  const router = useRouter();
+
+  const handleLogin = async (data: LoginBodyType) => {
+    if (loginMutation.isPending) return;
+    try {
+      const result = await loginMutation.mutateAsync(data);
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+      router.push("/");
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
   return (
     <div>
       <Form {...form}>
         <form
           className="space-y-4 max-w-[600px] flex-shrink-0 w-full"
           noValidate
+          onSubmit={form.handleSubmit(handleLogin, (errors) => {
+            console.warn(errors);
+          })}
         >
           <div className="grid gap-4">
             <h1 className="text-4xl font-bold text-black text-center">

@@ -138,13 +138,13 @@ export default function ChangePasswordForm() {
                               <Eye
                                 size={"16px"}
                                 strokeWidth="0.5px"
-                                className="text-muted-foreground"
+                                className="text-black"
                               />
                             ) : (
                               <EyeOff
                                 size={"16px"}
                                 strokeWidth="0.5px"
-                                className="text-muted-foreground"
+                                className="text-black"
                               />
                             )}
                           </span>
@@ -181,13 +181,13 @@ export default function ChangePasswordForm() {
                               <Eye
                                 size={"16px"}
                                 strokeWidth="0.5px"
-                                className="text-muted-foreground"
+                                className="text-black"
                               />
                             ) : (
                               <EyeOff
                                 size={"16px"}
                                 strokeWidth="0.5px"
-                                className="text-muted-foreground"
+                                className="text-black"
                               />
                             )}
                           </span>
@@ -228,13 +228,13 @@ export default function ChangePasswordForm() {
                               <Eye
                                 size={"16px"}
                                 strokeWidth="0.5px"
-                                className="text-muted-foreground"
+                                className="text-black"
                               />
                             ) : (
                               <EyeOff
                                 size={"16px"}
                                 strokeWidth="0.5px"
-                                className="text-muted-foreground"
+                                className="text-black"
                               />
                             )}
                           </span>
