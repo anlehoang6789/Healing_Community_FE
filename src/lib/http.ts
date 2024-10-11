@@ -92,6 +92,7 @@ const request = async <Response>(
       : options.baseUrl;
 
   const fullUrl = `${baseUrl}/${normalizePath(url)}`;
+  // console.log("Full url:", fullUrl);
   const res = await fetch(fullUrl, {
     ...options,
     headers: {
@@ -155,8 +156,8 @@ const request = async <Response>(
   if (isClient) {
     const normalizedUrl = normalizePath(url);
     if (normalizedUrl === "api/auth/login") {
-      const { accessToken, refreshToken } = (payload as LoginResType).data;
-      localStorage.setItem("accessToken", accessToken);
+      const { token, refreshToken } = (payload as LoginResType).data;
+      localStorage.setItem("accessToken", token);
       localStorage.setItem("refreshToken", refreshToken);
     } else if (normalizedUrl === "api/auth/logout") {
       localStorage.removeItem("accessToken");
