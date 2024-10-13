@@ -1,4 +1,4 @@
-import Header from "@/components/layoutClient/headerClient";
+import Header from "@/components/LayoutClient/headerClient";
 import React from "react";
 
 export default function HeaderService() {
