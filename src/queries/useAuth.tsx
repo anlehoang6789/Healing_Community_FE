@@ -6,3 +6,15 @@ export const useLoginMutation = () => {
     mutationFn: authApiRequest.loginFromNextClientToNextServer,
   });
 };
+
+export const useRegisterUserMutation = () => {
+  return useMutation({
+    mutationFn: authApiRequest.registerUser,
+  });
+};
+
+export const useLogoutMutation = () => {
+  return useMutation({
+    mutationFn: authApiRequest.logoutFromNextClientToNextServer,
+  });
+};

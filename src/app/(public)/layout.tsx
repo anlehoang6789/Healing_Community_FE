@@ -2,7 +2,7 @@ import FooterService from "@/components/layoutClient/footerService";
 
 import HeaderService from "@/components/layoutClient/headerService";
 
-export default function Layout({
+export default function PublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;

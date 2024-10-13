@@ -61,7 +61,7 @@ export type LoginGoogleQueryType = z.TypeOf<typeof LoginGoogleQuery>;
 export const RegisterBody = z
   .object({
     email: z.string().email(),
-    username: z.string().min(6).max(100),
+    userName: z.string().min(6).max(100),
     password: z
       .string()
       .min(8)
