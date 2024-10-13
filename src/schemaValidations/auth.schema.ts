@@ -13,7 +13,7 @@ export type LoginBodyType = z.TypeOf<typeof LoginBody>;
 //response login
 export const LoginRes = z.object({
   data: z.object({
-    accessToken: z.string(),
+    token: z.string(),
     refreshToken: z.string(),
   }),
   message: z.string(),
@@ -90,12 +90,6 @@ export const RegisterExpertBody = z
   .object({
     email: z.string().email(),
     username: z.string().min(6).max(100),
-    // career: z.enum([
-    //   Career.Psychotherapist,
-    //   Career.Life_Consultant,
-    //   Career.Health_Psychologist,
-    //   Career.Clinical_Psychologist,
-    // ]),
     file: z
       .instanceof(File)
       .refine(

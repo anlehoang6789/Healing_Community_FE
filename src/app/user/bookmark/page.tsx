@@ -1,5 +1,6 @@
-import BookMarkList from "@/components/bookMark/bookMarkList";
-import ProfileUser from "@/components/bookMark/profileUser";
+import BookmarkList from "@/components/bookmark/bookmarkList";
+import ProfileUser from "@/components/bookmark/profileUser";
+
 import React from "react";
 
 export default function BookMark() {
@@ -11,7 +12,7 @@ export default function BookMark() {
         </div>
 
         <div className="md:order-1 order-2 md:col-span-2 col-span-3">
-          <BookMarkList />
+          <BookmarkList />
         </div>
       </div>
     </div>

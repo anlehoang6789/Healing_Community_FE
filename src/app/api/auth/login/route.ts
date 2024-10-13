@@ -11,12 +11,19 @@ export async function POST(req: Request) {
     const { payload } = await authApiRequest.loginFromNextServerToBeServer(
       body
     );
-    const { accessToken, refreshToken } = payload.data;
+    const { token, refreshToken } = payload.data;
     //decode access token and refresh token to get the expired time
-    const decodeAccessToken = jwt.decode(accessToken) as { exp: number };
-    const decodeRefreshToken = jwt.decode(refreshToken) as { exp: number };
+    const decodeAccessToken = jwt.decode(token) as { exp: number };
+    // const decodeRefreshToken = jwt.decode(refreshToken) as { exp: number };
 
-    cookieStore.set("accessToken", accessToken, {
+    // const decodeUserId = jwt.decode(token) as { [key: string]: any };
+    // const userId =
+    //   decodeUserId[
+    //     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+    //   ];
+    // console.log("User ID:", userId);
+
+    cookieStore.set("accessToken", token, {
       path: "/",
       httpOnly: true,
       sameSite: "lax",
@@ -28,7 +35,7 @@ export async function POST(req: Request) {
       httpOnly: true,
       sameSite: "lax",
       secure: true,
-      expires: decodeRefreshToken.exp * 1000,
+      // expires: decodeRefreshToken.exp * 1000,
     });
     return Response.json(payload);
   } catch (error) {
