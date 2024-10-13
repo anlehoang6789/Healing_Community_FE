@@ -1,6 +1,6 @@
-import FooterService from "@/components/layoutClient/footerService";
+import FooterService from "@/components/LayoutClient/footerService";
 
-import HeaderService from "@/components/layoutClient/headerService";
+import HeaderService from "@/components/LayoutClient/headerService";
 
 export default function PublicLayout({
   children,
