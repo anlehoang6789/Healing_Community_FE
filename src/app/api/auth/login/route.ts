@@ -22,7 +22,7 @@ export async function POST(req: Request) {
     //     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
     //   ];
     // console.log("User ID:", userId);
-
+    // console.log("1");
     cookieStore.set("accessToken", token, {
       path: "/",
       httpOnly: true,
@@ -37,8 +37,10 @@ export async function POST(req: Request) {
       secure: true,
       // expires: decodeRefreshToken.exp * 1000,
     });
+    // console.log("2");
     return Response.json(payload);
   } catch (error) {
+    // console.log("3");
     if (error instanceof HttpError) {
       return Response.json(error.payload, { status: error.status });
     }

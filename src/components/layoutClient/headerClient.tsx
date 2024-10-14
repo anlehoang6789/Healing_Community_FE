@@ -36,7 +36,9 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import Image from "next/image";
 import DarkModeToggle from "@/components/dark-mode-toogle";
 import { useEffect, useState } from "react";
-import { getAccessTokenFromLocalStorage } from "@/lib/utils";
+import { getAccessTokenFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import { useLogoutMutation } from "@/queries/useAuth";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
@@ -46,10 +48,22 @@ const navItems = [
 
 export default function Header() {
   const { theme } = useTheme();
+  const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
   useEffect(() => {
     setIsAuth(Boolean(getAccessTokenFromLocalStorage()));
   }, []);
+
+  const logoutMutation = useLogoutMutation();
+  const handleLogout = async () => {
+    if (logoutMutation.isPending) return;
+    try {
+      await logoutMutation.mutateAsync();
+      router.push("/");
+    } catch (error) {
+      handleErrorApi({ error });
+    }
+  };
 
   return (
     <div className="flex h-14 items-center justify-between top-0 z-50 w-full border-b px-4 py-10">
@@ -204,7 +218,7 @@ export default function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Đăng xuất</span>
+                  <span onClick={handleLogout}>Đăng xuất</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

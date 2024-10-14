@@ -38,7 +38,7 @@ export default function LoginForm() {
         description: result.payload.message,
         variant: "success",
       });
-      router.push("/");
+      router.push("/user/profile");
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
     }

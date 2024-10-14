@@ -15,19 +15,37 @@ import {
   RegisterBody,
   RegisterBodyType,
 } from "@/schemaValidations/auth.schema";
+import { useRegisterUserMutation } from "@/queries/useAuth";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const router = useRouter();
   const form = useForm<RegisterBodyType>({
     resolver: zodResolver(RegisterBody),
     defaultValues: {
       email: "",
-      username: "",
+      userName: "",
       password: "",
       confirmPassword: "",
     },
   });
+  const registerUserMutation = useRegisterUserMutation();
+  const onSubmit = async (data: RegisterBodyType) => {
+    try {
+      const result = await registerUserMutation.mutateAsync(data);
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+      router.push("/login");
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
 
   return (
     <div>
@@ -35,6 +53,9 @@ export default function RegisterForm() {
         <form
           className="space-y-4 max-w-[600px] flex-shrink-0 w-full"
           noValidate
+          onSubmit={form.handleSubmit(onSubmit, (errors) => {
+            console.warn(errors);
+          })}
         >
           <div className="grid gap-4">
             <h1 className="text-4xl font-bold text-black text-center">
@@ -68,23 +89,23 @@ export default function RegisterForm() {
             />
             <FormField
               control={form.control}
-              name="username"
+              name="userName"
               render={({ field }) => (
                 <FormItem>
                   <div className="grid gap-2">
                     <div className="flex items-center">
-                      <Label htmlFor="username" className="text-black">
+                      <Label htmlFor="userName" className="text-black">
                         Tên tài khoản
                       </Label>
                       <span className="text-red-500 ml-1">*</span>
                     </div>
                     <Input
-                      id="username"
+                      id="userName"
                       type="text"
                       placeholder="abcdef"
                       required
                       {...field}
-                      autoComplete="username"
+                      autoComplete="userName"
                       className="placeholder:text-[#919BA4] border-[0.5px] border-[#666]"
                     />
                     <FormMessage />

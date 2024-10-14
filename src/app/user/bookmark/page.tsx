@@ -1,5 +1,6 @@
 import BookmarkList from "@/components/bookmark/bookmarkList";
 import ProfileUser from "@/components/bookmark/profileUser";
+
 import React from "react";
 
 export default function BookMark() {
