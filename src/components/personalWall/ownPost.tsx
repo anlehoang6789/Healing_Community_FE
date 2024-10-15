@@ -8,6 +8,7 @@ import {
   Ellipsis,
   FilePenLine,
   MessageSquare,
+  SendHorizontal,
   Share2,
   ShieldMinus,
   ThumbsUp,
@@ -31,6 +32,7 @@ interface Comment {
   content: string;
   timestamp: string;
   likes: number;
+  replies?: Comment[];
 }
 
 interface Post {
@@ -81,9 +83,46 @@ Nội dung sau hình ảnh: Đây là một ví dụ về nội dung xuất hi�
       content: "Bài viết hữu ích quá",
       timestamp: "10 phút",
       likes: 10,
+      replies: [
+        {
+          id: "2",
+          user: {
+            name: "HungNghia",
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
+          },
+          content: "Bài viết hữu ích quá",
+          timestamp: "10 phút",
+          likes: 10,
+          replies: [
+            {
+              id: "3",
+              user: {
+                name: "HungNghia",
+                avatar:
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
+              },
+              content: "Bài viết hữu ích quá ádfasdfasdf",
+              timestamp: "10 phút",
+              likes: 10,
+            },
+          ],
+        },
+        {
+          id: "4",
+          user: {
+            name: "ThanhDat",
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
+          },
+          content: "Đọc vài điều chưa hay lắm về sản phẩm này",
+          timestamp: "5 giờ",
+          likes: 0,
+        },
+      ],
     },
     {
-      id: "2",
+      id: "5",
       user: {
         name: "ThanhDat",
         avatar:
@@ -92,6 +131,19 @@ Nội dung sau hình ảnh: Đây là một ví dụ về nội dung xuất hi�
       content: "Đọc vài điều chưa hay lắm về sản phẩm này",
       timestamp: "5 giờ",
       likes: 0,
+      replies: [
+        {
+          id: "6",
+          user: {
+            name: "HungNghia",
+            avatar:
+              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
+          },
+          content: "Bài viết hữu ích quá",
+          timestamp: "10 phút",
+          likes: 10,
+        },
+      ],
     },
   ],
 };
@@ -101,6 +153,9 @@ export default function OwnPost() {
   const [shouldTruncate, setShouldTruncate] = useState(false); // Trạng thái để kiểm tra xem nội dung có nên bị rút gọn hay không
   const contentRef = useRef<HTMLDivElement>(null); // Khai báo ref để tham chiếu đến nội dung bài viết
   const { theme } = useTheme();
+  const [newComment, setNewComment] = useState("");
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyContent, setReplyContent] = useState("");
 
   //kiểm tra chiều cao của nội dung và xác định xem nó có cần rút gọn không
   useEffect(() => {
@@ -111,6 +166,143 @@ export default function OwnPost() {
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  // hàm thêm bình luận mới
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      const comment: Comment = {
+        id: `comment-${Date.now()}`,
+        user: {
+          name: "Gia Minh",
+          avatar:
+            "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
+        },
+        content: newComment,
+        timestamp: "Vừa xong",
+        likes: 0,
+      };
+
+      post.comments.push(comment);
+      setNewComment("");
+    }
+  };
+
+  // hàm trả lời bình luận
+  const handleAddReply = (parentId: string) => {
+    if (replyContent.trim()) {
+      const newReply: Comment = {
+        id: Date.now().toString(),
+        user: {
+          name: "Gia Minh",
+          avatar:
+            "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
+        },
+        content: replyContent,
+        timestamp: "Vừa xong",
+        likes: 0,
+      };
+
+      const updateReplies = (comments: Comment[]): Comment[] => {
+        return comments.map((comment) => {
+          if (comment.id === parentId) {
+            return {
+              ...comment,
+              replies: [...(comment.replies || []), newReply],
+            };
+          }
+          if (comment.replies) {
+            return {
+              ...comment,
+              replies: updateReplies(comment.replies),
+            };
+          }
+          return comment;
+        });
+      };
+
+      post.comments = updateReplies(post.comments);
+      setReplyingTo(null);
+      setReplyContent("");
+    }
+  };
+
+  const renderComments = (comments: Comment[], depth = 0) => {
+    return comments.map((comment) => (
+      <div
+        key={comment.id}
+        className={`flex items-start gap-2 mb-2 ${depth > 0 ? "" : ""}`}
+      >
+        <Avatar className="w-8 h-8 border-2 border-rose-300">
+          <AvatarImage src={comment.user.avatar} alt={comment.user.name} />
+          <AvatarFallback>{comment.user.name[0]}</AvatarFallback>
+        </Avatar>
+
+        <div className="flex-1">
+          <div className="bg-gray-100 rounded-lg p-2  overflow-hidden break-words">
+            <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+              {comment.user.name}
+            </span>
+            <p className="text-black whitespace-pre-wrap break-all">
+              {comment.content}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+            <button className="hover:underline">Thích</button>
+            <button
+              className="hover:underline"
+              onClick={() => setReplyingTo(comment.id)}
+            >
+              Trả lời
+            </button>
+            <span>{comment.timestamp}</span>
+            {comment.likes > 0 && (
+              <span className="flex items-center gap-1">
+                <ThumbsUp className="w-3 h-3" /> {comment.likes}
+              </span>
+            )}
+          </div>
+
+          {/* input reply */}
+          {replyingTo === comment.id && (
+            <div className="mt-2 flex items-center w-full relative">
+              <div className="flex-1 mr-2">
+                <textarea
+                  value={replyContent}
+                  onChange={(e) => {
+                    const textarea = e.target;
+                    textarea.style.height = "auto";
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                    setReplyContent(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleAddReply(comment.id);
+                    }
+                  }}
+                  className="border rounded-lg p-2 pr-10 w-full resize-none min-h-[40px] max-h-[120px] text-muted-foreground"
+                  placeholder="Nhập trả lời..."
+                />
+              </div>
+              <Button
+                variant="iconSend"
+                onClick={() => handleAddReply(comment.id)}
+                className="absolute right-0"
+              >
+                <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
+              </Button>
+            </div>
+          )}
+          {comment.replies && comment.replies.length > 0 && (
+            <div className="mt-2">
+              {renderComments(comment.replies, depth + 1)}
+            </div>
+          )}
+        </div>
+      </div>
+    ));
   };
 
   return (
@@ -227,38 +419,39 @@ export default function OwnPost() {
           </Button>
         </div>
 
-        {/* Comment */}
-        <div className="w-full">
-          {post.comments.map((comment) => (
-            <div key={comment.id} className="flex items-start gap-2 mb-2">
-              <Avatar className="w-8 h-8 border-2 border-rose-300">
-                <AvatarImage
-                  src={comment.user.avatar}
-                  alt={comment.user.name}
-                />
-                <AvatarFallback>{comment.user.name[0]}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <div className="bg-gray-100 rounded-lg p-2">
-                  <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                    {comment.user.name}
-                  </span>
-                  <p className="text-black">{comment.content}</p>
-                </div>
-                <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 mb-4">
-                  <button className="hover:underline">Thích</button>
-                  <button className="hover:underline">Trả lời</button>
-                  <span>{comment.timestamp}</span>
-                  {comment.likes > 0 && (
-                    <span className="flex items-center gap-1">
-                      <ThumbsUp className="w-3 h-3" /> {comment.likes}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* input comment */}
+        <div className="w-full flex items-center relative">
+          <textarea
+            value={newComment}
+            onChange={(e) => {
+              const textarea = e.target;
+              textarea.rows = 1;
+              const newRowCount = Math.ceil(
+                textarea.scrollHeight / textarea.offsetHeight
+              );
+              textarea.rows = newRowCount;
+              setNewComment(textarea.value);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleAddComment();
+              }
+            }}
+            className="border rounded-lg p-2 pr-10 flex-1 resize-none h-auto text-muted-foreground"
+            placeholder="Nhập bình luận..."
+          />
+          <Button
+            variant="iconSend"
+            onClick={handleAddComment}
+            className="absolute right-0 "
+          >
+            <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
+          </Button>
         </div>
+
+        {/* Comment */}
+        <div className="w-full">{renderComments(post.comments)}</div>
       </div>
     </div>
   );
