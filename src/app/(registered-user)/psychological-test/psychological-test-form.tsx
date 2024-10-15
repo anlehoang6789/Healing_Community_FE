@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const questions = [
   {
@@ -147,10 +149,10 @@ export default function PsychologicalTestForm() {
 
   return (
     <div>
-      <div className="sticky top-0 z-10  p-4 shadow-md">
+      <div className="sticky top-0 z-10 mb-4 p-4 shadow-md ">
         <Progress
           value={progressValue}
-          className="w-full bg-green-700 h-4 opacity-65"
+          className="w-full bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] h-4 opacity-65"
         />
         <p className="text-right mt-2">{`${
           Object.keys(selectedOptions).length
@@ -212,6 +214,12 @@ export default function PsychologicalTestForm() {
           </Card>
         </div>
       ))}
+      <Button
+        asChild
+        className="rounded-[20px] w-full float-right md:w-40 h-12 md:text-base bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black"
+      >
+        <Link href={"test-result"}>Xem kết quả</Link>
+      </Button>
     </div>
   );
 }
