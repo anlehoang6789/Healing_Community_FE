@@ -170,7 +170,7 @@ export default function Header() {
         <>
           {/* Đã đăng nhập */}
           <div className="flex items-center 2xl:space-x-5 xl:space-x-5 lg:space-x-5 md:space-x-1 space-x-5 justify-end overflow-hidden ">
-            <Button className="hidden sm:inline-flex bg-gradient-custom text-black flex-shrink-0 font-normal rounded-[20px]">
+            <Button className="hidden sm:inline-flex bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black flex-shrink-0 font-normal rounded-[20px]">
               Viết bài chia sẻ
             </Button>
             <Button
