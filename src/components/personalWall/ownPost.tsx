@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
+import Link from "next/link";
 
 interface Comment {
   id: string;
@@ -227,22 +228,28 @@ export default function OwnPost() {
     }
   };
 
+  // hiển thị comment lồng nhau
   const renderComments = (comments: Comment[], depth = 0) => {
     return comments.map((comment) => (
       <div
         key={comment.id}
         className={`flex items-start gap-2 mb-2 ${depth > 0 ? "" : ""}`}
       >
-        <Avatar className="w-8 h-8 border-2 border-rose-300">
-          <AvatarImage src={comment.user.avatar} alt={comment.user.name} />
-          <AvatarFallback>{comment.user.name[0]}</AvatarFallback>
-        </Avatar>
+        <Link href="#">
+          <Avatar className="w-8 h-8 border-2 border-rose-300">
+            <AvatarImage src={comment.user.avatar} alt={comment.user.name} />
+            <AvatarFallback>{comment.user.name[0]}</AvatarFallback>
+          </Avatar>
+        </Link>
 
         <div className="flex-1">
           <div className="bg-gray-100 rounded-lg p-2  overflow-hidden break-words">
-            <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-              {comment.user.name}
-            </span>
+            <Link href="#">
+              <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                {comment.user.name}
+              </span>
+            </Link>
+
             <p className="text-black whitespace-pre-wrap break-all">
               {comment.content}
             </p>
@@ -310,14 +317,18 @@ export default function OwnPost() {
       <div className="flex items-center gap-4 mb-6">
         {""}
         {/* Avatar, name*/}
-        <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
-          <AvatarImage src={post.user.avatar} alt={post.user.name} />
-          <AvatarFallback>{post.user.name[0]}</AvatarFallback>
-        </Avatar>
+        <Link href="#">
+          <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
+            <AvatarImage src={post.user.avatar} alt={post.user.name} />
+            <AvatarFallback>{post.user.name[0]}</AvatarFallback>
+          </Avatar>
+        </Link>
         <div>
-          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-            {post.user.name}
-          </h2>
+          <Link href="#" className="hover:underline">
+            <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+              {post.user.name}
+            </h2>
+          </Link>
           <p className="text-sm text-gray-500">{post.timestamp}</p>
         </div>
 
