@@ -81,11 +81,28 @@ export default function Header() {
             style={{ width: "auto", height: "auto" }}
           />
         </Link>
-        <div className="relative hidden md:block">
+        {/* <div className="relative hidden md:block">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]" />
           <Input
             placeholder="Tìm kiếm..."
             className="pl-8 w-[200px] md:w-[120px] lg:w-[300px] xl:w-[300px] rounded-[20px]"
+            variant="headerInput"
+            id="search-input"
+          />
+        </div> */}
+
+        {/* Search Input - Điều chỉnh theo trạng thái đăng nhập */}
+        <div
+          className={`relative hidden md:block ${
+            isAuth
+              ? "w-[200px] md:w-[120px] lg:w-[300px] xl:w-[300px]"
+              : "w-[120px]"
+          }`}
+        >
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]" />
+          <Input
+            placeholder="Tìm kiếm..."
+            className="pl-8 w-full rounded-[20px]"
             variant="headerInput"
             id="search-input"
           />

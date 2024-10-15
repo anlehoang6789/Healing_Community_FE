@@ -30,6 +30,8 @@ const buttonVariants = cva(
         gradientNoHoverUnderline:
           "bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-[#98FF98] after:to-[#A4DDED] after:scale-x-0 after:transition-transform after:duration-300 focus:after:scale-x-100 active:after:scale-x-100 aria-selected:after:scale-x-100 text-mute text-headericon-foreground",
         iconDarkMod: "text-headericon-foreground",
+        iconSend:
+          "text-headericon-foreground bg-transparent hover:bg-transparent relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 text-mute text-headericon-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",
