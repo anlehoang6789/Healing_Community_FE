@@ -334,7 +334,7 @@ export default function OwnPost() {
         {/* Dropdown menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild className="ml-auto">
-            <Button variant="headerIconNoBorder">
+            <Button variant="iconSend">
               <Ellipsis />
             </Button>
           </DropdownMenuTrigger>
