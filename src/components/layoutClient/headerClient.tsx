@@ -50,7 +50,7 @@ import sidebarItems from "@/components/layoutExpert/sidebarItems";
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
   { icon: Users, label: "Nhóm", href: "/groups", authRequired: true },
-  { icon: Music, label: "Nhạc", href: "/musics", authRequired: true },
+  { icon: Music, label: "Nhạc", href: "/music", authRequired: true },
 ];
 
 export default function Header() {
@@ -226,10 +226,6 @@ export default function Header() {
                   <span>
                     <Link href={"/psychological-test"}>Bài test tâm lý</Link>
                   </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Cài đặt khác</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hidden lg:flex">
                   <Settings className="mr-2 h-4 w-4" />

@@ -43,9 +43,9 @@ export const AnimatedTooltip = ({
     switch (position) {
       case "top":
         return {
-          bottom: `calc(100% + ${tooltipOffset}px)`, // Move tooltip above item
-          left: "50%",
-          transform: "translateX(-50%)",
+          bottom: `calc(100% + ${tooltipOffset}px)`,
+          left: "50%", // Căn giữa theo chiều ngang
+          // transform: "translate(-50%, 0)",
         };
       case "bottom":
         return {
@@ -103,7 +103,7 @@ export const AnimatedTooltip = ({
               rotate: rotate,
               whiteSpace: "nowrap",
             }}
-            className="flex text-xs flex-col items-center justify-center rounded-md bg-[#212f3d] z-50 shadow-xl px-4 py-2"
+            className="flex text-xs flex-col items-center justify-center rounded-md bg-[#212f3d] z-50 shadow-xl px-4 py-2 max-w-xs"
           >
             <div className="text-white text-xs font-medium">{content}</div>
           </motion.div>

@@ -258,7 +258,7 @@ export default function UploadFileForExpert() {
                   {documentTypes.find((type) => type.value === docType)
                     ?.label || "Chưa chọn"}
                 </span>
-                <span>{file.name}</span>
+                <span className="text-muted-foreground">{file.name}</span>
                 <div className="flex items-center w-full">
                   <div className="flex-grow">
                     <Progress
