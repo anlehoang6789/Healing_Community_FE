@@ -1,4 +1,5 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -13,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CheckIcon, FolderUp } from "lucide-react";
+import { CheckIcon, FolderUp, X } from "lucide-react";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
@@ -50,7 +51,7 @@ export default function UploadFileForExpert() {
         setProgressByType((prev) => ({
           ...prev,
           [documentType]: {
-            ...prev[documentType],
+            ...(prev[documentType] || {}),
             [file.name]: { progress: 0, paused: false },
           },
         }));
@@ -73,7 +74,7 @@ export default function UploadFileForExpert() {
         setProgressByType((prev) => ({
           ...prev,
           [documentType]: {
-            ...prev[documentType],
+            ...(prev[documentType] || {}),
             [file.name]: { progress: 0, paused: false },
           },
         }));
@@ -85,8 +86,8 @@ export default function UploadFileForExpert() {
   const simulateUploadProgress = (fileName: string, docType: string) => {
     const interval = setInterval(() => {
       setProgressByType((prev) => {
-        const fileProgress = prev[docType][fileName];
-        if (fileProgress.paused) return prev; // Không làm gì nếu tệp bị tạm dừng
+        const fileProgress = prev[docType]?.[fileName];
+        if (!fileProgress || fileProgress.paused) return prev;
 
         const updatedProgress = fileProgress.progress + 5;
         if (updatedProgress >= 100) {
@@ -128,7 +129,23 @@ export default function UploadFileForExpert() {
         [fileName]: { ...prev[docType][fileName], paused: false },
       },
     }));
-    simulateUploadProgress(fileName, docType); // Tiếp tục mô phỏng tải lên
+    simulateUploadProgress(fileName, docType);
+  };
+
+  const handleDelete = (fileName: string, docType: string) => {
+    setFilesByType((prev) => ({
+      ...prev,
+      [docType]: prev[docType].filter((file) => file.name !== fileName),
+    }));
+    setProgressByType((prev) => {
+      const { [fileName]: _, ...rest } = prev[docType];
+      return { ...prev, [docType]: rest };
+    });
+  };
+
+  const handleSave = () => {
+    // Implement save functionality here
+    console.log("Saving files:", filesByType);
   };
 
   return (
@@ -138,7 +155,6 @@ export default function UploadFileForExpert() {
       </h2>
       <p className="text-muted-foreground">Tải lên tài liệu bạn muốn chia sẻ</p>
 
-      {/* Combo box chọn loại tài liệu */}
       <div className="my-4">
         <h4 className="text-lg font-semibold mb-2 text-muted-foreground">
           Chọn loại tài liệu
@@ -193,7 +209,6 @@ export default function UploadFileForExpert() {
         </Popover>
       </div>
 
-      {/* Khu vực kéo thả tệp */}
       <div
         className={`border-dashed border-2 p-4 mb-4 rounded-lg ${
           dragging ? "border-blue-500 bg-blue-50" : "border-gray-300"
@@ -210,7 +225,6 @@ export default function UploadFileForExpert() {
           <span className="text-gray-600 ">Kéo và thả tệp ở đây</span>
           <span className="text-gray-600">Hoặc</span>
 
-          {/* Khu vực chọn tệp */}
           <label htmlFor="file-upload">
             <Input
               type="file"
@@ -229,60 +243,85 @@ export default function UploadFileForExpert() {
         </div>
       </div>
 
-      {/* Hiển thị các tệp đã đăng */}
       <div className="b p-4 rounded-lg">
         <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
           Tệp đã đăng
         </h3>
         <ul>
-          {(filesByType[documentType] || []).map((file) => (
-            <li
-              key={file.name}
-              className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
-            >
-              {/* Hiển thị loại tệp đã chọn phía trên tên file */}
-              <span className="text-muted-foreground mb-1">
-                {documentTypes.find((type) => type.value === documentType)
-                  ?.label || "Chưa chọn"}
-              </span>
+          {Object.entries(filesByType).flatMap(([docType, files]) =>
+            files.map((file) => (
+              <li
+                key={`${docType}-${file.name}`}
+                className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
+              >
+                <span className="text-muted-foreground mb-1">
+                  {documentTypes.find((type) => type.value === docType)
+                    ?.label || "Chưa chọn"}
+                </span>
+                <span className="text-muted-foreground">{file.name}</span>
+                <div className="flex items-center w-full">
+                  <div className="flex-grow">
+                    <Progress
+                      value={
+                        progressByType[docType]?.[file.name]?.progress || 0
+                      }
+                    />
+                  </div>
+                  <div className="flex items-center ml-4">
+                    {progressByType[docType]?.[file.name]?.progress === 100 ? (
+                      <>
+                        <span className="text-green-600 font-semibold mr-2">
+                          Thành công
+                        </span>
+                        <Button
+                          onClick={() => handleDelete(file.name, docType)}
+                          variant="destructive"
+                          size="icon"
+                          className="h-6 w-6"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </>
+                    ) : progressByType[docType]?.[file.name]?.paused ? (
+                      <div>
+                        <Button
+                          onClick={() => handleResume(file.name, docType)}
+                          variant="default"
+                          className="ml-2 mr-2"
+                        >
+                          Tiếp tục
+                        </Button>
 
-              {/* Hiển thị tên file */}
-              <span>{file.name}</span>
-
-              {/* Thanh trạng thái */}
-              <div className="flex items-center w-full">
-                <div className="flex-grow">
-                  <Progress
-                    value={progressByType[documentType][file.name].progress}
-                  />
+                        <Button
+                          onClick={() => handleDelete(file.name, docType)}
+                          variant="destructive"
+                          size="icon"
+                          className="h-6 w-6"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        onClick={() => handlePause(file.name, docType)}
+                        variant="default"
+                        className="ml-2"
+                      >
+                        Dừng
+                      </Button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center ml-4">
-                  {progressByType[documentType][file.name].progress === 100 ? (
-                    <span className="text-green-600 font-semibold">
-                      Thành công
-                    </span>
-                  ) : progressByType[documentType][file.name].paused ? (
-                    <Button
-                      onClick={() => handleResume(file.name, documentType)}
-                      variant="default"
-                      className="ml-2"
-                    >
-                      Tiếp tục
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handlePause(file.name, documentType)}
-                      variant="default"
-                      className="ml-2"
-                    >
-                      Dừng
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            ))
+          )}
         </ul>
+      </div>
+
+      <div className="mt-4 flex justify-end">
+        <Button onClick={handleSave} variant="default">
+          Lưu
+        </Button>
       </div>
     </div>
   );

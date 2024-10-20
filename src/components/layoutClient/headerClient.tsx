@@ -16,6 +16,9 @@ import {
   MessageCircle,
   CircleUserRound,
   Menu,
+  ChevronDown,
+  ChevronUp,
+  CircleDollarSign,
 } from "lucide-react";
 import {
   Sheet,
@@ -36,17 +39,24 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import Image from "next/image";
 import DarkModeToggle from "@/components/dark-mode-toogle";
 import { useEffect, useState } from "react";
-import { getAccessTokenFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import {
+  cn,
+  getAccessTokenFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import sidebarItems from "@/components/layoutExpert/sidebarItems";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
   { icon: Users, label: "Nhóm", href: "/groups", authRequired: true },
-  { icon: Music, label: "Nhạc", href: "/musics", authRequired: true },
+  { icon: Music, label: "Nhạc", href: "/music", authRequired: true },
 ];
 
 export default function Header() {
+  const pathname = usePathname();
+  const [isExpertMenuOpen, setExpertMenuOpen] = useState(false);
   const { theme } = useTheme();
   const router = useRouter();
   const [isAuth, setIsAuth] = useState(false);
@@ -81,11 +91,19 @@ export default function Header() {
             style={{ width: "auto", height: "auto" }}
           />
         </Link>
-        <div className="relative hidden md:block">
+
+        {/* Search Input - Điều chỉnh theo trạng thái đăng nhập */}
+        <div
+          className={`relative hidden md:block ${
+            isAuth
+              ? "w-[200px] md:w-[120px] lg:w-[300px] xl:w-[300px]"
+              : "w-[120px]"
+          }`}
+        >
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-[#919BA4]" />
           <Input
             placeholder="Tìm kiếm..."
-            className="pl-8 w-[200px] md:w-[120px] lg:w-[300px] xl:w-[300px] rounded-[20px]"
+            className="pl-8 w-full rounded-[20px]"
             variant="headerInput"
             id="search-input"
           />
@@ -94,22 +112,13 @@ export default function Header() {
 
       {/* Navigation Items */}
       <nav className="hidden md:flex items-center space-x-8">
-        {/* {navItems.map((item, index) => (
-          <AnimatedTooltip key={index} content={item.label}>
-            <Link href={item.href}>
-              <Button variant="headerIconNoBorder">
-                <item.icon className="h-6 w-6" />
-              </Button>
-            </Link>
-          </AnimatedTooltip>
-        ))} */}
         {navItems
           .filter((item) => {
             // Hiển thị nếu không yêu cầu đăng nhập hoặc nếu đã đăng nhập và mục yêu cầu đăng nhập
             return !item.authRequired || (item.authRequired && isAuth);
           })
           .map((item, index) => (
-            <AnimatedTooltip key={index} content={item.label}>
+            <AnimatedTooltip key={index} content={item.label} position="bottom">
               <Link href={item.href}>
                 <Button variant="headerIconNoBorder">
                   <item.icon className="h-6 w-6" />
@@ -153,8 +162,11 @@ export default function Header() {
         <>
           {/* Đã đăng nhập */}
           <div className="flex items-center 2xl:space-x-5 xl:space-x-5 lg:space-x-5 md:space-x-1 space-x-5 justify-end overflow-hidden ">
-            <Button className="hidden sm:inline-flex bg-gradient-custom text-black flex-shrink-0 font-normal rounded-[20px]">
-              Viết bài chia sẻ
+            <Button
+              className="hidden sm:inline-flex bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black flex-shrink-0 font-normal rounded-[20px]"
+              asChild
+            >
+              <Link href={"/user/create-post"}>Viết bài chia sẻ</Link>
             </Button>
             <Button
               variant="headerIcon"
@@ -200,22 +212,76 @@ export default function Header() {
               >
                 <DropdownMenuItem>
                   <UserRoundPen className="mr-2 h-4 w-4" />
-                  <span>Trang cá nhân</span>
+                  <span>
+                    <Link href={"/user/profile"}>Trang cá nhân</Link>
+                  </span>
                 </DropdownMenuItem>
-                <Link href="/user/bookmark">
-                  <DropdownMenuItem>
-                    <Bookmark className="mr-2 h-4 w-4" />
-                    <span>Bookmark</span>
-                  </DropdownMenuItem>
-                </Link>
+                <DropdownMenuItem>
+                  <Bookmark className="mr-2 h-4 w-4" />
+                  <span>
+                    <Link href={"/user/bookmark"}>Bookmark</Link>
+                  </span>
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <FlaskConical className="mr-2 h-4 w-4" />
-                  <span>Bài test tâm lý</span>
+                  <span>
+                    <Link href={"/psychological-test"}>Bài test tâm lý</Link>
+                  </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Cài đặt khác</span>
+                  <CircleDollarSign className="mr-2 h-4 w-4" />
+                  <span>
+                    <Link href={"/user/payment-history"}>
+                      Lịch sử giao dịch
+                    </Link>
+                  </span>
                 </DropdownMenuItem>
+                <DropdownMenuItem className="hidden lg:flex">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>
+                    <Link href={"/expert/dashboard-expert"}>
+                      Quản lí của chuyên gia
+                    </Link>
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="flex items-center justify-between lg:hidden">
+                  <span
+                    className="flex items-center"
+                    onClick={() => setExpertMenuOpen(!isExpertMenuOpen)} // Toggle expert menu
+                  >
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Quản lí của chuyên gia</span>
+                  </span>
+                  {isExpertMenuOpen ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </DropdownMenuItem>
+                {/* Conditional rendering for sidebar items */}
+                {isExpertMenuOpen && (
+                  <div className="flex flex-col ml-4">
+                    {sidebarItems.map((Item, index) => {
+                      const isActive = pathname === Item.href;
+                      return (
+                        <Link
+                          key={index}
+                          href={Item.href}
+                          className={cn(
+                            "flex items-center gap-4 px-2.5  hover:text-foreground",
+                            {
+                              "text-foreground": isActive,
+                              "text-muted-foreground": !isActive,
+                            }
+                          )}
+                        >
+                          <Item.Icon className="h-3 w-3" />
+                          {Item.title}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
                 <DropdownMenuItem>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span onClick={handleLogout}>Đăng xuất</span>

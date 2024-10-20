@@ -70,6 +70,9 @@ body {
   .bg-gradient-custom-left-to-right {
     background: linear-gradient(90deg, #98ff98 0%, #a4dded 100%);
   }
+  .bg-gradient-custom-2 {
+    background: linear-gradient(180deg, #d4fc79 0%, #96e6a1 100%);
+  }
 }
 
 @layer base {
@@ -86,9 +89,9 @@ body {
     --primary-hover: 0, 0%, 30%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 50% 96.1%;
+    --muted: 0, 0%, 87%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
+    --accent: 210, 12%, 86%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -132,7 +135,7 @@ body {
     --muted-foreground: 204, 26%, 90%; /*màu chữ trên muted
     /* --muted-foreground: 0, 0%, 0%; */
     --accent: 208, 23%, 41%; /* màu accent #526D82. */
-    --accent-foreground: 204, 26%, 90%; /* màu chữ trên accent #DDE6ED*/
+    --accent-foreground: 45, 23%, 82%; /* màu chữ trên accent #DDE6ED*/
     --destructive: 0 62.8% 30.6%; /* màu destructive */
     --destructive-foreground: 210 40% 98%;
     --border: 210, 28%, 19%;

@@ -9,13 +9,19 @@ import {
   useSpring,
 } from "framer-motion";
 
+type TooltipPosition = "top" | "bottom" | "left" | "right";
+
+interface AnimatedTooltipProps {
+  children: React.ReactNode;
+  content: string;
+  position?: TooltipPosition; // Optional position prop
+}
+
 export const AnimatedTooltip = ({
   children,
   content,
-}: {
-  children: React.ReactNode;
-  content: string;
-}) => {
+  position = "bottom", // Default position is bottom
+}: AnimatedTooltipProps) => {
   const [hovered, setHovered] = useState(false);
   const springConfig = { stiffness: 150, damping: 5 };
   const x = useMotionValue(0);
@@ -31,7 +37,44 @@ export const AnimatedTooltip = ({
     x.set(event.nativeEvent.offsetX - halfWidth);
   };
 
-  const tooltipOffsetY = 30; // khoảng cách giữa tooltip và con trỏ chuột
+  // Adjusted Tooltip Position to move it completely above or below the hovered item
+  const getTooltipPositionStyles = (position: TooltipPosition) => {
+    const tooltipOffset = 10; // space between item and tooltip
+    switch (position) {
+      case "top":
+        return {
+          bottom: `calc(100% + ${tooltipOffset}px)`,
+          left: "50%", // Căn giữa theo chiều ngang
+          // transform: "translate(-50%, 0)",
+        };
+      case "bottom":
+        return {
+          top: `calc(100% + ${tooltipOffset}px)`, // Move tooltip below item
+          left: "-25%",
+          transform: "translateX(30%)",
+        };
+      case "left":
+        return {
+          right: `calc(100% + ${tooltipOffset}px)`, // Move tooltip to the left of the item
+          top: "50%",
+          transform: "translateY(-50%)",
+        };
+      case "right":
+        return {
+          left: `calc(100% + ${tooltipOffset}px)`, // Move tooltip to the right of the item
+          top: "50%",
+          transform: "translateY(-50%)",
+        };
+      default:
+        return {
+          top: `calc(100% + ${tooltipOffset}px)`, // Default to bottom
+          left: "-25%",
+          transform: "translateX(30%)",
+        };
+    }
+  };
+
+  const tooltipStyles = getTooltipPositionStyles(position);
 
   return (
     <div
@@ -55,12 +98,12 @@ export const AnimatedTooltip = ({
             }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             style={{
-              translateX: "-50%", // Căn giữa tooltip so với con trỏ chuột
-              translateY: `calc(-100% + ${tooltipOffsetY}px)`, // điều chỉnh vị trí y
+              position: "absolute",
+              ...tooltipStyles,
               rotate: rotate,
               whiteSpace: "nowrap",
             }}
-            className="absolute top-10 left-1/2 transform -translate-x-1/2 flex text-xs flex-col items-center justify-center rounded-md bg-black z-50 shadow-xl px-4 py-2"
+            className="flex text-xs flex-col items-center justify-center rounded-md bg-[#212f3d] z-50 shadow-xl px-4 py-2 max-w-xs"
           >
             <div className="text-white text-xs font-medium">{content}</div>
           </motion.div>
