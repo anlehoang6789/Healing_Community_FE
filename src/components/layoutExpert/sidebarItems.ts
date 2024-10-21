@@ -4,7 +4,7 @@ import {
   CalendarPlus,
   CalendarSearch,
   Clapperboard,
-  CircleDollarSign,
+  
 } from "lucide-react";
 
 const sidebarItems = [
@@ -28,11 +28,6 @@ const sidebarItems = [
     title: "Tải lên video ghi lại ",
     Icon: Clapperboard,
     href: "/expert/upload-video-record",
-  },
-  {
-    title: "Lịch sử giao dịch",
-    Icon: CircleDollarSign,
-    href: "/expert/payment-history",
   },
 ];
 

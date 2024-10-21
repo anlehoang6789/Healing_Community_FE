@@ -18,6 +18,7 @@ import {
   Menu,
   ChevronDown,
   ChevronUp,
+  CircleDollarSign,
 } from "lucide-react";
 import {
   Sheet,
@@ -225,6 +226,12 @@ export default function Header() {
                   <FlaskConical className="mr-2 h-4 w-4" />
                   <span>
                     <Link href={"/psychological-test"}>Bài test tâm lý</Link>
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CircleDollarSign className="mr-2 h-4 w-4" />
+                  <span>
+                    <Link href={"/user/payment-history"}>Lịch sử giao dịch</Link>
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hidden lg:flex">
