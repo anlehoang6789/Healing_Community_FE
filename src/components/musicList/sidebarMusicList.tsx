@@ -1,14 +1,13 @@
 "use client";
-import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
+import DialogCreatePlaylist from "@/components/musicList/dialog-create-playlist";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { motion } from "framer-motion";
-import { CirclePlus } from "lucide-react";
 import React, { useState } from "react";
 
 export default function SidebarMusicList() {
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(
-    "Nhạc Việt"
+    "Làm việc"
   );
 
   const playlists = ["Làm việc", "Thư giản", "Chill", "Workout", "Study"];
@@ -19,9 +18,7 @@ export default function SidebarMusicList() {
       <div className="mt-3 relative">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Playlist</h2>
-          <AnimatedTooltip content="Tạo playlist mới" position="right">
-            <CirclePlus className="w-6 h-6 text-muted-foreground" />
-          </AnimatedTooltip>
+          <DialogCreatePlaylist />
         </div>
         <ScrollArea className="h-[400px] relative">
           <div className="flex flex-col gap-2 relative">

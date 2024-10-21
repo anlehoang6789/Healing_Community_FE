@@ -57,8 +57,12 @@ export default function MusicPlayer() {
             <Repeat />
           </Button>
         </div>
-        <div className="w-96  bg-zinc-600 rounded-full mt-3">
-          <Progress value={20} />
+        <div className="flex items-center space-x-2">
+          <span>1:50</span>
+          <div className="w-96 space-x-1  bg-zinc-600 rounded-full">
+            <Progress value={20} />
+          </div>
+          <span>5:25</span>
         </div>
       </div>
       <div className="flex items-center gap-2">

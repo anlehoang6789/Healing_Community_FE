@@ -47,6 +47,7 @@ import {
 import { useLogoutMutation } from "@/queries/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import sidebarItems from "@/components/layoutExpert/sidebarItems";
+import NotificationPopover from "@/components/notification/notificationPopover";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
@@ -175,13 +176,8 @@ export default function Header() {
             >
               <MessageCircle className="h-5 w-5 " strokeWidth="1.5px" />
             </Button>
-            <Button
-              variant="headerIcon"
-              size="icon"
-              className="rounded-full flex-shrink-0 border-gray-500"
-            >
-              <Bell className="h-5 w-5" strokeWidth="1.5px" />
-            </Button>
+            {/* Notification */}
+            <NotificationPopover />
             {/* chuyển đổi giao diện */}
             <DarkModeToggle />
             <DropdownMenu>
@@ -231,7 +227,9 @@ export default function Header() {
                 <DropdownMenuItem>
                   <CircleDollarSign className="mr-2 h-4 w-4" />
                   <span>
-                    <Link href={"/user/payment-history"}>Lịch sử giao dịch</Link>
+                    <Link href={"/user/payment-history"}>
+                      Lịch sử giao dịch
+                    </Link>
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hidden lg:flex">
