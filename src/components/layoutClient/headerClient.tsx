@@ -77,7 +77,7 @@ export default function Header() {
   };
 
   return (
-    <div className="flex h-14 items-center justify-between top-0 z-50 w-full border-b px-4 py-10">
+    <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
       {/* Logo and Search */}
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link
@@ -85,10 +85,10 @@ export default function Header() {
           className=" items-center space-x-2 relative hidden md:block"
         >
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Flogo.png?alt=media&token=4e7cda70-2c98-4185-a693-b03564f68a4c"
             alt="Logo"
-            width={50}
-            height={50}
+            width={40}
+            height={40}
             style={{ width: "auto", height: "auto" }}
           />
         </Link>
