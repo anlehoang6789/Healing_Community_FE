@@ -26,7 +26,7 @@ export default function NotificationItems({
         )}
       </div>
       <div className="grid gap-1">
-        <p className={`text-sm ${unread ? "font-medium text-black" : ""}`}>
+        <p className={`text-sm ${unread ? "font-semibold text-black" : ""}`}>
           {title}
         </p>
         <div className="flex gap-2 text-xs text-muted-foreground">
