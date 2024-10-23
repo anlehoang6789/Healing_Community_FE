@@ -346,7 +346,13 @@ export default function Header() {
           </SheetDescription>
           <div className="flex flex-col mb-4 mt-4">
             <Link href="/" className="mb-6">
-              <span className="font-bold text-4xl">Logo</span>
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Flogo.png?alt=media&token=4e7cda70-2c98-4185-a693-b03564f68a4c"
+                alt="Logo"
+                width={40}
+                height={40}
+                style={{ width: "auto", height: "auto" }}
+              />
             </Link>
             <div className="flex items-center space-x-2">
               <Search

@@ -22,8 +22,10 @@ export default function NotificationPopover() {
           <span className="absolute -top-0 -right-1 h-3 w-3 rounded-full bg-red-500" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 mt-2 mr-4">
-        <div className="p-4 text-2xl font-medium">Thông báo</div>
+      <PopoverContent className="w-80 mt-2 mr-4 bg-backgroundChat">
+        <div className="p-4 text-2xl font-bold text-muted-foreground">
+          Thông báo
+        </div>
         <ScrollArea className="h-[300px]">
           <div className="grid gap-4 p-4">
             <NotificationItems
