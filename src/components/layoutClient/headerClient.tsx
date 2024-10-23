@@ -51,7 +51,12 @@ import NotificationPopover from "@/components/notification/notificationPopover";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
-  { icon: Users, label: "Nhóm", href: "/groups", authRequired: true },
+  {
+    icon: Users,
+    label: "Nhóm",
+    href: "/user/list-of-groups",
+    authRequired: true,
+  },
   { icon: Music, label: "Nhạc", href: "/music", authRequired: true },
 ];
 
