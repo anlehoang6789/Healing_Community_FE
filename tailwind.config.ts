@@ -69,6 +69,9 @@ const config: Config = {
         placeholderInput: {
           DEFAULT: "hsl(var(--placeholder-input))",
         },
+        backgroundChat: {
+          DEFAULT: "hsl(var(--background-chat))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -77,6 +80,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
+  plugins: [require("tailwindcss-animate")],
 };
 export default config;

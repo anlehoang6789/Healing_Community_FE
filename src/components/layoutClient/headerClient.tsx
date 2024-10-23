@@ -174,7 +174,9 @@ export default function Header() {
               size="icon"
               className="rounded-full flex-shrink-0 border-gray-500"
             >
-              <MessageCircle className="h-5 w-5 " strokeWidth="1.5px" />
+              <Link href={"/chat"}>
+                <MessageCircle className="h-5 w-5 " strokeWidth="1.5px" />
+              </Link>
             </Button>
             {/* Notification */}
             <NotificationPopover />
