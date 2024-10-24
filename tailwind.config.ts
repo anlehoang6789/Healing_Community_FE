@@ -72,9 +72,11 @@ const config: Config = {
         backgroundChat: {
           DEFAULT: "hsl(var(--background-chat))",
         },
+
         hoverCard: {
           DEFAULT: "hsl(var(--hover-card))",
         },
+
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -83,6 +85,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
+  plugins: [require("tailwindcss-animate")],
 };
 export default config;

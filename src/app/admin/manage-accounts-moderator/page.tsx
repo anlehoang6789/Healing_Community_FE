@@ -1,5 +1,19 @@
+import CreateAccountModerator from "@/app/admin/manage-accounts-moderator/create-account-moderator";
+import TableListModreator from "@/app/admin/manage-accounts-moderator/table-list-modreator";
 import React from "react";
 
 export default function AdminManageAccountModeratorPage() {
-  return <div>Trang quan ly tai khoan cho moderator</div>;
+  return (
+    <div className="container mx-auto p-4">
+      <div className="flex items-center justify-around mb-4">
+        <h1 className="text-2xl font-bold text-muted-foreground">
+          Quản lý kiểm duyệt viên
+        </h1>
+        {/* Add new account */}
+        <CreateAccountModerator />
+      </div>
+      {/* Table data with pagination */}
+      <TableListModreator />
+    </div>
+  );
 }
