@@ -69,6 +69,12 @@ const config: Config = {
         placeholderInput: {
           DEFAULT: "hsl(var(--placeholder-input))",
         },
+        backgroundChat: {
+          DEFAULT: "hsl(var(--background-chat))",
+        },
+        hoverCard: {
+          DEFAULT: "hsl(var(--hover-card))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

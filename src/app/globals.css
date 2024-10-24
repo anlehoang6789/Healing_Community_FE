@@ -117,6 +117,8 @@ body {
     --backgroud-tabs-active: 100, 100%, 100%;
     /* mau placeholder input */
     --placeholder-input: 204, 26%, 60%;
+    /* mau cho hover */
+    --hover-card: 0, 0%, 95%;
   }
   /* màu cho dark mode */
   .dark {
@@ -159,6 +161,8 @@ body {
     --backgroud-tabs-active: 180, 20%, 5%;
     /* mau placeholder input */
     --placeholder-input: 180, 7%, 19%;
+    /* mau cho hover */
+    --hover-card: 0, 0%, 20%;
   }
 }
 

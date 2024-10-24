@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   HoverCard,
@@ -9,6 +9,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  Check,
   Flag,
   LogOut,
   MessageSquare,
@@ -25,6 +26,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 type Group = {
   id: string;
@@ -34,6 +36,7 @@ type Group = {
   lastActive: string;
   isPublic: boolean;
   friendsInGroup: number;
+  isJoined: boolean;
 };
 
 const groups: Group[] = [
@@ -46,6 +49,7 @@ const groups: Group[] = [
     lastActive: "6 tuần trước",
     isPublic: true,
     friendsInGroup: 2,
+    isJoined: true,
   },
   {
     id: "2",
@@ -56,6 +60,7 @@ const groups: Group[] = [
     lastActive: "7 tuần trước",
     isPublic: true,
     friendsInGroup: 5,
+    isJoined: false,
   },
   {
     id: "3",
@@ -66,6 +71,7 @@ const groups: Group[] = [
     lastActive: "12 tuần trước",
     isPublic: false,
     friendsInGroup: 3,
+    isJoined: false,
   },
   {
     id: "4",
@@ -76,6 +82,7 @@ const groups: Group[] = [
     lastActive: "6 tuần trước",
     isPublic: true,
     friendsInGroup: 2,
+    isJoined: false,
   },
   {
     id: "5",
@@ -86,6 +93,7 @@ const groups: Group[] = [
     lastActive: "7 tuần trước",
     isPublic: true,
     friendsInGroup: 5,
+    isJoined: false,
   },
   {
     id: "6",
@@ -96,6 +104,7 @@ const groups: Group[] = [
     lastActive: "12 tuần trước",
     isPublic: false,
     friendsInGroup: 3,
+    isJoined: true,
   },
   {
     id: "7",
@@ -106,6 +115,7 @@ const groups: Group[] = [
     lastActive: "6 tuần trước",
     isPublic: true,
     friendsInGroup: 2,
+    isJoined: false,
   },
   {
     id: "8",
@@ -116,6 +126,7 @@ const groups: Group[] = [
     lastActive: "7 tuần trước",
     isPublic: true,
     friendsInGroup: 5,
+    isJoined: true,
   },
   {
     id: "9",
@@ -126,6 +137,7 @@ const groups: Group[] = [
     lastActive: "12 tuần trước",
     isPublic: false,
     friendsInGroup: 3,
+    isJoined: true,
   },
   {
     id: "10",
@@ -136,6 +148,7 @@ const groups: Group[] = [
     lastActive: "6 tuần trước",
     isPublic: true,
     friendsInGroup: 2,
+    isJoined: true,
   },
   {
     id: "11",
@@ -146,6 +159,7 @@ const groups: Group[] = [
     lastActive: "7 tuần trước",
     isPublic: true,
     friendsInGroup: 5,
+    isJoined: true,
   },
   {
     id: "12",
@@ -156,26 +170,41 @@ const groups: Group[] = [
     lastActive: "12 tuần trước",
     isPublic: false,
     friendsInGroup: 3,
+    isJoined: true,
   },
 ];
 
 export default function ListOfGroups() {
-  const [hoveredGroup, setHoveredGroup] = useState<string | null>(null);
   const { theme } = useTheme();
 
   return (
     <div className="container mx-auto p-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold text-muted-foreground">
-          Tất cả các nhóm bạn đã tham gia ({groups.length})
+          Các nhóm gợi ý
         </h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {groups.map((group) => (
           <HoverCard key={group.id} openDelay={100} closeDelay={200}>
-            <Card className="transition-shadow ">
-              <CardContent className="p-4 flex items-start space-x-4">
+            {/* Thêm hiệu ứng nổi bật nếu nhóm đã tham gia */}
+            <Card
+              className={`transition-shadow relative ${
+                group.isJoined
+                  ? "border-2 border-rose-300 shadow-lg"
+                  : "border border-gray-300"
+              }`}
+            >
+              {group.isJoined && (
+                <Badge
+                  className="absolute bottom-2 right-2 bg-rose-300 text-black"
+                  variant="outline"
+                >
+                  <Check className="mr-1 h-3 w-3" /> Đã tham gia
+                </Badge>
+              )}
+              <CardContent className="p-4 flex items-start space-x-4 relative">
                 <HoverCardTrigger asChild>
                   <Link href="#">
                     <Image
@@ -213,20 +242,25 @@ export default function ListOfGroups() {
                         : "bg-white text-black"
                     }`}
                   >
-                    <DropdownMenuItem>
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      <span>Nội dung của bạn</span>
-                    </DropdownMenuItem>
+                    {group.isJoined && (
+                      <DropdownMenuItem>
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                        <span>Nội dung của bạn</span>
+                      </DropdownMenuItem>
+                    )}
+
                     <DropdownMenuItem>
                       <Flag className="mr-2 h-4 w-4" />
                       <span>Báo cáo nhóm</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="border-t-2 group">
-                      <LogOut className="mr-2 h-4 w-4 group-hover:text-red-500 " />
-                      <span className="group-hover:text-red-500 ">
-                        Rời nhóm
-                      </span>
-                    </DropdownMenuItem>
+                    {group.isJoined && (
+                      <DropdownMenuItem className="border-t-2 group">
+                        <LogOut className="mr-2 h-4 w-4 group-hover:text-red-500 " />
+                        <span className="group-hover:text-red-500 ">
+                          Rời nhóm
+                        </span>
+                      </DropdownMenuItem>
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardContent>
