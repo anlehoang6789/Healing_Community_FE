@@ -137,31 +137,36 @@ export default function Header() {
       {/* User Actions and Dropdown */}
       {/* Chưa đăng nhập */}
       {!isAuth && (
-        <div className="flex items-center justify-end overflow-hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="flex items-center justify-between rounded-[20px] bg-gray-200 text-gray-500 hover:bg-gray-200">
-                <div className="flex items-center justify-between">
-                  <CircleUserRound className="h-8 w-8 mr-2" />
-                  <Menu className="h-4 w-4" />
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className={`w-52 mt-4 ${
-                theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-              }`}
-            >
-              <DropdownMenuItem>
-                <Link href={"/login"}>Đăng nhập tài khoản</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href={"/register"}>Đăng ký tài khoản mới</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <>
+          <div className="flex items-center justify-end overflow-hidden gap-4">
+            <DarkModeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex items-center justify-between rounded-[20px] bg-gray-200 text-gray-500 hover:bg-gray-200">
+                  <div className="flex items-center justify-between">
+                    <CircleUserRound className="h-8 w-8 mr-2" />
+                    <Menu className="h-4 w-4" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className={`w-52 mt-4 ${
+                  theme === "dark"
+                    ? "bg-black text-white"
+                    : "bg-white text-black"
+                }`}
+              >
+                <DropdownMenuItem>
+                  <Link href={"/login"}>Đăng nhập tài khoản</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href={"/register"}>Đăng ký tài khoản mới</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </>
       )}
 
       {isAuth && (

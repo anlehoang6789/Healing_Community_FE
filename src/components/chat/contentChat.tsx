@@ -56,7 +56,7 @@ export default function ContentChat({ selectedContact }: ContentChatProps) {
         {/* Chat messages would go here */}
         <div className="space-y-4">
           <div className="flex justify-end">
-            <div className="bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black rounded-[20px] p-2 max-w-[70%]">
+            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
               <p>
                 sao mấy cái task t phân m kh làm mà m làm cái task gì v{" "}
                 {selectedContact.name}
@@ -70,7 +70,7 @@ export default function ContentChat({ selectedContact }: ContentChatProps) {
                 {selectedContact.name.substring(0, 2)}
               </AvatarFallback>
             </Avatar>
-            <div className="bg-muted text-muted-foreground rounded-[20px] p-2 max-w-[70%]">
+            <div className="bg-muted text-textChat rounded-[20px] py-2 px-4 max-w-[70%]">
               <p>Làm cái payment history đó m</p>
             </div>
           </div>
