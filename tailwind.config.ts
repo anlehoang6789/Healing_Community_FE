@@ -72,6 +72,9 @@ const config: Config = {
         backgroundChat: {
           DEFAULT: "hsl(var(--background-chat))",
         },
+        textChat: {
+          DEFAULT: "hsl(var(--foreground-chat))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

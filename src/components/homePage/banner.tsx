@@ -8,7 +8,7 @@ export default function Banner() {
   return (
     <div className="relative w-full h-[40vh] overflow-hidden bg-gradient-to-r from-purple-500 to-pink-500 mb-8 rounded-lg">
       <motion.div
-        className="absolute inset-0 bg-[url('/images/healing-background.jpg')] bg-cover bg-center"
+        className="absolute inset-0  bg-cover bg-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 0.3 }}
         transition={{ duration: 1.5 }}

@@ -119,6 +119,8 @@ body {
     --placeholder-input: 204, 26%, 60%;
     /* mau background cho chat page */
     --background-chat: 100, 100%, 100%;
+    /* mau chu cho chat */
+    --foreground-chat: 0, 0%, 25%;
   }
   /* màu cho dark mode */
   .dark {
@@ -163,6 +165,8 @@ body {
     --placeholder-input: 180, 7%, 19%;
     /* mau background cho chat page */
     --background-chat: 0, 0%, 0%;
+    /* mau chu cho chat */
+    --foreground-chat: 204, 26%, 90%;
   }
 }
 

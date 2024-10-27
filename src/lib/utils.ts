@@ -24,18 +24,39 @@ export const handleErrorApi = ({
   setError?: UseFormSetError<any>;
   duration?: number;
 }) => {
-  //Nếu cái error thuộc kiểu dữ liệu của HttpError và người dùng người dùng có truyền 1 cái setError
   if (error instanceof EntityError && setError) {
-    error.payload.errors.forEach((error) => {
-      setError(error.field as "email" | "password", {
-        type: "server",
-        message: error.message,
-      });
-    });
+    // Kiểm tra `errors` là mảng chuỗi hay mảng đối tượng
+    if (Array.isArray(error.payload.errors)) {
+      // Nếu là mảng chuỗi, hiển thị lỗi mảng chuỗi nếu có
+      if (typeof error.payload.errors[0] === "string") {
+        toast({
+          title: "Đã xảy ra lỗi",
+          description: error.payload.errors.join(", "),
+          variant: "destructive",
+          duration: duration ?? 5000,
+        });
+      } else {
+        // Xử lý lỗi `errors` dạng đối tượng
+        error.payload.errors.forEach((err) => {
+          // Kiểm tra nếu err là một đối tượng
+          if (typeof err === "object" && err !== null) {
+            setError(err.field as "email" | "password", {
+              type: "server",
+              message: err.message,
+            });
+          }
+        });
+      }
+    }
   } else {
+    // Lấy `message` từ `payload` hoặc `error.message` nếu `payload.message` không có
+    const errorMessage =
+      error?.payload?.message ||
+      error.message ||
+      "Đã xảy ra lỗi không xác định";
     toast({
       title: "Đã xảy ra lỗi",
-      description: error?.payload?.message ?? "Đã xảy ra lỗi không xác định",
+      description: errorMessage,
       variant: "destructive",
       duration: duration ?? 5000,
     });
@@ -43,6 +64,19 @@ export const handleErrorApi = ({
 };
 
 const isBrowser = typeof window !== "undefined";
+
 export const getAccessTokenFromLocalStorage = () => {
   return isBrowser ? localStorage.getItem("accessToken") : null;
+};
+
+export const getRefreshTokenFromLocalStorage = () => {
+  return isBrowser ? localStorage.getItem("refreshToken") : null;
+};
+
+export const setAccessTokenToLocalStorage = (accessToken: string) => {
+  isBrowser && localStorage.setItem("accessToken", accessToken);
+};
+
+export const setRefreshTokenToLocalStorage = (refreshToken: string) => {
+  isBrowser && localStorage.setItem("refreshToken", refreshToken);
 };
