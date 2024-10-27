@@ -75,6 +75,15 @@ const config: Config = {
         textChat: {
           DEFAULT: "hsl(var(--foreground-chat))",
         },
+        hoverCard: {
+          DEFAULT: "hsl(var(--hover-card))",
+        },
+        badgeConsultationSuccess: {
+          DEFAULT: "hsl(var(--background-consultation-badge-success))",
+        },
+        badgeConsultationUpcoming: {
+          DEFAULT: "hsl(var(--background-consultation-badge-upcoming))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
