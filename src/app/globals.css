@@ -117,13 +117,12 @@ body {
     --backgroud-tabs-active: 100, 100%, 100%;
     /* mau placeholder input */
     --placeholder-input: 204, 26%, 60%;
-
     /* mau cho hover */
     --hover-card: 0, 0%, 95%;
-
     /* mau background cho chat page */
     --background-chat: 100, 100%, 100%;
-
+    /* mau chu cho chat */
+    --foreground-chat: 0, 0%, 25%;
     /* mau cho badge trang xem dat lich */
     --background-consultation-badge-success: 142, 50%, 60%;
     --background-consultation-badge-upcoming: 210, 60%, 70%;
@@ -170,13 +169,12 @@ body {
     --backgroud-tabs-active: 180, 20%, 5%;
     /* mau placeholder input */
     --placeholder-input: 180, 7%, 19%;
-
     /* mau cho hover */
     --hover-card: 0, 0%, 20%;
-
     /* mau background cho chat page */
     --background-chat: 0, 0%, 0%;
-
+    /* mau chu cho chat */
+    --foreground-chat: 204, 26%, 90%;
     /* mau cho badge trang xem dat lich */
     --background-consultation-badge-success: 142, 50%, 60%;
     --background-consultation-badge-upcoming: 210, 60%, 70%;

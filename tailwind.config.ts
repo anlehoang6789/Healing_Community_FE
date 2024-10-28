@@ -72,11 +72,12 @@ const config: Config = {
         backgroundChat: {
           DEFAULT: "hsl(var(--background-chat))",
         },
-
+        textChat: {
+          DEFAULT: "hsl(var(--foreground-chat))",
+        },
         hoverCard: {
           DEFAULT: "hsl(var(--hover-card))",
         },
-
         badgeConsultationSuccess: {
           DEFAULT: "hsl(var(--background-consultation-badge-success))",
         },
