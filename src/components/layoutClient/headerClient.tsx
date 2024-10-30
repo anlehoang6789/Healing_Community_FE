@@ -47,10 +47,16 @@ import {
 import { useLogoutMutation } from "@/queries/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import sidebarItems from "@/components/layoutExpert/sidebarItems";
+import NotificationPopover from "@/components/notification/notificationPopover";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
-  { icon: Users, label: "Nhóm", href: "/groups", authRequired: true },
+  {
+    icon: Users,
+    label: "Nhóm",
+    href: "/user/list-of-groups",
+    authRequired: true,
+  },
   { icon: Music, label: "Nhạc", href: "/music", authRequired: true },
 ];
 
@@ -76,7 +82,7 @@ export default function Header() {
   };
 
   return (
-    <div className="flex h-14 items-center justify-between top-0 z-50 w-full border-b px-4 py-10">
+    <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
       {/* Logo and Search */}
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link
@@ -84,10 +90,10 @@ export default function Header() {
           className=" items-center space-x-2 relative hidden md:block"
         >
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Flogo.png?alt=media&token=4e7cda70-2c98-4185-a693-b03564f68a4c"
             alt="Logo"
-            width={50}
-            height={50}
+            width={40}
+            height={40}
             style={{ width: "auto", height: "auto" }}
           />
         </Link>
@@ -131,31 +137,36 @@ export default function Header() {
       {/* User Actions and Dropdown */}
       {/* Chưa đăng nhập */}
       {!isAuth && (
-        <div className="flex items-center justify-end overflow-hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="flex items-center justify-between rounded-[20px] bg-gray-200 text-gray-500 hover:bg-gray-200">
-                <div className="flex items-center justify-between">
-                  <CircleUserRound className="h-8 w-8 mr-2" />
-                  <Menu className="h-4 w-4" />
-                </div>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className={`w-52 mt-4 ${
-                theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-              }`}
-            >
-              <DropdownMenuItem>
-                <Link href={"/login"}>Đăng nhập tài khoản</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Link href={"/register"}>Đăng ký tài khoản mới</Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <>
+          <div className="flex items-center justify-end overflow-hidden gap-4">
+            <DarkModeToggle />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex items-center justify-between rounded-[20px] bg-gray-200 text-gray-500 hover:bg-gray-200">
+                  <div className="flex items-center justify-between">
+                    <CircleUserRound className="h-8 w-8 mr-2" />
+                    <Menu className="h-4 w-4" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className={`w-52 mt-4 ${
+                  theme === "dark"
+                    ? "bg-black text-white"
+                    : "bg-white text-black"
+                }`}
+              >
+                <DropdownMenuItem>
+                  <Link href={"/login"}>Đăng nhập tài khoản</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href={"/register"}>Đăng ký tài khoản mới</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </>
       )}
 
       {isAuth && (
@@ -173,15 +184,12 @@ export default function Header() {
               size="icon"
               className="rounded-full flex-shrink-0 border-gray-500"
             >
-              <MessageCircle className="h-5 w-5 " strokeWidth="1.5px" />
+              <Link href={"/chat"}>
+                <MessageCircle className="h-5 w-5 " strokeWidth="1.5px" />
+              </Link>
             </Button>
-            <Button
-              variant="headerIcon"
-              size="icon"
-              className="rounded-full flex-shrink-0 border-gray-500"
-            >
-              <Bell className="h-5 w-5" strokeWidth="1.5px" />
-            </Button>
+            {/* Notification */}
+            <NotificationPopover />
             {/* chuyển đổi giao diện */}
             <DarkModeToggle />
             <DropdownMenu>
@@ -343,7 +351,13 @@ export default function Header() {
           </SheetDescription>
           <div className="flex flex-col mb-4 mt-4">
             <Link href="/" className="mb-6">
-              <span className="font-bold text-4xl">Logo</span>
+              <Image
+                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Flogo.png?alt=media&token=4e7cda70-2c98-4185-a693-b03564f68a4c"
+                alt="Logo"
+                width={40}
+                height={40}
+                style={{ width: "auto", height: "auto" }}
+              />
             </Link>
             <div className="flex items-center space-x-2">
               <Search

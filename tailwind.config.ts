@@ -69,6 +69,21 @@ const config: Config = {
         placeholderInput: {
           DEFAULT: "hsl(var(--placeholder-input))",
         },
+        backgroundChat: {
+          DEFAULT: "hsl(var(--background-chat))",
+        },
+        textChat: {
+          DEFAULT: "hsl(var(--foreground-chat))",
+        },
+        hoverCard: {
+          DEFAULT: "hsl(var(--hover-card))",
+        },
+        badgeConsultationSuccess: {
+          DEFAULT: "hsl(var(--background-consultation-badge-success))",
+        },
+        badgeConsultationUpcoming: {
+          DEFAULT: "hsl(var(--background-consultation-badge-upcoming))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -77,6 +92,6 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("tailwind-scrollbar")],
+  plugins: [require("tailwindcss-animate")],
 };
 export default config;

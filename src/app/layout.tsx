@@ -15,7 +15,8 @@ const roboto = Roboto({
 
 export const metadata: Metadata = {
   title: "HC - Cộng đồng chia sẻ câu chuyện chữa lành",
-  description: "Cộng đồng chữa lành tốt nhất Việt Nam",
+  description:
+    "Nơi mọi suy nghĩ đều tìm thấy một ngôi nhà và mỗi hình ảnh đều kể một câu chuyện",
 };
 
 export default function RootLayout({

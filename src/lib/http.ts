@@ -12,10 +12,12 @@ const AUTHENTICATION_ERROR_STATUS = 401;
 
 type EntityErrorPayload = {
   message: string;
-  errors: {
-    field: string;
-    message: string;
-  }[];
+  errors:
+    | {
+        field: string;
+        message: string;
+      }[]
+    | string[];
 };
 
 export class HttpError extends Error {

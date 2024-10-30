@@ -76,7 +76,7 @@ export default function ChangePasswordForm() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const form = useForm<ChangePasswordBodyType>({
-    resolver: zodResolver(ChangePasswordBody("")),
+    resolver: zodResolver(ChangePasswordBody),
     defaultValues: {
       currentPassword: "",
       newPassword: "",
