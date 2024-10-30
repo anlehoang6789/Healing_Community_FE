@@ -1,10 +1,11 @@
-import ConsultationCalendarUser from "@/components/consultationCalendarForUser/consultaionCalendarUser";
+import ConsultationSchedule from "@/components/consultationCalendarForUser/consultaionCalendarUser";
+
 import React from "react";
 
 export default function ConsultationCalenderUser() {
   return (
     <div>
-      <ConsultationCalendarUser />
+      <ConsultationSchedule />
     </div>
   );
 }
