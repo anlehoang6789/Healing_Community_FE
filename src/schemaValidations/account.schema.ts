@@ -1,43 +1,31 @@
 import { z } from "zod";
 
 // change password body
-export const ChangePasswordBody = (registeredPassword: string) =>
-  z
-    .object({
-      currentPassword: z.string().min(8).max(100),
-      newPassword: z
-        .string()
-        .min(8)
-        .max(100)
-        .regex(
-          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-          "Mật khẩu phải có ít nhất 1 chữ Hoa, 1 chữ thường, 1 số và 1 kí tự đặc biệt"
-        ),
-      confirmNewPassword: z.string().min(8).max(100),
-    })
-    .strict()
-    .superRefine(
-      ({ currentPassword, newPassword, confirmNewPassword }, ctx) => {
-        if (currentPassword !== registeredPassword) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Mật khẩu hiện tại không chính xác",
-            path: ["currentPassword"],
-          });
-        }
-        if (newPassword !== confirmNewPassword) {
-          ctx.addIssue({
-            code: "custom",
-            message: "Mật khẩu mới không khớp",
-            path: ["confirmNewPassword"],
-          });
-        }
-      }
-    );
+export const ChangePasswordBody = z
+  .object({
+    currentPassword: z.string().min(8).max(100),
+    newPassword: z
+      .string()
+      .min(8)
+      .max(100)
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "Mật khẩu phải có ít nhất 1 chữ Hoa, 1 chữ thường, 1 số và 1 kí tự đặc biệt"
+      ),
+    confirmNewPassword: z.string().min(8).max(100),
+  })
+  .strict()
+  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
+    if (newPassword !== confirmNewPassword) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Mật khẩu mới không khớp",
+        path: ["confirmPassword"],
+      });
+    }
+  });
 
-export type ChangePasswordBodyType = z.TypeOf<
-  ReturnType<typeof ChangePasswordBody>
->;
+export type ChangePasswordBodyType = z.TypeOf<typeof ChangePasswordBody>;
 
 // personal information body
 export const PersonalInformationBody = z
@@ -54,4 +42,15 @@ export const PersonalInformationBody = z
 
 export type PersonalInformationBodyType = z.TypeOf<
   typeof PersonalInformationBody
+>;
+
+export const UpdateInformationModeratorBody = z
+  .object({
+    name: z.string().trim().min(2).max(256),
+    avatar: z.string().url().optional(),
+  })
+  .strict();
+
+export type UpdateInformationModeratorBodyType = z.TypeOf<
+  typeof UpdateInformationModeratorBody
 >;

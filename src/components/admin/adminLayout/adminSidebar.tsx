@@ -64,8 +64,8 @@ export default function AdminSidebar() {
                   "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8",
                   {
                     "bg-accent text-accent-foreground":
-                      pathname === "/manage/setting",
-                    "text-muted-foreground": pathname !== "/manage/setting",
+                      pathname === "/admin/setting",
+                    "text-muted-foreground": pathname !== "/admin/setting",
                   }
                 )}
               >
