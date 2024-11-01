@@ -247,6 +247,7 @@ export default function DetailPost() {
                   placeholder="Nhập trả lời..."
                 />
               </div>
+
               <Button
                 variant="iconSend"
                 size="icon"
@@ -262,6 +263,7 @@ export default function DetailPost() {
                 accept="image/*"
                 className="hidden"
               />
+
               <Button
                 variant="iconSend"
                 onClick={() => handleAddReply(comment.id)}
@@ -285,7 +287,9 @@ export default function DetailPost() {
               <Button
                 variant="destructive"
                 size="icon"
-                onClick={() => setCommentImage(null)}
+                onClick={() =>
+                  setReplyImages((prev) => ({ ...prev, [comment.id]: null }))
+                }
                 className="absolute top-1 right-1 h-6 w-6 rounded-full"
               >
                 <X className="h-4 w-4" />
@@ -455,6 +459,7 @@ export default function DetailPost() {
               className="border rounded-lg p-2 pr-10 w-full resize-none min-h-[40px] max-h-[120px] text-muted-foreground"
               placeholder="Nhập bình luận..."
             />
+
             <Button
               variant="iconSend"
               size="icon"
@@ -470,6 +475,7 @@ export default function DetailPost() {
               accept="image/*"
               className="hidden"
             />
+
             <Button
               variant="iconSend"
               onClick={handleAddComment}
