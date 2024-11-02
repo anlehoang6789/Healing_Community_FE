@@ -1,4 +1,8 @@
-import { LogoutBodyType } from "./../schemaValidations/auth.schema";
+import {
+  LogoutBodyType,
+  RefreshTokenBodyType,
+  RefreshTokenResType,
+} from "./../schemaValidations/auth.schema";
 import http from "@/lib/http";
 import {
   LoginBodyType,
@@ -7,6 +11,10 @@ import {
 } from "@/schemaValidations/auth.schema";
 
 const authApiRequest = {
+  refreshTokenRequest: null as Promise<{
+    status: number;
+    payload: RefreshTokenResType;
+  }> | null,
   loginFromNextServerToBeServer: (body: LoginBodyType) =>
     http.post<LoginResType>("user/login", body),
   loginFromNextClientToNextServer: (body: LoginBodyType) =>
@@ -35,6 +43,36 @@ const authApiRequest = {
     http.post("api/auth/logout", null, {
       baseUrl: "",
     }),
+  refreshTokenFromNextServerToBeServer: (
+    body: RefreshTokenBodyType & { accessToken: string }
+  ) =>
+    http.post<RefreshTokenResType>(
+      "token/refresh-token",
+      {
+        refreshToken: body.refreshToken,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${body.accessToken}`,
+        },
+      }
+    ),
+  // API này được xử lí để nó không bị call 2 lần. Tránh trường hợp chuyển trang nhanh quá nó chưa kịp gắn cái access token và refresh token mới để call cái refreshToken lần nữa mà nó lại đi lấy cái cũ để gửi lại
+  async refreshTokenFromNextClientToNextServer() {
+    if (this.refreshTokenRequest) {
+      return this.refreshTokenRequest;
+    }
+    this.refreshTokenRequest = http.post<RefreshTokenResType>(
+      "api/auth/refresh-token",
+      null,
+      {
+        baseUrl: "",
+      }
+    );
+    const result = await this.refreshTokenRequest;
+    this.refreshTokenRequest = null;
+    return result;
+  },
 };
 
 export default authApiRequest;
