@@ -12,6 +12,8 @@ import {
   ShieldMinus,
   ThumbsUp,
   Trash2,
+  ImageIcon,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -32,6 +34,7 @@ interface Comment {
   content: string;
   timestamp: string;
   likes: number;
+  image?: string;
   replies?: Comment[];
 }
 
@@ -156,6 +159,33 @@ export default function OwnPost() {
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
+  const [commentImage, setCommentImage] = useState<string | null>(null);
+  const [replyImages, setReplyImages] = useState<{
+    [key: string]: string | null;
+  }>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    isReply: boolean,
+    commentId?: string
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (isReply && commentId) {
+          setReplyImages((prev) => ({
+            ...prev,
+            [commentId]: reader.result as string,
+          }));
+        } else {
+          setCommentImage(reader.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   //kiểm tra chiều cao của nội dung và xác định xem nó có cần rút gọn không
   useEffect(() => {
@@ -170,7 +200,7 @@ export default function OwnPost() {
 
   // hàm thêm bình luận mới
   const handleAddComment = () => {
-    if (newComment.trim()) {
+    if (newComment.trim() || commentImage) {
       const comment: Comment = {
         id: `comment-${Date.now()}`,
         user: {
@@ -181,16 +211,18 @@ export default function OwnPost() {
         content: newComment,
         timestamp: "Vừa xong",
         likes: 0,
+        image: commentImage || undefined,
       };
 
       post.comments.push(comment);
       setNewComment("");
+      setCommentImage(null);
     }
   };
 
   // hàm trả lời bình luận
   const handleAddReply = (parentId: string) => {
-    if (replyContent.trim()) {
+    if (replyContent.trim() || replyImages[parentId]) {
       const newReply: Comment = {
         id: Date.now().toString(),
         user: {
@@ -201,6 +233,7 @@ export default function OwnPost() {
         content: replyContent,
         timestamp: "Vừa xong",
         likes: 0,
+        image: replyImages[parentId] || undefined,
       };
 
       const updateReplies = (comments: Comment[]): Comment[] => {
@@ -224,6 +257,7 @@ export default function OwnPost() {
       post.comments = updateReplies(post.comments);
       setReplyingTo(null);
       setReplyContent("");
+      setReplyImages((prev) => ({ ...prev, [parentId]: null }));
     }
   };
 
@@ -252,6 +286,16 @@ export default function OwnPost() {
             <p className="text-black whitespace-pre-wrap break-all">
               {comment.content}
             </p>
+
+            {comment.image && (
+              <Image
+                src={comment.image}
+                alt="Comment image"
+                width={200}
+                height={200}
+                className="mt-2 rounded-lg"
+              />
+            )}
           </div>
 
           <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
@@ -292,6 +336,23 @@ export default function OwnPost() {
                   placeholder="Nhập trả lời..."
                 />
               </div>
+
+              <Button
+                variant="iconSend"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                className=" absolute right-9 top-1/2 transform -translate-y-1/2 "
+              >
+                <ImageIcon className="h-5 w-5" />
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={(e) => handleImageUpload(e, true, comment.id)}
+                accept="image/*"
+                className="hidden"
+              />
+
               <Button
                 variant="iconSend"
                 onClick={() => handleAddReply(comment.id)}
@@ -301,6 +362,30 @@ export default function OwnPost() {
               </Button>
             </div>
           )}
+
+          {/* image comment preview */}
+          {replyImages[comment.id] && (
+            <div className="relative w-24 h-24 mb-4">
+              <Image
+                src={replyImages[comment.id] as string}
+                alt="Uploaded image"
+                layout="fill"
+                objectFit="cover"
+                className="rounded-lg"
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() =>
+                  setReplyImages((prev) => ({ ...prev, [comment.id]: null }))
+                }
+                className="absolute top-1 right-1 h-6 w-6 rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
           {comment.replies && comment.replies.length > 0 && (
             <div className="mt-2">
               {renderComments(comment.replies, depth + 1)}
@@ -451,6 +536,23 @@ export default function OwnPost() {
             className="border rounded-lg p-2 pr-10 flex-1 resize-none h-auto text-muted-foreground"
             placeholder="Nhập bình luận..."
           />
+
+          <Button
+            variant="iconSend"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            className=" absolute right-9 top-1/2 transform -translate-y-1/2 "
+          >
+            <ImageIcon className="h-5 w-5" />
+          </Button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={(e) => handleImageUpload(e, false)}
+            accept="image/*"
+            className="hidden"
+          />
+
           <Button
             variant="iconSend"
             onClick={handleAddComment}
@@ -459,6 +561,27 @@ export default function OwnPost() {
             <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
           </Button>
         </div>
+
+        {/* image comment preview */}
+        {commentImage && (
+          <div className="relative w-24 h-24 mb-4">
+            <Image
+              src={commentImage}
+              alt="Uploaded image"
+              layout="fill"
+              objectFit="cover"
+              className="rounded-lg"
+            />
+            <Button
+              variant="destructive"
+              size="icon"
+              onClick={() => setCommentImage(null)}
+              className="absolute top-1 right-1 h-6 w-6 rounded-full"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
 
         {/* Comment */}
         <div className="w-full">{renderComments(post.comments)}</div>
