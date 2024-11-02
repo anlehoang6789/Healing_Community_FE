@@ -33,7 +33,7 @@ export type RefreshTokenBodyType = z.TypeOf<typeof RefreshTokenBody>;
 //response refresh token
 export const RefreshTokenRes = z.object({
   data: z.object({
-    accessToken: z.string(),
+    token: z.string(),
     refreshToken: z.string(),
   }),
   message: z.string(),
