@@ -3,7 +3,7 @@ import { z } from "zod";
 // change password body
 export const ChangePasswordBody = z
   .object({
-    currentPassword: z.string().min(8).max(100),
+    oldPassword: z.string().min(8).max(100),
     newPassword: z
       .string()
       .min(8)
@@ -12,11 +12,11 @@ export const ChangePasswordBody = z
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
         "Mật khẩu phải có ít nhất 1 chữ Hoa, 1 chữ thường, 1 số và 1 kí tự đặc biệt"
       ),
-    confirmNewPassword: z.string().min(8).max(100),
+    confirmPassword: z.string().min(8).max(100),
   })
   .strict()
-  .superRefine(({ confirmNewPassword, newPassword }, ctx) => {
-    if (newPassword !== confirmNewPassword) {
+  .superRefine(({ confirmPassword, newPassword }, ctx) => {
+    if (newPassword !== confirmPassword) {
       ctx.addIssue({
         code: "custom",
         message: "Mật khẩu mới không khớp",

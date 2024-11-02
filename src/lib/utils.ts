@@ -100,17 +100,28 @@ export const checkRefreshToken = async (param?: {
 
   const decodeAccessToken = jwt.decode(accessToken) as {
     exp: number;
+    iat: number;
+  };
+  const decodeRefreshToken = jwt.decode(refreshToken) as {
+    exp: number;
+    iat: number;
   };
 
   //   Thời điểm hết hạn của token được tính theo epoch time(s)
   // Còn khi dùng cú pháp Date().getTime() thì nó trả về epoch time(ms)
   const now = Math.round(new Date().getTime() / 1000);
 
+  // Nếu refresh token hết hạn thì kh xử lí nữa
+  if (now >= decodeRefreshToken.exp) return;
+
   //Ví dụ access token có thời gian hết hạn là 10s
   // Thì chúng ta sẽ kiểm tra còn 1/3 thời gian hết hạn của access token thì sẽ gửi request refresh token
   // Thời gian còn lại sẽ tính theo công thức: decodeAccessToken.exp - now
   //  Thời gian hết hạn của accessToken tính theo công thức: decodeAccessToken.exp - decodeAccessToken.iat
-  if (decodeAccessToken.exp - now < decodeAccessToken.exp / 3) {
+  if (
+    decodeAccessToken.exp - now <
+    (decodeAccessToken.exp - decodeAccessToken.iat) / 3
+  ) {
     // Nếu thời gian còn lại ít hơn 1/3 thời gian hết hạn của access token thì call api refreshToken
     try {
       const result =

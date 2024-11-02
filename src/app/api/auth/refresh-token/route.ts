@@ -5,11 +5,10 @@ import jwt from "jsonwebtoken";
 export async function POST(req: Request) {
   const cookieStore = cookies();
   const refreshToken = cookieStore.get("refreshToken")?.value;
-  const accessToken = cookieStore.get("accessToken")?.value;
 
-  if (!refreshToken || !accessToken) {
+  if (!refreshToken) {
     return Response.json(
-      { message: "Không tìm thấy refreshToken hoặc accessToken" },
+      { message: "Không tìm thấy refreshToken" },
       { status: 401 }
     );
   }
@@ -19,10 +18,12 @@ export async function POST(req: Request) {
     const { payload } =
       await authApiRequest.refreshTokenFromNextServerToBeServer({
         refreshToken,
-        accessToken,
       });
     //decode access token and refresh token to get the expired time
     const decodeAccessToken = jwt.decode(payload.data.token) as {
+      exp: number;
+    };
+    const decodeRefreshToken = jwt.decode(payload.data.refreshToken) as {
       exp: number;
     };
 
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
       httpOnly: true,
       sameSite: "lax",
       secure: true,
+      expires: decodeRefreshToken.exp * 1000,
     });
     return Response.json(payload);
   } catch (error: any) {

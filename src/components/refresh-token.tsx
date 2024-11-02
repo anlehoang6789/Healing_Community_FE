@@ -10,6 +10,7 @@ const UNAUTHENTICATED_PATHS = [
   "/logout",
   "/refresh-token",
   "/register",
+  "/",
 ];
 
 export default function RefreshToken() {

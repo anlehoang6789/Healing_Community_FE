@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     const { token, refreshToken } = payload.data;
     //decode access token and refresh token to get the expired time
     const decodeAccessToken = jwt.decode(token) as { exp: number };
-    // const decodeRefreshToken = jwt.decode(refreshToken) as { exp: number };
+    const decodeRefreshToken = jwt.decode(refreshToken) as { exp: number };
 
     // const decodeUserId = jwt.decode(token) as { [key: string]: any };
     // const userId =
@@ -35,7 +35,7 @@ export async function POST(req: Request) {
       httpOnly: true,
       sameSite: "lax",
       secure: true,
-      // expires: decodeRefreshToken.exp * 1000,
+      expires: decodeRefreshToken.exp * 1000,
     });
     // console.log("2");
     return Response.json(payload);
