@@ -13,6 +13,9 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useChangePasswordUserMutation } from "@/queries/useAccount";
+import { handleErrorApi } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
 const CuteDove = ({ isEyesCovered }: { isEyesCovered: boolean }) => (
   <motion.div
@@ -78,13 +81,30 @@ export default function ChangePasswordForm() {
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
     defaultValues: {
-      currentPassword: "",
+      oldPassword: "",
       newPassword: "",
-      confirmNewPassword: "",
+      confirmPassword: "",
     },
   });
   const isAnyPasswordVisible =
     showCurrentPassword || showNewPassword || showConfirmNewPassword;
+
+  const changePasswordUserMutation = useChangePasswordUserMutation();
+
+  const onSubmit = async (data: ChangePasswordBodyType) => {
+    try {
+      const result = await changePasswordUserMutation.mutateAsync(data);
+      form.reset();
+      toast({
+        title: result.payload.message,
+        description: "Vui lòng đăng nhập lại với mật khẩu mới",
+        variant: "success",
+      });
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
   return (
     <div className="relative pt-4 md:pt-28 px-4 max-w-[800px] mx-auto">
       <div className="hidden md:block">
@@ -98,7 +118,13 @@ export default function ChangePasswordForm() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form className="space-y-4 w-full flex-shrink-0" noValidate>
+            <form
+              className="space-y-4 w-full flex-shrink-0"
+              noValidate
+              onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                console.warn(errors);
+              })}
+            >
               <div className="grid gap-4">
                 {/* Hidden username field for accessibility */}
                 <Input
@@ -109,19 +135,17 @@ export default function ChangePasswordForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="currentPassword"
+                  name="oldPassword"
                   render={({ field }) => (
                     <FormItem>
                       <div className="grid gap-2">
                         <div className="flex items-center">
-                          <Label htmlFor="currentPassword">
-                            Mật khẩu hiện tại
-                          </Label>
+                          <Label htmlFor="oldPassword">Mật khẩu hiện tại</Label>
                           <span className="text-red-500 ml-1">*</span>
                         </div>
                         <div className="relative">
                           <Input
-                            id="currentPassword"
+                            id="oldPassword"
                             type={showCurrentPassword ? "text" : "password"}
                             required
                             {...field}
@@ -199,19 +223,19 @@ export default function ChangePasswordForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="confirmNewPassword"
+                  name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
                       <div className="grid gap-2">
                         <div className="flex items-center">
-                          <Label htmlFor="confirmNewPassword">
+                          <Label htmlFor="confirmPassword">
                             Xác nhận mật khẩu
                           </Label>
                           <span className="text-red-500 ml-1">*</span>
                         </div>
                         <div className="relative">
                           <Input
-                            id="confirmNewPassword"
+                            id="confirmPassword"
                             type={showConfirmNewPassword ? "text" : "password"}
                             required
                             {...field}

@@ -22,9 +22,9 @@ export default function AdminChangePassword() {
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
     defaultValues: {
-      currentPassword: "",
+      oldPassword: "",
       newPassword: "",
-      confirmNewPassword: "",
+      confirmPassword: "",
     },
   });
 
@@ -49,15 +49,16 @@ export default function AdminChangePassword() {
             <div className="grid gap-6">
               <FormField
                 control={form.control}
-                name="currentPassword"
+                name="oldPassword"
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid gap-3 text-muted-foreground">
-                      <Label htmlFor="currentPassword">Mật khẩu cũ</Label>
+                      <Label htmlFor="oldPassword">Mật khẩu cũ</Label>
                       <Input
-                        id="currentPassword"
+                        id="oldPassword"
                         type="password"
                         className="w-full"
+                        autoComplete="off"
                         {...field}
                       />
                       <FormMessage />
@@ -76,6 +77,7 @@ export default function AdminChangePassword() {
                         id="newPassword"
                         type="password"
                         className="w-full"
+                        autoComplete="off"
                         {...field}
                       />
                       <FormMessage />
@@ -85,17 +87,18 @@ export default function AdminChangePassword() {
               />
               <FormField
                 control={form.control}
-                name="confirmNewPassword"
+                name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid gap-3 text-muted-foreground">
-                      <Label htmlFor="confirmNewPassword">
+                      <Label htmlFor="confirmPassword">
                         Nhập lại mật khẩu mới
                       </Label>
                       <Input
-                        id="confirmNewPassword"
+                        id="confirmPassword"
                         type="password"
                         className="w-full"
+                        autoComplete="off"
                         {...field}
                       />
                       <FormMessage />
