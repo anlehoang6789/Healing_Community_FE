@@ -9,13 +9,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Trash2 } from "lucide-react";
+import { Ban } from "lucide-react";
 
-export default function DeleteAccountModerator() {
+export default function DeleteAccountUser() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Trash2 className="text-red-500 h-4 w-4 md:h-5 md:w-5" />
+        <Ban className="text-red-500 h-4 w-4 md:h-5 md:w-5" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogTitle className="sr-only">Edit profile</DialogTitle>

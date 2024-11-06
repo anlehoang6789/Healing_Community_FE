@@ -1,7 +1,6 @@
 "use client";
 import DeleteAccountModerator from "@/app/admin/manage-accounts-moderator/delete-account-moderator";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -19,7 +18,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
 import React from "react";
 
 type ModeratorList = {
