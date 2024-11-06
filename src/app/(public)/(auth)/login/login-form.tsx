@@ -17,6 +17,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 import { useAppContext } from "@/components/app-provider";
+import DialogForgotPassword from "@/components/forgot-password/dialog-forgot-password";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -142,10 +143,8 @@ export default function LoginForm() {
                 </FormItem>
               )}
             />
-            <div className="flex items-center justify-end">
-              <h5 className="text-sm text-black hover:underline">
-                <Link href={"/forgot-password"}>Quên mật khẩu?</Link>
-              </h5>
+            <div className="flex items-center justify-end cursor-pointer">
+              <DialogForgotPassword />
             </div>
             <Button
               type="submit"
