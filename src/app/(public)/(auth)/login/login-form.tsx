@@ -8,14 +8,15 @@ import { Separator } from "@/components/ui/separator";
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useLoginMutation } from "@/queries/useAuth";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
+import { useAppContext } from "@/components/app-provider";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +30,16 @@ export default function LoginForm() {
 
   const loginMutation = useLoginMutation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const clearToken = searchParams.get("clearToken");
+  const { setIsAuth } = useAppContext();
+
+  //Ở đây check coi bên middleware cái trường hợp mà không có refreshToken có truyền cái clearToken trên url không nếu có thì xóa token khỏi localStorage
+  useEffect(() => {
+    if (clearToken) {
+      setIsAuth(false);
+    }
+  }, [clearToken, setIsAuth]);
 
   const handleLogin = async (data: LoginBodyType) => {
     if (loginMutation.isPending) return;
@@ -38,7 +49,8 @@ export default function LoginForm() {
         description: result.payload.message,
         variant: "success",
       });
-      router.push("/user/profile");
+      setIsAuth(true);
+      router.push("/");
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
     }
