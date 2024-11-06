@@ -205,17 +205,16 @@ export default function ListOfGroups() {
                 </Badge>
               )}
               <CardContent className="p-4 flex items-start space-x-4 relative">
-                <HoverCardTrigger asChild>
-                  <Link href="#">
-                    <Image
-                      src={group.imageUrl}
-                      alt={group.name}
-                      width={90}
-                      height={90}
-                      className="cursor-pointer rounded-lg object-cover"
-                    />
-                  </Link>
-                </HoverCardTrigger>
+                <Link href="#">
+                  <Image
+                    src={group.imageUrl}
+                    alt={group.name}
+                    width={90}
+                    height={90}
+                    className="cursor-pointer rounded-lg object-cover"
+                  />
+                </Link>
+
                 <div className="flex-1">
                   <HoverCardTrigger asChild>
                     <Link href="#">
