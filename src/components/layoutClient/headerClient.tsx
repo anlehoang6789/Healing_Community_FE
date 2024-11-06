@@ -7,7 +7,6 @@ import {
   Home,
   Users,
   Bookmark,
-  Bell,
   Settings,
   Music,
   UserRoundPen,
@@ -38,16 +37,13 @@ import {
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import Image from "next/image";
 import DarkModeToggle from "@/components/dark-mode-toogle";
-import { useEffect, useState } from "react";
-import {
-  cn,
-  getAccessTokenFromLocalStorage,
-  handleErrorApi,
-} from "@/lib/utils";
+import { useState } from "react";
+import { cn, handleErrorApi } from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import sidebarItems from "@/components/layoutExpert/sidebarItems";
 import NotificationPopover from "@/components/notification/notificationPopover";
+import { useAppContext } from "@/components/app-provider";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
@@ -65,16 +61,15 @@ export default function Header() {
   const [isExpertMenuOpen, setExpertMenuOpen] = useState(false);
   const { theme } = useTheme();
   const router = useRouter();
-  const [isAuth, setIsAuth] = useState(false);
-  useEffect(() => {
-    setIsAuth(Boolean(getAccessTokenFromLocalStorage()));
-  }, []);
+  // check xem đã đăng nhập chưa
+  const { isAuth, setIsAuth } = useAppContext();
 
   const logoutMutation = useLogoutMutation();
   const handleLogout = async () => {
     if (logoutMutation.isPending) return;
     try {
       await logoutMutation.mutateAsync();
+      setIsAuth(false);
       router.push("/");
     } catch (error) {
       handleErrorApi({ error });
