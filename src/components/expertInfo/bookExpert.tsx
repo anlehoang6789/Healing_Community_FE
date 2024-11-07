@@ -73,7 +73,7 @@ const mockExpert: Expert = {
   timeSlots: generateMockTimeSlots(),
 };
 
-export default function BookConsultation() {
+export default function BookExpert() {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
