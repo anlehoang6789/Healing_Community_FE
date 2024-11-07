@@ -54,3 +54,40 @@ export const UpdateInformationModeratorBody = z
 export type UpdateInformationModeratorBodyType = z.TypeOf<
   typeof UpdateInformationModeratorBody
 >;
+
+export const ForgotPasswordBody = z
+  .object({
+    email: z.string().email(),
+  })
+  .strict();
+
+export type ForgotPasswordBodyType = z.TypeOf<typeof ForgotPasswordBody>;
+
+export const ResetPasswordWithOtpBody = z
+  .object({
+    email: z.string().email(),
+    otp: z.string(),
+    newPassword: z
+      .string()
+      .min(8)
+      .max(100)
+      .regex(
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        "Mật khẩu phải có ít nhất 1 chữ Hoa, 1 chữ thường, 1 số và 1 kí tự đặc biệt"
+      ),
+    confirmPassword: z.string().min(8).max(100),
+  })
+  .strict()
+  .superRefine(({ confirmPassword, newPassword }, ctx) => {
+    if (newPassword !== confirmPassword) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Mật khẩu mới không khớp",
+        path: ["confirmPassword"],
+      });
+    }
+  });
+
+export type ResetPasswordWithOtpBodyType = z.TypeOf<
+  typeof ResetPasswordWithOtpBody
+>;
