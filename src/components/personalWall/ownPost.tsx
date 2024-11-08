@@ -14,6 +14,7 @@ import {
   Trash2,
   ImageIcon,
   X,
+  Smile,
 } from "lucide-react";
 import Image from "next/image";
 import {
@@ -24,6 +25,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
 
 interface Comment {
   id: string;
@@ -164,6 +168,21 @@ export default function OwnPost() {
     [key: string]: string | null;
   }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerForReply, setEmojiPickerForReply] = useState<string | null>(
+    null
+  );
+
+  const addEmoji = (emoji: any, isReply: boolean, commentId?: string) => {
+    if (isReply && commentId) {
+      setReplyContent((prevContent) => prevContent + emoji.native);
+      setEmojiPickerForReply(null); // Đóng emoji picker sau khi chọn
+    } else {
+      setNewComment((prevComment) => prevComment + emoji.native);
+      setShowEmojiPicker(false);
+    }
+  };
 
   const handleImageUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -360,6 +379,38 @@ export default function OwnPost() {
               >
                 <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
               </Button>
+
+              {/* Emoji Button */}
+              <Button
+                variant="iconSend"
+                size="icon"
+                onClick={() => {
+                  // Nếu đang mở cho comment này thì đóng, ngược lại mở
+                  setEmojiPickerForReply(
+                    emojiPickerForReply === comment.id ? null : comment.id
+                  );
+                }}
+                className="absolute right-16 top-1/2 transform -translate-y-1/2"
+              >
+                <Smile className="h-5 w-5" />
+              </Button>
+
+              {/* Emoji Picker chỉ hiện cho comment đang được chọn */}
+              {emojiPickerForReply === comment.id && (
+                <div className="absolute bottom-full right-16 z-50">
+                  <Picker
+                    data={data}
+                    onEmojiSelect={(emoji: any) =>
+                      addEmoji(emoji, true, comment.id)
+                    }
+                    theme="light"
+                    previewPosition="none"
+                    skinTonePosition="none"
+                    autoFocus={true}
+                    locale="vi"
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -560,6 +611,30 @@ export default function OwnPost() {
           >
             <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
           </Button>
+
+          {/* emoji Button */}
+          <Button
+            variant="iconSend"
+            size="icon"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className="absolute right-16 top-1/2 transform -translate-y-1/2"
+          >
+            <Smile className="h-5 w-5" />
+          </Button>
+
+          {showEmojiPicker && (
+            <div className="absolute bottom-full right-16 z-50">
+              <Picker
+                data={data}
+                onEmojiSelect={(emoji: any) => addEmoji(emoji, false)}
+                theme="light"
+                previewPosition="none"
+                skinTonePosition="none"
+                autoFocus="true"
+                locale="vi"
+              />
+            </div>
+          )}
         </div>
 
         {/* image comment preview */}
