@@ -1,5 +1,6 @@
 "use client";
 
+import { useAppContext } from "@/components/app-provider";
 import { checkRefreshToken } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -15,6 +16,7 @@ const UNAUTHENTICATED_PATHS = [
 export default function RefreshToken() {
   const pathname = usePathname();
   const router = useRouter();
+  const { setIsAuth } = useAppContext();
 
   useEffect(() => {
     if (UNAUTHENTICATED_PATHS.includes(pathname)) return;
@@ -24,6 +26,7 @@ export default function RefreshToken() {
     checkRefreshToken({
       onError: () => {
         clearInterval(interval);
+        setIsAuth(false);
         router.push("/login");
       },
     });
@@ -36,6 +39,7 @@ export default function RefreshToken() {
         checkRefreshToken({
           onError: () => {
             clearInterval(interval);
+            setIsAuth(false);
             router.push("/login");
           },
         }),
@@ -44,7 +48,7 @@ export default function RefreshToken() {
     return () => {
       clearInterval(interval);
     };
-  }, [pathname, router]);
+  }, [pathname, router, setIsAuth]);
 
   return null;
 }

@@ -47,6 +47,7 @@
     "react-dom": "^18",
     "react-froala-wysiwyg": "^4.3.0",
     "react-hook-form": "^7.53.0",
+    "recharts": "^2.13.3",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.23.8"
