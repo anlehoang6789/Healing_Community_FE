@@ -1,5 +1,6 @@
 "use client";
 import ChangePassword from "@/app/user/profile/change-password";
+import ExpertInfor from "@/app/user/profile/expert-info";
 import PersonalInformation from "@/app/user/profile/personal-information";
 import PersonalWall from "@/app/user/profile/personal-wall";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ export default function ProfileTabs() {
     switch (activeTab) {
       case "home":
         return <PersonalWall />;
+      case "expertInfor":
+        return <ExpertInfor />;
       case "info":
         return <PersonalInformation />;
       case "password":
@@ -46,6 +49,17 @@ export default function ProfileTabs() {
             className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
           >
             Tường nhà
+          </Button>
+          <Button
+            variant={
+              activeTab === "expertInfor"
+                ? "gradientUnderline"
+                : "gradientHoverUnderline"
+            }
+            onClick={() => setActiveTab("expertInfor")}
+            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+          >
+            Thông tin chuyên gia
           </Button>
           <Button
             variant={
