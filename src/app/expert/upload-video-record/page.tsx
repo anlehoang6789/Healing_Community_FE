@@ -1,5 +1,10 @@
+import ExpertReportList from "@/components/uploadVideoReportForExpert/uploadVideoReport";
 import React from "react";
 
 export default function UploadVideoRecord() {
-  return <div>Trang tai len video da record neu co bao cao ve chuyen gia</div>;
+  return (
+    <div>
+      <ExpertReportList />
+    </div>
+  );
 }

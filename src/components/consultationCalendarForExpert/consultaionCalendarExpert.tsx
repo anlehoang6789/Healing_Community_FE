@@ -223,7 +223,7 @@ export default function ConsultationScheduleExpert() {
   };
 
   return (
-    <div className="container mx-auto">
+    <div className="w-full bg-background h-auto p-4 max-w-7xl overflow-hidden mx-auto rounded-lg shadow-lg border">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-muted-foreground">
           Lịch Tư Vấn Của Bạn
