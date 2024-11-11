@@ -1,6 +1,6 @@
 import LoginForm from "@/app/(public)/(auth)/login/login-form";
 import Image from "next/image";
-import React from "react";
+import React, { Suspense } from "react";
 
 export default function LoginPage() {
   return (
@@ -8,7 +8,9 @@ export default function LoginPage() {
       <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="flex flex-col md:flex-row">
           <div className="w-full md:w-1/2 bg-gradient-custom p-8">
-            <LoginForm />
+            <Suspense>
+              <LoginForm />
+            </Suspense>
           </div>
           <div className="hidden md:block w-1/2 relative h-full min-h-[600px]">
             <Image

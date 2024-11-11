@@ -74,6 +74,58 @@ export default function ContentChat({ selectedContact }: ContentChatProps) {
               <p>Làm cái payment history đó m</p>
             </div>
           </div>
+          <div className="flex justify-end">
+            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
+              <p>
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Modi
+                enim aspernatur temporibus maxime aut repellendus labore facere
+                similique officiis reprehenderit tenetur est consequuntur,
+                magnam quas atque sapiente qui tempora. Earum.
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
+              <p>
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Modi
+                enim aspernatur temporibus maxime aut repellendus labore facere
+                similique officiis reprehenderit tenetur est consequuntur,
+                magnam quas atque sapiente qui tempora. Earum.
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
+              <p>
+                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Modi
+                enim aspernatur temporibus maxime aut repellendus labore facere
+                similique officiis reprehenderit tenetur est consequuntur,
+                magnam quas atque sapiente qui tempora. Earum.
+              </p>
+            </div>
+          </div>
+          <div className="flex">
+            <Avatar className="h-8 w-8 mr-2">
+              <AvatarImage src={selectedContact.avatar} />
+              <AvatarFallback>
+                {selectedContact.name.substring(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="bg-muted text-textChat rounded-[20px] py-2 px-4 max-w-[70%]">
+              <p>Làm cái payment history đó m</p>
+            </div>
+          </div>
+          <div className="flex">
+            <Avatar className="h-8 w-8 mr-2">
+              <AvatarImage src={selectedContact.avatar} />
+              <AvatarFallback>
+                {selectedContact.name.substring(0, 2)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="bg-muted text-textChat rounded-[20px] py-2 px-4 max-w-[70%]">
+              <p>Làm cái payment history đó m</p>
+            </div>
+          </div>
         </div>
       </ScrollArea>
       <div className="p-4 border-t">
