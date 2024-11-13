@@ -1,3 +1,4 @@
+import ManaReportExpert from "@/app/moderator/manage-reports/manage-report-expert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import React from "react";
 
@@ -15,7 +16,9 @@ export default function ReportTabs() {
         <div>Người dùng</div>
       </TabsContent>
       <TabsContent value="reportExpert" className="space-y-4">
-        <div>Chuyên gia</div>
+        <div>
+          <ManaReportExpert />
+        </div>
       </TabsContent>
       <TabsContent value="reportComment" className="space-y-4">
         <div>Bình luận</div>
