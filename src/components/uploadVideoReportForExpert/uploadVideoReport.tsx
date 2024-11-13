@@ -21,9 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, FileVideo } from "lucide-react";
 import {
   Form,
   FormControl,
@@ -36,7 +34,6 @@ import {
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -269,7 +266,7 @@ export default function ExpertReportList() {
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>
+                      <DialogTitle className="text-textChat font-bold">
                         Giải trình báo cáo cho {report.orderId}
                       </DialogTitle>
                       <DialogDescription>
@@ -283,8 +280,10 @@ export default function ExpertReportList() {
                     <span className="mt-[-6px] block md:hidden">
                       {report.reasons.join(", ")}
                     </span>
-                    <span className="font-semibold">Nội dung báo cáo:</span>
-                    <span className="mt-[-6px]">
+                    <span className="text-textChat font-semibold">
+                      Nội dung báo cáo:
+                    </span>
+                    <span className="text-muted-foreground mt-[-6px]">
                       {report.content || "Không có"}
                     </span>
                     <Form {...form}>
@@ -297,7 +296,9 @@ export default function ExpertReportList() {
                           name="videoLink"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Link video</FormLabel>
+                              <FormLabel className="text-textChat">
+                                Link video
+                              </FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="https://example.com/video"
@@ -316,7 +317,9 @@ export default function ExpertReportList() {
                           name="explanation"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Giải trình</FormLabel>
+                              <FormLabel className="text-textChat">
+                                Giải trình
+                              </FormLabel>
                               <FormControl>
                                 <Textarea
                                   placeholder="Nhập giải trình của bạn ở đây..."
