@@ -40,6 +40,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import ReportDialog from "@/components/consultationCalendarForUser/dialogReport";
+import { useTheme } from "next-themes";
 
 type Consultation = {
   id: string;
@@ -195,22 +197,23 @@ const reportReasons = [
 ];
 
 export default function ConsultationSchedule() {
-  const [reportDialogOpen, setReportDialogOpen] = React.useState(false);
-  const dialogTriggerRef = React.useRef<HTMLButtonElement>(null);
-  const [selectedExpert, setSelectedExpert] = React.useState<string | null>(
-    null
-  );
+  // const [reportDialogOpen, setReportDialogOpen] = React.useState(false);
+  // const dialogTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const { theme } = useTheme();
+  // const [selectedExpert, setSelectedExpert] = React.useState<string | null>(
+  //   null
+  // );
   const [reportText, setReportText] = React.useState("");
   const [selectedReasons, setSelectedReasons] = React.useState<string[]>([]);
   const [statusFilter, setStatusFilter] = React.useState<string[]>([]);
 
-  const handleCloseDialog = () => {
-    setReportDialogOpen(false);
-    // Đặt focus vào nút mở dialog sau khi đóng
-    setTimeout(() => {
-      dialogTriggerRef.current?.focus();
-    }, 0);
-  };
+  // const handleCloseDialog = () => {
+  //   setReportDialogOpen(false);
+  //   // Đặt focus vào nút mở dialog sau khi đóng
+  //   setTimeout(() => {
+  //     dialogTriggerRef.current?.focus();
+  //   }, 0);
+  // };
 
   const sortedConsultations = React.useMemo(() => {
     const now = new Date();
@@ -232,27 +235,28 @@ export default function ConsultationSchedule() {
         );
   }, [sortedConsultations, statusFilter]);
 
-  const handleOpenReportDialog = (expertName: string) => {
-    setSelectedExpert(expertName);
-    setReportDialogOpen(true);
+  // const handleOpenReportDialog = (expertName: string) => {
+  //   setSelectedExpert(expertName);
+  //   setReportDialogOpen(true);
+  //   setReportText("");
+  //   setSelectedReasons([]);
+  // };
+
+  const handleSendReport = () => {
+    // Xử lý gửi báo cáo ở đây
+
+    // Reset các giá trị sau khi gửi báo cáo
     setReportText("");
     setSelectedReasons([]);
   };
 
-  const handleSendReport = () => {
-    console.log(`Report sent for ${selectedExpert}`);
-    console.log(`Selected reasons: ${selectedReasons.join(", ")}`);
-    console.log(`Report text: ${reportText}`);
-    setReportDialogOpen(false);
-  };
-
-  const handleReasonChange = (reasonId: string) => {
-    setSelectedReasons((prev) =>
-      prev.includes(reasonId)
-        ? prev.filter((id) => id !== reasonId)
-        : [...prev, reasonId]
-    );
-  };
+  // const handleReasonChange = (reasonId: string) => {
+  //   setSelectedReasons((prev) =>
+  //     prev.includes(reasonId)
+  //       ? prev.filter((id) => id !== reasonId)
+  //       : [...prev, reasonId]
+  //   );
+  // };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter((prev) =>
@@ -350,9 +354,13 @@ export default function ConsultationSchedule() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-backgroundChat p-0"
+                        className={` ${
+                          theme === "dark"
+                            ? "bg-black text-white"
+                            : "bg-white text-black"
+                        }`}
                       >
-                        <Button
+                        {/* <Button
                           variant="ghost"
                           className="w-full"
                           ref={dialogTriggerRef}
@@ -362,7 +370,17 @@ export default function ConsultationSchedule() {
                         >
                           <Send className="mr-2 h-4 w-4" />
                           <span>Gửi báo cáo</span>
-                        </Button>
+                        </Button> */}
+
+                        <ReportDialog
+                          expertName={consultation.expertName}
+                          reportText={reportText}
+                          setReportText={setReportText}
+                          selectedReasons={selectedReasons}
+                          setSelectedReasons={setSelectedReasons}
+                          reportReasons={reportReasons}
+                          onSendReport={handleSendReport}
+                        />
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
@@ -402,7 +420,7 @@ export default function ConsultationSchedule() {
       )}
 
       {/* Dialog report */}
-      <Dialog open={reportDialogOpen} onOpenChange={handleCloseDialog}>
+      {/* <Dialog open={reportDialogOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="text-muted-foreground">
@@ -449,7 +467,7 @@ export default function ConsultationSchedule() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 }
