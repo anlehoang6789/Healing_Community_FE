@@ -16,11 +16,11 @@ export async function POST(req: Request) {
     const decodeAccessToken = jwt.decode(token) as { exp: number };
     const decodeRefreshToken = jwt.decode(refreshToken) as { exp: number };
 
-    // const decodeUserId = jwt.decode(token) as { [key: string]: any };
-    // const userId =
-    //   decodeUserId[
-    //     "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-    //   ];
+    const decodeUserId = jwt.decode(token) as { [key: string]: any };
+    const userId =
+      decodeUserId[
+        "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+      ];
     // console.log("User ID:", userId);
     // console.log("1");
     cookieStore.set("accessToken", token, {
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
       expires: decodeRefreshToken.exp * 1000,
     });
     // console.log("2");
-    return Response.json(payload);
+    return Response.json({ userId, ...payload });
   } catch (error) {
     // console.log("3");
     if (error instanceof HttpError) {

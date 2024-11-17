@@ -38,12 +38,13 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import Image from "next/image";
 import DarkModeToggle from "@/components/dark-mode-toogle";
 import { useState } from "react";
-import { cn, handleErrorApi } from "@/lib/utils";
+import { cn, getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import sidebarItems from "@/components/layoutExpert/sidebarItems";
 import NotificationPopover from "@/components/notification/notificationPopover";
 import { useAppContext } from "@/components/app-provider";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
@@ -75,6 +76,9 @@ export default function Header() {
       handleErrorApi({ error });
     }
   };
+
+  const userId = getUserIdFromLocalStorage();
+  const { data: userProfile } = useGetUserProfileQuery(userId as string);
 
   return (
     <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
@@ -194,8 +198,8 @@ export default function Header() {
                   className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0"
                 >
                   <Image
-                    src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                    alt="Avatar"
+                    src={userProfile?.payload.data.profilePicture ?? ""}
+                    alt={userProfile?.payload.data.fullName ?? ""}
                     fill
                     style={{
                       objectFit: "cover",
