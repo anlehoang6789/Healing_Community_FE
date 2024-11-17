@@ -27,16 +27,29 @@ export const ChangePasswordBody = z
 
 export type ChangePasswordBodyType = z.TypeOf<typeof ChangePasswordBody>;
 
+export const PersonalInformationSchema = z.object({
+  fullName: z.string().min(3).max(15),
+  userName: z.string(),
+  email: z.string(),
+  phoneNumber: z.string().min(10).max(10),
+  profilePicture: z.string(),
+  descrtiption: z.string().max(1000),
+  socialLink: z.object({
+    facebook: z.string().optional(),
+    instagram: z.string().optional(),
+    twitter: z.string().optional(),
+    linkedIn: z.string().optional(),
+  }),
+});
+export type PersonalInformationSchemaType = z.TypeOf<
+  typeof PersonalInformationSchema
+>;
+
 // personal information body
 export const PersonalInformationBody = z
   .object({
-    displayName: z.string().min(3).max(15),
-    username: z.string().min(1).max(12),
-    description: z.string().max(1000),
-    twitterLink: z.string(),
-    facebookLink: z.string(),
-    instagramLink: z.string(),
-    linkedinLink: z.string(),
+    data: PersonalInformationSchema,
+    message: z.string(),
   })
   .strict();
 
@@ -90,4 +103,26 @@ export const ResetPasswordWithOtpBody = z
 
 export type ResetPasswordWithOtpBodyType = z.TypeOf<
   typeof ResetPasswordWithOtpBody
+>;
+
+export const UpdateProfileUserBody = z.object({
+  fullName: z.string().min(3).max(15),
+  phoneNumber: z.string().min(10).max(10),
+  profilePictureUrl: z.string().optional(),
+  descrtiption: z.string().max(1000),
+  socialLink: z.object({
+    facebook: z.string().optional(),
+    instagram: z.string().optional(),
+    twitter: z.string().optional(),
+    linkedIn: z.string().optional(),
+  }),
+});
+export type UpdateProfileUserBodyType = z.TypeOf<typeof UpdateProfileUserBody>;
+
+export const UpdateAvatarProfileBody = z.object({
+  data: z.string(),
+  message: z.string(),
+});
+export type UpdateAvatarProfileBodyType = z.TypeOf<
+  typeof UpdateAvatarProfileBody
 >;

@@ -67,6 +67,10 @@ export const handleErrorApi = ({
 
 const isBrowser = typeof window !== "undefined";
 
+export const getUserIdFromLocalStorage = () => {
+  return isBrowser ? localStorage.getItem("userId") : null;
+};
+
 export const getAccessTokenFromLocalStorage = () => {
   return isBrowser ? localStorage.getItem("accessToken") : null;
 };

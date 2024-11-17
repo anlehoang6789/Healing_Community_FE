@@ -1,5 +1,5 @@
 import accountApiRequest from "@/apiRequests/account";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useChangePasswordUserMutation = () => {
   return useMutation({
@@ -20,6 +20,32 @@ export const useResetPasswordWhenHaveOtpMutation = (onSuccess?: () => void) => {
       if (onSuccess) {
         onSuccess();
       }
+    },
+  });
+};
+
+export const useGetUserProfileQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["user-profile", userId],
+    queryFn: () => accountApiRequest.getUserProfile(userId),
+  });
+};
+
+export const useUpdateAvatarProfileMutation = () => {
+  return useMutation({
+    mutationFn: accountApiRequest.updateAvatarProfile,
+  });
+};
+
+export const useUpdateProfileUserMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: accountApiRequest.updateProfileUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["user-profile"],
+        exact: true,
+      });
     },
   });
 };
