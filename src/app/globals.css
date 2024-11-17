@@ -132,8 +132,8 @@ body {
   .dark {
     --background: 204, 50%, 5%; /* màu nền #040d12 */
     --foreground: 45, 23%, 82%; /* màu chữ #dcd7c9 */
-    --card: 180, 7%, 19%; /* màu card #262626 */
-    --card-foreground: 45, 23%, 82%; /* màu chữ trên card #dcd7c9 */
+    --card: 204, 50%, 5%;
+    --card-foreground: 210 40% 98%;
     --popover: 180, 7%, 19%; /* màu popover #262626 */
     --popover-foreground: 45, 23%, 82%; /* màu chữ trên popover #dcd7c9 */
     --primary: 180, 7%, 19%; /* màu primary #0F0F0F */
