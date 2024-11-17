@@ -31,6 +31,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import DeleteGroup from "@/app/moderator/manage-groups/delete-group";
 import EditGroup from "@/app/moderator/manage-groups/edit-group";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 type Group = {
   id: string;
@@ -159,13 +167,20 @@ const groups: Group[] = [
 
 export default function ListOfGroupsForModerator() {
   const { theme } = useTheme();
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const groupsPerPage = 9; // Số nhóm hiển thị trên mỗi trang
+  const totalPages = Math.ceil(groups.length / groupsPerPage);
+
+  const getCurrentPageGroups = () => {
+    const startIndex = (currentPage - 1) * groupsPerPage;
+    const endIndex = startIndex + groupsPerPage;
+    return groups.slice(startIndex, endIndex);
+  };
 
   return (
     <div className="container mx-auto ">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {groups.map((group) => (
-          //   <HoverCard key={group.id} openDelay={100} closeDelay={200}>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        {getCurrentPageGroups().map((group) => (
           <Card key={group.id} className="transition-shadow relative">
             <CardContent className="p-4 flex items-center space-x-4 relative">
               <Link href="#">
@@ -250,6 +265,48 @@ export default function ListOfGroupsForModerator() {
           //     </HoverCardContent>
           //   </HoverCard>
         ))}
+      </div>
+
+      <div className="mt-4">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                className="text-muted-foreground"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.max(prev - 1, 1));
+                }}
+              />
+            </PaginationItem>
+            {[...Array(totalPages)].map((_, index) => (
+              <PaginationItem key={index}>
+                <PaginationLink
+                  className="text-muted-foreground"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(index + 1);
+                  }}
+                  isActive={currentPage === index + 1}
+                >
+                  {index + 1}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            <PaginationItem>
+              <PaginationNext
+                className="text-muted-foreground"
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+                }}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
     </div>
   );
