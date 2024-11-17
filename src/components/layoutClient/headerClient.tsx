@@ -7,7 +7,6 @@ import {
   Home,
   Users,
   Bookmark,
-  Bell,
   Settings,
   Music,
   UserRoundPen,
@@ -38,16 +37,14 @@ import {
 import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import Image from "next/image";
 import DarkModeToggle from "@/components/dark-mode-toogle";
-import { useEffect, useState } from "react";
-import {
-  cn,
-  getAccessTokenFromLocalStorage,
-  handleErrorApi,
-} from "@/lib/utils";
+import { useState } from "react";
+import { cn, getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import sidebarItems from "@/components/layoutExpert/sidebarItems";
 import NotificationPopover from "@/components/notification/notificationPopover";
+import { useAppContext } from "@/components/app-provider";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/" },
@@ -65,21 +62,23 @@ export default function Header() {
   const [isExpertMenuOpen, setExpertMenuOpen] = useState(false);
   const { theme } = useTheme();
   const router = useRouter();
-  const [isAuth, setIsAuth] = useState(false);
-  useEffect(() => {
-    setIsAuth(Boolean(getAccessTokenFromLocalStorage()));
-  }, []);
+  // check xem đã đăng nhập chưa
+  const { isAuth, setIsAuth } = useAppContext();
 
   const logoutMutation = useLogoutMutation();
   const handleLogout = async () => {
     if (logoutMutation.isPending) return;
     try {
       await logoutMutation.mutateAsync();
+      setIsAuth(false);
       router.push("/");
     } catch (error) {
       handleErrorApi({ error });
     }
   };
+
+  const userId = getUserIdFromLocalStorage();
+  const { data: userProfile } = useGetUserProfileQuery(userId as string);
 
   return (
     <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
@@ -199,8 +198,8 @@ export default function Header() {
                   className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0"
                 >
                   <Image
-                    src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                    alt="Avatar"
+                    src={userProfile?.payload.data.profilePicture ?? ""}
+                    alt={userProfile?.payload.data.fullName ?? ""}
                     fill
                     style={{
                       objectFit: "cover",

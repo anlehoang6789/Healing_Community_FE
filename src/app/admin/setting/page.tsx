@@ -15,7 +15,7 @@ export default function AdminSetting() {
             variant="outline"
             className="ml-auto sm:ml-0 text-muted-foreground"
           >
-            Quản lí
+            Quản trị viên
           </Badge>
         </div>
         <div className="grid gap-4 md:grid-cols-2 md:gap-8">

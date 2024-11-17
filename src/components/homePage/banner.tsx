@@ -3,8 +3,14 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAppContext } from "@/components/app-provider";
 
 export default function Banner() {
+  const { isAuth } = useAppContext();
+  if (isAuth) {
+    return <div className="mt-6"></div>;
+  }
+
   return (
     <div className="relative w-full h-[40vh] overflow-hidden bg-gradient-to-r from-purple-500 to-pink-500 mb-8 rounded-lg">
       <motion.div

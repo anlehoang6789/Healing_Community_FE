@@ -40,7 +40,11 @@ export default function DeleteAccountModerator() {
               Hủy
             </Button>
           </DialogClose>
-          <Button type="submit" className="ml-0 md:ml-2 w-full md:w-28">
+          <Button
+            type="submit"
+            variant={"destructive"}
+            className=" ml-0 md:ml-2 w-full md:w-28"
+          >
             Xác nhận
           </Button>
         </DialogFooter>

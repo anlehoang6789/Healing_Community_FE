@@ -9,20 +9,20 @@ export default function PersonalInformation() {
         <h1 className="text-2xl font-bold text-muted-foreground">
           Thông tin cá nhân
         </h1>
-        <div className="space-x-2 hidden md:flex">
+        {/* <div className="space-x-2 hidden md:flex">
           <Button variant="outline" className="text-muted-foreground">
             Hủy
           </Button>
           <Button>Lưu thay đổi</Button>
-        </div>
+        </div> */}
       </div>
       <PersonalInformationForm />
-      <div className="flex flex-col md:hidden justify-end space-y-2 md:space-y-0 md:space-x-2 mt-6">
+      {/* <div className="flex flex-col md:hidden justify-end space-y-2 md:space-y-0 md:space-x-2 mt-6">
         <Button variant="outline" className="text-muted-foreground">
           Hủy
         </Button>
         <Button>Lưu thay đổi</Button>
-      </div>
+      </div> */}
     </div>
   );
 }

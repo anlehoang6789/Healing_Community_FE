@@ -11,7 +11,9 @@ export function middleware(request: NextRequest) {
 
   /// Chưa đăng nhập thì kh cho vào private path -> chưa đăng nhập thì kh có refreshToken
   if (privatePaths.some((path) => pathname.startsWith(path)) && !refreshToken) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    const url = new URL("/login", request.url);
+    url.searchParams.set("clearToken", "true");
+    return NextResponse.redirect(url);
   }
 
   // Đã đăng nhập thì không cho vào trang login
@@ -25,8 +27,10 @@ export function middleware(request: NextRequest) {
     !accessToken &&
     refreshToken
   ) {
-    const url = new URL("/logout", request.url);
+    const url = new URL("/refresh-token", request.url);
     url.searchParams.set("refreshToken", refreshToken);
+    // khi gặp tình trạng lâu ngày vào lại web mà mất accessToken thì check nếu mà còn refreshToken thì gọi api để lấy cặp token mới và redirect về cái url mà người dùng đang muốn vào
+    url.searchParams.set("redirect", pathname);
 
     return NextResponse.redirect(url);
   }

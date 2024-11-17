@@ -1,15 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Bookmark,
   Flag,
   Heart,
+  ImageIcon,
   MessageCircle,
   MoreHorizontal,
   SendHorizontal,
   Share2,
+  Smile,
   ThumbsUp,
+  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,6 +26,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 
+import Picker from "@emoji-mart/react";
+import data from "@emoji-mart/data";
+
 interface Comment {
   id: string;
   user: {
@@ -32,6 +38,7 @@ interface Comment {
   content: string;
   timestamp: string;
   likes: number;
+  image?: string;
   replies?: Comment[];
 }
 
@@ -83,9 +90,50 @@ export default function DetailPost() {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
   const { theme } = useTheme();
+  const [commentImage, setCommentImage] = useState<string | null>(null);
+  const [replyImages, setReplyImages] = useState<{
+    [key: string]: string | null;
+  }>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [emojiPickerForReply, setEmojiPickerForReply] = useState<string | null>(
+    null
+  );
+
+  const addEmoji = (emoji: any, isReply: boolean, commentId?: string) => {
+    if (isReply && commentId) {
+      setReplyContent((prevContent) => prevContent + emoji.native);
+      setEmojiPickerForReply(null); // Đóng emoji picker sau khi chọn
+    } else {
+      setNewComment((prevComment) => prevComment + emoji.native);
+      setShowEmojiPicker(false);
+    }
+  };
+
+  const handleImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    isReply: boolean,
+    commentId?: string
+  ) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (isReply && commentId) {
+          setReplyImages((prev) => ({
+            ...prev,
+            [commentId]: reader.result as string,
+          }));
+        } else {
+          setCommentImage(reader.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleAddComment = () => {
-    if (newComment.trim()) {
+    if (newComment.trim() || commentImage) {
       const comment: Comment = {
         id: `comment-${Date.now()}`,
         user: {
@@ -96,15 +144,17 @@ export default function DetailPost() {
         content: newComment,
         timestamp: "Vừa xong",
         likes: 0,
+        image: commentImage || undefined,
       };
 
       post.comments.push(comment);
       setNewComment("");
+      setCommentImage(null);
     }
   };
 
   const handleAddReply = (parentId: string) => {
-    if (replyContent.trim()) {
+    if (replyContent.trim() || replyImages[parentId]) {
       const newReply: Comment = {
         id: `reply-${Date.now()}`,
         user: {
@@ -115,6 +165,7 @@ export default function DetailPost() {
         content: replyContent,
         timestamp: "Vừa xong",
         likes: 0,
+        image: replyImages[parentId] || undefined,
       };
 
       const updateReplies = (comments: Comment[]): Comment[] => {
@@ -138,6 +189,7 @@ export default function DetailPost() {
       post.comments = updateReplies(post.comments);
       setReplyingTo(null);
       setReplyContent("");
+      setReplyImages((prev) => ({ ...prev, [parentId]: null }));
     }
   };
 
@@ -165,6 +217,15 @@ export default function DetailPost() {
             <p className="text-black whitespace-pre-wrap break-all">
               {comment.content}
             </p>
+            {comment.image && (
+              <Image
+                src={comment.image}
+                alt="Comment image"
+                width={200}
+                height={200}
+                className="mt-2 rounded-lg"
+              />
+            )}
           </div>
 
           <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
@@ -204,6 +265,23 @@ export default function DetailPost() {
                   placeholder="Nhập trả lời..."
                 />
               </div>
+
+              <Button
+                variant="iconSend"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                className=" absolute right-9 top-1/2 transform -translate-y-1/2 "
+              >
+                <ImageIcon className="h-5 w-5" />
+              </Button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={(e) => handleImageUpload(e, true, comment.id)}
+                accept="image/*"
+                className="hidden"
+              />
+
               <Button
                 variant="iconSend"
                 onClick={() => handleAddReply(comment.id)}
@@ -211,8 +289,64 @@ export default function DetailPost() {
               >
                 <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
               </Button>
+
+              {/* Emoji Button */}
+              <Button
+                variant="iconSend"
+                size="icon"
+                onClick={() => {
+                  // Nếu đang mở cho comment này thì đóng, ngược lại mở
+                  setEmojiPickerForReply(
+                    emojiPickerForReply === comment.id ? null : comment.id
+                  );
+                }}
+                className="absolute right-16 top-1/2 transform -translate-y-1/2"
+              >
+                <Smile className="h-5 w-5" />
+              </Button>
+
+              {/* Emoji Picker chỉ hiện cho comment đang được chọn */}
+              {emojiPickerForReply === comment.id && (
+                <div className="absolute bottom-full right-16 z-50">
+                  <Picker
+                    data={data}
+                    onEmojiSelect={(emoji: any) =>
+                      addEmoji(emoji, true, comment.id)
+                    }
+                    theme="light"
+                    previewPosition="none"
+                    skinTonePosition="none"
+                    autoFocus={true}
+                    locale="vi"
+                  />
+                </div>
+              )}
             </div>
           )}
+
+          {/* image comment preview */}
+          {replyImages[comment.id] && (
+            <div className="relative w-24 h-24 mb-4">
+              <Image
+                src={replyImages[comment.id] as string}
+                alt="Uploaded image"
+                layout="fill"
+                objectFit="cover"
+                className="rounded-lg"
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() =>
+                  setReplyImages((prev) => ({ ...prev, [comment.id]: null }))
+                }
+                className="absolute top-1 right-1 h-6 w-6 rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+
           {comment.replies && comment.replies.length > 0 && (
             <div className="mt-2">
               {renderComments(comment.replies, depth + 1)}
@@ -375,14 +509,76 @@ export default function DetailPost() {
               className="border rounded-lg p-2 pr-10 w-full resize-none min-h-[40px] max-h-[120px] text-muted-foreground"
               placeholder="Nhập bình luận..."
             />
+
+            <Button
+              variant="iconSend"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              className=" absolute right-9 top-1/2 transform -translate-y-1/2 "
+            >
+              <ImageIcon className="h-5 w-5" />
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={(e) => handleImageUpload(e, false)}
+              accept="image/*"
+              className="hidden"
+            />
+
             <Button
               variant="iconSend"
               onClick={handleAddComment}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2"
+              className="absolute right-0 top-1/2 transform -translate-y-1/2"
             >
               <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
             </Button>
+
+            {/* emoji Button */}
+            <Button
+              variant="iconSend"
+              size="icon"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              className="absolute right-16 top-1/2 transform -translate-y-1/2"
+            >
+              <Smile className="h-5 w-5" />
+            </Button>
+
+            {showEmojiPicker && (
+              <div className="absolute bottom-full right-16 z-50">
+                <Picker
+                  data={data}
+                  onEmojiSelect={(emoji: any) => addEmoji(emoji, false)}
+                  theme="light"
+                  previewPosition="none"
+                  skinTonePosition="none"
+                  autoFocus="true"
+                  locale="vi"
+                />
+              </div>
+            )}
           </div>
+
+          {/* image comment preview */}
+          {commentImage && (
+            <div className="relative w-24 h-24 mb-4">
+              <Image
+                src={commentImage}
+                alt="Uploaded image"
+                layout="fill"
+                objectFit="cover"
+                className="rounded-lg"
+              />
+              <Button
+                variant="destructive"
+                size="icon"
+                onClick={() => setCommentImage(null)}
+                className="absolute top-1 right-1 h-6 w-6 rounded-full"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
           {/* reply comment */}
           <div className="w-full ">{renderComments(post.comments)}</div>

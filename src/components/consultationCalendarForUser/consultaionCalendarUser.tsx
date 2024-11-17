@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Filter,
   MoreHorizontal,
+  Video,
 } from "lucide-react";
 import {
   Dialog,
@@ -38,6 +39,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import Link from "next/link";
+import ReportDialog from "@/components/consultationCalendarForUser/dialogReport";
+import { useTheme } from "next-themes";
 
 type Consultation = {
   id: string;
@@ -46,6 +50,7 @@ type Consultation = {
   date: string;
   startTime: string;
   endTime: string;
+  linkMeet: string;
   status: "upcoming" | "completed" | "cancelled";
 };
 
@@ -59,6 +64,7 @@ const consultations: Consultation[] = [
     startTime: "14:00",
     endTime: "15:00",
     status: "completed",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "2",
@@ -69,6 +75,7 @@ const consultations: Consultation[] = [
     startTime: "10:30",
     endTime: "11:30",
     status: "completed",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "3",
@@ -79,6 +86,7 @@ const consultations: Consultation[] = [
     startTime: "16:00",
     endTime: "17:00",
     status: "cancelled",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "4",
@@ -89,6 +97,7 @@ const consultations: Consultation[] = [
     startTime: "09:00",
     endTime: "10:00",
     status: "upcoming",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "5",
@@ -99,6 +108,7 @@ const consultations: Consultation[] = [
     startTime: "14:00",
     endTime: "15:00",
     status: "completed",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "6",
@@ -109,6 +119,7 @@ const consultations: Consultation[] = [
     startTime: "10:30",
     endTime: "11:30",
     status: "completed",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "7",
@@ -119,6 +130,7 @@ const consultations: Consultation[] = [
     startTime: "16:00",
     endTime: "17:00",
     status: "cancelled",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "8",
@@ -129,6 +141,7 @@ const consultations: Consultation[] = [
     startTime: "09:00",
     endTime: "10:00",
     status: "upcoming",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "9",
@@ -139,6 +152,7 @@ const consultations: Consultation[] = [
     startTime: "14:00",
     endTime: "15:00",
     status: "completed",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "10",
@@ -149,6 +163,7 @@ const consultations: Consultation[] = [
     startTime: "10:30",
     endTime: "11:30",
     status: "completed",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "11",
@@ -159,6 +174,7 @@ const consultations: Consultation[] = [
     startTime: "16:00",
     endTime: "17:00",
     status: "cancelled",
+    linkMeet: "https://meet.google.com/abc123",
   },
   {
     id: "12",
@@ -169,6 +185,7 @@ const consultations: Consultation[] = [
     startTime: "09:00",
     endTime: "10:00",
     status: "upcoming",
+    linkMeet: "https://meet.google.com/abc123",
   },
 ];
 
@@ -180,13 +197,23 @@ const reportReasons = [
 ];
 
 export default function ConsultationSchedule() {
-  const [reportDialogOpen, setReportDialogOpen] = React.useState(false);
-  const [selectedExpert, setSelectedExpert] = React.useState<string | null>(
-    null
-  );
+  // const [reportDialogOpen, setReportDialogOpen] = React.useState(false);
+  // const dialogTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const { theme } = useTheme();
+  // const [selectedExpert, setSelectedExpert] = React.useState<string | null>(
+  //   null
+  // );
   const [reportText, setReportText] = React.useState("");
   const [selectedReasons, setSelectedReasons] = React.useState<string[]>([]);
   const [statusFilter, setStatusFilter] = React.useState<string[]>([]);
+
+  // const handleCloseDialog = () => {
+  //   setReportDialogOpen(false);
+  //   // Đặt focus vào nút mở dialog sau khi đóng
+  //   setTimeout(() => {
+  //     dialogTriggerRef.current?.focus();
+  //   }, 0);
+  // };
 
   const sortedConsultations = React.useMemo(() => {
     const now = new Date();
@@ -208,27 +235,28 @@ export default function ConsultationSchedule() {
         );
   }, [sortedConsultations, statusFilter]);
 
-  const handleOpenReportDialog = (expertName: string) => {
-    setSelectedExpert(expertName);
-    setReportDialogOpen(true);
+  // const handleOpenReportDialog = (expertName: string) => {
+  //   setSelectedExpert(expertName);
+  //   setReportDialogOpen(true);
+  //   setReportText("");
+  //   setSelectedReasons([]);
+  // };
+
+  const handleSendReport = () => {
+    // Xử lý gửi báo cáo ở đây
+
+    // Reset các giá trị sau khi gửi báo cáo
     setReportText("");
     setSelectedReasons([]);
   };
 
-  const handleSendReport = () => {
-    console.log(`Report sent for ${selectedExpert}`);
-    console.log(`Selected reasons: ${selectedReasons.join(", ")}`);
-    console.log(`Report text: ${reportText}`);
-    setReportDialogOpen(false);
-  };
-
-  const handleReasonChange = (reasonId: string) => {
-    setSelectedReasons((prev) =>
-      prev.includes(reasonId)
-        ? prev.filter((id) => id !== reasonId)
-        : [...prev, reasonId]
-    );
-  };
+  // const handleReasonChange = (reasonId: string) => {
+  //   setSelectedReasons((prev) =>
+  //     prev.includes(reasonId)
+  //       ? prev.filter((id) => id !== reasonId)
+  //       : [...prev, reasonId]
+  //   );
+  // };
 
   const handleStatusFilterChange = (status: string) => {
     setStatusFilter((prev) =>
@@ -290,7 +318,15 @@ export default function ConsultationSchedule() {
         // nếu có lịch tư vấn
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredConsultations.map((consultation) => (
-            <Card key={consultation.id} className="flex flex-col">
+            <Card
+              key={consultation.id}
+              className="flex flex-col relative overflow-hidden "
+            >
+              {consultation.status === "upcoming" && (
+                <div className="absolute -right-[4.5rem] top-6 w-[15rem] h-8 rotate-45 bg-gradient-to-br from-rose-300 via-rose-300 to-rose-400 text-rose-950 text-xs font-bold flex items-center justify-center shadow-[0_5px_10px_rgba(244,63,94,0.3)] transform transition-all duration-300 hover:scale-110 hover:shadow-[0_8px_15px_rgba(244,63,94,0.4)] before:content-[''] before:absolute before:left-0 before:top-full before:w-4 before:h-4 before:bg-rose-400 before:clip-path-[polygon(0_0,100%_100%,100%_0)] after:content-[''] after:absolute after:right-0 after:top-full after:w-4 after:h-4 after:bg-rose-400 after:clip-path-[polygon(0_100%,0_0,100%_0)]">
+                  Sắp diễn ra
+                </div>
+              )}
               {/* Avatar, tên chuyên gia, chuyên ngành */}
               <CardHeader>
                 <div className="flex gap-3 w-full">
@@ -318,18 +354,33 @@ export default function ConsultationSchedule() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-backgroundChat p-0"
+                        className={` ${
+                          theme === "dark"
+                            ? "bg-black text-white"
+                            : "bg-white text-black"
+                        }`}
                       >
-                        <Button
+                        {/* <Button
                           variant="ghost"
                           className="w-full"
+                          ref={dialogTriggerRef}
                           onClick={() =>
                             handleOpenReportDialog(consultation.expertName)
                           }
                         >
                           <Send className="mr-2 h-4 w-4" />
                           <span>Gửi báo cáo</span>
-                        </Button>
+                        </Button> */}
+
+                        <ReportDialog
+                          expertName={consultation.expertName}
+                          reportText={reportText}
+                          setReportText={setReportText}
+                          selectedReasons={selectedReasons}
+                          setSelectedReasons={setSelectedReasons}
+                          reportReasons={reportReasons}
+                          onSendReport={handleSendReport}
+                        />
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
@@ -346,21 +397,22 @@ export default function ConsultationSchedule() {
                     {consultation.startTime} - {consultation.endTime}
                   </span>
                 </div>
-                <Badge
-                  variant={
-                    consultation.status === "upcoming"
-                      ? "upcoming"
-                      : consultation.status === "completed"
-                      ? "success"
-                      : "cancel"
-                  }
-                >
-                  {consultation.status === "upcoming"
-                    ? "Sắp diễn ra"
-                    : consultation.status === "completed"
-                    ? "Đã hoàn thành"
-                    : "Đã hủy"}
-                </Badge>
+                {consultation.status === "upcoming" && (
+                  <div className="flex items-center space-x-2 mb-2">
+                    <Video className="h-4 w-4 opacity-70" />
+                    <Link href={consultation.linkMeet}>
+                      <span className="text-sm hover:underline">
+                        {consultation.linkMeet}
+                      </span>
+                    </Link>
+                  </div>
+                )}
+                {consultation.status === "completed" && (
+                  <Badge variant="success">Đã hoàn thành</Badge>
+                )}
+                {consultation.status === "cancelled" && (
+                  <Badge variant="cancel">Đã hủy</Badge>
+                )}
               </CardContent>
             </Card>
           ))}
@@ -368,7 +420,7 @@ export default function ConsultationSchedule() {
       )}
 
       {/* Dialog report */}
-      <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+      {/* <Dialog open={reportDialogOpen} onOpenChange={handleCloseDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="text-muted-foreground">
@@ -415,7 +467,7 @@ export default function ConsultationSchedule() {
             </Button>
           </DialogFooter>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </div>
   );
 }
