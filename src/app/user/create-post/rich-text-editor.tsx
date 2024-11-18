@@ -19,15 +19,24 @@ import "froala-editor/js/plugins/word_counter.min.js";
 import "froala-editor/js/plugins/word_paste.min.js";
 import "froala-editor/js/plugins/save.min.js";
 import "froala-editor/js/languages/vi";
-import { useState } from "react";
 
-export default function RichTextEditor({ id }: { id: string }) {
-  const [model, setModel] = useState<string>("");
+interface RichTextEditorProps {
+  id: string;
+  value: string;
+  onChange: (value: string) => void;
+}
+
+export default function RichTextEditor({
+  id,
+  value,
+  onChange,
+}: RichTextEditorProps) {
+  // const [model, setModel] = useState<string>("");
   return (
     <div>
       <FroalaEditor
-        model={model}
-        onModelChange={(e: string) => setModel(e)}
+        model={value}
+        onModelChange={onChange}
         config={{
           placeholderText: "Nhập nội dung bài viết của bạn...",
           key: "INSERT-YOUR-FROALA-KEY-HERE",
@@ -40,7 +49,8 @@ export default function RichTextEditor({ id }: { id: string }) {
             },
           },
           imageDefaultWidth: 600,
-          // imageResize: false,
+          imageResize: false,
+          imageMaxWidth: 600,
           paragraphFormat: {
             N: "Normal",
             H1: "Heading 1",

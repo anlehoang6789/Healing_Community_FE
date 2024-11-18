@@ -198,8 +198,11 @@ export default function Header() {
                   className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0"
                 >
                   <Image
-                    src={userProfile?.payload.data.profilePicture ?? ""}
-                    alt={userProfile?.payload.data.fullName ?? ""}
+                    src={
+                      userProfile?.payload.data.profilePicture ||
+                      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                    }
+                    alt={userProfile?.payload.data.fullName ?? "User Avatar"}
                     fill
                     style={{
                       objectFit: "cover",
