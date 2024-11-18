@@ -46,7 +46,7 @@ import NotificationPopover from "@/components/notification/notificationPopover";
 import { useAppContext } from "@/components/app-provider";
 
 const navItems = [
-  { icon: Home, label: "Trang chủ", href: "/" },
+  { icon: Home, label: "Trang chủ", href: "/", authRequired: true },
   {
     icon: Users,
     label: "Nhóm",
@@ -81,8 +81,8 @@ export default function Header() {
       {/* Logo and Search */}
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link
-          href="/"
-          className=" items-center space-x-2 relative hidden md:block"
+          href={isAuth ? "/home" : "/"}
+          className="items-center space-x-2 relative hidden md:block"
         >
           <Image
             src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Flogo.png?alt=media&token=4e7cda70-2c98-4185-a693-b03564f68a4c"
@@ -92,6 +92,14 @@ export default function Header() {
             style={{ width: "auto", height: "auto" }}
           />
         </Link>
+
+        {!isAuth && (
+          <Link href={"/home"}>
+            <Button variant="headerIconNoBorder" className="text-base w-[80px]">
+              Khám phá
+            </Button>
+          </Link>
+        )}
 
         {/* Search Input - Điều chỉnh theo trạng thái đăng nhập */}
         <div
