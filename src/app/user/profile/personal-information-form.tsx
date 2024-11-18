@@ -133,7 +133,10 @@ export default function PersonalInformationForm() {
                   <div className="relative w-48 h-48 mx-auto">
                     <Avatar className="w-full h-full">
                       <AvatarImage
-                        src={previewAvatarFromFile}
+                        src={
+                          previewAvatarFromFile ||
+                          "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                        }
                         alt={data?.payload?.data?.fullName}
                       />
                       <AvatarFallback>

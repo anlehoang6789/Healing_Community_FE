@@ -10,18 +10,24 @@ import {
 } from "@/components/ui/form";
 import { ImageUp } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import {
-  PostStoryBody,
-  PostStoryBodyType,
-} from "@/schemaValidations/story.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
+import React, { useMemo, useRef, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import dynamic from "next/dynamic";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Category } from "@/constants/category.type";
 import CategoryCombobox from "@/components/createPost/category-combobox";
+import {
+  CreatePostBody,
+  CreatePostBodyType,
+} from "@/schemaValidations/post.schema";
+import Image from "next/image";
+import {
+  useCreatePostMutation,
+  useUploadAvatarCoverFromFileMutation,
+} from "@/queries/usePost";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
 
 const RichTextEditor = dynamic(
   () => import("@/app/user/create-post/rich-text-editor"),
@@ -31,16 +37,17 @@ const RichTextEditor = dynamic(
 );
 
 export default function PostStoryForm() {
+  const [file, setFile] = useState<File | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [wordCount, setWordCount] = useState(0);
-  const form = useForm<PostStoryBodyType>({
-    resolver: zodResolver(PostStoryBody),
+  const form = useForm<CreatePostBodyType>({
+    resolver: zodResolver(CreatePostBody),
     defaultValues: {
+      categoryId: "",
       title: "",
       description: "",
-      imageUrl: "",
-      videoUrl: "",
-      status: "public",
-      category: Category.Travel,
+      coverImgUrl: "",
+      status: 0,
     },
   });
 
@@ -55,10 +62,64 @@ export default function PostStoryForm() {
     }
   };
 
+  const profilePicture = form.watch("coverImgUrl");
+  const previewAvatarFromFile = useMemo(() => {
+    if (file) {
+      return URL.createObjectURL(file);
+    }
+    return profilePicture;
+  }, [file, profilePicture]);
+
+  // Hàm xử lí sau khi hiện ảnh xem trước vẫn có thể click vào ảnh để chọn bức ảnh khác
+  const handleClickImage = () => {
+    if (avatarInputRef.current) {
+      avatarInputRef.current.click();
+    }
+  };
+  const reset = () => {
+    form.reset();
+    setFile(null);
+  };
+
+  // Xử lí việc tạo bài viết
+  const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
+  const createPostMutation = useCreatePostMutation();
+  const onSubmit = async (data: CreatePostBodyType) => {
+    if (createPostMutation.isPending) return;
+    try {
+      let body = data;
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadAvatarResult = await uploadAvatarCover.mutateAsync(
+          formData
+        );
+        const imageUrl = uploadAvatarResult.payload.url;
+        body = { ...data, coverImgUrl: imageUrl };
+        const result = await createPostMutation.mutateAsync(body);
+        toast({
+          title: result.payload.message,
+          description:
+            "Bài viết của bạn đang được quản trị viên kiểm duyệt. Hãy chú ý thông báo từ hệ thống nhé!!!",
+          variant: "success",
+        });
+        reset();
+      }
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
   return (
     <div className="p-4">
       <Form {...form}>
-        <form className="space-y-4">
+        <form
+          noValidate
+          className="space-y-4"
+          onSubmit={form.handleSubmit(onSubmit, (error) => {
+            console.warn(error);
+          })}
+        >
           <div className="grid gap-4">
             <FormField
               control={form.control}
@@ -99,11 +160,11 @@ export default function PostStoryForm() {
             />
             <FormField
               control={form.control}
-              name="imageUrl"
+              name="coverImgUrl"
               render={({ field }) => (
                 <FormItem>
-                  <div className="grid gap-2">
-                    <Label htmlFor="imageUrl" className="sr-only">
+                  <div className="grid gap-2 relative">
+                    <Label htmlFor="coverImgUrl" className="sr-only">
                       Hình ảnh
                     </Label>
                     <div className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-gray-400 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors relative">
@@ -116,14 +177,31 @@ export default function PostStoryForm() {
                       </p>
                       <input
                         type="file"
-                        id="imageUrl"
-                        {...field}
+                        id="coverImgUrl"
+                        accept="image/*"
+                        ref={avatarInputRef}
                         onChange={(e) => {
-                          console.log(e.target.files);
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            setFile(file);
+                            field.onChange(
+                              "http://localhost:3000/" + file.name
+                            );
+                          }
                         }}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                       />
                     </div>
+                    {file && (
+                      <Image
+                        src={previewAvatarFromFile}
+                        alt="Preview"
+                        className="absolute top-0 left-0 rounded-md"
+                        style={{ objectFit: "cover" }}
+                        fill
+                        onClick={handleClickImage}
+                      />
+                    )}
                     <FormMessage />
                   </div>
                 </FormItem>
@@ -135,7 +213,18 @@ export default function PostStoryForm() {
               render={({ field }) => (
                 <FormItem>
                   <div className="grid gap-2">
-                    <RichTextEditor id="description" />
+                    <Controller
+                      name="description"
+                      control={form.control}
+                      render={({ field }) => (
+                        <RichTextEditor
+                          id="description"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
+
                     <FormMessage />
                   </div>
                 </FormItem>
@@ -150,8 +239,11 @@ export default function PostStoryForm() {
                   <div className="grid gap-2">
                     <FormControl>
                       <RadioGroup
-                        onValueChange={field.onChange}
-                        value={field.value}
+                        onValueChange={(value) => {
+                          const numericValue = value === "public" ? 0 : 1;
+                          field.onChange(numericValue); // Cập nhật giá trị status
+                        }}
+                        value={field.value === 0 ? "public" : "private"} // Xử lý giá trị mặc định
                         className="flex flex-col space-y-1"
                         id="status"
                       >
@@ -182,13 +274,13 @@ export default function PostStoryForm() {
 
             <FormField
               control={form.control}
-              name="category"
+              name="categoryId"
               render={({ field }) => (
                 <FormItem>
                   <div className="grid gap-4">
                     <div className="flex items-center">
                       <Label
-                        htmlFor="category"
+                        htmlFor="categoryId"
                         className="text-gray-500 text-sm font-light"
                         id="category-label"
                       >
@@ -196,7 +288,7 @@ export default function PostStoryForm() {
                       </Label>
                     </div>
                     <CategoryCombobox
-                      id="category"
+                      id="categoryId"
                       aria-labelledby="category-label"
                       value={field.value}
                       onChange={field.onChange}

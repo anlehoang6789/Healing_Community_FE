@@ -16,20 +16,20 @@ const authApiRequest = {
     payload: RefreshTokenResType;
   }> | null,
   loginFromNextServerToBeServer: (body: LoginBodyType) =>
-    http.post<LoginResType>("user/login", body),
+    http.post<LoginResType>("user/api/user/login", body),
   loginFromNextClientToNextServer: (body: LoginBodyType) =>
     http.post<LoginResType>("/api/auth/login", body, {
       baseUrl: "",
     }),
   registerUser: (body: RegisterBodyType) =>
-    http.post<{ message: string }>("user/register-user", body),
+    http.post<{ message: string }>("user/api/user/register-user", body),
   logoutFromNextServerToBeServer: (
     body: LogoutBodyType & {
       accessToken: string;
     }
   ) =>
     http.post<{ message: string }>(
-      "user/logout",
+      "user/api/user/logout",
       {
         refreshToken: body.refreshToken,
       },
@@ -44,7 +44,7 @@ const authApiRequest = {
       baseUrl: "",
     }),
   refreshTokenFromNextServerToBeServer: (body: RefreshTokenBodyType) =>
-    http.post<RefreshTokenResType>("token/refresh-token", body),
+    http.post<RefreshTokenResType>("user/api/token/refresh-token", body),
 
   // API này được xử lí để nó không bị call 2 lần. Tránh trường hợp chuyển trang nhanh quá nó chưa kịp gắn cái access token và refresh token mới để call cái refreshToken lần nữa mà nó lại đi lấy cái cũ để gửi lại
   async refreshTokenFromNextClientToNextServer() {
