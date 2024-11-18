@@ -1,31 +1,48 @@
-import ManaReportExpert from "@/app/moderator/manage-reports/manage-report-expert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+"use client";
+import { cn } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 
 export default function ReportTabs() {
-  return (
-    <Tabs defaultValue="reportUser" className="space-y-4">
-      <TabsList>
-        <TabsTrigger value="reportUser">Người dùng</TabsTrigger>
-        <TabsTrigger value="reportExpert">Chuyên gia</TabsTrigger>
-        <TabsTrigger value="reportComment">Bình luận</TabsTrigger>
-        <TabsTrigger value="reportStories">Câu chuyện</TabsTrigger>
-      </TabsList>
+  const router = useRouter();
+  const pathname = usePathname();
 
-      <TabsContent value="reportUser" className="space-y-4">
-        <div>Người dùng</div>
-      </TabsContent>
-      <TabsContent value="reportExpert" className="space-y-4">
-        <div>
-          <ManaReportExpert />
-        </div>
-      </TabsContent>
-      <TabsContent value="reportComment" className="space-y-4">
-        <div>Bình luận</div>
-      </TabsContent>
-      <TabsContent value="reportStories" className="space-y-4">
-        <div>Câu chuyện</div>
-      </TabsContent>
-    </Tabs>
+  const tabs = [
+    { id: "user", label: "Người dùng", path: "/moderator/manage-reports/user" },
+    {
+      id: "expert",
+      label: "Chuyên gia",
+      path: "/moderator/manage-reports/expert",
+    },
+    {
+      id: "comment",
+      label: "Bình luận",
+      path: "/moderator/manage-reports/comment",
+    },
+    {
+      id: "story",
+      label: "Câu chuyện",
+      path: "/moderator/manage-reports/story",
+    },
+  ];
+  return (
+    <div className="space-y-6">
+      <div className="inline-flex items-center rounded-lg bg-muted p-1">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => router.push(tab.path)}
+            className={cn(
+              "rounded-md px-4 py-2 text-sm font-medium transition-colors",
+              pathname === tab.path
+                ? "bg-backgroundChat text-muted-foreground shadow-sm"
+                : "text-muted-foreground hover:bg-backgroundChat hover:text-primary"
+            )}
+          >
+            <span className="text-muted-foreground">{tab.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

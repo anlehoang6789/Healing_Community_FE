@@ -26,3 +26,22 @@ export const RegisterModeratorBody = z
   });
 
 export type RegisterModeratorBodyType = z.TypeOf<typeof RegisterModeratorBody>;
+
+export const ManageReportUserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  nameReport: z.string(),
+  contentReport: z.string(),
+  email: z.string(),
+  createdAt: z.string(),
+  status: z.number(),
+});
+
+export type ManageReportUserType = z.TypeOf<typeof ManageReportUserSchema>;
+
+export const ManageReportUserList = z.object({
+  data: z.array(ManageReportUserSchema),
+  message: z.string(),
+});
+
+export type ManageReportUserListType = z.TypeOf<typeof ManageReportUserList>;

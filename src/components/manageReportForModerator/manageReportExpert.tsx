@@ -42,7 +42,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import DeleteAccountExpert from "@/app/moderator/manage-reports/delete-account-expert";
+import DeleteAccountExpert from "@/app/moderator/manage-reports/expert/delete-account-expert";
 import { Badge } from "@/components/ui/badge";
 
 type Report = {
@@ -370,7 +370,7 @@ export default function ManageReportExpert() {
           ))}
         </TableBody>
       </Table>
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && (
         <Pagination className="mt-4">
           <PaginationContent>
             <PaginationItem className="text-muted-foreground">
@@ -391,7 +391,7 @@ export default function ManageReportExpert() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      )}
+      )} */}
     </div>
   );
 }
