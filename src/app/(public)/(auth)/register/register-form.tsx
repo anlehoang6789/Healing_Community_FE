@@ -31,6 +31,7 @@ export default function RegisterForm() {
       userName: "",
       password: "",
       confirmPassword: "",
+      isExpert: false,
     },
   });
   const registerUserMutation = useRegisterUserMutation();

@@ -71,6 +71,7 @@ export const RegisterBody = z
         "Mật khẩu phải có ít nhất 1 chữ Hoa, 1 chữ thường, 1 số và 1 kí tự đặc biệt"
       ),
     confirmPassword: z.string().min(8).max(100),
+    isExpert: z.boolean().default(false),
   })
   .strict()
   .superRefine(({ confirmPassword, password }, ctx) => {
