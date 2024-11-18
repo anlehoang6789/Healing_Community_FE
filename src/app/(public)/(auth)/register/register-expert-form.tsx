@@ -12,23 +12,44 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import {
-  RegisterExpertBody,
-  RegisterExpertBodyType,
+  RegisterBody,
+  RegisterBodyType,
 } from "@/schemaValidations/auth.schema";
+import { useRegisterUserMutation } from "@/queries/useAuth";
+import { toast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/lib/utils";
 
 export default function RegisterExpertForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   // const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const form = useForm<RegisterExpertBodyType>({
-    resolver: zodResolver(RegisterExpertBody),
+  const router = useRouter();
+  const form = useForm<RegisterBodyType>({
+    resolver: zodResolver(RegisterBody),
     defaultValues: {
       email: "",
-      username: "",
+      userName: "",
       password: "",
       confirmPassword: "",
+      isExpert: true,
     },
   });
+
+  const registerExpertMutation = useRegisterUserMutation();
+
+  const onSubmit = async (data: RegisterBodyType) => {
+    try {
+      const result = await registerExpertMutation.mutateAsync(data);
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+      router.push("/login");
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
 
   // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   const file = event.target.files?.[0];
@@ -51,7 +72,9 @@ export default function RegisterExpertForm() {
         <form
           className="space-y-4 max-w-[600px] flex-shrink-0 w-full"
           noValidate
-          // onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, (errors) => {
+            console.warn(errors);
+          })}
         >
           <div className="grid gap-4">
             <h1 className="text-4xl font-bold text-black text-center">
@@ -87,7 +110,7 @@ export default function RegisterExpertForm() {
             {/* Username field */}
             <FormField
               control={form.control}
-              name="username"
+              name="userName"
               render={({ field }) => (
                 <FormItem>
                   <div className="grid gap-2">
@@ -98,7 +121,7 @@ export default function RegisterExpertForm() {
                       <span className="text-red-500 ml-1">*</span>
                     </div>
                     <Input
-                      id="username"
+                      id="userName"
                       type="text"
                       placeholder="abcdef"
                       required

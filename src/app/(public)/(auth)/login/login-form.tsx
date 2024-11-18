@@ -51,7 +51,7 @@ export default function LoginForm() {
         variant: "success",
       });
       setIsAuth(true);
-      router.push("/");
+      router.push("/home");
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
     }
