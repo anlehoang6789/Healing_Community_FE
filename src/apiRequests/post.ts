@@ -2,6 +2,7 @@ import http from "@/lib/http";
 import {
   CategoryListSchemaType,
   CreatePostBodyType,
+  PostByIdType,
   UploadImageCoverResponseType,
 } from "@/schemaValidations/post.schema";
 
@@ -15,6 +16,8 @@ const postApiRequest = {
     ),
   createPost: (body: CreatePostBodyType) =>
     http.post<{ message: string }>("post/api/post/create-post", body),
+  getPostByPostId: (postId: string) =>
+    http.get<PostByIdType>(`post/api/post/get-by-id/${postId}`),
 };
 
 export default postApiRequest;
