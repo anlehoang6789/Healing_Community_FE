@@ -235,7 +235,7 @@ export default function ViewPaymentHistory() {
           </TableBody>
         </Table>
       </div>
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <Pagination>
           <PaginationContent>
             <PaginationItem>
@@ -275,7 +275,7 @@ export default function ViewPaymentHistory() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      </div>
+      </div> */}
     </div>
   );
 }

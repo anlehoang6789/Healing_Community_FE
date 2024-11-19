@@ -347,7 +347,7 @@ export default function ExpertReportList() {
           ))}
         </TableBody>
       </Table>
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && (
         <Pagination className="mt-4">
           <PaginationContent>
             <PaginationItem className="text-muted-foreground">
@@ -368,7 +368,7 @@ export default function ExpertReportList() {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      )}
+      )} */}
     </div>
   );
 }

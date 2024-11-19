@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 const privatePaths = ["/user", "/expert"];
-const unAuthPaths = ["/login", "/", "/register"];
+const unAuthPaths = ["/login", "/register"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -16,9 +16,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Đã đăng nhập thì không cho vào trang login
+  // Đã đăng nhập thì không cho vào các đường dẫn unAuthPaths
   if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {
-    return NextResponse.redirect(new URL("/home", request.url));
+    return NextResponse.redirect(new URL("/content", request.url));
+  }
+
+  // Nếu đã đăng nhập, không cho truy cập đúng đường dẫn "/" (landing-page)
+  if (pathname === "/" && refreshToken) {
+    return NextResponse.redirect(new URL("/content", request.url));
   }
 
   // Nếu đang ở trong private path mà không có accessToken(hết hạn accessToken) thì chuyển hướng về trang logout
@@ -41,5 +46,5 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/user/:path*", "/expert/:path*", "/login", "/register", "/"],
+  matcher: ["/user/:path*", "/expert/:path*", "/register", "/login", "/"],
 };
