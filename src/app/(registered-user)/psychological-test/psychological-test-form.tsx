@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useGetDass21QuizQuery } from "@/queries/useQuizz";
 
 const questions = [
   {
@@ -101,6 +102,8 @@ export default function PsychologicalTestForm() {
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const totalQuestions = questions.length;
+
+  const getDass21Quiz = useGetDass21QuizQuery();
 
   const handleOptionChange = (index: number, selectedValue: string) => {
     setSelectedOptions((prev) => ({
