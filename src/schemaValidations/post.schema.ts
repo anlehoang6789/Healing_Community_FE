@@ -31,3 +31,24 @@ export const CreatePostBody = z.object({
 });
 
 export type CreatePostBodyType = z.TypeOf<typeof CreatePostBody>;
+
+export const PostByIdSchema = z.object({
+  postId: z.string(),
+  userId: z.string(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type PostByIdSchemaType = z.TypeOf<typeof PostByIdSchema>;
+
+export const PostByIdSchemaWrapper = z.object({
+  data: PostByIdSchema,
+  message: z.string(),
+});
+
+export type PostByIdType = z.TypeOf<typeof PostByIdSchemaWrapper>;

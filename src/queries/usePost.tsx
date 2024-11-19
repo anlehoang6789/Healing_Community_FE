@@ -19,3 +19,10 @@ export const useCreatePostMutation = () => {
     mutationFn: postApiRequest.createPost,
   });
 };
+
+export const useGetPostByPostIdQuery = (postId: string) => {
+  return useQuery({
+    queryKey: ["post-by-id", postId],
+    queryFn: () => postApiRequest.getPostByPostId(postId),
+  });
+};
