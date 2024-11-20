@@ -34,6 +34,7 @@ export const PersonalInformationSchema = z.object({
   phoneNumber: z.string().min(10).max(10),
   profilePicture: z.string(),
   descrtiption: z.string().max(1000),
+  createdAt: z.string(),
   socialLink: z.object({
     facebook: z.string().optional(),
     instagram: z.string().optional(),
