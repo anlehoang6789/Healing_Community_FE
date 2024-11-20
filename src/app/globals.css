@@ -82,7 +82,7 @@ body {
     /* --foreground: 0, 0%, 0%; */
     --card: 100, 100%, 100%;
     --card-foreground: 204, 50%, 5%;
-    --popover: 0, 0%, 87%;
+    --popover: 100, 100%, 100%;
     --popover-foreground: 204, 50%, 5%;
     --primary: 0, 0%, 0%;
     --primary-foreground: 210 40% 98%;
