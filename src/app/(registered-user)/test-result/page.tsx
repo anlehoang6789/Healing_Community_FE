@@ -42,7 +42,7 @@ export default function TestResult() {
             </CardTitle>
             <div className="relative w-full h-[300px]">
               <Image
-                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Ftest_result.jpg?alt=media&token=6c41e6bb-b27e-4191-9cf5-068c74f3267a"
                 alt="Test Result Illustration"
                 fill
                 className="rounded-lg object-cover"

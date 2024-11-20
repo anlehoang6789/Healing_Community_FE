@@ -23,7 +23,7 @@ export default function Impact() {
   // Hàm phân tách và render các tác động ngắn hạn
   const renderShortTermEffects = (effects: any[]) => {
     return effects.map((effect, index) => (
-      <li key={index} className="mb-2 pl-4 relative text-muted-foreground">
+      <li key={index} className="mb-2 pl-4 relative text-textChat">
         <span className="absolute left-0 top-1 text-blue-500">•</span>
         {effect}
       </li>
