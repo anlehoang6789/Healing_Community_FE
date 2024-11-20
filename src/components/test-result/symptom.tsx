@@ -23,7 +23,7 @@ export default function Symptom() {
   // Hàm phân tách và render các yếu tố
   const renderFactors = (factors: any[]) => {
     return factors.map((factor, index) => (
-      <li key={index} className="mb-2 pl-4 relative text-muted-foreground">
+      <li key={index} className="mb-2 pl-4 relative text-textChat">
         <span className="absolute left-0 top-1 text-green-500">•</span>
         {factor}
       </li>

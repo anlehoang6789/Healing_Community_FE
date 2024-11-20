@@ -7,7 +7,7 @@ import Link from "next/link";
 
 export default function ButtonTestAgain() {
   return (
-    <div className="flex flex-col md:flex-row items-center justify-center md:mb-6">
+    <div className="flex flex-col md:flex-row items-center justify-end md:mb-6 md:mr-6">
       <Button
         asChild
         className="bg-green-500 hover:bg-green-600 text-white flex items-center w-full md:w-52 md:h-14"

@@ -7,7 +7,6 @@ import Reason from "@/components/test-result/reason";
 import Solution from "@/components/test-result/solution";
 import Symptom from "@/components/test-result/symptom";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Users as UserIcon, ChevronsRight } from "lucide-react";
 import React, { useState } from "react";
 
 export default function ContentTestResultTabs() {
