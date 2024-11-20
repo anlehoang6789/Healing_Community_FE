@@ -10,9 +10,35 @@ import { Button } from "@/components/ui/button";
 import { useGetDass21QuizQuery } from "@/queries/useQuizz";
 import { useSubmitDass21QuizMutation } from "@/queries/useQuizz";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+import { SubmitQuizScoreType } from "@/schemaValidations/quizz.schema";
 
 export default function PsychologicalTestForm() {
+  const router = useRouter();
   const { data: quizData, isLoading } = useGetDass21QuizQuery();
+
+  const submitQuizMutation = useSubmitDass21QuizMutation({
+    onSuccess: (data) => {
+      // Hiển thị thông báo thành công
+      toast({
+        description: data.message || "Nộp bài kiểm tra thành công!",
+        variant: "success",
+      });
+
+      // Lưu kết quả vào localStorage để trang kết quả có thể truy cập
+      localStorage.setItem("quizResult", JSON.stringify(data));
+
+      // Điều hướng đến trang kết quả
+      router.push("/test-result");
+    },
+    onError: (error: any) => {
+      handleErrorApi({
+        error,
+      });
+    },
+  });
 
   const [selectedOptions, setSelectedOptions] = useState<
     Record<string, number>
@@ -78,6 +104,37 @@ export default function PsychologicalTestForm() {
     if (currentQuestionIndex < totalQuestions - 1) {
       setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
     }
+  };
+
+  const handleSubmitQuiz = () => {
+    // Tạo điểm số cho từng danh mục
+    const scores: SubmitQuizScoreType["score"] = {
+      stress: [],
+      anxiety: [],
+      depression: [],
+    };
+    quizData?.data.dass21Categories.forEach((category) => {
+      const categoryScores = category.questions.map((_, questionIndex) => {
+        const selectedOptionValue =
+          selectedOptions[`${category.categoryName}-${questionIndex}`];
+        return selectedOptionValue !== undefined ? selectedOptionValue : 0;
+      });
+
+      switch (category.categoryName) {
+        case "Stress":
+          scores.stress = categoryScores;
+          break;
+        case "Anxiety":
+          scores.anxiety = categoryScores;
+          break;
+        case "Depression":
+          scores.depression = categoryScores;
+          break;
+      }
+    });
+
+    // Gọi mutation submit quiz
+    submitQuizMutation.mutate({ score: scores });
   };
 
   const progressValue =
@@ -154,10 +211,10 @@ export default function PsychologicalTestForm() {
       ))}
       {Object.keys(selectedOptions).length === totalQuestions && (
         <Button
-          asChild
+          onClick={handleSubmitQuiz}
           className="rounded-[20px] w-full float-right md:w-40 h-12 md:text-base bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black"
         >
-          <Link href={"test-result"}>Xem kết quả</Link>
+          Xem kết quả
         </Button>
       )}
     </div>

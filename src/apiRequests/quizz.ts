@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import {
+  Dass21ScoreResponseType,
   QuizResponseType,
   SubmitQuizScoreType,
 } from "@/schemaValidations/quizz.schema";
@@ -22,8 +23,24 @@ const quizApiRequest = {
     }
   },
 
-  submitDass21Quiz: (body: SubmitQuizScoreType) =>
-    http.post<{ message: string }>("quizz/api/quiz/submit_dass21_quizz", body),
+  // Phương thức mới để submit quiz và lấy kết quả
+  submitAndGetDass21QuizResult: async (body: SubmitQuizScoreType) => {
+    try {
+      const response = await http.post<Dass21ScoreResponseType>(
+        "quizz/api/quiz/submit_dass21_quizz",
+        body
+      );
+
+      if (response.status === 200) {
+        return response.payload;
+      }
+
+      throw new Error(response.payload.message);
+    } catch (error) {
+      console.error("Failed to submit DASS21 quiz and get result:", error);
+      throw error;
+    }
+  },
 };
 
 export default quizApiRequest;
