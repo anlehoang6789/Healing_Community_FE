@@ -40,6 +40,14 @@ import { PaymentHistoryType } from "@/schemaValidations/payment.schema";
 import { Badge } from "@/components/ui/badge";
 import PaymentHistoryDetails from "@/app/user/payment-history/payment-history-details";
 import { usePaymentHistoryQuery } from "@/queries/usePayment";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { PaymentHistoryStatus } from "@/constants/type";
+
+type PaymentStatusBadgeVariant =
+  | "success"
+  | "destructive"
+  | "cancel"
+  | "upcoming";
 
 const PaymentHistoryTableContext = createContext<{
   setPaymentIdDetails: (value: string) => void;
@@ -49,46 +57,25 @@ const PaymentHistoryTableContext = createContext<{
   paymentIdDetails: undefined,
 });
 
-//format giá tiền
-const formatCurrency = (amount: number) => {
-  return (
-    new Intl.NumberFormat("vi-VN", {
-      style: "decimal",
-      useGrouping: true,
-    }).format(amount) + " VNĐ"
-  );
-};
-
-//format lại paymentDate
-const formatDateTime = (dateString: string) => {
-  const date = new Date(dateString);
-  const day = date.getUTCDate().toString().padStart(2, "0");
-  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-  const year = date.getUTCFullYear();
-  const hours = date.getUTCHours().toString().padStart(2, "0");
-  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-
-  return `${day}/${month}/${year} ${hours}h${minutes}p`;
-};
-
 //format lại status
 const formatPaymentStatus = (
-  status: number
+  status: keyof typeof PaymentHistoryStatus
 ): {
   text: string;
-  variant: "success" | "destructive" | "cancel" | "upcoming";
+  variant: PaymentStatusBadgeVariant;
 } => {
-  switch (status) {
-    case 1:
-      return { text: "Đã thanh toán", variant: "success" };
-    case 2:
-      return { text: "Lỗi thanh toán", variant: "destructive" };
-    case 3:
-      return { text: "Đã hủy", variant: "cancel" };
-    case 0:
-    default:
-      return { text: "Chờ thanh toán", variant: "upcoming" };
-  }
+  const statusMap: Record<
+    keyof typeof PaymentHistoryStatus,
+    { text: string; variant: PaymentStatusBadgeVariant }
+  > = {
+    0: { text: "Chờ thanh toán", variant: "upcoming" },
+    1: { text: "Đã thanh toán", variant: "success" },
+    2: { text: "Lỗi thanh toán", variant: "destructive" },
+    3: { text: "Đã hủy", variant: "cancel" },
+    4: { text: "Không xác định", variant: "destructive" },
+  };
+
+  return statusMap[status] ?? statusMap[4];
 };
 
 export const columns: ColumnDef<PaymentHistoryType>[] = [
@@ -146,7 +133,9 @@ export const columns: ColumnDef<PaymentHistoryType>[] = [
     accessorKey: "status",
     header: "Trạng thái",
     cell: ({ row }) => {
-      const status = row.getValue("status") as number;
+      const status = row.getValue(
+        "status"
+      ) as keyof typeof PaymentHistoryStatus;
       const { text, variant } = formatPaymentStatus(status);
       return (
         <div className="flex items-center">
