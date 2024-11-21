@@ -46,7 +46,7 @@ export default function Reason() {
             <h3 className="text-lg font-semibold text-red-600 mb-2">
               Nguyên nhân
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-textChat">
               {section.replace("Nguyên nhân:", "").trim()}
             </p>
           </div>
@@ -59,7 +59,7 @@ export default function Reason() {
             <h3 className="text-lg font-semibold text-green-600 mb-2">
               Lời khuyên
             </h3>
-            <p className="text-muted-foreground">
+            <p className="text-textChat">
               {section.replace("Lời khuyên:", "").trim()}
             </p>
           </div>
@@ -68,7 +68,7 @@ export default function Reason() {
 
       // Các đoạn văn bản chính
       return (
-        <p key={index} className="mb-3 text-muted-foreground">
+        <p key={index} className="mb-3 text-textChat">
           {section}
         </p>
       );

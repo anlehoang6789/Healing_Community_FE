@@ -146,3 +146,23 @@ export const checkRefreshToken = async (param?: {
     }
   }
 };
+
+//format giá tiền
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("vi-VN", {
+    style: "currency",
+    currency: "VND",
+  }).format(amount);
+};
+
+//format lại ngày giờ (20/11/2024 12h30p)
+export const formatDateTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const day = date.getUTCDate().toString().padStart(2, "0");
+  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+  const year = date.getUTCFullYear();
+  const hours = date.getUTCHours().toString().padStart(2, "0");
+  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+
+  return `${day}/${month}/${year} ${hours}h${minutes}p`;
+};

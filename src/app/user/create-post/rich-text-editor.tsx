@@ -19,6 +19,7 @@ import "froala-editor/js/plugins/word_counter.min.js";
 import "froala-editor/js/plugins/word_paste.min.js";
 import "froala-editor/js/plugins/save.min.js";
 import "froala-editor/js/languages/vi";
+import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
 
 interface RichTextEditorProps {
   id: string;
@@ -26,12 +27,28 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
 }
 
+interface FroalaEditorInstance {
+  image: {
+    insert: (
+      url: string,
+      showLoader: boolean | null,
+      dimensions: any | null,
+      callback?: (url: string) => Promise<string>
+    ) => void;
+  };
+  html: {
+    get: () => string;
+    set: (html: string) => void;
+  };
+}
+
 export default function RichTextEditor({
   id,
   value,
   onChange,
 }: RichTextEditorProps) {
-  // const [model, setModel] = useState<string>("");
+  const uploadImage = useUploadAvatarCoverFromFileMutation();
+
   return (
     <div>
       <FroalaEditor
@@ -43,8 +60,42 @@ export default function RichTextEditor({
           saveInterval: 2000, //save sau 2s
 
           events: {
+            "image.beforeUpload": async function (
+              this: FroalaEditorInstance,
+              images: File[]
+            ) {
+              try {
+                const editor = this;
+
+                // Lặp qua từng file ảnh được upload
+                for (const imageFile of images) {
+                  // Upload ảnh lên Firebase qua API
+                  const formData = new FormData();
+                  formData.append("file", imageFile);
+
+                  const uploadResult = await uploadImage.mutateAsync(formData);
+
+                  // Lấy URL từ kết quả trả về
+                  const uploadedImageUrl = uploadResult.payload.url;
+                  console.log(
+                    "trả về cái đường dẫn url từ firebase:",
+                    uploadedImageUrl
+                  );
+
+                  // Thay thế blob URL bằng URL thật trong editor
+                  editor.image.insert(uploadedImageUrl, true, null);
+                  // Gọi `onModelChange` để cập nhật model
+                  const currentHtml = editor.html.get();
+                  onChange(currentHtml); // <--- Đảm bảo giá trị được đồng bộ
+                }
+
+                return false; // Ngăn Froala thực hiện hành động mặc định
+              } catch (error) {
+                console.error("Error uploading image:", error);
+                return false;
+              }
+            },
             "save.before": function (html: string) {
-              console.log("Saving HTML:", html);
               localStorage.setItem("savedHtml", html);
             },
           },

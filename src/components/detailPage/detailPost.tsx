@@ -29,6 +29,7 @@ import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { useGetPostByPostIdQuery } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { formatDateTime } from "@/lib/utils";
 
 // interface Comment {
 //   id: string;
@@ -104,17 +105,6 @@ export default function DetailPost() {
   // data của post theo postId
   const postId = "01JD1KWQ39JNG4DS8NMG1ZMAXF";
   const { data: postById } = useGetPostByPostIdQuery(postId);
-  // hàm format ngày tạo bài post từ api theo dạng 18-11-2024 23h03p
-  const formatDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getUTCDate().toString().padStart(2, "0");
-    const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-    const year = date.getUTCFullYear();
-    const hours = date.getUTCHours().toString().padStart(2, "0");
-    const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-
-    return `${day}-${month}-${year} ${hours}h${minutes}p`;
-  };
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
