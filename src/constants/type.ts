@@ -17,3 +17,11 @@ export const RoleValues = [
   Role.Moderator,
   Role.Guest,
 ] as const;
+
+export const PaymentHistoryStatus = {
+  0: "Pending",
+  1: "Paid",
+  2: "Failed",
+  3: "Cancelled",
+  4: "Unknown",
+} as const;
