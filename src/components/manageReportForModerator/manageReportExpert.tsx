@@ -44,6 +44,8 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 import DeleteAccountExpert from "@/app/moderator/manage-reports/expert/delete-account-expert";
 import { Badge } from "@/components/ui/badge";
+import { usePathname, useSearchParams } from "next/navigation";
+import AutoPagination from "@/components/auto-pagination";
 
 type Report = {
   id: string;
@@ -179,7 +181,11 @@ export default function ManageReportExpert() {
   );
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const pageFromParams = searchParams.get("page");
+  const currentPage = pageFromParams ? parseInt(pageFromParams) : 1;
+
   const reportsPerPage = 8;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -206,15 +212,6 @@ export default function ManageReportExpert() {
   // Calculate total pages
   const totalPages = Math.ceil(sortedReports.length / reportsPerPage);
 
-  // Ensure current page is within valid range
-  React.useEffect(() => {
-    if (currentPage < 1) {
-      setCurrentPage(1);
-    } else if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
-
   // Get current reports
   const indexOfLastReport = currentPage * reportsPerPage;
   const indexOfFirstReport = indexOfLastReport - reportsPerPage;
@@ -222,13 +219,6 @@ export default function ManageReportExpert() {
     indexOfFirstReport,
     indexOfLastReport
   );
-
-  // Change page
-  const paginate = (pageNumber: number) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
 
   return (
     <div className="w-full bg-background h-auto p-4 max-w-7xl overflow-hidden mx-auto rounded-lg shadow-lg border">
@@ -392,6 +382,23 @@ export default function ManageReportExpert() {
           </PaginationContent>
         </Pagination>
       )} */}
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="text-xs text-muted-foreground py-4 flex-1 ">
+          Hiển thị{" "}
+          <strong>
+            {indexOfFirstReport + 1}-
+            {Math.min(indexOfLastReport, sortedReports.length)}
+          </strong>{" "}
+          trong <strong>{sortedReports.length}</strong> kết quả
+        </div>
+        <div>
+          <AutoPagination
+            page={currentPage}
+            pageSize={totalPages}
+            pathname="/moderator/manage-reports/expert"
+          />
+        </div>
+      </div>
     </div>
   );
 }

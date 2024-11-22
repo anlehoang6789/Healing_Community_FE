@@ -6,10 +6,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useNotificationUnreadCount } from "@/queries/useNotification";
 import { Bell, UserPlus, Users } from "lucide-react";
 import React from "react";
 
 export default function NotificationPopover() {
+  // Sử dụng hook để lấy số lượng thông báo chưa đọc
+  const { data: unreadCountResponse } = useNotificationUnreadCount();
+
+  // Lấy số lượng thông báo chưa đọc từ payload, mặc định là 0 nếu undefined
+  const unreadCount = unreadCountResponse?.payload?.data ?? 0;
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -19,7 +25,12 @@ export default function NotificationPopover() {
           className="rounded-full flex-shrink-0 border-gray-500 relative"
         >
           <Bell className="h-5 w-5" strokeWidth="1.5px" />
-          <span className="absolute -top-0 -right-1 h-3 w-3 rounded-full bg-red-500" />
+          {/* Hiển thị số thông báo chưa đọc nếu > 0 */}
+          {unreadCount > 0 && (
+            <span className="absolute -top-0 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80 mt-2 mr-4 bg-backgroundChat">
