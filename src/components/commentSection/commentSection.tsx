@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,25 +6,14 @@ import Link from "next/link";
 import { SendHorizontal, ImageIcon, X, Smile, ThumbsUp } from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-
-// Định nghĩa interface
-export interface Comment {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-  content: string;
-  timestamp: string;
-  likes: number;
-  image?: string;
-  replies?: Comment[];
-}
+import { CommentType } from "@/schemaValidations/post.schema";
+import { useGetAllUsers } from "@/queries/useUser";
+import { UserType } from "@/schemaValidations/user.schema";
 
 interface CommentSectionProps {
-  comments: Comment[];
-  onAddComment: (comment: Comment) => void;
-  onAddReply: (parentId: string, reply: Comment) => void;
+  comments: CommentType[];
+  onAddComment: (comment: { content: string }) => void;
+  onAddReply: (parentId: string, reply: { content: string }) => void;
 }
 
 export default function CommentSection({
@@ -34,7 +21,8 @@ export default function CommentSection({
   onAddComment,
   onAddReply,
 }: CommentSectionProps) {
-  const [comments, setComments] = useState<Comment[]>(initialComments);
+  const { data: users } = useGetAllUsers();
+  const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
@@ -43,7 +31,6 @@ export default function CommentSection({
     [key: string]: string | null;
   }>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [emojiPickerForReply, setEmojiPickerForReply] = useState<string | null>(
     null
@@ -87,97 +74,64 @@ export default function CommentSection({
   };
 
   const handleAddComment = () => {
-    if (newComment.trim() || commentImage) {
-      const comment: Comment = {
-        id: `comment-${Date.now()}`,
-        user: {
-          name: "Gia Minh", // Thay đổi thành user hiện tại
-          avatar: "", // Thêm avatar của user
-        },
-        content: newComment,
-        timestamp: "Vừa xong",
-        likes: 0,
-        image: commentImage || undefined,
-      };
+    if (newComment.trim()) {
+      onAddComment({
+        content: newComment, // Chỉ gửi content
+      });
 
-      setComments((prev) => [...prev, comment]);
-      onAddComment(comment);
       setNewComment("");
-      setCommentImage(null);
+      setCommentImage(null); // Reset hình ảnh sau khi gửi
     }
   };
 
   const handleAddReply = (parentId: string) => {
-    if (replyContent.trim() || replyImages[parentId]) {
-      const newReply: Comment = {
-        id: Date.now().toString(),
-        user: {
-          name: "Gia Minh", // Thay đổi thành user hiện tại
-          avatar: "", // Thêm avatar của user
-        },
-        content: replyContent,
-        timestamp: "Vừa xong",
-        likes: 0,
-        image: replyImages[parentId] || undefined,
-      };
+    if (replyContent.trim()) {
+      onAddReply(parentId, {
+        content: replyContent, // Chỉ gửi content
+      });
 
-      // Cập nhật local state
-      const updateReplies = (comments: Comment[]): Comment[] => {
-        return comments.map((comment) => {
-          if (comment.id === parentId) {
-            return {
-              ...comment,
-              replies: [...(comment.replies || []), newReply],
-            };
-          }
-          if (comment.replies) {
-            return {
-              ...comment,
-              replies: updateReplies(comment.replies),
-            };
-          }
-          return comment;
-        });
-      };
-
-      const updatedComments = updateReplies([...comments]);
-      setComments(updatedComments);
-
-      // Gọi prop callback
-      onAddReply(parentId, newReply);
-
-      setReplyingTo(null);
       setReplyContent("");
-      setReplyImages((prev) => ({ ...prev, [parentId]: null }));
+      setReplyingTo(null);
+      setReplyImages((prev) => ({ ...prev, [parentId]: null })); // Reset hình ảnh reply
     }
   };
 
-  const renderComments = (comments: Comment[], depth = 0) => {
-    return comments.map((comment) => (
-      <div
-        key={comment.id}
-        className={`flex items-start gap-2 mt-2 ${depth > 0 ? "ml-8" : ""}`}
-      >
-        <Link href="#">
-          <Avatar className="w-8 h-8 border-2 border-rose-300">
-            <AvatarImage src={comment.user.avatar} alt={comment.user.name} />
-            <AvatarFallback>{comment.user.name[0]}</AvatarFallback>
-          </Avatar>
-        </Link>
+  const findUserById = (userId: string): UserType | undefined => {
+    return users?.find((user) => user.userId === userId);
+  };
+  const renderComments = (comments: CommentType[], depth = 0) => {
+    return comments.map((comment) => {
+      // Tìm thông tin người dùng dựa trên userId
+      const user = findUserById(comment.userId);
 
-        <div className="flex-1">
-          <div className="bg-gray-100 rounded-lg p-2 overflow-hidden break-words">
-            <Link href="#">
-              <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                {comment.user.name}
-              </span>
-            </Link>
+      return (
+        <div
+          key={comment.commentId}
+          className={`flex items-start gap-2 mt-2 ${depth > 0 ? "ml-8" : ""}`}
+        >
+          <Link href="#">
+            <Avatar className="w-8 h-8 border-2 border-rose-300">
+              <AvatarImage
+                src={user?.profilePicture || "/default-avatar.png"}
+                alt={user?.userName || "User"}
+              />
+              <AvatarFallback>{user?.userName?.[0] || "U"}</AvatarFallback>
+            </Avatar>
+          </Link>
 
-            <p className="text-black whitespace-pre-wrap break-all">
-              {comment.content}
-            </p>
+          <div className="flex-1">
+            <div className="bg-gray-100 rounded-lg p-2 overflow-hidden break-words">
+              <Link href="#">
+                <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                  {user?.userName || comment.userId}
+                </span>
+              </Link>
 
-            {comment.image && (
+              <p className="text-black whitespace-pre-wrap break-all">
+                {comment.content}
+              </p>
+
+              {/* {comment.image && (
               <Image
                 src={comment.image}
                 alt="Comment image"
@@ -185,137 +139,145 @@ export default function CommentSection({
                 height={200}
                 className="mt-2 rounded-lg"
               />
-            )}
-          </div>
+            )} */}
+            </div>
 
-          <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-            <button className="hover:underline">Thích</button>
-            <button
-              className="hover:underline"
-              onClick={() => setReplyingTo(comment.id)}
-            >
-              Trả lời
-            </button>
-            <span>{comment.timestamp}</span>
-            {comment.likes > 0 && (
+            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+              <button className="hover:underline">Thích</button>
+              <button
+                className="hover:underline"
+                onClick={() => setReplyingTo(comment.commentId)}
+              >
+                Trả lời
+              </button>
+              <span>{new Date(comment.createdAt).toLocaleString()}</span>
+              {/* {comment.likes > 0 && (
               <span className="flex items-center gap-1">
                 <ThumbsUp className="w-3 h-3" /> {comment.likes}
               </span>
-            )}
-          </div>
+            )} */}
+            </div>
 
-          {replyingTo === comment.id && (
-            <div className="mt-2 flex items-center w-full relative">
-              <div className="flex-1 mr-2">
-                <textarea
-                  value={replyContent}
-                  onChange={(e) => {
-                    const textarea = e.target;
-                    textarea.style.height = "auto";
-                    textarea.style.height = `${textarea.scrollHeight}px`;
-                    setReplyContent(e.target.value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleAddReply(comment.id);
-                    }
-                  }}
-                  className="border rounded-lg p-2 pr-10 w-full resize-none min-h-[40px] max-h-[120px] text-muted-foreground"
-                  placeholder="Nhập trả lời..."
-                />
-              </div>
-
-              <Button
-                variant="iconSend"
-                size="icon"
-                onClick={() => fileInputRef.current?.click()}
-                className=" absolute right-9 top-1/2 transform -translate-y-1/2 "
-              >
-                <ImageIcon className="h-5 w-5" />
-              </Button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={(e) => handleImageUpload(e, true, comment.id)}
-                accept="image/*"
-                className="hidden"
-              />
-
-              <Button
-                variant="iconSend"
-                onClick={() => handleAddReply(comment.id)}
-                className="absolute right-0"
-              >
-                <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
-              </Button>
-
-              {/* Emoji Button */}
-              <Button
-                variant="iconSend"
-                size="icon"
-                onClick={() => {
-                  // Nếu đang mở cho comment này thì đóng, ngược lại mở
-                  setEmojiPickerForReply(
-                    emojiPickerForReply === comment.id ? null : comment.id
-                  );
-                }}
-                className="absolute right-16 top-1/2 transform -translate-y-1/2"
-              >
-                <Smile className="h-5 w-5" />
-              </Button>
-
-              {/* Emoji Picker chỉ hiện cho comment đang được chọn */}
-              {emojiPickerForReply === comment.id && (
-                <div className="absolute bottom-full right-16 z-50">
-                  <Picker
-                    data={data}
-                    onEmojiSelect={(emoji: any) =>
-                      addEmoji(emoji, true, comment.id)
-                    }
-                    theme="light"
-                    previewPosition="none"
-                    skinTonePosition="none"
-                    autoFocus={true}
-                    locale="vi"
+            {replyingTo === comment.commentId && (
+              <div className="mt-2 flex items-center w-full relative">
+                <div className="flex-1 mr-2">
+                  <textarea
+                    value={replyContent}
+                    onChange={(e) => {
+                      const textarea = e.target;
+                      textarea.style.height = "auto";
+                      textarea.style.height = `${textarea.scrollHeight}px`;
+                      setReplyContent(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        handleAddReply(comment.commentId);
+                      }
+                    }}
+                    className="border rounded-lg p-2 pr-10 w-full resize-none min-h-[40px] max-h-[120px] text-muted-foreground"
+                    placeholder="Nhập trả lời..."
                   />
                 </div>
-              )}
-            </div>
-          )}
 
-          {/* image comment preview */}
-          {replyImages[comment.id] && (
-            <div className="relative w-24 h-24 mb-4">
-              <Image
-                src={replyImages[comment.id] as string}
-                alt="Uploaded image"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-lg"
-              />
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() =>
-                  setReplyImages((prev) => ({ ...prev, [comment.id]: null }))
-                }
-                className="absolute top-1 right-1 h-6 w-6 rounded-full"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+                <Button
+                  variant="iconSend"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  className=" absolute right-9 top-1/2 transform -translate-y-1/2 "
+                >
+                  <ImageIcon className="h-5 w-5" />
+                </Button>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={(e) =>
+                    handleImageUpload(e, true, comment.commentId)
+                  }
+                  accept="image/*"
+                  className="hidden"
+                />
 
-          {/* Hiển thị replies */}
-          {comment.replies && comment.replies.length > 0 && (
-            <div className="mt-2">
-              {renderComments(comment.replies, depth + 1)}
-            </div>
-          )}
+                <Button
+                  variant="iconSend"
+                  onClick={() => handleAddReply(comment.commentId)}
+                  className="absolute right-0"
+                >
+                  <SendHorizontal className="h-5 w-5 hover:text-blue-500" />
+                </Button>
+
+                {/* Emoji Button */}
+                <Button
+                  variant="iconSend"
+                  size="icon"
+                  onClick={() => {
+                    // Nếu đang mở cho comment này thì đóng, ngược lại mở
+                    setEmojiPickerForReply(
+                      emojiPickerForReply === comment.commentId
+                        ? null
+                        : comment.commentId
+                    );
+                  }}
+                  className="absolute right-16 top-1/2 transform -translate-y-1/2"
+                >
+                  <Smile className="h-5 w-5" />
+                </Button>
+
+                {/* Emoji Picker chỉ hiện cho comment đang được chọn */}
+                {emojiPickerForReply === comment.commentId && (
+                  <div className="absolute bottom-full right-16 z-50">
+                    <Picker
+                      data={data}
+                      onEmojiSelect={(emoji: any) =>
+                        addEmoji(emoji, true, comment.commentId)
+                      }
+                      theme="light"
+                      previewPosition="none"
+                      skinTonePosition="none"
+                      autoFocus={true}
+                      locale="vi"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* image comment preview */}
+            {replyImages[comment.commentId] && (
+              <div className="relative w-24 h-24 mb-4">
+                <Image
+                  src={replyImages[comment.commentId] as string}
+                  alt="Uploaded image"
+                  layout="fill"
+                  objectFit="cover"
+                  className="rounded-lg"
+                />
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={() =>
+                    setReplyImages((prev) => ({
+                      ...prev,
+                      [comment.commentId]: null,
+                    }))
+                  }
+                  className="absolute top-1 right-1 h-6 w-6 rounded-full"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
+            {/* Hiển thị replies */}
+            {comment.replies && comment.replies.length > 0 && (
+              <div className="mt-2">
+                {renderComments(comment.replies, depth + 1)}
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    ));
+      );
+    });
   };
 
   return (

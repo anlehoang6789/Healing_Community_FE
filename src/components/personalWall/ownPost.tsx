@@ -365,11 +365,11 @@ export default function OwnPost() {
         </div>
       </div>
 
-      <CommentSection
+      {/* <CommentSection
         comments={post.comments}
         onAddComment={handleAddComment}
         onAddReply={handleAddReply}
-      />
+      /> */}
     </div>
   );
 }

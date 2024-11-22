@@ -52,3 +52,43 @@ export const PostByIdSchemaWrapper = z.object({
 });
 
 export type PostByIdType = z.TypeOf<typeof PostByIdSchemaWrapper>;
+
+export const ReplyCommentSchema = z.object({
+  commentId: z.string(),
+  postId: z.string(),
+  parentId: z.string(),
+  userId: z.string(),
+  content: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+  replies: z.array(z.any()).nullable().optional(),
+});
+
+export type ReplyCommentType = z.TypeOf<typeof ReplyCommentSchema>;
+
+export const CommentSchema = z.object({
+  commentId: z.string(),
+  postId: z.string(),
+  parentId: z.string().nullable(), // parentId có thể là null
+  userId: z.string(),
+  content: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+  replies: z.array(ReplyCommentSchema).nullable().optional(), // replies có thể là null hoặc undefined
+});
+
+export type CommentType = z.TypeOf<typeof CommentSchema>;
+
+export const GetCommentsByPostIdResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(CommentSchema),
+  errors: z.array(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetCommentsByPostIdResponseType = z.TypeOf<
+  typeof GetCommentsByPostIdResponseSchema
+>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bookmark,
   Flag,
@@ -24,67 +24,79 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
-import { useGetPostByPostIdQuery } from "@/queries/usePost";
+import {
+  useGetCommentsByPostIdQuery,
+  useGetPostByPostIdQuery,
+} from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime } from "@/lib/utils";
 import CommentSection from "@/components/commentSection/commentSection";
-
-interface Comment {
-  id: string;
-  user: {
-    name: string;
-    avatar: string;
-  };
-  content: string;
-  timestamp: string;
-  likes: number;
-  image?: string;
-  replies?: Comment[];
-}
+import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
 
 export default function DetailPost() {
   const { theme } = useTheme();
   const [commentImage, setCommentImage] = useState<string | null>(null);
 
   // data của post theo postId
-  const postId = "01JD1KWQ39JNG4DS8NMG1ZMAXF";
+  const postId = "01JAPSEY7FD3H7QFP2CSHHBDRW";
   const { data: postById } = useGetPostByPostIdQuery(postId);
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
+  const { data: commentsData } = useGetCommentsByPostIdQuery(postId);
 
-  // Khởi tạo comments là một mảng trống
-  const [comments, setComments] = useState<Comment[]>([]);
+  // Sử dụng kiểu CommentType từ schema
+  const [comments, setComments] = useState<CommentType[]>([]);
 
-  // Hàm xử lý thêm comment
-  const handleAddComment = (comment: Comment) => {
-    // Thêm comment mới vào state local
-    setComments((prev) => [...prev, comment]);
-  };
+  // Cập nhật comments khi data thay đổi
+  useEffect(() => {
+    if (commentsData?.payload?.data) {
+      setComments(commentsData.payload.data);
+    }
+  }, [commentsData]);
 
-  // Hàm xử lý trả lời comment
-  const handleAddReply = (parentId: string, reply: Comment) => {
-    // Cập nhật comments với reply mới
-    const updateReplies = (comments: Comment[]): Comment[] => {
-      return comments.map((comment) => {
-        if (comment.id === parentId) {
-          return {
-            ...comment,
-            replies: [...(comment.replies || []), reply],
-          };
-        }
-        if (comment.replies) {
-          return {
-            ...comment,
-            replies: updateReplies(comment.replies),
-          };
-        }
-        return comment;
-      });
+  const handleAddComment = (comment: { content: string }) => {
+    const newComment: CommentType = {
+      commentId: `temp-${Date.now()}`, // ID tạm thời
+      postId: postId,
+      parentId: null,
+      userId: "current-user-id", // ID user hiện tại
+      content: comment.content,
+      createdAt: new Date().toISOString(),
+      updatedAt: null,
+      replies: [], // Khởi tạo replies là mảng rỗng
     };
 
-    const updatedComments = updateReplies([...comments]);
+    // Cập nhật state comments
+    setComments((prevComments) => [...prevComments, newComment]);
+  };
+
+  const handleAddReply = (parentId: string, reply: { content: string }) => {
+    const newReply: ReplyCommentType = {
+      commentId: `temp-reply-${Date.now()}`, // ID tạm thời
+      postId: postId,
+      parentId: parentId,
+      userId: "current-user-id", // ID user hiện tại
+      content: reply.content,
+      createdAt: new Date().toISOString(),
+      updatedAt: null,
+      replies: [], // Khởi tạo replies là mảng rỗng
+    };
+
+    // Cập nhật comments với reply mới
+    const updatedComments = comments.map((comment) => {
+      if (comment.commentId === parentId) {
+        return {
+          ...comment,
+          replies: comment.replies
+            ? [...comment.replies, newReply]
+            : [newReply], // Nếu replies null thì khởi tạo thành mảng mới
+        };
+      }
+      return comment;
+    });
+
     setComments(updatedComments);
   };
 
