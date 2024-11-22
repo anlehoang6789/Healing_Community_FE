@@ -1,16 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Bookmark,
   Flag,
   Heart,
-  ImageIcon,
   MessageCircle,
   MoreHorizontal,
-  SendHorizontal,
   Share2,
-  Smile,
   X,
 } from "lucide-react";
 import Image from "next/image";
@@ -38,7 +35,8 @@ export default function DetailPost() {
   const [commentImage, setCommentImage] = useState<string | null>(null);
 
   // data của post theo postId
-  const postId = "01JAPSEY7FD3H7QFP2CSHHBDRW";
+  const postId = "01JD93AMWMXBXGR3HDV55TGGPG";
+
   const { data: postById } = useGetPostByPostIdQuery(postId);
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
@@ -146,15 +144,22 @@ export default function DetailPost() {
             <Avatar className="w-12 h-12 border-2 border-rose-300">
               <AvatarImage
                 src={userById?.payload.data.profilePicture}
-                alt={userById?.payload.data.userName}
+                alt={
+                  userById?.payload.data.fullName ||
+                  userById?.payload.data.userName
+                }
               />
-              <AvatarFallback>{userById?.payload.data.userName}</AvatarFallback>
+              <AvatarFallback>
+                {userById?.payload.data.fullName ||
+                  userById?.payload.data.userName}
+              </AvatarFallback>
             </Avatar>
           </Link>
           <div>
             <Link href="#">
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                {userById?.payload.data.userName}
+                {userById?.payload.data.fullName ||
+                  userById?.payload.data.userName}
               </p>
             </Link>
             <p className="text-sm text-gray-500">
