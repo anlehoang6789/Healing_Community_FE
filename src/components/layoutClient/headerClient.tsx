@@ -98,7 +98,7 @@ export default function Header() {
         </Link>
 
         {!isAuth && (
-          <Link href={"/content"}>
+          <Link href={"/content"} className="hidden md:block">
             <Button variant="headerIconNoBorder" className="text-base w-[80px]">
               Khám phá
             </Button>
@@ -393,6 +393,16 @@ export default function Header() {
               </Link>
             ))}
           </nav> */}
+          {!isAuth && (
+            <Link href={"/content"} className="">
+              <Button
+                variant="headerIconNoBorder"
+                className="text-base w-[80px]"
+              >
+                Khám phá
+              </Button>
+            </Link>
+          )}
           <nav className="flex flex-col gap-4">
             {navItems
               .filter((item) => {
