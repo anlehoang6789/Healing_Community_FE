@@ -17,7 +17,7 @@ const postApiRequest = {
   createPost: (body: CreatePostBodyType) =>
     http.post<{ message: string }>("post/api/post/create-post", body),
   getPostByPostId: (postId: string) =>
-    http.get<PostByIdType>(`post/api/post/get-by-id/${postId}`),
+    http.get<PostByIdType>(`post/api/post/get-by-post-id/${postId}`),
 };
 
 export default postApiRequest;
