@@ -6,103 +6,84 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 
-const questions = [
-  {
-    id: 1,
-    text: "Trong một buổi tiệc, bạn sẽ:",
-    options: [
-      {
-        value: "option1",
-        label: "Thoải mái trò chuyện với tất cả mọi người, kể cả người lạ",
-      },
-      { value: "option2", label: "Chỉ tương tác với những người bạn quen" },
-    ],
-  },
-  {
-    id: 2,
-    text: "Bạn thích làm gì trong thời gian rảnh?",
-    options: [
-      { value: "option3", label: "Đọc sách" },
-      { value: "option4", label: "Đi dạo" },
-    ],
-  },
-  {
-    id: 3,
-    text: "Bạn thường xem loại phim nào?",
-    options: [
-      { value: "option5", label: "Hành động" },
-      { value: "option6", label: "Hài hước" },
-    ],
-  },
-  {
-    id: 4,
-    text: "Bạn thích ăn món nào?",
-    options: [
-      { value: "option7", label: "Món chay" },
-      { value: "option8", label: "Món mặn" },
-    ],
-  },
-  {
-    id: 5,
-    text: "Bạn có thích đi du lịch không?",
-    options: [
-      { value: "option9", label: "Có, rất thích" },
-      { value: "option10", label: "Không, tôi thích ở nhà" },
-    ],
-  },
-  {
-    id: 6,
-    text: "Bạn thường thức dậy vào lúc mấy giờ?",
-    options: [
-      { value: "option11", label: "Sớm" },
-      { value: "option12", label: "Muộn" },
-    ],
-  },
-  {
-    id: 7,
-    text: "Bạn thích mùa nào trong năm?",
-    options: [
-      { value: "option13", label: "Mùa hè" },
-      { value: "option14", label: "Mùa đông" },
-    ],
-  },
-  {
-    id: 8,
-    text: "Bạn thích nghe thể loại nhạc nào?",
-    options: [
-      { value: "option15", label: "Nhạc pop" },
-      { value: "option16", label: "Nhạc cổ điển" },
-    ],
-  },
-  {
-    id: 9,
-    text: "Bạn thường tập thể dục bao lâu mỗi tuần?",
-    options: [
-      { value: "option17", label: "Nhiều" },
-      { value: "option18", label: "Ít" },
-    ],
-  },
-  {
-    id: 10,
-    text: "Bạn có thích nuôi thú cưng không?",
-    options: [
-      { value: "option19", label: "Có, rất thích" },
-      { value: "option20", label: "Không, không thích" },
-    ],
-  },
-];
+import { useGetDass21QuizQuery } from "@/queries/useQuizz";
+import { useSubmitDass21QuizMutation } from "@/queries/useQuizz";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { handleErrorApi } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+import { SubmitQuizScoreType } from "@/schemaValidations/quizz.schema";
 
 export default function PsychologicalTestForm() {
+  const router = useRouter();
+  const { data: quizData, isLoading } = useGetDass21QuizQuery();
+
+  const submitQuizMutation = useSubmitDass21QuizMutation({
+    onSuccess: (data) => {
+      // Hiển thị thông báo thành công
+      toast({
+        description: data.message || "Nộp bài kiểm tra thành công!",
+        variant: "success",
+      });
+
+      // Lưu kết quả vào localStorage để trang kết quả có thể truy cập
+      localStorage.setItem("quizResult", JSON.stringify(data));
+
+      // Điều hướng đến trang kết quả
+      router.push("/test-result");
+    },
+    onError: (error: any) => {
+      handleErrorApi({
+        error,
+      });
+    },
+  });
+
   const [selectedOptions, setSelectedOptions] = useState<
-    Record<number, string>
+    Record<string, number>
   >({});
   const questionRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      questionRefs.current.forEach((ref, index) => {
+        if (ref) {
+          const rect = ref.getBoundingClientRect();
+          const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+          if (isInView) {
+            setCurrentQuestionIndex(index);
+          }
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  if (isLoading) {
+    return <div>Đang tải câu hỏi...</div>;
+  }
+
+  const questions =
+    quizData?.data.dass21Categories.flatMap((category) =>
+      category.questions.map((question, index) => ({
+        id: `${category.categoryName}-${index}`,
+        text: question.questionText,
+        options: question.options.map((option, optionIndex) => ({
+          value: optionIndex,
+          label: option,
+        })),
+      }))
+    ) || [];
+
   const totalQuestions = questions.length;
 
-  const handleOptionChange = (index: number, selectedValue: string) => {
+  const handleOptionChange = (index: number, selectedValue: number) => {
     setSelectedOptions((prev) => ({
       ...prev,
       [questions[index].id]: selectedValue,
@@ -125,27 +106,39 @@ export default function PsychologicalTestForm() {
     }
   };
 
+  const handleSubmitQuiz = () => {
+    // Tạo điểm số cho từng danh mục
+    const scores: SubmitQuizScoreType["score"] = {
+      stress: [],
+      anxiety: [],
+      depression: [],
+    };
+    quizData?.data.dass21Categories.forEach((category) => {
+      const categoryScores = category.questions.map((_, questionIndex) => {
+        const selectedOptionValue =
+          selectedOptions[`${category.categoryName}-${questionIndex}`];
+        return selectedOptionValue !== undefined ? selectedOptionValue : 0;
+      });
+
+      switch (category.categoryName) {
+        case "Stress":
+          scores.stress = categoryScores;
+          break;
+        case "Anxiety":
+          scores.anxiety = categoryScores;
+          break;
+        case "Depression":
+          scores.depression = categoryScores;
+          break;
+      }
+    });
+
+    // Gọi mutation submit quiz
+    submitQuizMutation.mutate({ score: scores });
+  };
+
   const progressValue =
     (Object.keys(selectedOptions).length / totalQuestions) * 100;
-
-  useEffect(() => {
-    const handleScroll = () => {
-      questionRefs.current.forEach((ref, index) => {
-        if (ref) {
-          const rect = ref.getBoundingClientRect();
-          const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-          if (isInView) {
-            setCurrentQuestionIndex(index);
-          }
-        }
-      });
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   return (
     <div>
@@ -176,7 +169,9 @@ export default function PsychologicalTestForm() {
               <h2 className="text-xl font-semibold mb-4">{items.text}</h2>
               <RadioGroup
                 className="gap-4 md:space-x-4 flex flex-col sm:flex-row items-center justify-center"
-                onValueChange={(value) => handleOptionChange(index, value)}
+                onValueChange={(value) =>
+                  handleOptionChange(index, Number(value))
+                }
               >
                 {items.options.map((option) => (
                   <div
@@ -188,7 +183,7 @@ export default function PsychologicalTestForm() {
                     }`}
                   >
                     <RadioGroupItem
-                      value={option.value}
+                      value={option.value.toString()}
                       id={`question-${items.id}-${option.value}`}
                       dotColor="white"
                       className={`mr-4 border w-5 h-5 ${
@@ -214,12 +209,14 @@ export default function PsychologicalTestForm() {
           </Card>
         </div>
       ))}
-      <Button
-        asChild
-        className="rounded-[20px] w-full float-right md:w-40 h-12 md:text-base bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black"
-      >
-        <Link href={"test-result"}>Xem kết quả</Link>
-      </Button>
+      {Object.keys(selectedOptions).length === totalQuestions && (
+        <Button
+          onClick={handleSubmitQuiz}
+          className="rounded-[20px] w-full float-right md:w-40 h-12 md:text-base bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black"
+        >
+          Xem kết quả
+        </Button>
+      )}
     </div>
   );
 }

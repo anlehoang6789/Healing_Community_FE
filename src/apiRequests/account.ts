@@ -1,7 +1,10 @@
 import http from "@/lib/http";
 import {
   ChangePasswordBodyType,
+  FollowUserBodyType,
+  FollowUserResType,
   ForgotPasswordBodyType,
+  GetFollowingResType,
   PersonalInformationBodyType,
   ResetPasswordWithOtpBodyType,
   UpdateAvatarProfileBodyType,
@@ -32,6 +35,14 @@ const accountApiRequest = {
     ),
   updateProfileUser: (body: UpdateProfileUserBodyType) =>
     http.put<{ message: string }>("user/api/user/update-user-profile", body),
+  getFollowing: () =>
+    http.get<GetFollowingResType>("user/api/follower/get-following"),
+  followUser: (body: FollowUserBodyType) =>
+    http.post<FollowUserResType>("user/api/follower/follow-user", body),
+  unFollowUser: (userId: string) =>
+    http.delete<{ message: string }>(
+      `user/api/follower/unfollow-user?userId=${userId}`
+    ),
 };
 
 export default accountApiRequest;

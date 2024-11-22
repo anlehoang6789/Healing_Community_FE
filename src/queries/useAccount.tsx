@@ -49,3 +49,36 @@ export const useUpdateProfileUserMutation = () => {
     },
   });
 };
+
+export const useGetFollowingQuery = () => {
+  return useQuery({
+    queryKey: ["following"],
+    queryFn: accountApiRequest.getFollowing,
+  });
+};
+
+export const useFollowUserMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: accountApiRequest.followUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["following"],
+        exact: true,
+      });
+    },
+  });
+};
+
+export const useUnfollowUserMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: accountApiRequest.unFollowUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["following"],
+        exact: true,
+      });
+    },
+  });
+};

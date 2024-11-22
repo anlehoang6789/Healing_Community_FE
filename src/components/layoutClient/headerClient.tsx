@@ -47,7 +47,7 @@ import { useAppContext } from "@/components/app-provider";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 const navItems = [
-  { icon: Home, label: "Trang chủ", href: "/", authRequired: true },
+  { icon: Home, label: "Trang chủ", href: "/content", authRequired: true },
   {
     icon: Users,
     label: "Nhóm",
@@ -85,7 +85,7 @@ export default function Header() {
       {/* Logo and Search */}
       <div className="flex items-center space-x-4 overflow-hidden">
         <Link
-          href={isAuth ? "/home" : "/"}
+          href={isAuth ? "/content" : "/"}
           className="items-center space-x-2 relative hidden md:block"
         >
           <Image
@@ -98,7 +98,7 @@ export default function Header() {
         </Link>
 
         {!isAuth && (
-          <Link href={"/home"}>
+          <Link href={"/content"} className="hidden md:block">
             <Button variant="headerIconNoBorder" className="text-base w-[80px]">
               Khám phá
             </Button>
@@ -393,6 +393,16 @@ export default function Header() {
               </Link>
             ))}
           </nav> */}
+          {!isAuth && (
+            <Link href={"/content"} className="">
+              <Button
+                variant="headerIconNoBorder"
+                className="text-base w-[80px]"
+              >
+                Khám phá
+              </Button>
+            </Link>
+          )}
           <nav className="flex flex-col gap-4">
             {navItems
               .filter((item) => {

@@ -1,39 +1,88 @@
+"use client";
+
 import ButtonTestAgain from "@/app/(registered-user)/test-result/button-test-again";
 import ContentTestResultTabs from "@/app/(registered-user)/test-result/content-test-result-tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Dass21ScoreResponseType } from "@/schemaValidations/quizz.schema";
 
 export default function TestResult() {
+  const [quizResult, setQuizResult] = useState<Dass21ScoreResponseType | null>(
+    null
+  );
+
+  useEffect(() => {
+    const storedResult = localStorage.getItem("quizResult");
+
+    if (storedResult) {
+      try {
+        const parsedResult = JSON.parse(
+          storedResult
+        ) as Dass21ScoreResponseType;
+        setQuizResult(parsedResult);
+      } catch (error) {
+        console.error("Error parsing quiz result:", error);
+      }
+    }
+  }, []);
+
+  // Nếu chưa có kết quả, hiển thị loading
+  if (!quizResult) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="min-h-screen p-8">
       <Card className="w-full max-w-6xl mx-auto">
         <div className="w-full">
           <CardHeader className="relative">
-            <CardTitle className=" text-green-500 text-3xl font-bold text-center mb-2">
-              Stress cấp tính (Acute Stress)
+            <CardTitle className="text-green-500 text-3xl font-bold text-center mb-2">
+              Kết Quả Kiểm Tra Tâm Lý DASS-21
             </CardTitle>
             <div className="relative w-full h-[300px]">
               <Image
-                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                alt="INFP Illustration"
+                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Ftest_result.jpg?alt=media&token=6c41e6bb-b27e-4191-9cf5-068c74f3267a"
+                alt="Test Result Illustration"
                 fill
                 className="rounded-lg object-cover"
               />
             </div>
           </CardHeader>
           <CardContent className="p-6 mb-4">
-            <p className="text-muted-foreground mb-4 border-l-4 border-green-400 pl-2 text-base md:text-xl">
-              Đây là dạng stress ngắn hạn, thường phát sinh từ các tình huống cụ
-              thể hoặc sự kiện gây căng thẳng như công việc, học tập, hay vấn đề
-              cá nhân. Người trải qua stress cấp tính thường cảm thấy lo lắng,
-              căng thẳng hoặc sợ hãi trong một khoảng thời gian ngắn
-            </p>
-            <ButtonTestAgain />
+            <div className="grid md:grid-cols-3 gap-4">
+              <div className="bg-green-100 p-4 rounded-lg">
+                <h3 className="font-bold text-green-700">Căng thẳng</h3>
+                <p className="text-gray-700">
+                  Điểm số: {quizResult.data.stressScore}
+                </p>
+                <p className="text-sm mt-2 text-gray-700">
+                  {quizResult.data.sressDescription}
+                </p>
+              </div>
+              <div className="bg-blue-100 p-4 rounded-lg">
+                <h3 className="font-bold text-blue-700">Lo Âu</h3>
+                <p className="text-gray-700">
+                  Điểm số: {quizResult.data.anxietyScore}
+                </p>
+                <p className="text-sm mt-2 text-gray-700">
+                  {quizResult.data.anxietyDescription}
+                </p>
+              </div>
+              <div className="bg-red-100 p-4 rounded-lg">
+                <h3 className="font-bold text-red-700">Trầm Cảm</h3>
+                <p className="text-gray-700">
+                  Điểm số: {quizResult.data.depressionScore}
+                </p>
+                <p className="text-sm mt-2 text-gray-700">
+                  {quizResult.data.depressionDescription}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </div>
-
         <ContentTestResultTabs />
+        <ButtonTestAgain />
       </Card>
     </div>
   );

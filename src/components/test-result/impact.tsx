@@ -1,11 +1,63 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Dass21ScoreResponseType } from "@/schemaValidations/quizz.schema";
 
 export default function Impact() {
+  const [quizResult, setQuizResult] = useState<Dass21ScoreResponseType | null>(
+    null
+  );
+
+  useEffect(() => {
+    const storedResult = localStorage.getItem("quizResult");
+    if (storedResult) {
+      try {
+        const parsedResult = JSON.parse(
+          storedResult
+        ) as Dass21ScoreResponseType;
+        setQuizResult(parsedResult);
+      } catch (error) {
+        console.error("Error parsing quiz result:", error);
+      }
+    }
+  }, []);
+
+  // Hàm phân tách và render các tác động ngắn hạn
+  const renderShortTermEffects = (effects: any[]) => {
+    return effects.map((effect, index) => (
+      <li key={index} className="mb-2 pl-4 relative text-textChat">
+        <span className="absolute left-0 top-1 text-blue-500">•</span>
+        {effect}
+      </li>
+    ));
+  };
+
+  if (!quizResult) {
+    return <div>Không có dữ liệu kết quả</div>;
+  }
+
   return (
     <div>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Officiis quis ut
-      unde praesentium temporibus vero modi, libero itaque mollitia fuga
-      reiciendis tenetur officia sint corrupti et omnis quos neque voluptatem.
+      <h2 className="text-xl font-semibold mb-4 uppercase">
+        Tác Động Ngắn Hạn
+      </h2>
+
+      <div
+        className="rounded-lg"
+        style={{
+          overflowWrap: "break-word",
+          wordWrap: "break-word",
+        }}
+      >
+        {quizResult.data.shortTermEffects &&
+        quizResult.data.shortTermEffects.length > 0 ? (
+          <ul className="list-none space-y-2 ">
+            {renderShortTermEffects(quizResult.data.shortTermEffects)}
+          </ul>
+        ) : (
+          <p className="text-gray-700">
+            Không có thông tin về tác động ngắn hạn
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,8 +1,30 @@
 "use client";
 
-import React from "react";
-import { format } from "date-fns";
-import { Plus, Minus } from "lucide-react";
+import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -11,271 +33,289 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { createContext, useContext, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import AutoPagination from "@/components/auto-pagination";
+import { PaymentHistoryType } from "@/schemaValidations/payment.schema";
 import { Badge } from "@/components/ui/badge";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import PaymentHistoryDetails from "@/app/user/payment-history/payment-history-details";
+import { usePaymentHistoryQuery } from "@/queries/usePayment";
+import { formatCurrency, formatDateTime } from "@/lib/utils";
+import { PaymentHistoryStatus } from "@/constants/type";
 
-type Transaction = {
-  id: string;
-  date: Date;
-  customerName: string;
-  orderId: string;
-  amount: number;
-  status: "completed" | "pending" | "failed";
+type PaymentStatusBadgeVariant =
+  | "success"
+  | "destructive"
+  | "cancel"
+  | "upcoming";
+
+const PaymentHistoryTableContext = createContext<{
+  setPaymentIdDetails: (value: string) => void;
+  paymentIdDetails: string | undefined;
+}>({
+  setPaymentIdDetails: (value: string | undefined) => {},
+  paymentIdDetails: undefined,
+});
+
+//format lại status
+const formatPaymentStatus = (
+  status: keyof typeof PaymentHistoryStatus
+): {
+  text: string;
+  variant: PaymentStatusBadgeVariant;
+} => {
+  const statusMap: Record<
+    keyof typeof PaymentHistoryStatus,
+    { text: string; variant: PaymentStatusBadgeVariant }
+  > = {
+    0: { text: "Chờ thanh toán", variant: "upcoming" },
+    1: { text: "Đã thanh toán", variant: "success" },
+    2: { text: "Lỗi thanh toán", variant: "destructive" },
+    3: { text: "Đã hủy", variant: "cancel" },
+    4: { text: "Không xác định", variant: "destructive" },
+  };
+
+  return statusMap[status] ?? statusMap[4];
 };
 
-const transactions: Transaction[] = [
+export const columns: ColumnDef<PaymentHistoryType>[] = [
   {
-    id: "1",
-    date: new Date("2023-05-01T10:00:00"),
-    customerName: "Nguyễn Văn A",
-    orderId: "ORD001",
-    amount: 500000,
-    status: "completed",
+    id: "paymentId",
+    header: "STT",
+    cell: ({ row }) => <div className="text-textChat">{row.index + 1}</div>,
   },
   {
-    id: "2",
-    date: new Date("2023-05-02T11:30:00"),
-    customerName: "Trần Thị B",
-    orderId: "ORD002",
-    amount: -200000,
-    status: "completed",
+    accessorKey: "orderCode",
+    header: "Mã đơn hàng",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("orderCode")}</div>
+    ),
   },
   {
-    id: "3",
-    date: new Date("2023-05-03T09:15:00"),
-    customerName: "Lê Văn C",
-    orderId: "ORD003",
-    amount: 1000000,
-    status: "pending",
+    accessorKey: "amount",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Giá tiền
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="text-textChat">
+        {formatCurrency(row.getValue("amount"))}
+      </div>
+    ),
   },
   {
-    id: "4",
-    date: new Date("2023-05-04T14:45:00"),
-    customerName: "Phạm Thị D",
-    orderId: "ORD004",
-    amount: -50000,
-    status: "failed",
+    accessorKey: "paymentDate",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Ngày thanh toán
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="text-textChat">
+        {formatDateTime(row.getValue("paymentDate"))}
+      </div>
+    ),
   },
   {
-    id: "5",
-    date: new Date("2023-05-05T16:20:00"),
-    customerName: "Hoàng Văn E",
-    orderId: "ORD005",
-    amount: 750000,
-    status: "completed",
+    accessorKey: "status",
+    header: "Trạng thái",
+    cell: ({ row }) => {
+      const status = row.getValue(
+        "status"
+      ) as keyof typeof PaymentHistoryStatus;
+      const { text, variant } = formatPaymentStatus(status);
+      return (
+        <div className="flex items-center">
+          <Badge variant={variant}>{text}</Badge>
+        </div>
+      );
+    },
   },
   {
-    id: "6",
-    date: new Date("2023-05-06T08:30:00"),
-    customerName: "Trương Thị F",
-    orderId: "ORD006",
-    amount: 300000,
-    status: "completed",
-  },
-  {
-    id: "7",
-    date: new Date("2023-05-07T13:45:00"),
-    customerName: "Đặng Văn G",
-    orderId: "ORD007",
-    amount: -150000,
-    status: "pending",
-  },
-  {
-    id: "8",
-    date: new Date("2023-05-08T10:00:00"),
-    customerName: "Bùi Thị H",
-    orderId: "ORD008",
-    amount: 600000,
-    status: "completed",
-  },
-  {
-    id: "9",
-    date: new Date("2023-05-09T15:30:00"),
-    customerName: "Lý Văn I",
-    orderId: "ORD009",
-    amount: -80000,
-    status: "failed",
-  },
-  {
-    id: "10",
-    date: new Date("2023-05-10T11:20:00"),
-    customerName: "Ngô Thị K",
-    orderId: "ORD010",
-    amount: 450000,
-    status: "completed",
-  },
-  {
-    id: "11",
-    date: new Date("2023-05-11T09:10:00"),
-    customerName: "Vũ Văn L",
-    orderId: "ORD011",
-    amount: 850000,
-    status: "pending",
-  },
-  {
-    id: "12",
-    date: new Date("2023-05-12T14:00:00"),
-    customerName: "Đỗ Thị M",
-    orderId: "ORD012",
-    amount: -250000,
-    status: "completed",
+    id: "actions",
+    enableHiding: false,
+    cell: function Actions({ row }) {
+      const { setPaymentIdDetails } = useContext(PaymentHistoryTableContext);
+      const openDeatailsPayment = () => {
+        setPaymentIdDetails(row.original.paymentId);
+      };
+
+      return (
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <DotsHorizontalIcon className="h-4 w-4 text-textChat" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={openDeatailsPayment}>
+              Xem chi tiết
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
 
+// Số lượng item trên 1 trang
+const PAGE_SIZE = 10;
 export default function ViewPaymentHistory() {
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const transactionsPerPage = 10;
-  const totalPages = Math.ceil(transactions.length / transactionsPerPage);
+  const searchParam = useSearchParams();
+  const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
+  const pageIndex = page - 1;
+  // const params = Object.fromEntries(searchParam.entries())
+  const [paymentIdDetails, setPaymentIdDetails] = useState<
+    string | undefined
+  >();
+  //tao bien lay data tu api
+  const paymentHistoryListQuery = usePaymentHistoryQuery();
+  const data = paymentHistoryListQuery.data?.payload.data ?? [];
 
-  // Sort transactions by date (most recent first)
-  const sortedTransactions = [...transactions].sort(
-    (a, b) => b.date.getTime() - a.date.getTime()
-  );
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [pagination, setPagination] = useState({
+    pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
+    pageSize: PAGE_SIZE, //default page size
+  });
 
-  const getCurrentPageTransactions = () => {
-    const startIndex = (currentPage - 1) * transactionsPerPage;
-    const endIndex = startIndex + transactionsPerPage;
-    return sortedTransactions.slice(startIndex, endIndex);
-  };
+  const table = useReactTable({
+    data,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    autoResetPageIndex: false,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      pagination,
+    },
+  });
 
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-    }).format(amount);
-  };
-
-  const getStatusBadge = (status: Transaction["status"]) => {
-    switch (status) {
-      case "completed":
-        return (
-          <Badge variant={"outline"} className="bg-green-500 text-white">
-            Hoàn thành
-          </Badge>
-        );
-      case "pending":
-        return (
-          <Badge variant={"outline"} className="bg-yellow-500 text-white">
-            Đang xử lý
-          </Badge>
-        );
-      case "failed":
-        return (
-          <Badge variant={"outline"} className="bg-red-500 text-white">
-            Thất bại
-          </Badge>
-        );
-    }
-  };
+  useEffect(() => {
+    table.setPagination({
+      pageIndex,
+      pageSize: PAGE_SIZE,
+    });
+  }, [table, pageIndex]);
 
   return (
-    <div className="w-full bg-background h-auto md:p-4 lg:p-4 sm:p-0 pb-4 pt-4 max-w-7xl overflow-hidden mx-auto md:rounded-lg lg:rounded-lg sm:rounded-none md:shadow-lg lg:shadow-lg sm:shadow-none  md:border lg:border sm:border-none">
-      <h1 className="text-2xl font-bold mb-4 text-muted-foreground">
-        Lịch sử giao dịch
-      </h1>
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="lg:text-sm md:tex-sm text-xs">
-                Ngày giờ
-              </TableHead>
-              <TableHead className="lg:text-sm md:tex-sm text-xs">
-                Tên khách hàng
-              </TableHead>
-              <TableHead className="lg:text-sm md:tex-sm text-xs">
-                Mã đơn hàng
-              </TableHead>
-              <TableHead className="lg:text-sm md:tex-sm text-xs">
-                Số tiền
-              </TableHead>
-              <TableHead className="lg:text-sm md:tex-sm text-xs">
-                Trạng thái
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {getCurrentPageTransactions().map((transaction) => (
-              <TableRow key={transaction.id}>
-                <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-xs">
-                  {format(transaction.date, "dd/MM/yyyy HH:mm")}
-                </TableCell>
-                <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-xs">
-                  {transaction.customerName}
-                </TableCell>
-                <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-xs">
-                  {transaction.orderId}
-                </TableCell>
-                <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-xs">
-                  <span
-                    className={`flex items-center ${
-                      transaction.amount >= 0
-                        ? "text-green-500"
-                        : "text-red-500"
-                    }`}
+    <PaymentHistoryTableContext.Provider
+      value={{
+        paymentIdDetails,
+        setPaymentIdDetails,
+      }}
+    >
+      <div className="w-full">
+        <PaymentHistoryDetails
+          id={paymentIdDetails}
+          setId={setPaymentIdDetails}
+          onSubmitSuccess={() => {}}
+        />
+        <div className="flex items-center py-4">
+          <Input
+            placeholder="Tìm theo đơn hàng"
+            value={
+              (table.getColumn("orderCode")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("orderCode")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
                   >
-                    {transaction.amount >= 0 ? (
-                      <Plus size={16} />
-                    ) : (
-                      <Minus size={16} />
-                    )}
-                    {formatAmount(Math.abs(transaction.amount))}
-                  </span>
-                </TableCell>
-                <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center text-textChat"
+                  >
+                    Không có giao dịch nào.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="text-xs text-muted-foreground py-4 flex-1 ">
+            Hiển thị{" "}
+            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
+            <strong>{data.length}</strong> kết quả
+          </div>
+          <div>
+            <AutoPagination
+              page={table.getState().pagination.pageIndex + 1}
+              pageSize={table.getPageCount()}
+              pathname="/user/payment-history"
+            />
+          </div>
+        </div>
       </div>
-      <div className="mt-4">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.max(prev - 1, 1));
-                }}
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  className="text-muted-foreground"
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(index + 1);
-                  }}
-                  isActive={currentPage === index + 1}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    </div>
+    </PaymentHistoryTableContext.Provider>
   );
 }

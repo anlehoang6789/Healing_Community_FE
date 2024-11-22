@@ -34,6 +34,7 @@ export const PersonalInformationSchema = z.object({
   phoneNumber: z.string().min(10).max(10),
   profilePicture: z.string(),
   descrtiption: z.string().max(1000),
+  createdAt: z.string(),
   socialLink: z.object({
     facebook: z.string().optional(),
     instagram: z.string().optional(),
@@ -126,3 +127,43 @@ export const UpdateAvatarProfileBody = z.object({
 export type UpdateAvatarProfileBodyType = z.TypeOf<
   typeof UpdateAvatarProfileBody
 >;
+
+export const GetFollowingSchema = z.object({
+  userId: z.string(),
+  userName: z.string(),
+  email: z.string(),
+  phoneNumber: z.string(),
+  fullName: z.string(),
+  profilePicture: z.string(),
+  descrtiption: z.string(),
+  socialLink: z.object({
+    facebook: z.string().optional(),
+    instagram: z.string().optional(),
+    twitter: z.string().optional(),
+    linkedIn: z.string().optional(),
+  }),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetFollowingSchemaType = z.TypeOf<typeof GetFollowingSchema>;
+
+export const GetFollowingRes = z.object({
+  data: z.array(GetFollowingSchema),
+  message: z.string(),
+});
+
+export type GetFollowingResType = z.TypeOf<typeof GetFollowingRes>;
+
+export const FollowUserBody = z.object({
+  followerId: z.string(),
+});
+
+export type FollowUserBodyType = z.TypeOf<typeof FollowUserBody>;
+
+export const FollowUserRes = z.object({
+  message: z.string(),
+  data: z.string(),
+});
+
+export type FollowUserResType = z.TypeOf<typeof FollowUserRes>;

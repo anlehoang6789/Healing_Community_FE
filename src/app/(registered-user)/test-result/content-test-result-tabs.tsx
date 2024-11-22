@@ -7,7 +7,6 @@ import Reason from "@/components/test-result/reason";
 import Solution from "@/components/test-result/solution";
 import Symptom from "@/components/test-result/symptom";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Users as UserIcon, ChevronsRight } from "lucide-react";
 import React, { useState } from "react";
 
 export default function ContentTestResultTabs() {
@@ -23,8 +22,8 @@ export default function ContentTestResultTabs() {
         return <Impact />;
       case "solution":
         return <Solution />;
-      case "advice":
-        return <Advice />;
+      // case "advice":
+      //   return <Advice />;
       default:
         return null;
     }
@@ -35,7 +34,7 @@ export default function ContentTestResultTabs() {
       <div className="w-full hidden p-4 sticky top-0 md:w-1/4 md:block">
         <div className="border border-muted-foreground p-2 rounded-lg mb-4">
           <h2 className="text-xl font-semibold mb-4">
-            Tìm hiểu về Acute Stress
+            Tìm hiểu về tình trạng của bạn
           </h2>
           <nav>
             <ul className="space-y-2">
@@ -47,7 +46,7 @@ export default function ContentTestResultTabs() {
                     : "hover:translate-x-4 hover:scale-110 transition ease-in-out delay-150 duration-300"
                 }`}
               >
-                Nguyên nhân
+                Tổng quan
               </li>
               <li
                 onClick={() => setActiveSection("symptom")}
@@ -57,7 +56,7 @@ export default function ContentTestResultTabs() {
                     : "hover:translate-x-4 hover:scale-110 transition ease-in-out delay-150 duration-300"
                 }`}
               >
-                Triệu chứng
+                Yếu tố
               </li>
               <li
                 onClick={() => setActiveSection("impact")}
@@ -67,7 +66,7 @@ export default function ContentTestResultTabs() {
                     : "hover:translate-x-4 hover:scale-110 transition ease-in-out delay-150 duration-300"
                 }`}
               >
-                Tác động ngắn hạn và dài hạn
+                Tác động ngắn hạn
               </li>
               <li
                 onClick={() => setActiveSection("solution")}
@@ -77,9 +76,9 @@ export default function ContentTestResultTabs() {
                     : "hover:translate-x-4 hover:scale-110 transition ease-in-out delay-150 duration-300"
                 }`}
               >
-                Một số biện pháp để có thể cải thiện tình trạng
+                Tác động dài hạn
               </li>
-              <li
+              {/* <li
                 onClick={() => setActiveSection("advice")}
                 className={`cursor-pointer ${
                   activeSection === "advice"
@@ -88,7 +87,7 @@ export default function ContentTestResultTabs() {
                 }`}
               >
                 Lời khuyên
-              </li>
+              </li> */}
             </ul>
           </nav>
         </div>
