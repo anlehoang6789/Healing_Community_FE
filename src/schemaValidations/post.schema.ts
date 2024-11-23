@@ -59,6 +59,7 @@ export const ReplyCommentSchema = z.object({
   parentId: z.string(),
   userId: z.string(),
   content: z.string(),
+  coverImgUrl: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
   replies: z.array(z.any()).nullable().optional(),
@@ -72,6 +73,7 @@ export const CommentSchema = z.object({
   parentId: z.string().nullable(), // parentId có thể là null
   userId: z.string(),
   content: z.string(),
+  coverImgUrl: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
   replies: z.array(ReplyCommentSchema).nullable().optional(), // replies có thể là null hoặc undefined
