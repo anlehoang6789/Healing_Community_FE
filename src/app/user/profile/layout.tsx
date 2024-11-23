@@ -1,9 +1,39 @@
+"use client";
 import ProfileTabs from "@/app/user/profile/profile-tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import React from "react";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { useUserStore } from "@/store/userStore";
+import { useParams } from "next/navigation";
+import React, { useEffect } from "react";
 
-export default function ProfileUserPage() {
+export default function ProfileUserLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const params = useParams();
+  const userIdFromPath = params.userId as string;
+  const currentUserId = getUserIdFromLocalStorage();
+  const { userId, setUserId } = useUserStore();
+
+  const isOwner = currentUserId === userId;
+  useEffect(() => {
+    if (!userIdFromPath && currentUserId) {
+      // Nếu không có userId trong URL, sử dụng userId từ localStorage
+      setUserId(currentUserId);
+    } else if (userIdFromPath) {
+      // Nếu có userId trong URL, ưu tiên userId đó
+      setUserId(userIdFromPath);
+    }
+  }, [userIdFromPath, currentUserId, setUserId]);
+
+  // Fetch user profile data
+  const { data: userProfile, isLoading } =
+    useGetUserProfileQuery(userIdFromPath);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div>
       {/* Profile Section */}
@@ -12,14 +42,23 @@ export default function ProfileUserPage() {
           {/* Avatar */}
           <Avatar className="w-20 h-20 sm:w-28 sm:h-28 border-2 border-rose-300 mb-2">
             <AvatarImage
-              src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-register.jpg?alt=media&token=0bead35e-556e-4935-945e-909d9cee4483"
+              // src={
+              //   "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+              // }
+              src={userProfile?.payload.data.profilePicture}
               alt="Hoàng An"
             />
-            <AvatarFallback>HA</AvatarFallback>
+            <AvatarFallback>
+              {userProfile?.payload.data.fullName ||
+                userProfile?.payload.data.userName}
+              {/* Hoàng An */}
+            </AvatarFallback>
           </Avatar>
           {/* Username */}
           <h1 className="text-xl sm:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
-            Hoàng An
+            {userProfile?.payload.data.fullName ||
+              userProfile?.payload.data.userName}
+            {/* Hoàng An */}
           </h1>
           <div className="flex flex-col items-center justify-center">
             {/* First information */}
@@ -84,7 +123,8 @@ export default function ProfileUserPage() {
         </div>
       </div>
       <div className="w-full bg-background h-auto p-2 max-w-7xl overflow-hidden mx-auto">
-        <ProfileTabs />
+        <ProfileTabs isOwner={isOwner} userId={userIdFromPath as string} />
+        {children}
       </div>
     </div>
   );

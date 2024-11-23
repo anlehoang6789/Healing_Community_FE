@@ -26,8 +26,9 @@ export const useResetPasswordWhenHaveOtpMutation = (onSuccess?: () => void) => {
 
 export const useGetUserProfileQuery = (userId: string) => {
   return useQuery({
-    queryKey: ["user-profile", userId],
+    queryKey: ["userProfile", userId],
     queryFn: () => accountApiRequest.getUserProfile(userId),
+    enabled: !!userId,
   });
 };
 
@@ -43,7 +44,7 @@ export const useUpdateProfileUserMutation = () => {
     mutationFn: accountApiRequest.updateProfileUser,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["user-profile"],
+        queryKey: ["userProfile"],
         exact: true,
       });
     },

@@ -227,7 +227,7 @@ export default function Header() {
                 <DropdownMenuItem>
                   <UserRoundPen className="mr-2 h-4 w-4" />
                   <span>
-                    <Link href={"/user/profile"}>Trang cá nhân</Link>
+                    <Link href={`/user/profile/${userId}`}>Trang cá nhân</Link>
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
