@@ -35,7 +35,7 @@ export default function DetailPost() {
   const [commentImage, setCommentImage] = useState<string | null>(null);
 
   // data của post theo postId
-  const postId = "01JD93AMWMXBXGR3HDV55TGGPG";
+  const postId = "01JDAB9VW8A2KQX9ZBGZSJYJ84";
 
   const { data: postById } = useGetPostByPostIdQuery(postId);
   //data của user theo userId lấy từ api postById
@@ -140,9 +140,7 @@ export default function DetailPost() {
       <div className="lg:ml-16 w-auto mx-auto border shadow-md rounded-md overflow-hidden">
         {postById?.payload.data && (
           <Image
-            src={
-              "https://firebasestorage.googleapis.com/v0/b/healing-community-4d0b5.appspot.com/o/upload%2FCandlelight%2C%20there%20is%20an%20orange%20glowing%20butterfly%2C%20in%20front%20of%20him%20was%20a%20colorful%20garden%20full%20of%20flowers%20and%20butterflies%2C%20in%20the%20style%20of%20contemporary%20illustration.png?alt=media&token=7e822c04-0824-408c-a708-9e5561e95d82"
-            }
+            src={postById.payload.data.coverImgUrl}
             alt="Banner"
             width={1000}
             height={500}
