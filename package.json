@@ -54,7 +54,8 @@
     "recharts": "^2.13.3",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "zustand": "^5.0.1"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.59.7",

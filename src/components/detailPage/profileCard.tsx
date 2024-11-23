@@ -30,7 +30,7 @@ const isValidUrl = (url: string) => {
 };
 
 export default function ProfileCard() {
-  const postId = "01JD93AMWMXBXGR3HDV55TGGPG";
+  const postId = "01JDAB9VW8A2KQX9ZBGZSJYJ84";
   const { data: postById } = useGetPostByPostIdQuery(postId);
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
@@ -109,7 +109,7 @@ export default function ProfileCard() {
   return (
     <Card className="w-full mx-auto mr-20">
       <CardHeader className="flex flex-row items-center gap-4 pb-2">
-        <Link href="#">
+        <Link href={`/user/profile/${postById?.payload.data.userId}`}>
           <Avatar className="w-12 h-12 border-2 border-rose-300">
             <AvatarImage
               src={userById?.payload.data.profilePicture}

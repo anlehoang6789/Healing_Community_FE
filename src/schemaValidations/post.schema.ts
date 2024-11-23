@@ -59,6 +59,7 @@ export const ReplyCommentSchema = z.object({
   parentId: z.string(),
   userId: z.string(),
   content: z.string(),
+  coverImgUrl: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
   replies: z.array(z.any()).nullable().optional(),
@@ -72,6 +73,7 @@ export const CommentSchema = z.object({
   parentId: z.string().nullable(), // parentId có thể là null
   userId: z.string(),
   content: z.string(),
+  coverImgUrl: z.string().nullable().optional(),
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
   replies: z.array(ReplyCommentSchema).nullable().optional(), // replies có thể là null hoặc undefined
@@ -91,4 +93,34 @@ export const GetCommentsByPostIdResponseSchema = z.object({
 
 export type GetCommentsByPostIdResponseType = z.TypeOf<
   typeof GetCommentsByPostIdResponseSchema
+>;
+
+export const GetPostByUserIdRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetPostByUserIdResType = z.TypeOf<typeof GetPostByUserIdRes>;
+
+export const CreateCommentBody = z.object({
+  postId: z.string(),
+  parentId: z.string().nullable(),
+  content: z.string(),
+  coverImgUrl: z.string().nullable().optional(),
+});
+
+export type CreateCommentBodyType = z.TypeOf<typeof CreateCommentBody>;
+
+export const CreateCommentResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.string(),
+  errors: z.array(z.any()),
+  timestamp: z.string(),
+});
+
+export type CreateCommentResponseType = z.TypeOf<
+  typeof CreateCommentResponseSchema
 >;

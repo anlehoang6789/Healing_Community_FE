@@ -12,8 +12,17 @@ import { UserType } from "@/schemaValidations/user.schema";
 
 interface CommentSectionProps {
   comments: CommentType[];
-  onAddComment: (comment: { content: string }) => void;
-  onAddReply: (parentId: string, reply: { content: string }) => void;
+  onAddComment: (comment: {
+    content: string;
+    coverImgUrl?: string | null;
+  }) => void;
+  onAddReply: (
+    parentId: string,
+    reply: {
+      content: string;
+      coverImgUrl?: string | null;
+    }
+  ) => void;
 }
 
 export default function CommentSection({
@@ -77,6 +86,7 @@ export default function CommentSection({
     if (newComment.trim()) {
       onAddComment({
         content: newComment, // Chỉ gửi content
+        coverImgUrl: commentImage,
       });
 
       setNewComment("");
@@ -88,6 +98,7 @@ export default function CommentSection({
     if (replyContent.trim()) {
       onAddReply(parentId, {
         content: replyContent, // Chỉ gửi content
+        coverImgUrl: replyImages[parentId],
       });
 
       setReplyContent("");
@@ -123,7 +134,7 @@ export default function CommentSection({
             <div className="bg-gray-100 rounded-lg p-2 overflow-hidden break-words">
               <Link href="#">
                 <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                  {user?.userName || comment.userId}
+                  {user?.fullName || user?.userName || comment.userId}
                 </span>
               </Link>
 
@@ -131,15 +142,15 @@ export default function CommentSection({
                 {comment.content}
               </p>
 
-              {/* {comment.image && (
-              <Image
-                src={comment.image}
-                alt="Comment image"
-                width={200}
-                height={200}
-                className="mt-2 rounded-lg"
-              />
-            )} */}
+              {comment.coverImgUrl && (
+                <Image
+                  src={comment.coverImgUrl}
+                  alt="Comment image"
+                  width={200}
+                  height={200}
+                  className="mt-2 rounded-lg"
+                />
+              )}
             </div>
 
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
