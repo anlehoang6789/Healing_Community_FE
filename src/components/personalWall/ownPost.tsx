@@ -247,7 +247,7 @@ export default function OwnPost() {
   };
 
   return (
-    <div className="p-4 rounded-lg shadow-lg border">
+    <div className="p-4 rounded-lg shadow-lg border mb-6">
       <div className="flex items-center gap-4 mb-6">
         {""}
         {/* Avatar, name*/}

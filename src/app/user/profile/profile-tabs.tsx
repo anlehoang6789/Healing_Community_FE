@@ -1,92 +1,71 @@
 "use client";
-import ChangePassword from "@/app/user/profile/change-password";
-import ExpertInfor from "@/app/user/profile/expert-info";
-import PersonalInformation from "@/app/user/profile/personal-information";
-import PersonalWall from "@/app/user/profile/personal-wall";
 import { Button } from "@/components/ui/button";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 
-export default function ProfileTabs() {
-  const [activeTab, setActiveTab] = useState("home");
-
-  const renderContent = () => {
-    switch (activeTab) {
-      case "home":
-        return <PersonalWall />;
-      case "expertInfor":
-        return <ExpertInfor />;
-      case "info":
-        return <PersonalInformation />;
-      case "password":
-        return <ChangePassword />;
-      default:
-        return null;
-    }
-  };
+export default function ProfileTabs({
+  isOwner,
+  userId,
+}: {
+  isOwner: boolean;
+  userId: string;
+}) {
+  const currentUserId = getUserIdFromLocalStorage();
   return (
-    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center py-4 border-b">
-        <Button
-          className="w-full sm:w-auto rounded-[20px] bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2"
-          asChild
-        >
-          <Link href="/new-post">
-            <Pencil className="mr-2 w-4 h-4" />
-            <span>Đăng bài viết mới</span>
-          </Link>
-        </Button>
+        {isOwner && (
+          <Button
+            className="w-full sm:w-auto rounded-[20px] bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2"
+            asChild
+          >
+            <Link href="/new-post">
+              <Pencil className="mr-2 w-4 h-4" />
+              <span>Đăng bài viết mới</span>
+            </Link>
+          </Button>
+        )}
 
         <nav className="flex justify-between sm:justify-start items-center space-x-2 sm:space-x-4 w-full sm:w-auto sm:order-1">
           <Button
-            variant={
-              activeTab === "home"
-                ? "gradientUnderline"
-                : "gradientHoverUnderline"
-            }
-            onClick={() => setActiveTab("home")}
+            variant={"gradientHoverUnderline"}
             className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
           >
-            Tường nhà
+            <Link href={`/user/profile/${userId || currentUserId}`}>
+              Tường nhà
+            </Link>
           </Button>
-          <Button
-            variant={
-              activeTab === "expertInfor"
-                ? "gradientUnderline"
-                : "gradientHoverUnderline"
-            }
-            onClick={() => setActiveTab("expertInfor")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-          >
-            Thông tin chuyên gia
-          </Button>
-          <Button
-            variant={
-              activeTab === "info"
-                ? "gradientUnderline"
-                : "gradientHoverUnderline"
-            }
-            onClick={() => setActiveTab("info")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-          >
-            Thông tin cá nhân
-          </Button>
-          <Button
-            variant={
-              activeTab === "password"
-                ? "gradientUnderline"
-                : "gradientHoverUnderline"
-            }
-            onClick={() => setActiveTab("password")}
-            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-          >
-            Đổi mật khẩu
-          </Button>
+
+          {isOwner && (
+            <>
+              <Button
+                variant={"gradientHoverUnderline"}
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                <Link href={"/user/profile/expert-info"}>
+                  Thông tin chuyên gia
+                </Link>
+              </Button>
+              <Button
+                variant={"gradientHoverUnderline"}
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                <Link href={"/user/profile/information"}>
+                  Thông tin cá nhân
+                </Link>
+              </Button>
+              <Button
+                variant={"gradientHoverUnderline"}
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                <Link href={"/user/profile/change-password"}>Đổi mật khẩu</Link>
+              </Button>
+            </>
+          )}
         </nav>
       </div>
-
-      <main className="my-4">{renderContent()}</main>
     </div>
   );
 }

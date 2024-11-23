@@ -94,3 +94,10 @@ export const GetCommentsByPostIdResponseSchema = z.object({
 export type GetCommentsByPostIdResponseType = z.TypeOf<
   typeof GetCommentsByPostIdResponseSchema
 >;
+
+export const GetPostByUserIdRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetPostByUserIdResType = z.TypeOf<typeof GetPostByUserIdRes>;
