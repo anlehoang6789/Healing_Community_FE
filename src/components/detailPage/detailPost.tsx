@@ -140,7 +140,7 @@ export default function DetailPost() {
       <div className="lg:ml-16 w-auto mx-auto border shadow-md rounded-md overflow-hidden">
         {postById?.payload.data && (
           <Image
-            src={postById.payload.data.coverImgUrl}
+            src={postById?.payload.data.coverImgUrl}
             alt="Banner"
             width={1000}
             height={500}
