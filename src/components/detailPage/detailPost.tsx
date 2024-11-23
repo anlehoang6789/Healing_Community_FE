@@ -56,7 +56,10 @@ export default function DetailPost() {
     }
   }, [commentsData]);
 
-  const handleAddComment = (comment: { content: string }) => {
+  const handleAddComment = (comment: {
+    content: string;
+    coverImgUrl?: string | null;
+  }) => {
     const newComment: CommentType = {
       commentId: `temp-${Date.now()}`, // ID tạm thời
       postId: postId,
@@ -66,19 +69,27 @@ export default function DetailPost() {
       createdAt: new Date().toISOString(),
       updatedAt: null,
       replies: [], // Khởi tạo replies là mảng rỗng
+      coverImgUrl: comment.coverImgUrl || null,
     };
 
     // Cập nhật state comments
     setComments((prevComments) => [...prevComments, newComment]);
   };
 
-  const handleAddReply = (parentId: string, reply: { content: string }) => {
+  const handleAddReply = (
+    parentId: string,
+    reply: {
+      content: string;
+      coverImgUrl?: string | null;
+    }
+  ) => {
     const newReply: ReplyCommentType = {
       commentId: `temp-reply-${Date.now()}`, // ID tạm thời
       postId: postId,
       parentId: parentId,
       userId: "current-user-id", // ID user hiện tại
       content: reply.content,
+      coverImgUrl: reply.coverImgUrl || null,
       createdAt: new Date().toISOString(),
       updatedAt: null,
       replies: [], // Khởi tạo replies là mảng rỗng
