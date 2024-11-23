@@ -28,6 +28,7 @@ interface RichTextEditorProps {
 }
 
 interface FroalaEditorInstance {
+  $el: HTMLElement[];
   image: {
     insert: (
       url: string,
@@ -67,33 +68,27 @@ export default function RichTextEditor({
               try {
                 const editor = this;
 
-                // Lặp qua từng file ảnh được upload
                 for (const imageFile of images) {
-                  // Upload ảnh lên Firebase qua API
                   const formData = new FormData();
                   formData.append("file", imageFile);
 
                   const uploadResult = await uploadImage.mutateAsync(formData);
 
-                  // Lấy URL từ kết quả trả về
                   const uploadedImageUrl = uploadResult.payload.url;
                   console.log(
                     "trả về cái đường dẫn url từ firebase:",
                     uploadedImageUrl
                   );
-
-                  // Thay thế blob URL bằng URL thật trong editor
-                  editor.image.insert(uploadedImageUrl, true, null);
-                  // Gọi `onModelChange` để cập nhật model
-                  const currentHtml = editor.html.get();
-                  onChange(currentHtml); // <--- Đảm bảo giá trị được đồng bộ
+                  const imagesInEditor = editor.$el[0].querySelectorAll("img");
+                  const lastImage = imagesInEditor[imagesInEditor.length - 1];
+                  if (lastImage && lastImage.src.startsWith("blob:")) {
+                    lastImage.src = uploadedImageUrl; // Cập nhật URL
+                  }
                 }
-
-                return false; // Ngăn Froala thực hiện hành động mặc định
               } catch (error) {
                 console.error("Error uploading image:", error);
-                return false;
               }
+              return false;
             },
             "save.before": function (html: string) {
               localStorage.setItem("savedHtml", html);

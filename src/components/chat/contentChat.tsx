@@ -66,37 +66,56 @@ export default function ContentChat({
         </div>
       </div>
       {/* Phần nội dung chat */}
-      <ScrollArea className="p-4 h-[600px]">
+      <ScrollArea className="p-4 h-[600px] flex flex-col justify-end relative">
         <div className="space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={message.Id || index}
-              className={`flex ${
-                message.SenderId === selectedContact.id ? "" : "justify-end"
-              }`}
-            >
-              {message.SenderId === selectedContact.id && (
-                <Avatar className="h-8 w-8 mr-2">
-                  <AvatarImage src={selectedContact.avatar} />
-                  <AvatarFallback>
-                    {selectedContact.name.substring(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-              )}
-              <div
-                className={`rounded-[20px] py-2 px-4 max-w-[70%] ${
-                  message.SenderId === selectedContact.id
-                    ? "bg-muted text-textChat"
-                    : "bg-green-500 text-white"
-                }`}
-              >
-                <p>{message.Content}</p>
-                <span className="text-xs opacity-70">
-                  {formatTime(message.Timestamp)}
-                </span>
-              </div>
+          {messages.length === 0 ? (
+            <div className="flex justify-center items-center text-gray-400">
+              Hãy bắt đầu cuộc trò chuyện!
             </div>
-          ))}
+          ) : (
+            messages.map((message, index) => {
+              const isFirstMessage = index === messages.length - 1; // Kiểm tra tin nhắn cuối cùng
+              const isMyMessage = message.SenderId !== selectedContact.id;
+              return (
+                <div
+                  key={message.Id || index}
+                  className={`flex ${
+                    message.SenderId === selectedContact.id ? "" : "justify-end"
+                  }`}
+                >
+                  {message.SenderId === selectedContact.id && (
+                    <Avatar className="h-8 w-8 mr-2">
+                      <AvatarImage src={selectedContact.avatar} />
+                      <AvatarFallback>
+                        {selectedContact.name.substring(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  {/* chỗ sẽ hiển thị tin nhắn của mình */}
+                  <div
+                    className={`rounded-[20px] py-2 px-4 max-w-[70%] ${
+                      message.SenderId === selectedContact.id
+                        ? "bg-muted text-textChat"
+                        : "bg-green-500 text-white"
+                    }${
+                      isMyMessage && isFirstMessage
+                        ? "absolute bottom-0 right-4 text-white"
+                        : ""
+                    }`}
+                    style={{
+                      marginTop:
+                        isMyMessage && isFirstMessage ? "auto" : "inherit", // Đẩy lên góc phải nếu tin nhắn đầu tiên
+                    }}
+                  >
+                    <p>{message.Content}</p>
+                    <span className="text-xs opacity-70">
+                      {formatTime(message.Timestamp)}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
+          )}
           <div ref={messagesEndRef}></div>
         </div>
       </ScrollArea>
