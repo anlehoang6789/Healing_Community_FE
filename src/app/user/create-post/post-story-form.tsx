@@ -104,6 +104,7 @@ export default function PostStoryForm() {
           variant: "success",
         });
         reset();
+        window.location.reload();
       }
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
