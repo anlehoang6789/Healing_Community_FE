@@ -134,7 +134,7 @@ export default function CommentSection({
             <div className="bg-gray-100 rounded-lg p-2 overflow-hidden break-words">
               <Link href="#">
                 <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                  {user?.userName || user?.fullName || comment.userId}
+                  {user?.fullName || user?.userName || comment.userId}
                 </span>
               </Link>
 

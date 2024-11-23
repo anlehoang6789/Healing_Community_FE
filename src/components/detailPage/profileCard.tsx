@@ -30,7 +30,7 @@ const isValidUrl = (url: string) => {
 };
 
 export default function ProfileCard() {
-  const postId = "01JD93AMWMXBXGR3HDV55TGGPG";
+  const postId = "01JDAB9VW8A2KQX9ZBGZSJYJ84";
   const { data: postById } = useGetPostByPostIdQuery(postId);
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string

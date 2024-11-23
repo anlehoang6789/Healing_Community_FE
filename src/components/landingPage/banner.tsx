@@ -7,6 +7,7 @@ import { ChevronDown, Search } from "lucide-react";
 import Image from "next/image";
 import { useAppContext } from "@/components/app-provider";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 const phrases = [
   "Khám phá cảm hứng chữa lành",
@@ -100,6 +101,7 @@ const cards = [
 export default function Component() {
   const [currentPhrase, setCurrentPhrase] = useState(0);
   const { isAuth, setIsAuth } = useAppContext();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -114,12 +116,12 @@ export default function Component() {
   };
 
   return (
-    <section className="relative min-h-screen w-full overflow-hidden bg-white pt-8">
+    <section className="relative min-h-screen w-full overflow-hidden pt-8">
       <div className="mx-auto w-full">
         {/* Banner section */}
         <div>
           <div className="flex flex-col items-center justify-center text-center">
-            <h1 className="mb-4 text-6xl font-bold tracking-tight">
+            <h1 className="mb-4 text-6xl font-bold tracking-tight text-textChat">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentPhrase}

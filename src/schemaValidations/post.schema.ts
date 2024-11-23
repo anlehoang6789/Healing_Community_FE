@@ -94,3 +94,26 @@ export const GetCommentsByPostIdResponseSchema = z.object({
 export type GetCommentsByPostIdResponseType = z.TypeOf<
   typeof GetCommentsByPostIdResponseSchema
 >;
+
+export const CreateCommentBody = z.object({
+  postId: z.string(),
+  parentId: z.string().nullable(),
+  content: z.string(),
+  coverImgUrl: z.string().nullable().optional(),
+});
+
+export type CreateCommentBodyType = z.TypeOf<typeof CreateCommentBody>;
+
+export const CreateCommentResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.string(),
+  errors: z.array(z.any()),
+  timestamp: z.string(),
+});
+
+export type CreateCommentResponseType = z.TypeOf<
+  typeof CreateCommentResponseSchema
+>;
