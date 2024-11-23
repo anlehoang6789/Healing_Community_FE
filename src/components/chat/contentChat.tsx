@@ -1,25 +1,49 @@
 "use client";
-import { Contact } from "@/components/chat/sidebarChat";
+import { Contact } from "@/app/chat/client-page-chat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Image as ImageIcon,
-  Info,
-  Phone,
-  Sticker,
-  Video,
-  SendHorizontal,
-  Smile as Emoji,
-} from "lucide-react";
-import React from "react";
+import { Message } from "@/hooks/use-web-socket";
+import { formatTime } from "@/lib/utils";
+import { SendHorizontal, Smile as Emoji } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface ContentChatProps {
   selectedContact: Contact;
+  messages: Message[];
+  sendMessage: (content: string) => void;
+  isConnected: boolean;
 }
 
-export default function ContentChat({ selectedContact }: ContentChatProps) {
+export default function ContentChat({
+  selectedContact,
+  messages,
+  sendMessage,
+  isConnected,
+}: ContentChatProps) {
+  const [inputMessage, setInputMessage] = useState("");
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom(); // Cuộn xuống khi có tin nhắn mới
+  }, [messages]);
+
+  useEffect(() => {
+    scrollToBottom(); // Cuộn xuống ngay từ đầu
+  }, []);
+
+  const handleSendMessage = () => {
+    if (inputMessage.trim()) {
+      sendMessage(inputMessage);
+      setInputMessage("");
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       {/* header chat content */}
@@ -40,110 +64,66 @@ export default function ContentChat({ selectedContact }: ContentChatProps) {
             <p className="text-sm text-gray-500">Đang hoạt động</p>
           </div>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="ghost" size="icon">
-            <Phone className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Video className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Info className="h-5 w-5" />
-          </Button>
-        </div>
       </div>
+      {/* Phần nội dung chat */}
       <ScrollArea className="p-4 h-[600px]">
-        {/* Chat messages would go here */}
         <div className="space-y-4">
-          <div className="flex justify-end">
-            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
-              <p>
-                sao mấy cái task t phân m kh làm mà m làm cái task gì v{" "}
-                {selectedContact.name}
-              </p>
+          {messages.map((message, index) => (
+            <div
+              key={message.Id || index}
+              className={`flex ${
+                message.SenderId === selectedContact.id ? "" : "justify-end"
+              }`}
+            >
+              {message.SenderId === selectedContact.id && (
+                <Avatar className="h-8 w-8 mr-2">
+                  <AvatarImage src={selectedContact.avatar} />
+                  <AvatarFallback>
+                    {selectedContact.name.substring(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
+              )}
+              <div
+                className={`rounded-[20px] py-2 px-4 max-w-[70%] ${
+                  message.SenderId === selectedContact.id
+                    ? "bg-muted text-textChat"
+                    : "bg-green-500 text-white"
+                }`}
+              >
+                <p>{message.Content}</p>
+                <span className="text-xs opacity-70">
+                  {formatTime(message.Timestamp)}
+                </span>
+              </div>
             </div>
-          </div>
-          <div className="flex">
-            <Avatar className="h-8 w-8 mr-2">
-              <AvatarImage src={selectedContact.avatar} />
-              <AvatarFallback>
-                {selectedContact.name.substring(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="bg-muted text-textChat rounded-[20px] py-2 px-4 max-w-[70%]">
-              <p>Làm cái payment history đó m</p>
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
-              <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Modi
-                enim aspernatur temporibus maxime aut repellendus labore facere
-                similique officiis reprehenderit tenetur est consequuntur,
-                magnam quas atque sapiente qui tempora. Earum.
-              </p>
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
-              <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Modi
-                enim aspernatur temporibus maxime aut repellendus labore facere
-                similique officiis reprehenderit tenetur est consequuntur,
-                magnam quas atque sapiente qui tempora. Earum.
-              </p>
-            </div>
-          </div>
-          <div className="flex justify-end">
-            <div className="bg-green-500 text-white rounded-[20px] py-2 px-4 max-w-[70%]">
-              <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Modi
-                enim aspernatur temporibus maxime aut repellendus labore facere
-                similique officiis reprehenderit tenetur est consequuntur,
-                magnam quas atque sapiente qui tempora. Earum.
-              </p>
-            </div>
-          </div>
-          <div className="flex">
-            <Avatar className="h-8 w-8 mr-2">
-              <AvatarImage src={selectedContact.avatar} />
-              <AvatarFallback>
-                {selectedContact.name.substring(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="bg-muted text-textChat rounded-[20px] py-2 px-4 max-w-[70%]">
-              <p>Làm cái payment history đó m</p>
-            </div>
-          </div>
-          <div className="flex">
-            <Avatar className="h-8 w-8 mr-2">
-              <AvatarImage src={selectedContact.avatar} />
-              <AvatarFallback>
-                {selectedContact.name.substring(0, 2)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="bg-muted text-textChat rounded-[20px] py-2 px-4 max-w-[70%]">
-              <p>Làm cái payment history đó m</p>
-            </div>
-          </div>
+          ))}
+          <div ref={messagesEndRef}></div>
         </div>
       </ScrollArea>
+      {/* phần nhập chat */}
       <div className="p-4 border-t">
         <div className="flex items-center justify-center space-x-2">
-          <Button variant="ghost" size="icon">
-            <ImageIcon className="h-5 w-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Sticker className="h-5 w-5" />
-          </Button>
           <div className="relative w-[60%]">
             <Input
               placeholder="Aa"
               className="bg-muted text-muted-foreground rounded-[20px] border-gray-200"
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSendMessage();
+                }
+              }}
             />
             <Emoji className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           </div>
-          <Button variant="ghost" size="icon">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSendMessage}
+            disabled={!isConnected}
+          >
             <SendHorizontal className="h-5 w-5" />
           </Button>
         </div>

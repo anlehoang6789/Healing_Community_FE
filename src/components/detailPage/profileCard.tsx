@@ -2,7 +2,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { toast } from "@/hooks/use-toast";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import {
+  useFollowUserMutation,
+  useGetUserProfileQuery,
+} from "@/queries/useAccount";
 import { useGetPostByPostIdQuery } from "@/queries/usePost";
 import {
   Mail,
@@ -25,11 +30,32 @@ const isValidUrl = (url: string) => {
 };
 
 export default function ProfileCard() {
-  const postId = "01JD1KWQ39JNG4DS8NMG1ZMAXF";
+  const postId = "01JD93AMWMXBXGR3HDV55TGGPG";
   const { data: postById } = useGetPostByPostIdQuery(postId);
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
+  const userId = getUserIdFromLocalStorage();
+  const postUserId = postById?.payload.data.userId;
+  const followUser = useFollowUserMutation();
+  const handleFollowUser = () => {
+    if (followUser.isPending) return;
+    try {
+      followUser.mutateAsync({ followerId: postUserId as string });
+      toast({
+        description: "Đã theo dõi người dùng",
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  // Check if the postUserId matches the logged-in userId
+  if (userId === postUserId) {
+    return null; // Do not render the component if they match
+  }
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, "0");
@@ -97,7 +123,10 @@ export default function ProfileCard() {
         </h2>
       </CardHeader>
       <div className="flex justify-center">
-        <Button className="h-7 w-full ml-8 mr-8 mt-2 mb-4 bg-gradient-custom-left-to-right text-gray-600 font-bold">
+        <Button
+          className="h-7 w-full ml-8 mr-8 mt-2 mb-4 bg-gradient-custom-left-to-right text-gray-600 font-bold"
+          onClick={handleFollowUser}
+        >
           Theo dõi
         </Button>
       </div>
