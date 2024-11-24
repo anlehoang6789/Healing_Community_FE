@@ -22,3 +22,15 @@ export const GetCertificateTypeResponseSchema = z.object({
 export type GetCertificateTypeResponseType = z.TypeOf<
   typeof GetCertificateTypeResponseSchema
 >;
+
+export const UpdateProfileExpertBody = z.object({
+  specialization: z.string().min(5),
+  expertiseAreas: z.string().min(5),
+  bio: z.string().min(10),
+  fullname: z.string(),
+  profileImageUrl: z.string().url().optional(),
+});
+
+export type UpdateProfileExpertBodyType = z.TypeOf<
+  typeof UpdateProfileExpertBody
+>;
