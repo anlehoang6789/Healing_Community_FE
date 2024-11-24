@@ -33,7 +33,6 @@ import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
 
 export default function DetailPost() {
   const { theme } = useTheme();
-  // const [commentImage, setCommentImage] = useState<string | null>(null);
 
   // data của post theo postId
   const postId = "01JDAB9VW8A2KQX9ZBGZSJYJ84";
@@ -64,6 +63,7 @@ export default function DetailPost() {
     console.log("Comment Image URL in DetailPost:", comment.coverImgUrl);
     console.log("Comment content in DetailPost:", comment.content);
     console.log("Comment data being sent to API:", comment);
+
     // Gọi API để tạo bình luận
     createComment(
       {
