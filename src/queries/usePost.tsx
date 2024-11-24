@@ -34,3 +34,9 @@ export const useGetCommentsByPostIdQuery = (postId: string) => {
     enabled: !!postId,
   });
 };
+
+export const useCreateCommentMutation = () => {
+  return useMutation({
+    mutationFn: postApiRequest.createComment,
+  });
+};
