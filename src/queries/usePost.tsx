@@ -22,7 +22,7 @@ export const useCreatePostMutation = () => {
 
 export const useGetPostByPostIdQuery = (postId: string) => {
   return useQuery({
-    queryKey: ["post-by-id", postId],
+    queryKey: ["post-by-post-id", postId],
     queryFn: () => postApiRequest.getPostByPostId(postId),
   });
 };
@@ -38,5 +38,11 @@ export const useGetCommentsByPostIdQuery = (postId: string) => {
 export const useCreateCommentMutation = () => {
   return useMutation({
     mutationFn: postApiRequest.createComment,
+  });
+};
+export const useGetPostByUserIdQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["post-by-user-id", userId],
+    queryFn: () => postApiRequest.getPostByUserId(userId),
   });
 };

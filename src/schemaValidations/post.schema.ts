@@ -95,6 +95,13 @@ export type GetCommentsByPostIdResponseType = z.TypeOf<
   typeof GetCommentsByPostIdResponseSchema
 >;
 
+export const GetPostByUserIdRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetPostByUserIdResType = z.TypeOf<typeof GetPostByUserIdRes>;
+
 export const CreateCommentBody = z.object({
   postId: z.string(),
   parentId: z.string().nullable(),
