@@ -15,17 +15,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CheckIcon, FolderUp, X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
-
-const documentTypes = [
-  { value: "chung-chi-hanh-nghe", label: "Chứng chỉ hành nghề" },
-  { value: "can-cuoc-cong-dan", label: "Căn cước công dân" },
-  { value: "hinh-the", label: "Hình thẻ" },
-];
+import certificateApiRequest from "@/apiRequests/expert";
+import { CertificateSchemaType } from "@/schemaValidations/expert.schema";
 
 export default function UploadFileForExpert() {
   const [filesByType, setFilesByType] = useState<{ [key: string]: File[] }>({});
@@ -37,6 +33,28 @@ export default function UploadFileForExpert() {
   const [open, setOpen] = useState(false);
   const [documentType, setDocumentType] = useState("");
   const [dragging, setDragging] = useState(false);
+  const [documentTypes, setDocumentTypes] = useState<
+    { value: string; label: string }[]
+  >([]); // State to hold document types
+
+  useEffect(() => {
+    const fetchCertificateTypes = async () => {
+      try {
+        const response = await certificateApiRequest.getCertificateTypes();
+        const types = response.payload.data.map(
+          (cert: CertificateSchemaType) => ({
+            value: cert.certificateTypeId,
+            label: cert.name,
+          })
+        );
+        setDocumentTypes(types);
+      } catch (error) {
+        console.error("Failed to fetch certificate types", error);
+      }
+    };
+
+    fetchCertificateTypes();
+  }, []);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const uploadedFiles = event.target.files;
@@ -165,7 +183,7 @@ export default function UploadFileForExpert() {
               variant="headerIcon"
               role="combobox"
               aria-expanded={open}
-              className="w-[200px] justify-between border-gray-500"
+              className="w-[210px] justify-between border-gray-500 whitespace-normal"
             >
               {documentType
                 ? documentTypes.find((type) => type.value === documentType)

@@ -36,6 +36,11 @@ export const useGetCommentsByPostIdQuery = (postId: string) => {
   });
 };
 
+export const useCreateCommentMutation = () => {
+  return useMutation({
+    mutationFn: postApiRequest.createComment,
+  });
+};
 export const useGetPostByUserIdQuery = (userId: string) => {
   return useQuery({
     queryKey: ["post-by-user-id", userId],
