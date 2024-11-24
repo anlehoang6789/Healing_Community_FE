@@ -65,8 +65,8 @@ export default function CommentSection({
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    isReply: boolean, // Tham số thứ hai
-    commentId?: string // Tham số thứ ba (có thể là tùy chọn)
+    isReply: boolean,
+    commentId?: string
   ) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -75,8 +75,13 @@ export default function CommentSection({
 
       try {
         const uploadResult = await uploadAvatarCover.mutateAsync(formData);
-        const imageUrl = uploadResult.payload.url; // Lấy URL từ phản hồi
-        setCommentImage(imageUrl); // Cập nhật URL hình ảnh
+        const imageUrl = uploadResult.payload.url;
+
+        if (isReply && commentId) {
+          setReplyImages((prev) => ({ ...prev, [commentId]: imageUrl }));
+        } else {
+          setCommentImage(imageUrl);
+        }
       } catch (error) {
         console.error("Error uploading image:", error);
       }
