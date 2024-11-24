@@ -34,3 +34,11 @@ export const UpdateProfileExpertBody = z.object({
 export type UpdateProfileExpertBodyType = z.TypeOf<
   typeof UpdateProfileExpertBody
 >;
+
+export const UploadFileForExpertResponse = z.object({
+  data: z.string().url(),
+});
+
+export type UploadFileForExpertResponseType = z.TypeOf<
+  typeof UploadFileForExpertResponse
+>;
