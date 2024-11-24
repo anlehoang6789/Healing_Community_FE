@@ -32,6 +32,8 @@ const postApiRequest = {
 
   getPostByUserId: (userId: string) =>
     http.get<GetPostByUserIdResType>(`post/api/post/get-by-user-id/${userId}`),
+  deletePostByPostId: (postId: string) =>
+    http.delete<{ message: string }>(`post/api/post/delete/${postId}`),
 };
 
 export default postApiRequest;
