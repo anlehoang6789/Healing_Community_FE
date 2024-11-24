@@ -1,10 +1,21 @@
-import certificateApiRequest from "@/apiRequests/expert";
-import { GetCertificateTypeResponseType } from "@/schemaValidations/expert.schema";
-import { useQuery } from "@tanstack/react-query";
+import expertApiRequest from "@/apiRequests/expert";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useGetCertificateTypesQuery = () => {
   return useQuery({
     queryKey: ["certificate-types"],
-    queryFn: () => certificateApiRequest.getCertificateTypes(),
+    queryFn: () => expertApiRequest.getCertificateTypes(),
+  });
+};
+
+export const useUploadFileForExpert = () => {
+  return useMutation({
+    mutationFn: ({
+      formData,
+      certificationTypeId,
+    }: {
+      formData: FormData;
+      certificationTypeId: string;
+    }) => expertApiRequest.uploadFileForExpert(formData, certificationTypeId),
   });
 };
