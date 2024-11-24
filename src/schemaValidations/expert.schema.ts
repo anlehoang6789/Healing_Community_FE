@@ -22,3 +22,11 @@ export const GetCertificateTypeResponseSchema = z.object({
 export type GetCertificateTypeResponseType = z.TypeOf<
   typeof GetCertificateTypeResponseSchema
 >;
+
+export const UploadFileForExpertResponse = z.object({
+  data: z.string().url(),
+});
+
+export type UploadFileForExpertResponseType = z.TypeOf<
+  typeof UploadFileForExpertResponse
+>;

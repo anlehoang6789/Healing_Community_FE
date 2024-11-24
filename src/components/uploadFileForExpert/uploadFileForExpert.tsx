@@ -16,12 +16,14 @@ import {
 } from "@/components/ui/popover";
 import { CheckIcon, FolderUp, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn, handleErrorApi } from "@/lib/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import certificateApiRequest from "@/apiRequests/expert";
 import { CertificateSchemaType } from "@/schemaValidations/expert.schema";
+import { useUploadFileForExpert } from "@/queries/useExpert";
+import { toast } from "@/hooks/use-toast";
 
 export default function UploadFileForExpert() {
   const [filesByType, setFilesByType] = useState<{ [key: string]: File[] }>({});
@@ -36,6 +38,8 @@ export default function UploadFileForExpert() {
   const [documentTypes, setDocumentTypes] = useState<
     { value: string; label: string }[]
   >([]); // State to hold document types
+
+  const uploadFileForExpert = useUploadFileForExpert();
 
   useEffect(() => {
     const fetchCertificateTypes = async () => {
@@ -161,9 +165,95 @@ export default function UploadFileForExpert() {
     });
   };
 
-  const handleSave = () => {
-    // Implement save functionality here
-    console.log("Saving files:", filesByType);
+  const handleSave = async () => {
+    try {
+      // Biến để theo dõi xem có file nào được upload thành công không
+      let hasSuccessfulUpload = false;
+
+      // Duyệt qua từng loại tài liệu
+      const uploadPromises = Object.entries(filesByType).map(
+        async ([docType, files]) => {
+          // Với mỗi file, tạo FormData và upload
+          const fileUploadPromises = files.map(async (file) => {
+            // Kiểm tra xem file đã hoàn thành upload chưa
+            const fileProgress = progressByType[docType]?.[file.name];
+            if (fileProgress?.progress !== 100) {
+              console.log(`Skipping incomplete upload for ${file.name}`);
+              return null;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            // Khởi tạo trạng thái upload ban đầu
+            setProgressByType((prev) => ({
+              ...prev,
+              [docType]: {
+                ...(prev[docType] || {}),
+                [file.name]: { progress: 0, paused: false },
+              },
+            }));
+
+            try {
+              // Gọi API upload file
+              const uploadResult = await uploadFileForExpert.mutateAsync({
+                formData,
+                certificationTypeId: docType,
+              });
+
+              // Cập nhật files với URL đã upload
+              setFilesByType((prev) => ({
+                ...prev,
+                [docType]: [
+                  ...(prev[docType] || []),
+                  { ...file, uploadedUrl: uploadResult.payload.data },
+                ],
+              }));
+              console.log("Upload result:", uploadResult);
+              console.log(`Uploaded ${file.name}:`, uploadResult);
+              hasSuccessfulUpload = true;
+
+              // Cập nhật progress khi upload thành công
+              setProgressByType((prev) => ({
+                ...prev,
+                [docType]: {
+                  ...prev[docType],
+                  [file.name]: { progress: 100, paused: false },
+                },
+              }));
+
+              return uploadResult;
+            } catch (error) {
+              console.error(`Error uploading ${file.name}:`, error);
+              throw error; 
+            }
+          });
+
+          return Promise.all(fileUploadPromises);
+        }
+      );
+
+      // Chờ tất cả các file được upload
+      await Promise.all(uploadPromises);
+
+      // Chỉ thông báo thành công nếu có file được upload
+      if (hasSuccessfulUpload) {
+        toast({
+          title: "Tải lên tài liệu thành công",
+          variant: "success",
+        });
+
+        setFilesByType({});
+        setProgressByType({});
+      } else {
+        toast({
+          title: "Không có tài liệu nào được tải lên",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      handleErrorApi({ error });
+    }
   };
 
   return (
