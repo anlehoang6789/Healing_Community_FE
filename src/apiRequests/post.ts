@@ -1,6 +1,8 @@
 import http from "@/lib/http";
 import {
   CategoryListSchemaType,
+  CreateCommentBodyType,
+  CreateCommentResponseType,
   CreatePostBodyType,
   GetCommentsByPostIdResponseType,
   GetPostByUserIdResType,
@@ -24,6 +26,10 @@ const postApiRequest = {
     http.get<GetCommentsByPostIdResponseType>(
       `post/api/comment/get-by-post-id/${postId}`
     ),
+
+  createComment: (body: CreateCommentBodyType) =>
+    http.post<CreateCommentResponseType>("post/api/comment/create", body),
+
   getPostByUserId: (userId: string) =>
     http.get<GetPostByUserIdResType>(`post/api/post/get-by-user-id/${userId}`),
 };

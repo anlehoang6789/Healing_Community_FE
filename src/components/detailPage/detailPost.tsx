@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import {
+  useCreateCommentMutation,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
 } from "@/queries/usePost";
@@ -33,6 +34,9 @@ import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
 export default function DetailPost() {
   const { theme } = useTheme();
   const [commentImage, setCommentImage] = useState<string | null>(null);
+  const [replyImages, setReplyImages] = useState<{
+    [key: string]: string | null;
+  }>({});
 
   // data của post theo postId
   const postId = "01JDAB9VW8A2KQX9ZBGZSJYJ84";
@@ -43,6 +47,8 @@ export default function DetailPost() {
     postById?.payload.data.userId as string
   );
   const { data: commentsData } = useGetCommentsByPostIdQuery(postId);
+
+  const { mutate: createComment } = useCreateCommentMutation();
 
   // Sử dụng kiểu CommentType từ schema
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -58,55 +64,92 @@ export default function DetailPost() {
     content: string;
     coverImgUrl?: string | null;
   }) => {
-    const newComment: CommentType = {
-      commentId: `temp-${Date.now()}`, // ID tạm thời
-      postId: postId,
-      parentId: null,
-      userId: "current-user-id", // ID user hiện tại
-      content: comment.content,
-      createdAt: new Date().toISOString(),
-      updatedAt: null,
-      replies: [], // Khởi tạo replies là mảng rỗng
-      coverImgUrl: comment.coverImgUrl || null,
-    };
+    // Gọi API để tạo bình luận
+    createComment(
+      {
+        postId: postId,
+        parentId: null,
+        content: comment.content,
+        coverImgUrl: comment.coverImgUrl || null,
+      },
+      {
+        onSuccess: (data) => {
+          const newCommentId = data.payload.data;
 
-    // Cập nhật state comments
-    setComments((prevComments) => [...prevComments, newComment]);
+          // Tạo comment mới với commentId từ API
+          const newComment: CommentType = {
+            commentId: newCommentId, // Sử dụng commentId từ API
+            postId: postId,
+            parentId: null,
+            userId: "current-user-id",
+            content: comment.content,
+            createdAt: new Date().toISOString(),
+            updatedAt: null,
+            replies: [],
+            coverImgUrl: comment.coverImgUrl || null,
+          };
+
+          // Cập nhật state comments với bình luận mới từ API
+          setComments((prevComments) => [...prevComments, newComment]);
+        },
+        onError: (error) => {
+          console.error("Error creating comment:", error);
+        },
+      }
+    );
   };
 
   const handleAddReply = (
     parentId: string,
-    reply: {
-      content: string;
-      coverImgUrl?: string | null;
-    }
+    reply: { content: string; coverImgUrl?: string | null }
   ) => {
-    const newReply: ReplyCommentType = {
-      commentId: `temp-reply-${Date.now()}`, // ID tạm thời
-      postId: postId,
-      parentId: parentId,
-      userId: "current-user-id", // ID user hiện tại
-      content: reply.content,
-      coverImgUrl: reply.coverImgUrl || null,
-      createdAt: new Date().toISOString(),
-      updatedAt: null,
-      replies: [], // Khởi tạo replies là mảng rỗng
-    };
+    // Gọi API để tạo reply
+    createComment(
+      {
+        postId: postId,
+        parentId: parentId,
+        content: reply.content,
+        coverImgUrl: reply.coverImgUrl || null,
+      },
+      {
+        onSuccess: (data) => {
+          const newCommentId = data.payload.data;
 
-    // Cập nhật comments với reply mới
-    const updatedComments = comments.map((comment) => {
-      if (comment.commentId === parentId) {
-        return {
-          ...comment,
-          replies: comment.replies
-            ? [...comment.replies, newReply]
-            : [newReply], // Nếu replies null thì khởi tạo thành mảng mới
-        };
+          // Tạo comment mới với commentId từ API
+          const newReply: ReplyCommentType = {
+            commentId: newCommentId, // Sử dụng commentId từ API
+            postId: postId,
+            parentId: parentId,
+            userId: "current-user-id", // Sử dụng userId của người dùng hành động
+            content: reply.content,
+            coverImgUrl: reply.coverImgUrl || null,
+            createdAt: new Date().toISOString(),
+            updatedAt: null,
+            replies: [], // Đảm bảo replies là mảng rỗng
+          };
+
+          // Cập nhật state comments với reply mới từ API
+          const updatedComments = comments.map((comment) => {
+            if (comment.commentId === parentId) {
+              const updatedReplies = comment.replies
+                ? [...comment.replies, newReply]
+                : [newReply];
+
+              return {
+                ...comment,
+                replies: updatedReplies,
+              };
+            }
+            return comment;
+          });
+
+          setComments(updatedComments);
+        },
+        onError: (error) => {
+          console.error("Error creating reply:", error);
+        },
       }
-      return comment;
-    });
-
-    setComments(updatedComments);
+    );
   };
 
   return (
