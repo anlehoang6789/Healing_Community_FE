@@ -22,6 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import certificateApiRequest from "@/apiRequests/expert";
 import { CertificateSchemaType } from "@/schemaValidations/expert.schema";
+import DialogExpertInfo from "@/components/expertInfo/dialog-expert-info";
 import { useUploadFileForExpert } from "@/queries/useExpert";
 import { toast } from "@/hooks/use-toast";
 
@@ -225,7 +226,7 @@ export default function UploadFileForExpert() {
               return uploadResult;
             } catch (error) {
               console.error(`Error uploading ${file.name}:`, error);
-              throw error; 
+              throw error;
             }
           });
 
@@ -258,9 +259,13 @@ export default function UploadFileForExpert() {
 
   return (
     <div className="w-full bg-background h-auto p-4 max-w-7xl overflow-hidden mx-auto rounded-lg shadow-lg border">
-      <h2 className="mb-2 text-2xl font-bold text-muted-foreground">
-        Tải lên tài liệu
-      </h2>
+      <div className="flex items-center justify-between">
+        <h2 className="mb-2 text-2xl font-bold text-muted-foreground">
+          Tải lên tài liệu
+        </h2>
+        <DialogExpertInfo />
+      </div>
+
       <p className="text-muted-foreground">Tải lên tài liệu bạn muốn chia sẻ</p>
 
       <div className="my-4">
