@@ -33,10 +33,7 @@ import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
 
 export default function DetailPost() {
   const { theme } = useTheme();
-  const [commentImage, setCommentImage] = useState<string | null>(null);
-  const [replyImages, setReplyImages] = useState<{
-    [key: string]: string | null;
-  }>({});
+  // const [commentImage, setCommentImage] = useState<string | null>(null);
 
   // data của post theo postId
   const postId = "01JDAB9VW8A2KQX9ZBGZSJYJ84";
@@ -64,13 +61,16 @@ export default function DetailPost() {
     content: string;
     coverImgUrl?: string | null;
   }) => {
+    console.log("Comment Image URL in DetailPost:", comment.coverImgUrl);
+    console.log("Comment content in DetailPost:", comment.content);
+    console.log("Comment data being sent to API:", comment);
     // Gọi API để tạo bình luận
     createComment(
       {
         postId: postId,
         parentId: null,
         content: comment.content,
-        coverImgUrl: comment.coverImgUrl || null,
+        coverImgUrl: comment.coverImgUrl,
       },
       {
         onSuccess: (data) => {
@@ -86,7 +86,7 @@ export default function DetailPost() {
             createdAt: new Date().toISOString(),
             updatedAt: null,
             replies: [],
-            coverImgUrl: comment.coverImgUrl || null,
+            coverImgUrl: comment.coverImgUrl,
           };
 
           // Cập nhật state comments với bình luận mới từ API
@@ -109,7 +109,7 @@ export default function DetailPost() {
         postId: postId,
         parentId: parentId,
         content: reply.content,
-        coverImgUrl: reply.coverImgUrl || null,
+        coverImgUrl: reply.coverImgUrl,
       },
       {
         onSuccess: (data) => {
@@ -122,7 +122,7 @@ export default function DetailPost() {
             parentId: parentId,
             userId: "current-user-id", // Sử dụng userId của người dùng hành động
             content: reply.content,
-            coverImgUrl: reply.coverImgUrl || null,
+            coverImgUrl: reply.coverImgUrl,
             createdAt: new Date().toISOString(),
             updatedAt: null,
             replies: [], // Đảm bảo replies là mảng rỗng
@@ -314,7 +314,7 @@ export default function DetailPost() {
           </div>
 
           {/* image comment preview */}
-          {commentImage && (
+          {/* {commentImage && (
             <div className="relative w-24 h-24 mb-4">
               <Image
                 src={commentImage}
@@ -332,7 +332,7 @@ export default function DetailPost() {
                 <X className="h-4 w-4" />
               </Button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>

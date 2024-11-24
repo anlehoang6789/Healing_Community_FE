@@ -9,6 +9,7 @@ import data from "@emoji-mart/data";
 import { CommentType } from "@/schemaValidations/post.schema";
 import { useGetAllUsers } from "@/queries/useUser";
 import { UserType } from "@/schemaValidations/user.schema";
+import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
 
 interface CommentSectionProps {
   comments: CommentType[];
@@ -45,6 +46,8 @@ export default function CommentSection({
     null
   );
 
+  const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
+
   // Cập nhật comments khi prop thay đổi
   useEffect(() => {
     setComments(initialComments);
@@ -60,25 +63,23 @@ export default function CommentSection({
     }
   };
 
-  const handleImageUpload = (
+  const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
-    isReply: boolean,
-    commentId?: string
+    isReply: boolean, // Tham số thứ hai
+    commentId?: string // Tham số thứ ba (có thể là tùy chọn)
   ) => {
     const file = event.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (isReply && commentId) {
-          setReplyImages((prev) => ({
-            ...prev,
-            [commentId]: reader.result as string,
-          }));
-        } else {
-          setCommentImage(reader.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const uploadResult = await uploadAvatarCover.mutateAsync(formData);
+        const imageUrl = uploadResult.payload.url; // Lấy URL từ phản hồi
+        setCommentImage(imageUrl); // Cập nhật URL hình ảnh
+      } catch (error) {
+        console.error("Error uploading image:", error);
+      }
     }
   };
 
