@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { createContext, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,14 +20,28 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
-import { useGetPostByUserIdQuery } from "@/queries/usePost";
-import { formatDateTime } from "@/lib/utils";
+import {
+  useDeletePostByPostIdMutation,
+  useGetPostByUserIdQuery,
+} from "@/queries/usePost";
+import { formatDateTime, handleErrorApi } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { motion } from "framer-motion";
+import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { usePostStore } from "@/store/postStore";
 
 export default function OwnPost() {
   const { userId } = useParams(); //lấy userId từ url
-  const [shouldTruncate, setShouldTruncate] = useState(false); // Trạng thái để kiểm tra xem nội dung có nên bị rút gọn hay không
   const { theme } = useTheme();
 
   const { data } = useGetPostByUserIdQuery(userId as string);
@@ -36,7 +50,34 @@ export default function OwnPost() {
   //lấy 1 userId từ mảng userIdByPost
   const userIdPostItem = userIdByPost[0];
   const { data: userById } = useGetUserProfileQuery(userIdPostItem);
-  //kiểm tra chiều cao của nội dung và xác định xem nó có cần rút gọn không
+  const selectedPostId = usePostStore((state) => state.selectedPostId);
+  const setSelectedPostId = usePostStore((state) => state.setSelectedPostId);
+  const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(
+    null
+  );
+  const { mutateAsync } = useDeletePostByPostIdMutation(userId as string);
+  const handleOpenDeleteDialog = (postId: string, postTitle: string) => {
+    setSelectedPostId(postId);
+    setSelectedPostTitle(postTitle);
+  };
+
+  const handleConfirmDeletePost = async () => {
+    if (selectedPostId) {
+      try {
+        const result = await mutateAsync(selectedPostId);
+        setSelectedPostId(null);
+        setSelectedPostTitle(null);
+        toast({
+          description: result.payload.message,
+          variant: "success",
+        });
+        window.location.reload();
+      } catch (error: any) {
+        handleErrorApi(error);
+      }
+    }
+  };
+
   // Trạng thái lưu thông tin mở rộng của từng bài viết
   const [expandedPosts, setExpandedPosts] = useState<{
     [key: string]: boolean;
@@ -114,7 +155,11 @@ export default function OwnPost() {
                       <FilePenLine className="mr-2 h-4 w-4" />
                       <span>Sửa bài viết</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        handleOpenDeleteDialog(post.postId, post.title)
+                      }
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
                       <span>Xóa bài viết</span>
                     </DropdownMenuItem>
@@ -207,6 +252,33 @@ export default function OwnPost() {
           );
         })
       )}
+      <AlertDialog
+        open={Boolean(selectedPostId)}
+        onOpenChange={(value) => {
+          if (!value) {
+            setSelectedPostId(null);
+          }
+        }}
+      >
+        <AlertDialogContent className="bg-backgroundChat text-textChat">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa bài viết</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa bài viết này với tiêu đề{" "}
+              <span className="font-semibold text-red-500">
+                {selectedPostTitle}
+              </span>{" "}
+              này không? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDeletePost}>
+              Xác nhận
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
