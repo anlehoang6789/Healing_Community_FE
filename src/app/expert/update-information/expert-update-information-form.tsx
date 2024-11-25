@@ -123,9 +123,7 @@ export default function ExpertUpdateInformationForm() {
                         }
                         alt={"fullname"}
                       />
-                      <AvatarFallback>
-                        {fullname.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback>hello</AvatarFallback>
                     </Avatar>
                     <Label
                       htmlFor="profilePictureUrl"

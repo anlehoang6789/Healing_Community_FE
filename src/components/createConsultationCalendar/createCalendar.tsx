@@ -21,10 +21,7 @@ import {
 } from "@/queries/useExpert";
 import { toast } from "@/hooks/use-toast";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
-import {
-  ExpertAvailabilityType,
-  GetExpertAvailabilityExpertProfileIdResponseType,
-} from "@/schemaValidations/expert.schema";
+import { ExpertAvailabilityType } from "@/schemaValidations/expert.schema";
 
 export default function CreateCalendar() {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
