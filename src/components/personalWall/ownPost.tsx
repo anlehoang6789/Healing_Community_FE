@@ -48,8 +48,8 @@ export default function OwnPost() {
   const postList = data?.payload.data || [];
   const userIdByPost = postList.map((post) => post.userId);
   //lấy 1 userId từ mảng userIdByPost
-  const userIdPostItem = userIdByPost[0];
-  const { data: userById } = useGetUserProfileQuery(userIdPostItem);
+  // const userIdPostItem = userIdByPost[0];
+  const { data: userById } = useGetUserProfileQuery(userId as string);
   const selectedPostId = usePostStore((state) => state.selectedPostId);
   const setSelectedPostId = usePostStore((state) => state.setSelectedPostId);
   const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(
