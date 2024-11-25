@@ -194,6 +194,7 @@ export default function UploadFileForExpert() {
                     progress: 100,
                     paused: false,
                     uploaded: true,
+                    certificateId: uploadResult.payload.data.certificateId, // Lưu certificateId
                   },
                 },
               }));
@@ -222,15 +223,8 @@ export default function UploadFileForExpert() {
 
   const handleDeleteCertificate = async (file: File, docType: string) => {
     try {
-      // Tìm certificateId từ fileUrl
-      const matchedCertificate = certificatesData?.payload.data.find((cert) => {
-        // So sánh dựa trên fileUrl hoặc các thuộc tính khác
-        // Ví dụ: trích xuất tên file từ fileUrl
-        const fileNameFromUrl = cert.fileUrl.split("/").pop();
-        return fileNameFromUrl === file.name;
-      });
-
-      if (!matchedCertificate) {
+      const fileProgress = progressByType[docType]?.[file.name];
+      if (!fileProgress || !fileProgress.certificateId) {
         toast({
           title: "Không tìm thấy chứng chỉ để xóa",
           variant: "destructive",
@@ -238,8 +232,10 @@ export default function UploadFileForExpert() {
         return;
       }
 
-      // Gọi API xóa certificate
-      await deleteCertificate.mutateAsync(matchedCertificate.certificateId);
+      const certificateId = fileProgress.certificateId;
+
+      // Gọi API xóa certificate bằng certificateId
+      await deleteCertificate.mutateAsync(certificateId);
 
       // Xóa file khỏi state
       setFilesByType((prev) => ({

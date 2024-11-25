@@ -15,37 +15,86 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-type TimeSlot = {
-  id: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-};
+import {
+  useCreateAvailableTimeSlot,
+  useGetExpertAvailability,
+} from "@/queries/useExpert";
+import { toast } from "@/hooks/use-toast";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import {
+  ExpertAvailabilityType,
+  GetExpertAvailabilityExpertProfileIdResponseType,
+} from "@/schemaValidations/expert.schema";
 
 export default function CreateCalendar() {
-  const [timeSlots, setTimeSlots] = React.useState<TimeSlot[]>([]);
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
   const [isAddingSlot, setIsAddingSlot] = React.useState(false);
-  const [editingSlot, setEditingSlot] = React.useState<TimeSlot | null>(null);
 
-  const handleAddSlot = (newSlot: Omit<TimeSlot, "id">) => {
-    setTimeSlots([...timeSlots, { ...newSlot, id: Date.now().toString() }]);
-    setIsAddingSlot(false);
-  };
+  const createTimeSlotMutation = useCreateAvailableTimeSlot();
+  const expertProfileId = getUserIdFromLocalStorage();
+  const { data: expertAvailability, refetch } = useGetExpertAvailability(
+    expertProfileId as string
+  );
+  const handleAddSlot = (newSlot: { startTime: string; endTime: string }) => {
+    // Thêm kiểm tra thời gian
+    const startTime = new Date(`2023-01-01T${newSlot.startTime}`);
+    const endTime = new Date(`2023-01-01T${newSlot.endTime}`);
 
-  const handleEditSlot = (editedSlot: TimeSlot) => {
-    setTimeSlots(
-      timeSlots.map((slot) => (slot.id === editedSlot.id ? editedSlot : slot))
+    if (startTime >= endTime) {
+      toast({
+        title: "Thời gian không hợp lệ",
+        description: "Thời gian bắt đầu phải trước thời gian kết thúc",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!selectedDate) {
+      toast({
+        title: "Vui lòng chọn ngày",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    createTimeSlotMutation.mutate(
+      {
+        availableDate: format(selectedDate, "yyyy-MM-dd"),
+        startTime: `${newSlot.startTime}:00`,
+        endTime: `${newSlot.endTime}:00`,
+      },
+      {
+        onSuccess: (response) => {
+          toast({
+            title: "Tạo lịch trống thành công",
+            variant: "success",
+          });
+          setIsAddingSlot(false);
+          refetch();
+        },
+        onError: (error) => {
+          handleErrorApi({ error });
+          console.error(error);
+        },
+      }
     );
-    setEditingSlot(null);
   };
 
-  const handleDeleteSlot = (id: string) => {
-    setTimeSlots(timeSlots.filter((slot) => slot.id !== id));
-  };
+  // Filter time slots for the selected date
+  const filteredTimeSlots = React.useMemo(() => {
+    // Kiểm tra dữ liệu một cách an toàn
+    if (!selectedDate || !expertAvailability) return [];
+
+    // Truy cập payload.data thay vì chỉ data
+    const availabilityData = expertAvailability.payload?.data || [];
+
+    return availabilityData.filter(
+      (slot: ExpertAvailabilityType) =>
+        format(new Date(slot.availableDate), "yyyy-MM-dd") ===
+        format(selectedDate, "yyyy-MM-dd")
+    );
+  }, [selectedDate, expertAvailability]);
 
   return (
     <div className="w-full bg-background h-auto p-4 max-w-7xl overflow-hidden mx-auto rounded-lg shadow-lg border">
@@ -66,40 +115,38 @@ export default function CreateCalendar() {
             Lịch trống ngày {selectedDate && format(selectedDate, "dd/MM/yyyy")}
           </h2>
           <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto">
-            {timeSlots
-              .filter(
-                (slot) =>
-                  format(slot.date, "yyyy-MM-dd") ===
-                  format(selectedDate || new Date(), "yyyy-MM-dd")
-              )
-              .map((slot) => (
+            {filteredTimeSlots.length > 0 ? (
+              filteredTimeSlots.map((slot: ExpertAvailabilityType) => (
                 <div
-                  key={slot.id}
-                  className="flex items-center justify-between p-2 border rounded"
+                  key={slot.expertAvailabilityId}
+                  className="flex justify-between items-center bg-gray-100 p-2 rounded-md"
                 >
                   <span>
-                    {slot.startTime} - {slot.endTime}
+                    {slot.startTime.slice(0, 5)} - {slot.endTime.slice(0, 5)}
                   </span>
-                  <div>
+                  <div className="flex items-center space-x-2">
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditingSlot(slot)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteSlot(slot.id)}
+                      variant="iconSend"
+                      size="sm"
+                      className="text-red-500 hover:text-red-700"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-              ))}
+              ))
+            ) : (
+              <p className="text-muted-foreground text-center">
+                Không có lịch trống cho ngày này
+              </p>
+            )}
           </div>
-          <Button className="mt-4" onClick={() => setIsAddingSlot(true)}>
+
+          <Button
+            className="mt-4"
+            onClick={() => setIsAddingSlot(true)}
+            disabled={createTimeSlotMutation.isPending}
+          >
             <Plus className="mr-2 h-4 w-4" /> Thêm lịch trống
           </Button>
         </div>
@@ -115,36 +162,10 @@ export default function CreateCalendar() {
             </DialogDescription>
           </DialogHeader>
           <TimeSlotForm
-            onSubmit={(formData) =>
-              handleAddSlot({ ...formData, date: selectedDate || new Date() })
-            }
+            onSubmit={handleAddSlot}
             onCancel={() => setIsAddingSlot(false)}
+            isLoading={createTimeSlotMutation.isPending}
           />
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={!!editingSlot} onOpenChange={() => setEditingSlot(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Chỉnh sửa lịch trống</DialogTitle>
-            <DialogDescription>
-              Chỉnh sửa lịch trống cho ngày{" "}
-              {editingSlot && format(editingSlot.date, "dd/MM/yyyy")}
-            </DialogDescription>
-          </DialogHeader>
-          {editingSlot && (
-            <TimeSlotForm
-              initialData={editingSlot}
-              onSubmit={(formData) =>
-                handleEditSlot({
-                  ...formData,
-                  id: editingSlot.id,
-                  date: editingSlot.date,
-                })
-              }
-              onCancel={() => setEditingSlot(null)}
-            />
-          )}
         </DialogContent>
       </Dialog>
     </div>
@@ -152,24 +173,18 @@ export default function CreateCalendar() {
 }
 
 type TimeSlotFormProps = {
-  initialData?: TimeSlot;
-  onSubmit: (data: Omit<TimeSlot, "id">) => void;
+  onSubmit: (data: { startTime: string; endTime: string }) => void;
   onCancel: () => void;
+  isLoading?: boolean;
 };
 
-function TimeSlotForm({ initialData, onSubmit, onCancel }: TimeSlotFormProps) {
-  const [startTime, setStartTime] = React.useState(
-    initialData?.startTime || ""
-  );
-  const [endTime, setEndTime] = React.useState(initialData?.endTime || "");
+function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
+  const [startTime, setStartTime] = React.useState("");
+  const [endTime, setEndTime] = React.useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      date: initialData?.date || new Date(),
-      startTime,
-      endTime,
-    });
+    onSubmit({ startTime, endTime });
   };
 
   return (
@@ -185,6 +200,7 @@ function TimeSlotForm({ initialData, onSubmit, onCancel }: TimeSlotFormProps) {
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
             className="col-span-3"
+            required
           />
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
@@ -197,14 +213,22 @@ function TimeSlotForm({ initialData, onSubmit, onCancel }: TimeSlotFormProps) {
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
             className="col-span-3"
+            required
           />
         </div>
       </div>
       <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isLoading}
+        >
           Hủy
         </Button>
-        <Button type="submit">Lưu</Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Đang lưu..." : "Lưu"}
+        </Button>
       </DialogFooter>
     </form>
   );
