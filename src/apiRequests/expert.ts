@@ -1,5 +1,8 @@
 import http from "@/lib/http";
 import {
+  DeleteCertificateResponseSchema,
+  DeleteCertificateResponseType,
+  GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
   GetExpertProfileResType,
   UpdateProfileExpertBodyType,
@@ -27,6 +30,17 @@ const expertApiRequest = {
     http.get<GetExpertProfileResType>(
       `expert/api/expertprofile/profile/${expertId}`
     ),
+  deleteCertificate: (certificateId: string) => {
+    return http
+      .delete<DeleteCertificateResponseType>(
+        `expert/api/certificate/delete/${certificateId}`
+      )
+      .then((response) => {
+        return DeleteCertificateResponseSchema.parse(response);
+      });
+  },
+  getAllCertificates: () =>
+    http.get<GetAllCertificatesResponseType>("expert/api/certificate/all"),
 };
 
 export default expertApiRequest;

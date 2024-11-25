@@ -1,5 +1,6 @@
 import expertApiRequest from "@/apiRequests/expert";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { GetAllCertificatesResponseType } from "@/schemaValidations/expert.schema";
 
 export const useGetCertificateTypesQuery = () => {
   return useQuery({
@@ -43,5 +44,19 @@ export const useUpdateProfileExpertMutation = () => {
         exact: true,
       });
     },
+  });
+};
+
+export const useDeleteCertificate = () => {
+  return useMutation({
+    mutationFn: (certificateId: string) =>
+      expertApiRequest.deleteCertificate(certificateId),
+  });
+};
+
+export const useGetAllCertificates = () => {
+  return useQuery({
+    queryKey: ["certificates"],
+    queryFn: () => expertApiRequest.getAllCertificates(),
   });
 };
