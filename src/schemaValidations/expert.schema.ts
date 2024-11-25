@@ -87,3 +87,60 @@ export const GetAllCertificatesResponseSchema = z.object({
 export type GetAllCertificatesResponseType = z.TypeOf<
   typeof GetAllCertificatesResponseSchema
 >;
+
+export const CreateAvailableTimeSlotBody = z.object({
+  availableDate: z.string().date(),
+  startTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, "Invalid time format"),
+  endTime: z
+    .string()
+    .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, "Invalid time format"),
+});
+
+export type CreateAvailableTimeSlotBodyType = z.TypeOf<
+  typeof CreateAvailableTimeSlotBody
+>;
+
+export const CreateAvailableTimeSlotResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.string(),
+  errors: z.array(z.any()),
+  timestamp: z.string().datetime(),
+});
+
+export type CreateAvailableTimeSlotResponseType = z.TypeOf<
+  typeof CreateAvailableTimeSlotResponseSchema
+>;
+
+const ExpertAvailabilitySchema = z.object({
+  expertAvailabilityId: z.string(),
+  expertProfileId: z.string(),
+  availableDate: z.string().date(),
+  startTime: z.string(),
+  endTime: z.string(),
+  status: z.number(),
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  expertProfile: z.null(),
+  appointments: z.array(z.any()).optional(),
+});
+
+export type ExpertAvailabilityType = z.TypeOf<typeof ExpertAvailabilitySchema>;
+
+export const GetExpertAvailabilityByExpertProfileIdResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(ExpertAvailabilitySchema),
+  errors: z.array(z.any()),
+  timestamp: z.string().datetime(),
+});
+
+export type GetExpertAvailabilityExpertProfileIdResponseType = z.TypeOf<
+  typeof GetExpertAvailabilityByExpertProfileIdResponseSchema
+>;
