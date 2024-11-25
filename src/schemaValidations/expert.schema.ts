@@ -36,7 +36,10 @@ export type UpdateProfileExpertBodyType = z.TypeOf<
 >;
 
 export const UploadFileForExpertResponse = z.object({
-  data: z.string().url(),
+  data: z.object({
+    fileUrl: z.string().url(),
+    certificateId: z.string(),
+  }),
 });
 
 export type UploadFileForExpertResponseType = z.TypeOf<
