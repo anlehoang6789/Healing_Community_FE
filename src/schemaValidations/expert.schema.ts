@@ -57,18 +57,38 @@ export type UploadProfileImageForExpertResponseType = z.TypeOf<
 export const GetExpertProfileSchema = z.object({
   expertProfileId: z.string(),
   userId: z.string(),
-  email: z.string().email(),
   specialization: z.string(),
   expertiseAreas: z.string(),
   bio: z.string(),
-  frontIdCardUrl: z.string(),
-  backIdCardUrl: z.string(),
-  profileImageUrl: z.string().url(),
   fullname: z.string(),
-  status: z.number(),
+  profileImageUrl: z.string().url().optional(),
   averageRating: z.number(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
+  email: z.string().email(),
+  status: z.number(),
+  certificates: z.array(
+    z.object({
+      certificateId: z.string(),
+      certificateTypeId: z.string(),
+      issueDate: z.string().datetime(),
+      expirationDate: z.string().datetime(),
+      status: z.number(),
+      fileUrl: z.string().url(),
+    })
+  ),
+  workExperiences: z.array(z.any()).optional(), // Có thể điều chỉnh chi tiết sau
+  appointments: z
+    .array(
+      z.object({
+        appointmentId: z.string(),
+        appointmentDate: z.string().date(),
+        startTime: z.string(),
+        endTime: z.string(),
+        userEmail: z.string().email(),
+        meetLink: z.string().url(),
+        status: z.number(),
+      })
+    )
+    .optional(),
 });
 
 export type GetExpertProfileSchemaType = z.TypeOf<

@@ -14,6 +14,12 @@ const nextConfig = {
         port: "",
         pathname: "/v0/b/healing-community-4d0b5.appspot.com/o/**",
       },
+      {
+        protocol: "https",
+        hostname: "placehold.co",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { format, addDays, isSameDay } from "date-fns";
+import { format, addDays, isSameDay, isBefore, isToday } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
@@ -25,55 +25,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock } from "lucide-react";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { useGetExpertAvailability } from "@/queries/useExpert";
 
 type TimeSlot = {
   id: string;
-  date: Date;
+  availableDate: string;
   startTime: string;
   endTime: string;
-};
-
-type Expert = {
-  id: string;
-  name: string;
-  avatar: string;
-  timeSlots: TimeSlot[];
-};
-
-// Dữ liệu giả cho nhiều ngày
-const generateMockTimeSlots = (): TimeSlot[] => {
-  const slots: TimeSlot[] = [];
-  const today = new Date();
-
-  for (let i = 0; i < 10; i++) {
-    const date = addDays(today, i);
-    const numSlots = Math.floor(Math.random() * 5) + 1;
-
-    for (let j = 0; j < numSlots; j++) {
-      const startHour = Math.floor(Math.random() * 8) + 9;
-      const startTime = `${startHour.toString().padStart(2, "0")}:00`;
-      const endTime = `${(startHour + 1).toString().padStart(2, "0")}:00`;
-
-      slots.push({
-        id: `${i}-${j}`,
-        date: date,
-        startTime,
-        endTime,
-      });
-    }
-  }
-
-  return slots;
-};
-
-const mockExpert: Expert = {
-  id: "1",
-  name: "Hoàng An",
-  avatar: "/placeholder.svg?height=100&width=100",
-  timeSlots: generateMockTimeSlots(),
+  expertAvailabilityId: string;
 };
 
 export default function BookExpert() {
+  const userId = getUserIdFromLocalStorage() ?? "";
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
@@ -81,11 +45,25 @@ export default function BookExpert() {
   const [isBookingDialogOpen, setIsBookingDialogOpen] = React.useState(false);
   const [bookedSlots, setBookedSlots] = React.useState<string[]>([]);
 
+  // Gọi API để lấy lịch trống của chuyên gia dựa trên userId
+  const { data: availabilityData, isLoading: isLoadingAvailability } =
+    useGetExpertAvailability(userId);
+
+  // Lấy các khung giờ trống từ dữ liệu API
   const availableSlots = React.useMemo(() => {
-    return mockExpert.timeSlots.filter((slot) =>
-      isSameDay(slot.date, selectedDate || new Date())
-    );
-  }, [selectedDate]);
+    if (!availabilityData || !availabilityData.payload) return [];
+    return availabilityData.payload.data
+      .filter((slot) =>
+        isSameDay(new Date(slot.availableDate), selectedDate || new Date())
+      )
+      .map((slot) => ({
+        id: slot.expertAvailabilityId,
+        availableDate: slot.availableDate,
+        startTime: slot.startTime,
+        endTime: slot.endTime,
+        expertAvailabilityId: slot.expertAvailabilityId,
+      }));
+  }, [availabilityData, selectedDate]);
 
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
@@ -110,24 +88,19 @@ export default function BookExpert() {
     <div className="container mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">
-            Đặt lịch tư vấn với {mockExpert.name}
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold">Đặt lịch tư vấn</CardTitle>
           <CardDescription>Chọn ngày và giờ phù hợp với bạn</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col  gap-8">
+          <div className="flex flex-col gap-8">
             <div className="flex justify-center">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleDateSelect}
-                className="rounded-md "
+                className="rounded-md"
                 disabled={(date) =>
-                  date < new Date() ||
-                  !mockExpert.timeSlots.some((slot) =>
-                    isSameDay(slot.date, date)
-                  )
+                  isBefore(date, new Date()) && !isToday(date)
                 }
               />
             </div>
@@ -135,7 +108,9 @@ export default function BookExpert() {
               <h3 className="text-lg font-semibold mb-4 flex items-center">
                 <Clock className="mr-2" /> Các khung giờ có sẵn
               </h3>
-              {availableSlots.length > 0 ? (
+              {isLoadingAvailability ? (
+                <p className="text-muted-foreground">Đang tải khung giờ...</p>
+              ) : availableSlots.length > 0 ? (
                 <ScrollArea className="h-[215px]">
                   <div className="space-y-2">
                     {availableSlots.map((slot) => (
@@ -160,71 +135,53 @@ export default function BookExpert() {
                 </ScrollArea>
               ) : (
                 <p className="text-muted-foreground">
-                  Không có khung giờ nào cho ngày này.
+                  Không có khung giờ nào khả dụng
                 </p>
               )}
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-end">
+        <CardFooter>
           <Dialog
             open={isBookingDialogOpen}
             onOpenChange={setIsBookingDialogOpen}
           >
             <DialogTrigger asChild>
-              <Button disabled={!selectedSlot}>Đặt lịch hẹn</Button>
+              <Button
+                variant="default"
+                onClick={() => setIsBookingDialogOpen(true)}
+                disabled={!selectedSlot}
+              >
+                Xác nhận đặt lịch
+              </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Xác nhận đặt lịch tư vấn</DialogTitle>
+                <DialogTitle>Xác nhận đặt lịch</DialogTitle>
                 <DialogDescription>
-                  Vui lòng xác nhận thông tin đặt lịch của bạn
+                  Bạn có chắc chắn muốn đặt lịch cho {selectedSlot?.startTime} -{" "}
+                  {selectedSlot?.endTime}?
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleBooking}>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      Họ tên
-                    </Label>
-                    <Input id="name" className="col-span-3" required />
+                <div className="grid gap-4">
+                  <div>
+                    <Label htmlFor="name">Tên của bạn</Label>
+                    <Input id="name" required />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="email" className="text-right">
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      className="col-span-3"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="phone" className="text-right">
-                      Số điện thoại
-                    </Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      className="col-span-3"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Thời gian</Label>
-                    <div className="col-span-3">
-                      {selectedSlot && (
-                        <p>
-                          {format(selectedSlot.date, "dd/MM/yyyy")}{" "}
-                          {selectedSlot.startTime} - {selectedSlot.endTime}
-                        </p>
-                      )}
-                    </div>
+                  <div>
+                    <Label htmlFor="email">Email của bạn</Label>
+                    <Input id="email" type="email" required />
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button type="submit">Xác nhận đặt lịch</Button>
+                <DialogFooter className="mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsBookingDialogOpen(false)}
+                  >
+                    Hủy
+                  </Button>
+                  <Button type="submit">Đặt lịch</Button>
                 </DialogFooter>
               </form>
             </DialogContent>
