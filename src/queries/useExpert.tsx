@@ -63,6 +63,20 @@ export const useGetAllCertificates = () => {
   });
 };
 
+export const useGetAppointmentForUser = () => {
+  return useQuery({
+    queryKey: ["appointments-for-user"],
+    queryFn: expertApiRequest.getAppointmentForUser,
+  });
+};
+
+export const useGetAppointmentForExpert = () => {
+  return useQuery({
+    queryKey: ["appointments-for-expert"],
+    queryFn: expertApiRequest.getAppointmentForExpert,
+  });
+};
+
 export const useCreateAvailableTimeSlot = () => {
   return useMutation({
     mutationFn: (data: CreateAvailableTimeSlotBodyType) =>

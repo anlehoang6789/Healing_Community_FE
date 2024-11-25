@@ -47,6 +47,7 @@ import NotificationPopover from "@/components/notification/notificationPopover";
 import { useAppContext } from "@/components/app-provider";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/content", authRequired: true },
@@ -204,20 +205,25 @@ export default function Header() {
                   variant="ghost"
                   className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0"
                 >
-                  <Image
-                    src={
-                      userProfile?.payload.data.profilePicture ||
-                      expertProfile?.payload.data.profileImageUrl ||
-                      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                    }
-                    alt={userProfile?.payload.data.fullName ?? "User Avatar"}
-                    fill
-                    style={{
-                      objectFit: "cover",
-                    }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 50vw"
-                    priority
-                  />
+                  <Avatar className="">
+                    <AvatarImage
+                      src={
+                        userProfile?.payload.data.profilePicture ||
+                        expertProfile?.payload.data.profileImageUrl ||
+                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                      }
+                      alt={
+                        userProfile?.payload.data.fullName ||
+                        userProfile?.payload.data.userName ||
+                        expertProfile?.payload.data.fullname
+                      }
+                    />
+                    <AvatarFallback>
+                      {userProfile?.payload.data.fullName ||
+                        userProfile?.payload.data.userName ||
+                        expertProfile?.payload.data.fullname}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
