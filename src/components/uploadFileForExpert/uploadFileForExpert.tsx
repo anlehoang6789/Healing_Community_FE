@@ -22,15 +22,38 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import certificateApiRequest from "@/apiRequests/expert";
 import { CertificateSchemaType } from "@/schemaValidations/expert.schema";
+
+import {
+  useDeleteCertificate,
+  useGetAllCertificates,
+  useUploadFileForExpert,
+} from "@/queries/useExpert";
+
 import DialogExpertInfo from "@/components/expertInfo/dialog-expert-info";
-import { useUploadFileForExpert } from "@/queries/useExpert";
+
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function UploadFileForExpert() {
   const [filesByType, setFilesByType] = useState<{ [key: string]: File[] }>({});
   const [progressByType, setProgressByType] = useState<{
     [key: string]: {
-      [fileName: string]: { progress: number; paused: boolean };
+      [fileName: string]: {
+        progress: number;
+        paused: boolean;
+        uploaded?: boolean;
+        certificateId?: string;
+      };
     };
   }>({});
   const [open, setOpen] = useState(false);
@@ -40,7 +63,10 @@ export default function UploadFileForExpert() {
     { value: string; label: string }[]
   >([]); // State to hold document types
 
+  const { data: certificatesData } = useGetAllCertificates();
+
   const uploadFileForExpert = useUploadFileForExpert();
+  const deleteCertificate = useDeleteCertificate();
 
   useEffect(() => {
     const fetchCertificateTypes = async () => {
@@ -112,7 +138,7 @@ export default function UploadFileForExpert() {
         const fileProgress = prev[docType]?.[fileName];
         if (!fileProgress || fileProgress.paused) return prev;
 
-        const updatedProgress = fileProgress.progress + 5;
+        const updatedProgress = fileProgress.progress + 20;
         if (updatedProgress >= 100) {
           clearInterval(interval);
           return {
@@ -134,27 +160,6 @@ export default function UploadFileForExpert() {
     }, 500);
   };
 
-  const handlePause = (fileName: string, docType: string) => {
-    setProgressByType((prev) => ({
-      ...prev,
-      [docType]: {
-        ...prev[docType],
-        [fileName]: { ...prev[docType][fileName], paused: true },
-      },
-    }));
-  };
-
-  const handleResume = (fileName: string, docType: string) => {
-    setProgressByType((prev) => ({
-      ...prev,
-      [docType]: {
-        ...prev[docType],
-        [fileName]: { ...prev[docType][fileName], paused: false },
-      },
-    }));
-    simulateUploadProgress(fileName, docType);
-  };
-
   const handleDelete = (fileName: string, docType: string) => {
     setFilesByType((prev) => ({
       ...prev,
@@ -168,58 +173,28 @@ export default function UploadFileForExpert() {
 
   const handleSave = async () => {
     try {
-      // Biến để theo dõi xem có file nào được upload thành công không
-      let hasSuccessfulUpload = false;
-
-      // Duyệt qua từng loại tài liệu
       const uploadPromises = Object.entries(filesByType).map(
         async ([docType, files]) => {
-          // Với mỗi file, tạo FormData và upload
           const fileUploadPromises = files.map(async (file) => {
-            // Kiểm tra xem file đã hoàn thành upload chưa
-            const fileProgress = progressByType[docType]?.[file.name];
-            if (fileProgress?.progress !== 100) {
-              console.log(`Skipping incomplete upload for ${file.name}`);
-              return null;
-            }
-
             const formData = new FormData();
             formData.append("file", file);
 
-            // Khởi tạo trạng thái upload ban đầu
-            setProgressByType((prev) => ({
-              ...prev,
-              [docType]: {
-                ...(prev[docType] || {}),
-                [file.name]: { progress: 0, paused: false },
-              },
-            }));
-
             try {
-              // Gọi API upload file
               const uploadResult = await uploadFileForExpert.mutateAsync({
                 formData,
                 certificationTypeId: docType,
               });
 
-              // Cập nhật files với URL đã upload
-              setFilesByType((prev) => ({
-                ...prev,
-                [docType]: [
-                  ...(prev[docType] || []),
-                  { ...file, uploadedUrl: uploadResult.payload.data },
-                ],
-              }));
-              console.log("Upload result:", uploadResult);
-              console.log(`Uploaded ${file.name}:`, uploadResult);
-              hasSuccessfulUpload = true;
-
-              // Cập nhật progress khi upload thành công
+              // Cập nhật progress với trạng thái uploaded
               setProgressByType((prev) => ({
                 ...prev,
                 [docType]: {
                   ...prev[docType],
-                  [file.name]: { progress: 100, paused: false },
+                  [file.name]: {
+                    progress: 100,
+                    paused: false,
+                    uploaded: true,
+                  },
                 },
               }));
 
@@ -234,29 +209,59 @@ export default function UploadFileForExpert() {
         }
       );
 
-      // Chờ tất cả các file được upload
       await Promise.all(uploadPromises);
 
-      // Chỉ thông báo thành công nếu có file được upload
-      if (hasSuccessfulUpload) {
-        toast({
-          title: "Tải lên tài liệu thành công",
-          variant: "success",
-        });
-
-        setFilesByType({});
-        setProgressByType({});
-      } else {
-        toast({
-          title: "Không có tài liệu nào được tải lên",
-          variant: "destructive",
-        });
-      }
+      toast({
+        title: "Tải lên tài liệu thành công",
+        variant: "success",
+      });
     } catch (error) {
       handleErrorApi({ error });
     }
   };
 
+  const handleDeleteCertificate = async (file: File, docType: string) => {
+    try {
+      // Tìm certificateId từ fileUrl
+      const matchedCertificate = certificatesData?.payload.data.find((cert) => {
+        // So sánh dựa trên fileUrl hoặc các thuộc tính khác
+        // Ví dụ: trích xuất tên file từ fileUrl
+        const fileNameFromUrl = cert.fileUrl.split("/").pop();
+        return fileNameFromUrl === file.name;
+      });
+
+      if (!matchedCertificate) {
+        toast({
+          title: "Không tìm thấy chứng chỉ để xóa",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Gọi API xóa certificate
+      await deleteCertificate.mutateAsync(matchedCertificate.certificateId);
+
+      // Xóa file khỏi state
+      setFilesByType((prev) => ({
+        ...prev,
+        [docType]: prev[docType].filter((f) => f.name !== file.name),
+      }));
+
+      // Xóa progress của file
+      setProgressByType((prev) => {
+        const newProgress = { ...prev };
+        delete newProgress[docType][file.name];
+        return newProgress;
+      });
+
+      toast({
+        title: "Xóa tệp thành công",
+        variant: "success",
+      });
+    } catch (error) {
+      handleErrorApi({ error });
+    }
+  };
   return (
     <div className="w-full bg-background h-auto p-4 max-w-7xl overflow-hidden mx-auto rounded-lg shadow-lg border">
       <div className="flex items-center justify-between">
@@ -265,7 +270,6 @@ export default function UploadFileForExpert() {
         </h2>
         <DialogExpertInfo />
       </div>
-
       <p className="text-muted-foreground">Tải lên tài liệu bạn muốn chia sẻ</p>
 
       <div className="my-4">
@@ -362,71 +366,77 @@ export default function UploadFileForExpert() {
         </h3>
         <ul>
           {Object.entries(filesByType).flatMap(([docType, files]) =>
-            files.map((file) => (
-              <li
-                key={`${docType}-${file.name}`}
-                className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
-              >
-                <span className="text-muted-foreground mb-1">
-                  {documentTypes.find((type) => type.value === docType)
-                    ?.label || "Chưa chọn"}
-                </span>
-                <span className="text-muted-foreground">{file.name}</span>
-                <div className="flex items-center w-full">
-                  <div className="flex-grow">
-                    <Progress
-                      value={
-                        progressByType[docType]?.[file.name]?.progress || 0
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center ml-4">
-                    {progressByType[docType]?.[file.name]?.progress === 100 ? (
-                      <>
-                        <span className="text-green-600 font-semibold mr-2">
-                          Thành công
-                        </span>
-                        <Button
-                          onClick={() => handleDelete(file.name, docType)}
-                          variant="destructive"
-                          size="icon"
-                          className="h-6 w-6"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </>
-                    ) : progressByType[docType]?.[file.name]?.paused ? (
-                      <div>
-                        <Button
-                          onClick={() => handleResume(file.name, docType)}
-                          variant="default"
-                          className="ml-2 mr-2"
-                        >
-                          Tiếp tục
-                        </Button>
+            files.map((file) => {
+              const fileProgress = progressByType[docType]?.[file.name];
 
-                        <Button
-                          onClick={() => handleDelete(file.name, docType)}
-                          variant="destructive"
-                          size="icon"
-                          className="h-6 w-6"
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <Button
-                        onClick={() => handlePause(file.name, docType)}
-                        variant="default"
-                        className="ml-2"
-                      >
-                        Dừng
-                      </Button>
-                    )}
+              return (
+                <li
+                  key={`${docType}-${file.name}`}
+                  className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
+                >
+                  <span className="text-muted-foreground mb-1">
+                    {documentTypes.find((type) => type.value === docType)
+                      ?.label || "Chưa chọn"}
+                  </span>
+                  <span className="text-muted-foreground">{file.name}</span>
+                  <div className="flex items-center w-full">
+                    <div className="flex-grow">
+                      <Progress value={fileProgress?.progress || 0} />
+                    </div>
+                    <div className="flex items-center ml-4">
+                      {fileProgress?.uploaded ? (
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" className="ml-2">
+                              Xóa tệp
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-backgroundChat text-textChat">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Bạn có chắc chắn muốn xóa tệp này?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Thao tác này sẽ xóa vĩnh viễn tệp{" "}
+                                <span className="font-semibold text-red-500">
+                                  {file.name}
+                                </span>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Hủy</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  handleDeleteCertificate(file, docType)
+                                }
+                              >
+                                Xóa
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      ) : fileProgress?.progress === 100 ? (
+                        <>
+                          <span className="text-green-600 font-semibold mr-2">
+                            Thành công
+                          </span>
+                          <Button
+                            onClick={() => handleDelete(file.name, docType)}
+                            variant="destructive"
+                            size="icon"
+                            className="h-6 w-6"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <div></div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))
+                </li>
+              );
+            })
           )}
         </ul>
       </div>
