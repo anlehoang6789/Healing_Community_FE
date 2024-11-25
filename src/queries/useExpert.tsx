@@ -60,3 +60,17 @@ export const useGetAllCertificates = () => {
     queryFn: () => expertApiRequest.getAllCertificates(),
   });
 };
+
+export const useGetAppointmentForUser = () => {
+  return useQuery({
+    queryKey: ["appointments-for-user"],
+    queryFn: expertApiRequest.getAppointmentForUser,
+  });
+};
+
+export const useGetAppointmentForExpert = () => {
+  return useQuery({
+    queryKey: ["appointments-for-expert"],
+    queryFn: expertApiRequest.getAppointmentForExpert,
+  });
+};

@@ -1,5 +1,7 @@
 import http from "@/lib/http";
 import {
+  AppointmentExpertListResType,
+  AppointmentUserListResType,
   DeleteCertificateResponseSchema,
   DeleteCertificateResponseType,
   GetAllCertificatesResponseType,
@@ -41,6 +43,10 @@ const expertApiRequest = {
   },
   getAllCertificates: () =>
     http.get<GetAllCertificatesResponseType>("expert/api/certificate/all"),
+  getAppointmentForUser: () =>
+    http.get<AppointmentUserListResType>("expert/api/appointment/user"),
+  getAppointmentForExpert: () =>
+    http.get<AppointmentExpertListResType>("expert/api/appointment/expert"),
 };
 
 export default expertApiRequest;

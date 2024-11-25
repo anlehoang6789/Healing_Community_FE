@@ -124,3 +124,43 @@ export const GetAllCertificatesResponseSchema = z.object({
 export type GetAllCertificatesResponseType = z.TypeOf<
   typeof GetAllCertificatesResponseSchema
 >;
+
+export const AppointmentUserSchema = z.object({
+  expertId: z.string(),
+  name: z.string(),
+  appointmentDate: z.string(),
+  timeRange: z.string(),
+  meetLink: z.string(),
+  tag: z.string(),
+});
+
+export type AppointmentUserType = z.TypeOf<typeof AppointmentUserSchema>;
+
+export const AppointmentUserListRes = z.object({
+  data: z.array(AppointmentUserSchema),
+  message: z.string(),
+});
+
+export type AppointmentUserListResType = z.TypeOf<
+  typeof AppointmentUserListRes
+>;
+
+export const AppointmentExpertSchema = z.object({
+  userId: z.string(),
+  name: z.string(),
+  appointmentDate: z.string(),
+  timeRange: z.string(),
+  meetLink: z.string(),
+  tag: z.string(),
+});
+
+export type AppointmentExpertType = z.TypeOf<typeof AppointmentExpertSchema>;
+
+export const AppointmentExpertListRes = z.object({
+  data: z.array(AppointmentExpertSchema),
+  message: z.string(),
+});
+
+export type AppointmentExpertListResType = z.TypeOf<
+  typeof AppointmentExpertListRes
+>;
