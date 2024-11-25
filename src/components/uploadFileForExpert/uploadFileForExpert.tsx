@@ -22,11 +22,15 @@ import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import certificateApiRequest from "@/apiRequests/expert";
 import { CertificateSchemaType } from "@/schemaValidations/expert.schema";
+
 import {
   useDeleteCertificate,
   useGetAllCertificates,
   useUploadFileForExpert,
 } from "@/queries/useExpert";
+
+import DialogExpertInfo from "@/components/expertInfo/dialog-expert-info";
+
 import { toast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -264,6 +268,7 @@ export default function UploadFileForExpert() {
         <h2 className="mb-2 text-2xl font-bold text-muted-foreground">
           Tải lên tài liệu
         </h2>
+        <DialogExpertInfo />
       </div>
       <p className="text-muted-foreground">Tải lên tài liệu bạn muốn chia sẻ</p>
 
