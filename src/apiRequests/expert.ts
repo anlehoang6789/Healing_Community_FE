@@ -35,13 +35,9 @@ const expertApiRequest = {
       `expert/api/expertprofile/profile/${expertId}`
     ),
   deleteCertificate: (certificateId: string) => {
-    return http
-      .delete<DeleteCertificateResponseType>(
-        `expert/api/certificate/delete/${certificateId}`
-      )
-      .then((response) => {
-        return DeleteCertificateResponseSchema.parse(response);
-      });
+    return http.delete<DeleteCertificateResponseType>(
+      `expert/api/certificate/delete/${certificateId}`
+    );
   },
   getAllCertificates: () =>
     http.get<GetAllCertificatesResponseType>("expert/api/certificate/all"),
