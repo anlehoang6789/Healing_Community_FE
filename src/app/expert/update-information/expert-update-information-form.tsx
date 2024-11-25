@@ -44,7 +44,7 @@ export default function ExpertUpdateInformationForm() {
     userId as string
   ); //lấy thông tin cá nhân từ expert_service
   const profilePicture = form.watch("profileImageUrl");
-  const fullname = form.watch("fullname");
+  console.log(expertProfile);
   const previewAvatarFromFile = useMemo(() => {
     if (file) {
       return URL.createObjectURL(file);
@@ -123,7 +123,8 @@ export default function ExpertUpdateInformationForm() {
                         }
                         alt={"fullname"}
                       />
-                      <AvatarFallback>hello</AvatarFallback>
+
+                      <AvatarFallback>Hoàng An</AvatarFallback>
                     </Avatar>
                     <Label
                       htmlFor="profilePictureUrl"
