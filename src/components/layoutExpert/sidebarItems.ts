@@ -24,11 +24,11 @@ const sidebarItems = [
     Icon: CalendarSearch,
     href: "/expert/view-consultation-calendar",
   },
-  {
-    title: "Tải lên video ghi lại ",
-    Icon: Clapperboard,
-    href: "/expert/upload-video-record",
-  },
+  // {
+  //   title: "Tải lên video ghi lại ",
+  //   Icon: Clapperboard,
+  //   href: "/expert/upload-video-record",
+  // },
   {
     title: "Cập nhật thông tin cá nhân",
     Icon: Info,

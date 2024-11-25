@@ -43,6 +43,43 @@ export type UploadFileForExpertResponseType = z.TypeOf<
   typeof UploadFileForExpertResponse
 >;
 
+export const UploadProfileImageForExpertResponse = z.object({
+  data: z.string().url(),
+});
+
+export type UploadProfileImageForExpertResponseType = z.TypeOf<
+  typeof UploadProfileImageForExpertResponse
+>;
+
+export const GetExpertProfileSchema = z.object({
+  expertProfileId: z.string(),
+  userId: z.string(),
+  email: z.string().email(),
+  specialization: z.string(),
+  expertiseAreas: z.string(),
+  bio: z.string(),
+  frontIdCardUrl: z.string(),
+  backIdCardUrl: z.string(),
+  profileImageUrl: z.string().url(),
+  fullname: z.string(),
+  status: z.number(),
+  averageRating: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetExpertProfileSchemaType = z.TypeOf<
+  typeof GetExpertProfileSchema
+>;
+
+export const GetExpertProfileResponseSchema = z.object({
+  data: GetExpertProfileSchema,
+  message: z.string(),
+});
+export type GetExpertProfileResType = z.TypeOf<
+  typeof GetExpertProfileResponseSchema
+>;
+
 export const DeleteCertificateResponseSchema = z.object({
   id: z.string(),
   statusCode: z.number(),
