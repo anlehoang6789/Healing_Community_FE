@@ -6,13 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
+import {
+  useGetExpertProfileQuery,
+  useUpdateProfileExpertMutation,
+  useUploadProfileImageForExpert,
+} from "@/queries/useExpert";
 import {
   UpdateProfileExpertBody,
   UpdateProfileExpertBodyType,
 } from "@/schemaValidations/expert.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera } from "lucide-react";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function ExpertUpdateInformationForm() {
@@ -28,6 +36,13 @@ export default function ExpertUpdateInformationForm() {
       profileImageUrl: undefined,
     },
   });
+  const userId = getUserIdFromLocalStorage();
+  const { data } = useGetUserProfileQuery(userId as string); //lấy username và email từ user_service
+  const uploadAvatarExpert = useUploadProfileImageForExpert(); //upload ảnh đại diện
+  const updateProfileExpert = useUpdateProfileExpertMutation(); //update thông tin cá nhân
+  const { data: expertProfile, refetch } = useGetExpertProfileQuery(
+    userId as string
+  ); //lấy thông tin cá nhân từ expert_service
   const profilePicture = form.watch("profileImageUrl");
   const fullname = form.watch("fullname");
   const previewAvatarFromFile = useMemo(() => {
@@ -37,9 +52,58 @@ export default function ExpertUpdateInformationForm() {
     return profilePicture;
   }, [file, profilePicture]);
 
+  useEffect(() => {
+    if (expertProfile) {
+      const { bio, fullname, expertiseAreas, specialization, profileImageUrl } =
+        expertProfile.payload.data;
+      form.setValue("specialization", specialization);
+      form.setValue("fullname", fullname);
+      form.setValue("bio", bio);
+      form.setValue("profileImageUrl", profileImageUrl);
+      form.setValue("expertiseAreas", expertiseAreas);
+    }
+  }, [data, form]);
+
+  //hàm update thông tin cá nhân
+  const onSubmit = async (data: UpdateProfileExpertBodyType) => {
+    if (updateProfileExpert.isPending) return;
+    try {
+      let body = data;
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadAvatarResult = await uploadAvatarExpert.mutateAsync(
+          formData
+        );
+        const imageUrl = uploadAvatarResult.payload.data;
+        body = { ...data, profileImageUrl: imageUrl };
+      }
+      const result = await updateProfileExpert.mutateAsync(body);
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+      refetch();
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
+  const reset = () => {
+    form.reset();
+    setFile(null);
+  };
+
   return (
     <Form {...form}>
-      <form noValidate className="flex flex-col md:flex-row gap-8">
+      <form
+        noValidate
+        className="flex flex-col md:flex-row gap-8"
+        onSubmit={form.handleSubmit(onSubmit, (error) => {
+          console.warn(error);
+        })}
+        onReset={reset}
+      >
         <div className="w-full md:w-1/3 space-y-6">
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-muted-foreground">
@@ -156,7 +220,7 @@ export default function ExpertUpdateInformationForm() {
                     className="rounded-l-none font-medium"
                     autoComplete="off"
                     disabled
-                    // value={data?.payload?.data?.userName || ""}
+                    value={data?.payload?.data?.userName || ""}
                   />
                 </div>
               </div>
@@ -226,7 +290,7 @@ export default function ExpertUpdateInformationForm() {
                   className="col-span-3 font-medium"
                   autoComplete="off"
                   disabled
-                  // value={data?.payload?.data?.email || ""}
+                  value={data?.payload?.data?.email || ""}
                 />
               </div>
             </div>
