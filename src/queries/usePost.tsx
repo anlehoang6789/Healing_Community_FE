@@ -1,5 +1,6 @@
 import postApiRequest from "@/apiRequests/post";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { usePostStore } from "@/store/postStore";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllCategoryQuery = () => {
   return useQuery({
@@ -35,9 +36,29 @@ export const useGetCommentsByPostIdQuery = (postId: string) => {
   });
 };
 
+export const useCreateCommentMutation = () => {
+  return useMutation({
+    mutationFn: postApiRequest.createComment,
+  });
+};
 export const useGetPostByUserIdQuery = (userId: string) => {
   return useQuery({
     queryKey: ["post-by-user-id", userId],
     queryFn: () => postApiRequest.getPostByUserId(userId),
+  });
+};
+
+export const useDeletePostByPostIdMutation = (userId: string) => {
+  const queryClient = useQueryClient();
+  const setSelectedPostId = usePostStore((state) => state.setSelectedPostId);
+  return useMutation({
+    mutationFn: postApiRequest.deletePostByPostId,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["post-by-user-id", userId],
+        exact: true,
+      });
+      setSelectedPostId(null);
+    },
   });
 };

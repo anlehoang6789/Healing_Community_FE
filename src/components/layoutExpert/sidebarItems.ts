@@ -4,7 +4,7 @@ import {
   CalendarPlus,
   CalendarSearch,
   Clapperboard,
-  
+  Info,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -24,10 +24,15 @@ const sidebarItems = [
     Icon: CalendarSearch,
     href: "/expert/view-consultation-calendar",
   },
+  // {
+  //   title: "Tải lên video ghi lại ",
+  //   Icon: Clapperboard,
+  //   href: "/expert/upload-video-record",
+  // },
   {
-    title: "Tải lên video ghi lại ",
-    Icon: Clapperboard,
-    href: "/expert/upload-video-record",
+    title: "Cập nhật thông tin cá nhân",
+    Icon: Info,
+    href: "/expert/update-information",
   },
 ];
 

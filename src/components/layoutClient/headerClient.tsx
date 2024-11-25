@@ -18,6 +18,7 @@ import {
   ChevronDown,
   ChevronUp,
   CircleDollarSign,
+  Clock,
 } from "lucide-react";
 import {
   Sheet,
@@ -45,6 +46,8 @@ import sidebarItems from "@/components/layoutExpert/sidebarItems";
 import NotificationPopover from "@/components/notification/notificationPopover";
 import { useAppContext } from "@/components/app-provider";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/content", authRequired: true },
@@ -54,7 +57,7 @@ const navItems = [
     href: "/user/list-of-groups",
     authRequired: true,
   },
-  { icon: Music, label: "Nhạc", href: "/music", authRequired: true },
+  // { icon: Music, label: "Nhạc", href: "/music", authRequired: true },
 ];
 
 export default function Header() {
@@ -79,6 +82,7 @@ export default function Header() {
 
   const userId = getUserIdFromLocalStorage();
   const { data: userProfile } = useGetUserProfileQuery(userId as string);
+  const { data: expertProfile } = useGetExpertProfileQuery(userId as string);
 
   return (
     <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
@@ -201,19 +205,25 @@ export default function Header() {
                   variant="ghost"
                   className="relative h-8 w-8 rounded-full overflow-hidden flex-shrink-0"
                 >
-                  <Image
-                    src={
-                      userProfile?.payload.data.profilePicture ||
-                      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                    }
-                    alt={userProfile?.payload.data.fullName ?? "User Avatar"}
-                    fill
-                    style={{
-                      objectFit: "cover",
-                    }}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 50vw"
-                    priority
-                  />
+                  <Avatar className="">
+                    <AvatarImage
+                      src={
+                        userProfile?.payload.data.profilePicture ||
+                        expertProfile?.payload.data.profileImageUrl ||
+                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                      }
+                      alt={
+                        userProfile?.payload.data.fullName ||
+                        userProfile?.payload.data.userName ||
+                        expertProfile?.payload.data.fullname
+                      }
+                    />
+                    <AvatarFallback>
+                      {userProfile?.payload.data.fullName ||
+                        userProfile?.payload.data.userName ||
+                        expertProfile?.payload.data.fullname}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -227,7 +237,7 @@ export default function Header() {
                 <DropdownMenuItem>
                   <UserRoundPen className="mr-2 h-4 w-4" />
                   <span>
-                    <Link href={`/user/profile/${userId}`}>Trang cá nhân</Link>
+                    <Link href={`/user/profile/${userId}`}>Tường nhà</Link>
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
@@ -248,6 +258,12 @@ export default function Header() {
                     <Link href={"/user/payment-history"}>
                       Lịch sử giao dịch
                     </Link>
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Clock className="mr-2 h-4 w-4" />
+                  <span>
+                    <Link href={"/consultation-calendar"}>Lịch hẹn tư vấn</Link>
                   </span>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="hidden lg:flex">
