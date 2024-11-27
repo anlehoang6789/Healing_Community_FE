@@ -49,7 +49,7 @@ export default function HighlightPosts() {
         <h2 className="text-2xl font-bold mb-4 text-muted-foreground">
           Bài nổi bật
         </h2>
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-4">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-x-8 gap-y-4">
           {highlightPosts.map((post) => (
             <div key={post.id} className="flex items-start space-x-3">
               <div className="text-4xl font-bold text-rose-400 w-10 flex-shrink-0 -mt-1">
