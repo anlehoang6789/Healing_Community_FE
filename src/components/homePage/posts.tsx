@@ -1,8 +1,8 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import Link from "next/link";
+import { X } from "lucide-react";
 import React from "react";
 
 interface Article {
@@ -101,50 +101,90 @@ const articles: Article[] = [
 ];
 export default function Posts() {
   return (
-    <div className="w-full mx-auto">
-      <div>
-        <div className="space-y-6">
-          {articles.map((article) => (
-            <div key={article.id} className="flex space-x-4">
-              <Link href="#">
-                <Image
-                  src={article.image}
-                  alt={article.title}
-                  width={100}
-                  height={100}
-                  className="rounded-md"
-                />
-              </Link>
-              <div className="flex-1">
-                <Link href="#" className="hover:underline">
-                  <h3 className="font-bold text-lg mb-2 text-muted-foreground md:line-clamp-1">
-                    {article.title}
-                  </h3>
-                </Link>
-                <p className="text-sm text-gray-600 mb-2 text-muted-foreground hidden sm:line-clamp-2 md:line-clamp-3 lg:line-clamp-4">
-                  {article.excerpt}
-                </p>
-                <div className="flex items-center space-x-2">
-                  <Link href="#" className="flex gap-1 items-center">
-                    <Avatar className="w-6 h-6 border-2 border-rose-300">
-                      <AvatarImage
-                        src={article.author.avatar}
-                        alt={article.author.name}
-                      />
-                      <AvatarFallback>
-                        <User className="w-4 h-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="text-sm text-muted-foreground">
-                      {article.author.name}
-                    </span>
-                  </Link>
-                </div>
-              </div>
+    <div>
+      {articles.map((article) => (
+        <div
+          //  key={post.postId}
+          key={article.id}
+          className="p-4 rounded-lg shadow-lg border mb-6"
+        >
+          <div className="flex items-center gap-4 mb-6">
+            {/* Avatar, name*/}
+            <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
+              <AvatarImage
+                //  src={userById?.payload.data.profilePicture}
+                //  alt={
+                //    userById?.payload.data.fullName ||
+                //    userById?.payload.data.userName
+                //  }
+                src={article.author.avatar}
+                alt={article.author.name}
+              />
+              <AvatarFallback>
+                {/* {userById?.payload.data.fullName ||
+                   userById?.payload.data.userName} */}
+                {article.author.name}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                {/* {userById?.payload.data.fullName ||
+                   userById?.payload.data.userName} */}
+                {article.author.name}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {/* {formatDateTime(post.createAt)} */}
+                27/11/2024
+              </p>
             </div>
-          ))}
+            <Button
+              className="ml-auto rounded-full"
+              variant={"ghost"}
+              size={"icon"}
+            >
+              <X className="w-4 h-4 text-textChat" />
+            </Button>
+          </div>
+
+          {/* Body of story */}
+
+          {/* <div className="whitespace-pre-wrap mb-4 text-textChat">
+             <div className="font-bold text-lg text-center mb-2">
+               {post.title}
+             </div>
+             <div
+               dangerouslySetInnerHTML={{
+                 __html: isExpanded
+                   ? post.description
+                   : post.description.slice(0, 300) +
+                     (truncate ? "..." : ""),
+               }}
+             />
+           </div> */}
+
+          <div className="whitespace-pre-wrap mb-4 text-textChat">
+            <div className="font-bold text-lg text-center mb-2">
+              {/* {post.title} */}
+              {article.title}
+            </div>
+            {/* <div
+                 dangerouslySetInnerHTML={{
+                   __html: post.description,
+                 }}
+               /> */}
+            {article.excerpt}
+            <Image
+              src={
+                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+              }
+              alt="Banner"
+              width={1000}
+              height={500}
+              className="w-full h-auto md:h-[450px] object-cover mt-4 rounded-md"
+            />
+          </div>
         </div>
-      </div>
+      ))}
     </div>
   );
 }
