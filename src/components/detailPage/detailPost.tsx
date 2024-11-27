@@ -30,20 +30,22 @@ import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
 import CommentSection from "@/components/commentSection/commentSection";
 import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
+import { useQuickPostStore } from "@/store/postStore";
 
 export default function DetailPost() {
   const { theme } = useTheme();
 
   // data của post theo postId
-  const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
-  const userId = getUserIdFromLocalStorage() ?? "";
+  // const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
+  // const userId = getUserIdFromLocalStorage() ?? "";
+  const { postId, userId } = useQuickPostStore();
 
-  const { data: postById } = useGetPostByPostIdQuery(postId);
+  const { data: postById } = useGetPostByPostIdQuery(postId as string);
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
-  const { data: commentsData } = useGetCommentsByPostIdQuery(postId);
+  const { data: commentsData } = useGetCommentsByPostIdQuery(postId as string);
 
   const { mutate: createComment } = useCreateCommentMutation();
 
@@ -68,7 +70,7 @@ export default function DetailPost() {
     // Gọi API để tạo bình luận
     createComment(
       {
-        postId: postId,
+        postId: postId as string,
         parentId: null,
         content: comment.content,
         coverImgUrl: comment.coverImgUrl,
@@ -80,9 +82,9 @@ export default function DetailPost() {
           // Tạo comment mới với commentId từ API
           const newComment: CommentType = {
             commentId: newCommentId, // Sử dụng commentId từ API
-            postId: postId,
+            postId: postId as string,
             parentId: null,
-            userId: userId,
+            userId: userId as string,
             content: comment.content,
             createdAt: new Date().toISOString(),
             updatedAt: null,
@@ -107,7 +109,7 @@ export default function DetailPost() {
     // Gọi API để tạo reply
     createComment(
       {
-        postId: postId,
+        postId: postId as string,
         parentId: parentId,
         content: reply.content,
         coverImgUrl: reply.coverImgUrl,
@@ -119,9 +121,9 @@ export default function DetailPost() {
           // Tạo comment mới với commentId từ API
           const newReply: ReplyCommentType = {
             commentId: newCommentId, // Sử dụng commentId từ API
-            postId: postId,
+            postId: postId as string,
             parentId: parentId,
-            userId: userId,
+            userId: userId as string,
             content: reply.content,
             coverImgUrl: reply.coverImgUrl,
             createdAt: new Date().toISOString(),

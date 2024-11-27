@@ -8,6 +8,7 @@ import {
   GetCommentsByPostIdResponseType,
   GetHomePageListLazyLoadType,
   GetPostByUserIdResType,
+  GetQuickPostListType,
   PostByIdType,
   UploadImageCoverResponseType,
 } from "@/schemaValidations/post.schema";
@@ -42,6 +43,8 @@ const postApiRequest = {
     http.get<GetHomePageListLazyLoadType>(
       `post/api/post/get-homepage?pageNumber=${pageNumber}&pageSize=${pageSize}`
     ),
+  getQuickPostHomePage: () =>
+    http.get<GetQuickPostListType>("post/api/post/get-side-recommendation"),
 };
 
 export default postApiRequest;

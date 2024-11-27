@@ -3,188 +3,130 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { X } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
+import { useGetHomePageLazyLoadQuery } from "@/queries/usePost";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { formatDateTime } from "@/lib/utils";
+import Link from "next/link";
+import { useQuickPostStore } from "@/store/postStore";
 
-interface Article {
-  id: number;
-  title: string;
-  excerpt: string;
-  author: {
-    name: string;
-    avatar: string;
-  };
-  image: string;
-}
+type UserProfileProps = {
+  userId: string;
+  postDate: string;
+};
 
-const articles: Article[] = [
-  {
-    id: 1,
-    title: "So sánh iPhone 16 Plus VS iPhone 15 Plus",
-    excerpt:
-      "Giống với bản thường, Apple Watch Series 10 bản titan có màn hình lớn hơn chút so với đời trước với size 46mm và diện tích hiển thị 1220 sq mm. Nếu nhìn qua hình Apple thì khó nhận biết được nó to hơn nhưng nếu cầm trên tay thì màn hình của nó to hơn đáng kể, đây là điều rất giá trị vì mình hay đặt hình nền bằng hình ảnh cá nhân của mình, có thể là hình người, cảnh hay bất kỳ thứ gì đó mình chụp lại được mà mình thích.",
-    author: {
-      name: "Cao - Foxtek",
-      avatar:
-        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    },
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    id: 2,
-    title:
-      "Sự phát triển của vali: từ những chiếc rương nặng nề đến thiết kế hiện đại",
-    excerpt:
-      "Giống với bản thường, Apple Watch Series 10 bản titan có màn hình lớn hơn chút so với đời trước với size 46mm và diện tích hiển thị 1220 sq mm. Nếu nhìn qua hình Apple thì khó nhận biết được nó to hơn nhưng nếu cầm trên tay thì màn hình của nó to hơn đáng kể, đây là điều rất giá trị vì mình hay đặt hình nền bằng hình ảnh cá nhân của mình, có thể là hình người, cảnh hay bất kỳ thứ gì đó mình chụp lại được mà mình thích.",
-    author: {
-      name: "Rubi Lee",
-      avatar:
-        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    },
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    id: 3,
-    title: "Top 5 điểm ấn tượng trên iPhone 16 Pro: niềm vui trở lại",
-    excerpt:
-      "Giống với bản thường, Apple Watch Series 10 bản titan có màn hình lớn hơn chút so với đời trước với size 46mm và diện tích hiển thị 1220 sq mm. Nếu nhìn qua hình Apple thì khó nhận biết được nó to hơn nhưng nếu cầm trên tay thì màn hình của nó to hơn đáng kể, đây là điều rất giá trị vì mình hay đặt hình nền bằng hình ảnh cá nhân của mình, có thể là hình người, cảnh hay bất kỳ thứ gì đó mình chụp lại được mà mình thích.",
-    author: {
-      name: "Anh Tú",
-      avatar:
-        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    },
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    id: 4,
-    title:
-      "Phó chủ tịch AMD nói năm nay sẽ không có card đồ họa gaming flagship cạnh tranh với Nvidia",
-    excerpt:
-      "Giống với bản thường, Apple Watch Series 10 bản titan có màn hình lớn hơn chút so với đời trước với size 46mm và diện tích hiển thị 1220 sq mm. Nếu nhìn qua hình Apple thì khó nhận biết được nó to hơn nhưng nếu cầm trên tay thì màn hình của nó to hơn đáng kể, đây là điều rất giá trị vì mình hay đặt hình nền bằng hình ảnh cá nhân của mình, có thể là hình người, cảnh hay bất kỳ thứ gì đó mình chụp lại được mà mình thích.",
-    author: {
-      name: "PW",
-      avatar:
-        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    },
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    id: 5,
-    title: "Nhận định về sự kiện iPhone 16: nói chân mà có cải hay",
-    excerpt:
-      "Giống với bản thường, Apple Watch Series 10 bản titan có màn hình lớn hơn chút so với đời trước với size 46mm và diện tích hiển thị 1220 sq mm. Nếu nhìn qua hình Apple thì khó nhận biết được nó to hơn nhưng nếu cầm trên tay thì màn hình của nó to hơn đáng kể, đây là điều rất giá trị vì mình hay đặt hình nền bằng hình ảnh cá nhân của mình, có thể là hình người, cảnh hay bất kỳ thứ gì đó mình chụp lại được mà mình thích.",
-    author: {
-      name: "cuhiep",
-      avatar:
-        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    },
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    id: 6,
-    title:
-      "Apple ra mắt iPhone 16 Pro và iPhone 16 Pro Max: màu mới, nút Camera Control, chip A18 Pro",
-    excerpt:
-      "Giống với bản thường, Apple Watch Series 10 bản titan có màn hình lớn hơn chút so với đời trước với size 46mm và diện tích hiển thị 1220 sq mm. Nếu nhìn qua hình Apple thì khó nhận biết được nó to hơn nhưng nếu cầm trên tay thì màn hình của nó to hơn đáng kể, đây là điều rất giá trị vì mình hay đặt hình nền bằng hình ảnh cá nhân của mình, có thể là hình người, cảnh hay bất kỳ thứ gì đó mình chụp lại được mà mình thích.",
-    author: {
-      name: "Pnghuy",
-      avatar:
-        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    },
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-];
+const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
+  const { data, isLoading, isError } = useGetUserProfileQuery(userId);
+
+  if (isLoading) return <div>Loading...</div>;
+  if (isError || !data) return <div>Error fetching user profile</div>;
+
+  const user = data.payload.data;
+
+  return (
+    <div className="flex items-center gap-4 mb-6">
+      <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
+        <AvatarImage
+          src={user.profilePicture || ""}
+          alt={user.fullName || "Anonymous"}
+        />
+        <AvatarFallback>
+          {user.fullName || user.userName || "Anonymous"}
+        </AvatarFallback>
+      </Avatar>
+      <div>
+        <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+          {user.fullName || user.userName || "Anonymous"}
+        </h2>
+        {/* Ngày tạo acc người dùng */}
+        <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
+      </div>
+      <Button className="ml-auto rounded-full" variant={"ghost"} size={"icon"}>
+        <X className="w-4 h-4 text-textChat" />
+      </Button>
+    </div>
+  );
+};
+
 export default function Posts() {
+  const pageSizes = 5;
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetHomePageLazyLoadQuery(pageSizes);
+  const { setPostData } = useQuickPostStore();
+  const handleClickedPost = (postId: string, userId: string) => {
+    setPostData(postId, userId);
+  };
+
+  // Hàm xử lý sự kiện cuộn
+  const handleScroll = () => {
+    if (
+      window.innerHeight + window.scrollY >= document.body.scrollHeight - 100 &&
+      hasNextPage
+    ) {
+      fetchNextPage();
+    }
+  };
+
+  // Thêm sự kiện cuộn vào window
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [hasNextPage]);
+
+  // Ghép các trang dữ liệu
+  const articles = data?.pages.flatMap((page) => page.payload.data) || [];
+
   return (
     <div>
-      {articles.map((article) => (
-        <div
-          //  key={post.postId}
-          key={article.id}
-          className="p-4 rounded-lg shadow-lg border mb-6"
-        >
-          <div className="flex items-center gap-4 mb-6">
-            {/* Avatar, name*/}
-            <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
-              <AvatarImage
-                //  src={userById?.payload.data.profilePicture}
-                //  alt={
-                //    userById?.payload.data.fullName ||
-                //    userById?.payload.data.userName
-                //  }
-                src={article.author.avatar}
-                alt={article.author.name}
+      {articles.map((article) => {
+        const truncatedDescription =
+          article.description.length > 300
+            ? article.description.slice(0, 300) + "..."
+            : article.description;
+        return (
+          <div
+            key={article.postId}
+            className="p-4 rounded-lg shadow-lg border mb-6"
+          >
+            <UserProfile userId={article.userId} postDate={article.createAt} />
+
+            <div className="whitespace-pre-wrap mb-4 text-textChat flex flex-col">
+              <div className="font-bold text-lg text-center mb-2">
+                {article.title}
+              </div>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: truncatedDescription,
+                }}
               />
-              <AvatarFallback>
-                {/* {userById?.payload.data.fullName ||
-                   userById?.payload.data.userName} */}
-                {article.author.name}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                {/* {userById?.payload.data.fullName ||
-                   userById?.payload.data.userName} */}
-                {article.author.name}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {/* {formatDateTime(post.createAt)} */}
-                27/11/2024
-              </p>
+              <div className="flex justify-end mt-2">
+                <Link
+                  href={`/content/${article.postId}`}
+                  className="text-blue-500 hover:underline"
+                  onClick={() =>
+                    handleClickedPost(article.postId, article.userId)
+                  }
+                >
+                  Xem thêm
+                </Link>
+              </div>
+
+              <Image
+                src={
+                  article.coverImgUrl ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt="Banner"
+                width={1000}
+                height={500}
+                className="w-full h-auto md:h-[450px] object-cover mt-4 rounded-md"
+              />
             </div>
-            <Button
-              className="ml-auto rounded-full"
-              variant={"ghost"}
-              size={"icon"}
-            >
-              <X className="w-4 h-4 text-textChat" />
-            </Button>
           </div>
-
-          {/* Body of story */}
-
-          {/* <div className="whitespace-pre-wrap mb-4 text-textChat">
-             <div className="font-bold text-lg text-center mb-2">
-               {post.title}
-             </div>
-             <div
-               dangerouslySetInnerHTML={{
-                 __html: isExpanded
-                   ? post.description
-                   : post.description.slice(0, 300) +
-                     (truncate ? "..." : ""),
-               }}
-             />
-           </div> */}
-
-          <div className="whitespace-pre-wrap mb-4 text-textChat">
-            <div className="font-bold text-lg text-center mb-2">
-              {/* {post.title} */}
-              {article.title}
-            </div>
-            {/* <div
-                 dangerouslySetInnerHTML={{
-                   __html: post.description,
-                 }}
-               /> */}
-            {article.excerpt}
-            <Image
-              src={
-                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-              }
-              alt="Banner"
-              width={1000}
-              height={500}
-              className="w-full h-auto md:h-[450px] object-cover mt-4 rounded-md"
-            />
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

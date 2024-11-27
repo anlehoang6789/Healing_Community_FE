@@ -9,6 +9,7 @@ import {
   useGetUserProfileQuery,
 } from "@/queries/useAccount";
 import { useGetPostByPostIdQuery } from "@/queries/usePost";
+import { useQuickPostStore } from "@/store/postStore";
 import {
   Mail,
   Phone,
@@ -30,8 +31,9 @@ const isValidUrl = (url: string) => {
 };
 
 export default function ProfileCard() {
-  const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
-  const { data: postById } = useGetPostByPostIdQuery(postId);
+  // const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
+  const { postId } = useQuickPostStore();
+  const { data: postById } = useGetPostByPostIdQuery(postId as string);
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
@@ -106,6 +108,10 @@ export default function ProfileCard() {
     });
   };
 
+  console.log(
+    "so dien thoai o profile card phan content details",
+    userById?.payload.data.phoneNumber
+  );
   return (
     <Card className="w-full mx-auto mr-20">
       <CardHeader className="flex flex-row items-center gap-4 pb-2">
@@ -142,10 +148,14 @@ export default function ProfileCard() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Phone size={16} className="text-gray-400" />
-            <span className="lg:text-sm md:text-xl sm:text-xl">
-              {userById?.payload.data.phoneNumber}
-            </span>
+            {userById?.payload.data.phoneNumber && (
+              <>
+                <Phone size={16} className="text-gray-400" />
+                <span className="lg:text-sm md:text-xl sm:text-xl">
+                  {userById?.payload.data.phoneNumber}
+                </span>
+              </>
+            )}
           </div>
           {/* Phần hiện social link */}
           <div className="space-y-2">{renderSocialLinks()}</div>
