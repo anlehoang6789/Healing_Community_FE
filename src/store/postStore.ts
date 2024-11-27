@@ -14,3 +14,19 @@ export const usePostStore = create<PostStore>((set) => ({
   selectedPostTitle: null,
   setSelectedPostTitle: (title) => set({ selectedPostTitle: title }),
 }));
+
+interface QuickPost {
+  postId: string | null;
+  userId: string | null;
+  setPostData: (postId: string, userId: string) => void;
+}
+
+export const useQuickPostStore = create<QuickPost>((set) => ({
+  postId: null,
+  userId: null,
+  setPostData: (postId, userId) =>
+    set({
+      postId,
+      userId,
+    }),
+}));

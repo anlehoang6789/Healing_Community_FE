@@ -155,3 +155,25 @@ export const GetHomePageListLazyLoad = z.object({
 export type GetHomePageListLazyLoadType = z.TypeOf<
   typeof GetHomePageListLazyLoad
 >;
+
+//trang Home phần xem nhanh (quickPost)
+export const QuickPostSchema = z.object({
+  postId: z.string(),
+  userId: z.string(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type QuickPostType = z.TypeOf<typeof QuickPostSchema>;
+
+export const GetQuickPostList = z.object({
+  data: z.array(QuickPostSchema),
+  message: z.string(),
+});
+
+export type GetQuickPostListType = z.TypeOf<typeof GetQuickPostList>;
