@@ -27,7 +27,7 @@ import {
   useGetPostByPostIdQuery,
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
 import CommentSection from "@/components/commentSection/commentSection";
 import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
 
@@ -35,7 +35,8 @@ export default function DetailPost() {
   const { theme } = useTheme();
 
   // data của post theo postId
-  const postId = "01JDAB9VW8A2KQX9ZBGZSJYJ84";
+  const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
+  const userId = getUserIdFromLocalStorage() ?? "";
 
   const { data: postById } = useGetPostByPostIdQuery(postId);
   //data của user theo userId lấy từ api postById
@@ -81,7 +82,7 @@ export default function DetailPost() {
             commentId: newCommentId, // Sử dụng commentId từ API
             postId: postId,
             parentId: null,
-            userId: "current-user-id",
+            userId: userId,
             content: comment.content,
             createdAt: new Date().toISOString(),
             updatedAt: null,
@@ -120,7 +121,7 @@ export default function DetailPost() {
             commentId: newCommentId, // Sử dụng commentId từ API
             postId: postId,
             parentId: parentId,
-            userId: "current-user-id", // Sử dụng userId của người dùng hành động
+            userId: userId,
             content: reply.content,
             coverImgUrl: reply.coverImgUrl,
             createdAt: new Date().toISOString(),

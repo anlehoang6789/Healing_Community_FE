@@ -75,12 +75,6 @@ export default function QuickViewNews() {
         <h2 className="text-lg font-semibold text-muted-foreground">
           Xem nhanh
         </h2>
-        <Link
-          href="#"
-          className="text-sm text-muted-foreground hover:underline"
-        >
-          Xem tất cả
-        </Link>
       </div>
       <ul className="space-y-4 relative">
         <div className="absolute left-[-2px] top-0 bottom-0 w-0.5 bg-blue-400"></div>
@@ -94,13 +88,6 @@ export default function QuickViewNews() {
                 </h3>
               </Link>
             </div>
-            <Image
-              src={item.img}
-              alt={item.title}
-              width={150}
-              height={50}
-              className="rounded-lg h-20 object-cover"
-            />
           </li>
         ))}
       </ul>
