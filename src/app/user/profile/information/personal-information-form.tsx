@@ -17,7 +17,6 @@ import {
   UpdateProfileUserBody,
   UpdateProfileUserBodyType,
 } from "@/schemaValidations/account.schema";
-import { useUserStore } from "@/store/userStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { InstagramLogoIcon, TwitterLogoIcon } from "@radix-ui/react-icons";
 import { Camera, Facebook, Linkedin } from "lucide-react";
@@ -53,7 +52,7 @@ export default function PersonalInformationForm() {
     return profilePicture;
   }, [file, profilePicture]);
 
-  const { userId } = useUserStore();
+  const userId = getUserIdFromLocalStorage();
 
   //call api lấy thông tin user
   const { data, refetch } = useGetUserProfileQuery(userId as string);
