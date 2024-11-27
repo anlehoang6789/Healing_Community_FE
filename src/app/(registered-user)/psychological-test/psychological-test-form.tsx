@@ -65,7 +65,7 @@ export default function PsychologicalTestForm() {
     };
   }, []);
 
-  if (isLoading) {
+  if (!quizData || !quizData.data) {
     return <div>Đang tải câu hỏi...</div>;
   }
 
@@ -81,38 +81,29 @@ export default function PsychologicalTestForm() {
       }))
     ) || [];
 
-  const totalQuestions = questions.length;
-
-  const handleOptionChange = (index: number, selectedValue: number) => {
+  const handleOptionChange = (questionId: string, selectedValue: number) => {
     setSelectedOptions((prev) => ({
       ...prev,
-      [questions[index].id]: selectedValue,
+      [questionId]: selectedValue,
     }));
 
-    // Scroll to the next question
-    const nextQuestionRef = questionRefs.current[index + 1];
-    if (nextQuestionRef) {
-      const scrollOffset =
-        nextQuestionRef.getBoundingClientRect().top + window.scrollY - 400;
-      window.scrollTo({
-        top: scrollOffset,
+    // Khi chọn xong, tự động chuyển sang câu tiếp theo
+    const nextIndex = questions.findIndex((q) => q.id === questionId) + 0;
+    if (nextIndex < questions.length) {
+      questionRefs.current[nextIndex]?.scrollIntoView({
         behavior: "smooth",
+        block: "center",
       });
-    }
-
-    // Update current question index
-    if (currentQuestionIndex < totalQuestions - 1) {
-      setCurrentQuestionIndex((prevIndex) => prevIndex + 1);
     }
   };
 
   const handleSubmitQuiz = () => {
-    // Tạo điểm số cho từng danh mục
     const scores: SubmitQuizScoreType["score"] = {
       stress: [],
       anxiety: [],
       depression: [],
     };
+
     quizData?.data.dass21Categories.forEach((category) => {
       const categoryScores = category.questions.map((_, questionIndex) => {
         const selectedOptionValue =
@@ -133,83 +124,112 @@ export default function PsychologicalTestForm() {
       }
     });
 
-    // Gọi mutation submit quiz
     submitQuizMutation.mutate({ score: scores });
   };
 
   const progressValue =
-    (Object.keys(selectedOptions).length / totalQuestions) * 100;
+    (Object.keys(selectedOptions).length /
+      quizData?.data.dass21Categories.flatMap((c) => c.questions).length) *
+    100;
 
   return (
     <div>
-      <div className="sticky top-0 z-10 mb-4 p-4 shadow-md ">
+      <div className="sticky top-0 z-10 mb-4 p-4 shadow-md">
         <Progress
           value={progressValue}
           className="w-full bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] h-4 opacity-65"
         />
         <p className="text-right mt-2">{`${
           Object.keys(selectedOptions).length
-        }/${totalQuestions}`}</p>
+        }/${
+          quizData?.data.dass21Categories.flatMap((c) => c.questions).length
+        }`}</p>
       </div>
 
-      {questions.map((items, index) => (
-        <div
-          ref={(el) => {
-            if (el) {
-              questionRefs.current[index] = el;
-            }
-          }}
-          key={items.id}
-          className={`mb-5 ${
-            currentQuestionIndex !== index ? "opacity-50" : "opacity-100"
-          }`}
-        >
-          <Card key={items.id} className=" text-muted-foreground">
-            <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4">{items.text}</h2>
-              <RadioGroup
-                className="gap-4 md:space-x-4 flex flex-col sm:flex-row items-center justify-center"
-                onValueChange={(value) =>
-                  handleOptionChange(index, Number(value))
-                }
+      {quizData?.data.dass21Categories.map((category) => (
+        <div key={category.categoryName} className="mb-6">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">
+            Câu hỏi để kiểm tra độ{" "}
+            {category.categoryName === "Depression" ? (
+              <span className="text-red-500">Trầm cảm</span>
+            ) : category.categoryName === "Anxiety" ? (
+              <span className="text-blue-500">Lo âu</span>
+            ) : category.categoryName === "Stress" ? (
+              <span className="text-green-500">Căng thẳng</span>
+            ) : (
+              category.categoryName
+            )}
+          </h3>
+          {category.questions.map((question, questionIndex) => {
+            const questionId = `${category.categoryName}-${questionIndex}`;
+            const flatIndex =
+              quizData?.data.dass21Categories
+                .flatMap((c) => c.questions)
+                .findIndex((q) => q === question) || 0;
+
+            return (
+              <Card
+                key={questionId}
+                ref={(el) => {
+                  questionRefs.current[flatIndex] = el;
+                }}
+                className={`transition-all text-textChat duration-300 mb-4 ${
+                  currentQuestionIndex === flatIndex
+                    ? "bg-green-100 shadow-lg scale-105 text-gray-800"
+                    : "opacity-75"
+                }`}
               >
-                {items.options.map((option) => (
-                  <div
-                    key={option.value}
-                    className={`flex items-center justify-between p-4 border border-gray-300 rounded-full cursor-pointer sm:w-auto w-full ${
-                      selectedOptions[items.id] === option.value
-                        ? "bg-green-700"
-                        : ""
-                    }`}
+                <CardContent className="p-6">
+                  <h4 className="text-xl font-semibold mb-4">
+                    {question.questionText}
+                  </h4>
+                  <RadioGroup
+                    className="gap-4 md:space-x-4 flex flex-col sm:flex-row items-center justify-center"
+                    onValueChange={(value) =>
+                      handleOptionChange(questionId, Number(value))
+                    }
                   >
-                    <RadioGroupItem
-                      value={option.value.toString()}
-                      id={`question-${items.id}-${option.value}`}
-                      dotColor="white"
-                      className={`mr-4 border w-5 h-5 ${
-                        selectedOptions[items.id] === option.value
-                          ? "border-white"
-                          : "border-gray-300"
-                      }`}
-                    />
-                    <Label
-                      htmlFor={`question-${items.id}-${option.value}`}
-                      className={`w-full leading-5 ${
-                        selectedOptions[items.id] === option.value
-                          ? "text-white"
-                          : ""
-                      }`}
-                    >
-                      {option.label}
-                    </Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </CardContent>
-          </Card>
+                    {question.options.map((option, optionIndex) => (
+                      <div
+                        key={optionIndex}
+                        className={`flex items-center justify-between p-4 border border-gray-700 rounded-full cursor-pointer sm:w-auto w-full ${
+                          selectedOptions[questionId] === optionIndex
+                            ? "bg-green-700"
+                            : ""
+                        }`}
+                      >
+                        <RadioGroupItem
+                          value={optionIndex.toString()}
+                          id={`question-${questionId}-${optionIndex}`}
+                          dotColor="white"
+                          className={`mr-4 border w-5 h-5 ${
+                            selectedOptions[questionId] === optionIndex
+                              ? "border-white"
+                              : "border-gray-700"
+                          }`}
+                        />
+                        <Label
+                          htmlFor={`question-${questionId}-${optionIndex}`}
+                          className={`w-full leading-5 ${
+                            selectedOptions[questionId] === optionIndex
+                              ? "text-white"
+                              : ""
+                          }`}
+                        >
+                          {option}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       ))}
-      {Object.keys(selectedOptions).length === totalQuestions && (
+
+      {Object.keys(selectedOptions).length ===
+        quizData?.data.dass21Categories.flatMap((c) => c.questions).length && (
         <Button
           onClick={handleSubmitQuiz}
           className="rounded-[20px] w-full float-right md:w-40 h-12 md:text-base bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black"
