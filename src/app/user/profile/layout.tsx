@@ -4,9 +4,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { useUserStore } from "@/store/userStore";
 import { useParams } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { createContext, useEffect, useState } from "react";
+
+const ProfileContext = createContext<{
+  userId: string | null;
+  setUserId: (value: string | null) => void;
+  isOwner: boolean;
+}>({
+  userId: null,
+  setUserId: () => {},
+  isOwner: false,
+});
 
 export default function ProfileUserLayout({
   children,
@@ -14,51 +23,47 @@ export default function ProfileUserLayout({
   const params = useParams();
   const userIdFromPath = params.userId as string;
   const currentUserId = getUserIdFromLocalStorage();
-  const { userId, setUserId } = useUserStore();
+  const [userId, setUserId] = useState<string | null>(null);
 
   const isOwner = currentUserId === userId;
   useEffect(() => {
-    if (!userIdFromPath && currentUserId) {
-      // Nếu không có userId trong URL, sử dụng userId từ localStorage
-      setUserId(currentUserId);
-    } else if (userIdFromPath) {
-      // Nếu có userId trong URL, ưu tiên userId đó
-      setUserId(userIdFromPath);
+    if (!userId) {
+      const idToSet = userIdFromPath || currentUserId;
+      if (idToSet) setUserId(idToSet);
     }
-  }, [userIdFromPath, currentUserId, setUserId]);
+  }, [userIdFromPath, currentUserId, userId]);
 
   // Fetch user profile data
-  const { data: userProfile, isLoading } =
-    useGetUserProfileQuery(userIdFromPath);
+  const { data: userProfile } = useGetUserProfileQuery(userId as string);
 
-  if (isLoading) {
+  if (!userId) {
     return <div>Loading...</div>;
   }
   return (
-    <div>
+    <ProfileContext.Provider
+      value={{
+        userId,
+        setUserId,
+        isOwner,
+      }}
+    >
       {/* Profile Section */}
       <div className="flex justify-center w-full h-auto sm:h-80 bg-gradient-custom-left-to-right overflow-hidden">
         <div className="flex flex-col items-center justify-center pb-4">
           {/* Avatar */}
           <Avatar className="w-20 h-20 sm:w-28 sm:h-28 border-2 border-rose-300 mb-2">
             <AvatarImage
-              // src={
-              //   "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-              // }
               src={userProfile?.payload.data.profilePicture}
               alt="Hoàng An"
             />
             <AvatarFallback>
               {userProfile?.payload.data.fullName ||
                 userProfile?.payload.data.userName}
-              {/* Hoàng An */}
             </AvatarFallback>
           </Avatar>
-          {/* Username */}
           <h1 className="text-xl sm:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
             {userProfile?.payload.data.fullName ||
               userProfile?.payload.data.userName}
-            {/* Hoàng An */}
           </h1>
           <div className="flex flex-col items-center justify-center">
             {/* First information */}
@@ -123,9 +128,9 @@ export default function ProfileUserLayout({
         </div>
       </div>
       <div className="w-full bg-background h-auto p-2 max-w-7xl overflow-hidden mx-auto">
-        <ProfileTabs isOwner={isOwner} userId={userIdFromPath as string} />
+        <ProfileTabs userId={userId} isOwner={isOwner} />
         {children}
       </div>
-    </div>
+    </ProfileContext.Provider>
   );
 }

@@ -1,6 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-const privatePaths = ["/user", "/expert"];
+const privatePaths = [
+  "/user",
+  "/expert",
+  "/chat",
+  "/consultation-calendar",
+  "/psychological-test",
+  "/test-result",
+];
 const unAuthPaths = ["/login", "/register"];
 
 export function middleware(request: NextRequest) {
@@ -46,5 +53,15 @@ export function middleware(request: NextRequest) {
 
 // See "Matching Paths" below to learn more
 export const config = {
-  matcher: ["/user/:path*", "/expert/:path*", "/register", "/login", "/"],
+  matcher: [
+    "/user/:path*",
+    "/expert/:path*",
+    "/register",
+    "/login",
+    "/",
+    "/chat",
+    "/consultation-calendar",
+    "/psychological-test",
+    "/test-result",
+  ],
 };

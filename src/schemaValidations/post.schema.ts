@@ -124,3 +124,56 @@ export const CreateCommentResponseSchema = z.object({
 export type CreateCommentResponseType = z.TypeOf<
   typeof CreateCommentResponseSchema
 >;
+
+export const AddUserReferenceBody = z.object({
+  categoryId: z.string(),
+});
+
+export type AddUserReferenceBodyType = z.TypeOf<typeof AddUserReferenceBody>;
+
+export const GetHomePageSchemaLazyLoad = z.object({
+  postId: z.string(),
+  userId: z.string(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type GetHomePageSchemaLazyLoadType = z.TypeOf<
+  typeof GetHomePageSchemaLazyLoad
+>;
+
+export const GetHomePageListLazyLoad = z.object({
+  data: z.array(GetHomePageSchemaLazyLoad),
+  message: z.string(),
+});
+
+export type GetHomePageListLazyLoadType = z.TypeOf<
+  typeof GetHomePageListLazyLoad
+>;
+
+//trang Home phần xem nhanh (quickPost)
+export const QuickPostSchema = z.object({
+  postId: z.string(),
+  userId: z.string(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type QuickPostType = z.TypeOf<typeof QuickPostSchema>;
+
+export const GetQuickPostList = z.object({
+  data: z.array(QuickPostSchema),
+  message: z.string(),
+});
+
+export type GetQuickPostListType = z.TypeOf<typeof GetQuickPostList>;
