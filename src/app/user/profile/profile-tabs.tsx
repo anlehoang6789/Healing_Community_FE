@@ -56,16 +56,17 @@ export default function ProfileTabs({
             <Link href={`/user/profile/${userId}`}>Tường nhà</Link>
           </Button>
 
+          <Button
+            variant={"gradientHoverUnderline"}
+            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+          >
+            <Link href={`/user/profile/expert-info/${userId}`}>
+              Thông tin chuyên gia
+            </Link>
+          </Button>
+
           {isOwner && (
             <>
-              <Button
-                variant={"gradientHoverUnderline"}
-                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-              >
-                <Link href={"/user/profile/expert-info"}>
-                  Thông tin chuyên gia
-                </Link>
-              </Button>
               <Button
                 variant={"gradientHoverUnderline"}
                 className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
