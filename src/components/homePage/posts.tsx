@@ -2,13 +2,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { X } from "lucide-react";
-import React, { useEffect } from "react";
+import { Bookmark, Flag, Share2, ThumbsUp } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useGetHomePageLazyLoadQuery } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime } from "@/lib/utils";
 import Link from "next/link";
 import { useQuickPostStore } from "@/store/postStore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type UserProfileProps = {
   userId: string;
@@ -41,15 +42,21 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
         {/* Ngày tạo acc người dùng */}
         <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
       </div>
-      <Button className="ml-auto rounded-full" variant={"ghost"} size={"icon"}>
-        <X className="w-4 h-4 text-textChat" />
-      </Button>
+      <div className="ml-auto">
+        <Button className=" rounded-full" variant={"ghost"} size={"icon"}>
+          <Bookmark className="w-5 h-5 text-textChat" />
+        </Button>
+        <Button className=" rounded-full" variant={"ghost"} size={"icon"}>
+          <Flag className="w-5 h-5 text-textChat" />
+        </Button>
+      </div>
     </div>
   );
 };
 
 export default function Posts() {
   const pageSizes = 5;
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetHomePageLazyLoadQuery(pageSizes);
   const { setPostData } = useQuickPostStore();
@@ -61,9 +68,13 @@ export default function Posts() {
   const handleScroll = () => {
     if (
       window.innerHeight + window.scrollY >= document.body.scrollHeight - 100 &&
-      hasNextPage
+      hasNextPage &&
+      !isFetchingNextPage
     ) {
-      fetchNextPage();
+      setIsLoadingMore(true);
+      fetchNextPage()
+        .then(() => setIsLoadingMore(false))
+        .catch(() => setIsLoadingMore(false));
     }
   };
 
@@ -73,7 +84,7 @@ export default function Posts() {
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [hasNextPage]);
+  }, [hasNextPage, isFetchingNextPage]);
 
   // Ghép các trang dữ liệu
   const articles = data?.pages.flatMap((page) => page.payload.data) || [];
@@ -124,9 +135,42 @@ export default function Posts() {
                 className="w-full h-auto md:h-[450px] object-cover mt-4 rounded-md"
               />
             </div>
+            <div className="flex flex-col items-start gap-4">
+              <div className="flex justify-between w-full">
+                <span className="text-sm text-gray-500">10 lượt thích</span>
+                <span className="justify-end text-sm text-gray-500">
+                  10 lượt chia sẻ
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between w-full">
+                <Button
+                  variant="iconDarkMod"
+                  className="flex items-center gap-2 p-0"
+                >
+                  <ThumbsUp className="w-4 h-4" />
+                  Thích
+                </Button>
+                <Button
+                  variant="iconDarkMod"
+                  className="flex items-center gap-2 p-0"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Chia sẻ
+                </Button>
+              </div>
+            </div>
           </div>
         );
       })}
+      {(isFetchingNextPage || isLoadingMore) && (
+        <div className="p-4 rounded-lg shadow-lg border mb-6">
+          <Skeleton className="h-10 w-full mb-4" />
+          <Skeleton className="h-6 w-3/4 mb-2" />
+          <Skeleton className="h-6 w-full mb-4" />
+          <Skeleton className="h-48 w-full rounded-md" />
+        </div>
+      )}
     </div>
   );
 }
