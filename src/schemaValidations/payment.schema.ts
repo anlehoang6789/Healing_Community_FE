@@ -19,3 +19,29 @@ export const PaymentHistoryListRes = z.object({
 });
 
 export type PaymentHistoryListResType = z.infer<typeof PaymentHistoryListRes>;
+
+export const CreatePaymentRequestSchema = z.object({
+  appointmentId: z.string(),
+  amount: z.number(),
+  description: z.string(),
+  returnUrl: z.string().url(),
+  cancelUrl: z.string().url(),
+});
+
+export type CreatePaymentRequestType = z.infer<
+  typeof CreatePaymentRequestSchema
+>;
+
+export const CreatePaymentResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.string().url(),
+  errors: z.array(z.any()).optional(),
+  timestamp: z.string().datetime(),
+});
+
+export type CreatePaymentResponseType = z.infer<
+  typeof CreatePaymentResponseSchema
+>;
