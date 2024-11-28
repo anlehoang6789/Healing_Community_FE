@@ -11,16 +11,18 @@ import {
 } from "@/queries/useExpert";
 import { GetExpertProfileSchemaType } from "@/schemaValidations/expert.schema";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 export default function ExpertProfile() {
   // Thêm kiểm tra null và gán giá trị mặc định
-  const expertId = getUserIdFromLocalStorage() ?? "";
+
+  const { expertId } = useParams();
 
   const {
     data: expertProfileResponse,
     isLoading,
     error,
-  } = useGetExpertProfileQuery(expertId);
+  } = useGetExpertProfileQuery(expertId as string);
 
   const { data: certificateTypesResponse } = useGetCertificateTypesQuery();
 
