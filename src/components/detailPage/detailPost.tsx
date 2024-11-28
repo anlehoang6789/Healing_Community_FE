@@ -31,13 +31,14 @@ import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
 import CommentSection from "@/components/commentSection/commentSection";
 import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
 import { useQuickPostStore } from "@/store/postStore";
+import postApiRequest from "@/apiRequests/post";
 
 export default function DetailPost() {
   const { theme } = useTheme();
 
   // data của post theo postId
   // const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
-  // const userId = getUserIdFromLocalStorage() ?? "";
+  const userIdComment = getUserIdFromLocalStorage() ?? "";
   const { postId, userId } = useQuickPostStore();
 
   const { data: postById } = useGetPostByPostIdQuery(postId as string);
@@ -84,7 +85,7 @@ export default function DetailPost() {
             commentId: newCommentId, // Sử dụng commentId từ API
             postId: postId as string,
             parentId: null,
-            userId: userId as string,
+            userId: userIdComment as string,
             content: comment.content,
             createdAt: new Date().toISOString(),
             updatedAt: null,
@@ -106,7 +107,6 @@ export default function DetailPost() {
     parentId: string,
     reply: { content: string; coverImgUrl?: string | null }
   ) => {
-    // Gọi API để tạo reply
     createComment(
       {
         postId: postId as string,
@@ -115,38 +115,18 @@ export default function DetailPost() {
         coverImgUrl: reply.coverImgUrl,
       },
       {
-        onSuccess: (data) => {
-          const newCommentId = data.payload.data;
+        onSuccess: async (data) => {
+          try {
+            // Fetch lại toàn bộ comments của post này
+            const commentsResponse = await postApiRequest.getCommentsByPostId(
+              postId as string
+            );
 
-          // Tạo comment mới với commentId từ API
-          const newReply: ReplyCommentType = {
-            commentId: newCommentId, // Sử dụng commentId từ API
-            postId: postId as string,
-            parentId: parentId,
-            userId: userId as string,
-            content: reply.content,
-            coverImgUrl: reply.coverImgUrl,
-            createdAt: new Date().toISOString(),
-            updatedAt: null,
-            replies: [], // Đảm bảo replies là mảng rỗng
-          };
-
-          // Cập nhật state comments với reply mới từ API
-          const updatedComments = comments.map((comment) => {
-            if (comment.commentId === parentId) {
-              const updatedReplies = comment.replies
-                ? [...comment.replies, newReply]
-                : [newReply];
-
-              return {
-                ...comment,
-                replies: updatedReplies,
-              };
-            }
-            return comment;
-          });
-
-          setComments(updatedComments);
+            // Cập nhật lại toàn bộ comments
+            setComments(commentsResponse.payload.data);
+          } catch (error) {
+            console.error("Error refetching comments:", error);
+          }
         },
         onError: (error) => {
           console.error("Error creating reply:", error);
