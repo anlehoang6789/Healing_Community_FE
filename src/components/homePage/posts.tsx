@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Bookmark, Flag, Share2, ThumbsUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useGetHomePageLazyLoadQuery } from "@/queries/usePost";
+import {
+  useAddUserReferenceMutation,
+  useGetHomePageLazyLoadQuery,
+} from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { formatDateTime } from "@/lib/utils";
-import Link from "next/link";
-import { useQuickPostStore } from "@/store/postStore";
+import { formatDateTime, handleErrorApi } from "@/lib/utils";
+// import Link from "next/link";
+// import { useQuickPostStore } from "@/store/postStore";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 type UserProfileProps = {
   userId: string;
@@ -43,10 +47,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
         <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
       </div>
       <div className="ml-auto">
-        <Button className=" rounded-full" variant={"ghost"} size={"icon"}>
+        <Button
+          className=" rounded-full"
+          variant={"ghost"}
+          size={"icon"}
+          onClick={(e) => e.stopPropagation()}
+        >
           <Bookmark className="w-5 h-5 text-textChat" />
         </Button>
-        <Button className=" rounded-full" variant={"ghost"} size={"icon"}>
+        <Button
+          className=" rounded-full"
+          variant={"ghost"}
+          size={"icon"}
+          onClick={(e) => e.stopPropagation()}
+        >
           <Flag className="w-5 h-5 text-textChat" />
         </Button>
       </div>
@@ -59,10 +73,12 @@ export default function Posts() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetHomePageLazyLoadQuery(pageSizes);
-  const { setPostData } = useQuickPostStore();
-  const handleClickedPost = (postId: string, userId: string) => {
-    setPostData(postId, userId);
-  };
+  const router = useRouter();
+  const { mutateAsync } = useAddUserReferenceMutation();
+  // const { setPostData } = useQuickPostStore();
+  // const handleClickedPost = (postId: string, userId: string) => {
+  //   setPostData(postId, userId);
+  // };
 
   // Hàm xử lý sự kiện cuộn
   const handleScroll = () => {
@@ -89,6 +105,26 @@ export default function Posts() {
   // Ghép các trang dữ liệu
   const articles = data?.pages.flatMap((page) => page.payload.data) || [];
 
+  const handlePostClick = async (
+    postId: string,
+    categoryId: string,
+    e: React.MouseEvent
+  ) => {
+    const target = e.target as HTMLElement;
+    // Nếu click vào nút, ngừng sự kiện
+    if (target.closest("button")) {
+      e.stopPropagation();
+    } else {
+      try {
+        await mutateAsync({ categoryId });
+        // Nếu không phải nút, chuyển hướng tới bài viết
+        router.push(`/content/${postId}`);
+      } catch (error: any) {
+        handleErrorApi(error);
+      }
+    }
+  };
+
   return (
     <div>
       {articles.map((article) => {
@@ -100,6 +136,9 @@ export default function Posts() {
           <div
             key={article.postId}
             className="p-4 rounded-lg shadow-lg border mb-6"
+            onClick={(e) =>
+              handlePostClick(article.postId, article.categoryId, e)
+            }
           >
             <UserProfile userId={article.userId} postDate={article.createAt} />
 
@@ -112,17 +151,6 @@ export default function Posts() {
                   __html: truncatedDescription,
                 }}
               />
-              <div className="flex justify-end mt-2">
-                <Link
-                  href={`/content/${article.postId}`}
-                  className="text-blue-500 hover:underline"
-                  onClick={() =>
-                    handleClickedPost(article.postId, article.userId)
-                  }
-                >
-                  Xem thêm
-                </Link>
-              </div>
 
               <Image
                 src={
@@ -147,6 +175,7 @@ export default function Posts() {
                 <Button
                   variant="iconDarkMod"
                   className="flex items-center gap-2 p-0"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <ThumbsUp className="w-4 h-4" />
                   Thích
@@ -154,6 +183,7 @@ export default function Posts() {
                 <Button
                   variant="iconDarkMod"
                   className="flex items-center gap-2 p-0"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <Share2 className="w-4 h-4" />
                   Chia sẻ
