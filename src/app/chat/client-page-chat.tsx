@@ -17,6 +17,7 @@ export default function ClientPageChat() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [mounted, setMounted] = useState(false);
   const [loggedInUserId, setLoggedInUserId] = useState("");
+  const userId = getUserIdFromLocalStorage();
 
   useEffect(() => {
     setMounted(true);
@@ -24,7 +25,7 @@ export default function ClientPageChat() {
     setLoggedInUserId(userId);
   }, []);
 
-  const { data: followingData } = useGetFollowingQuery();
+  const { data: followingData } = useGetFollowingQuery(userId as string);
   const followingList = followingData?.payload.data || [];
   const contacts: Contact[] = followingList.map((user) => ({
     id: user.userId,

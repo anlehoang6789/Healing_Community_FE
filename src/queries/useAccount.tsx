@@ -51,10 +51,10 @@ export const useUpdateProfileUserMutation = () => {
   });
 };
 
-export const useGetFollowingQuery = () => {
+export const useGetFollowingQuery = (userId: string) => {
   return useQuery({
-    queryKey: ["following"],
-    queryFn: accountApiRequest.getFollowing,
+    queryKey: ["following", userId],
+    queryFn: () => accountApiRequest.getFollowing(userId),
   });
 };
 

@@ -11,10 +11,12 @@ import { BadgeCheck } from "lucide-react";
 
 import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import React from "react";
 
 export default function FollowedUser() {
-  const { data } = useGetFollowingQuery();
+  const { userId } = useParams();
+  const { data } = useGetFollowingQuery(userId as string);
   const getFollowingList = data?.payload.data;
 
   //handle unfollow
