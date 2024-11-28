@@ -9,7 +9,6 @@ import {
   useGetUserProfileQuery,
 } from "@/queries/useAccount";
 import { useGetPostByPostIdQuery } from "@/queries/usePost";
-import { useQuickPostStore } from "@/store/postStore";
 import {
   Mail,
   Phone,
@@ -20,6 +19,7 @@ import {
   Calendar,
 } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 const isValidUrl = (url: string) => {
   try {
@@ -32,8 +32,10 @@ const isValidUrl = (url: string) => {
 
 export default function ProfileCard() {
   // const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
-  const { postId } = useQuickPostStore();
-  const { data: postById } = useGetPostByPostIdQuery(postId as string);
+  // const { postId } = useQuickPostStore();
+  const param = useParams();
+  const postIdFromUrl = param?.postId;
+  const { data: postById } = useGetPostByPostIdQuery(postIdFromUrl as string);
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
