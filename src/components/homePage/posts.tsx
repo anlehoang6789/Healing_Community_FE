@@ -10,10 +10,9 @@ import {
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
-// import Link from "next/link";
-// import { useQuickPostStore } from "@/store/postStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import { GetHomePageSchemaLazyLoadType } from "@/schemaValidations/post.schema";
 
 type UserProfileProps = {
   userId: string;
@@ -68,34 +67,60 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
   );
 };
 
-export default function Posts() {
+export default function Posts({
+  initialArticles,
+}: {
+  initialArticles: GetHomePageSchemaLazyLoadType[];
+}) {
   const pageSizes = 5;
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const [articles, setArticles] = useState(
+    initialArticles?.slice(0, pageSizes) || []
+  );
+
+  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetHomePageLazyLoadQuery(pageSizes);
   const router = useRouter();
   const { mutateAsync } = useAddUserReferenceMutation();
-  // const { setPostData } = useQuickPostStore();
-  // const handleClickedPost = (postId: string, userId: string) => {
-  //   setPostData(postId, userId);
-  // };
 
   // Hàm xử lý sự kiện cuộn
   const handleScroll = () => {
     if (
-      window.innerHeight + window.scrollY >= document.body.scrollHeight - 100 &&
+      window.innerHeight + window.scrollY >= document.body.scrollHeight * 0.8 &&
       hasNextPage &&
       !isFetchingNextPage
     ) {
       setIsLoadingMore(true);
       fetchNextPage()
-        .then(() => setIsLoadingMore(false))
-        .catch(() => setIsLoadingMore(false));
+        .then((fetchResult) => {
+          const newArticles =
+            fetchResult.data?.pages.flatMap((page) => page.payload.data) || [];
+          // console.log("dữ liệu ban đầu của bài viết", newArticles);
+          setArticles((prevArticles) => {
+            const existingPostIds = new Set(
+              prevArticles.map((article) => article.postId)
+            );
+            const uniqueArticles = newArticles.filter(
+              (article) => !existingPostIds.has(article.postId)
+            );
+            // console.log("du lieu sau khi load", [
+            //   ...prevArticles,
+            //   ...uniqueArticles,
+            // ]);
+
+            return [...prevArticles, ...uniqueArticles];
+          });
+        })
+        .catch((error) => {
+          console.error("Error while fetching next page:", error);
+        })
+        .finally(() => setIsLoadingMore(false));
     }
   };
 
   // Thêm sự kiện cuộn vào window
   useEffect(() => {
+    if (!initialArticles) return;
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -103,7 +128,7 @@ export default function Posts() {
   }, [hasNextPage, isFetchingNextPage]);
 
   // Ghép các trang dữ liệu
-  const articles = data?.pages.flatMap((page) => page.payload.data) || [];
+  // const articles = data?.pages.flatMap((page) => page.payload.data) || [];
 
   const handlePostClick = async (
     postId: string,
@@ -143,9 +168,9 @@ export default function Posts() {
             <UserProfile userId={article.userId} postDate={article.createAt} />
 
             <div className="whitespace-pre-wrap mb-4 text-textChat flex flex-col">
-              <div className="font-bold text-lg text-center mb-2">
+              <h1 className="font-bold text-lg text-center mb-2">
                 {article.title}
-              </div>
+              </h1>
               <div
                 dangerouslySetInnerHTML={{
                   __html: truncatedDescription,
@@ -193,7 +218,7 @@ export default function Posts() {
           </div>
         );
       })}
-      {(isFetchingNextPage || isLoadingMore) && (
+      {isLoadingMore && (
         <div className="p-4 rounded-lg shadow-lg border mb-6">
           <Skeleton className="h-10 w-full mb-4" />
           <Skeleton className="h-6 w-3/4 mb-2" />
