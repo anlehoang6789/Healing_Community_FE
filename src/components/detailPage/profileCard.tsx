@@ -110,17 +110,20 @@ export default function ProfileCard() {
     });
   };
 
-  console.log(
-    "so dien thoai o profile card phan content details",
-    userById?.payload.data.phoneNumber
-  );
+  // console.log(
+  //   "so dien thoai o profile card phan content details",
+  //   userById?.payload.data.phoneNumber
+  // );
   return (
     <Card className="w-full mx-auto mr-20">
       <CardHeader className="flex flex-row items-center gap-4 pb-2">
         <Link href={`/user/profile/${postById?.payload.data.userId}`}>
           <Avatar className="w-12 h-12 border-2 border-rose-300">
             <AvatarImage
-              src={userById?.payload.data.profilePicture}
+              src={
+                userById?.payload.data.profilePicture ||
+                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+              }
               alt={userById?.payload.data.userName}
             />
             <AvatarFallback>{userById?.payload.data.userName}</AvatarFallback>

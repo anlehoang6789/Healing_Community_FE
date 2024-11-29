@@ -37,7 +37,56 @@ export default function ProfileUserLayout({
   const { data: userProfile } = useGetUserProfileQuery(userId as string);
 
   if (!userId) {
-    return <div>Loading...</div>;
+    return (
+      <div className="animate-pulse">
+        <div className="flex justify-center w-full h-auto sm:h-80 bg-gray-200 overflow-hidden">
+          <div className="flex flex-col items-center justify-center pb-4">
+            <div className="w-20 h-20 sm:w-28 sm:h-28 bg-gray-300 rounded-full mb-2"></div>
+            <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-4 mt-1 text-xs sm:text-base">
+                <div className="flex space-x-2 sm:space-x-4 items-center">
+                  <div className="flex items-center">
+                    <span className="h-4 bg-gray-300 rounded w-1/4 mr-1 sm:mr-2"></span>
+                    <span className="h-4 bg-gray-300 rounded w-1/4"></span>
+                  </div>
+                </div>
+                <div className="flex space-x-2 sm:space-x-4">
+                  <div className="flex items-center">
+                    <span className="h-4 bg-gray-300 rounded w-1/4 mr-1 sm:mr-2"></span>
+                    <span className="h-4 bg-gray-300 rounded w-1/4"></span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-4 mt-1 text-xs sm:text-base">
+                <div className="flex space-x-2 sm:space-x-4 items-center">
+                  <div className="flex items-center">
+                    <span className="h-4 bg-gray-300 rounded w-1/4 mr-1 sm:mr-2"></span>
+                    <span className="h-4 bg-gray-300 rounded w-1/4"></span>
+                  </div>
+                </div>
+                <div className="flex space-x-2 sm:space-x-4 items-center">
+                  <div className="flex items-center">
+                    <span className="h-4 bg-gray-300 rounded w-1/4 mr-1 sm:mr-2"></span>
+                    <span className="h-4 bg-gray-300 rounded w-1/4"></span>
+                  </div>
+                </div>
+                <div className="flex space-x-2 sm:space-x-4">
+                  <div className="flex items-center">
+                    <span className="h-4 bg-gray-300 rounded w-1/4 mr-1 sm:mr-2"></span>
+                    <span className="h-4 bg-gray-300 rounded w-1/4"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="w-full mt-4 bg-gray-200 h-auto p-2 max-w-7xl overflow-hidden mx-auto">
+          <div className="h-12 bg-gray-300 rounded mb-2"></div>
+          <div className="h-96 bg-gray-300 rounded"></div>
+        </div>
+      </div>
+    );
   }
   return (
     <ProfileContext.Provider
@@ -53,7 +102,10 @@ export default function ProfileUserLayout({
           {/* Avatar */}
           <Avatar className="w-20 h-20 sm:w-28 sm:h-28 border-2 border-rose-300 mb-2">
             <AvatarImage
-              src={userProfile?.payload.data.profilePicture}
+              src={
+                userProfile?.payload.data.profilePicture ||
+                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+              }
               alt="Hoàng An"
             />
             <AvatarFallback>
