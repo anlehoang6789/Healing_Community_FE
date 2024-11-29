@@ -6,7 +6,7 @@ export const useNotificationUnreadCount = () => {
     queryKey: ["notification", "unread-count"],
     queryFn: () => notificationApiRequest.getUnreadCount(),
 
-    staleTime: 5000,
-    refetchInterval: 3000,
+    staleTime: 300000, //5 phút
+    refetchInterval: 300000,
   });
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,12 +21,18 @@ import {
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
+  useCreateCommentMutation,
   useDeletePostByPostIdMutation,
+  useGetCommentsByPostIdQuery,
   useGetPostByUserIdQuery,
 } from "@/queries/usePost";
-import { formatDateTime, handleErrorApi } from "@/lib/utils";
+import {
+  formatDateTime,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -39,6 +45,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { usePostStore } from "@/store/postStore";
+import CommentSection from "@/components/commentSection/commentSection";
+import {
+  CommentType,
+  GetCommentsByPostIdResponseType,
+  PostByIdSchemaType,
+  ReplyCommentType,
+} from "@/schemaValidations/post.schema";
+import postApiRequest from "@/apiRequests/post";
 
 export default function OwnPost() {
   const { userId } = useParams(); //lấy userId từ url
@@ -59,6 +73,127 @@ export default function OwnPost() {
   const handleOpenDeleteDialog = (postId: string, postTitle: string) => {
     setSelectedPostId(postId);
     setSelectedPostTitle(postTitle);
+  };
+
+  const userIdComment = getUserIdFromLocalStorage() ?? "";
+  const [commentsByPostId, setCommentsByPostId] = useState<{
+    [key: string]: CommentType[];
+  }>({});
+  const { mutate: createComment } = useCreateCommentMutation();
+  const [visibleCommentPosts, setVisibleCommentPosts] = useState<{
+    [postId: string]: boolean;
+  }>({});
+
+  //hàm ẩn/hiện bình luận
+  const toggleCommentVisibility = (postId: string) => {
+    setVisibleCommentPosts((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
+
+  // Cập nhật comments khi data thay đổi
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const commentsPromises = postList.map((post) =>
+          postApiRequest.getCommentsByPostId(post.postId)
+        );
+
+        const commentsResults = await Promise.all(commentsPromises);
+
+        const updatedCommentsByPostId: { [key: string]: CommentType[] } = {};
+
+        postList.forEach((post, index) => {
+          updatedCommentsByPostId[post.postId] =
+            commentsResults[index].payload.data;
+        });
+
+        setCommentsByPostId(updatedCommentsByPostId);
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    };
+
+    if (postList.length > 0) {
+      fetchComments();
+    }
+  }, [postList]);
+
+  const handleAddComment = (
+    postId: string,
+    comment: { content: string; coverImgUrl?: string | null }
+  ) => {
+    createComment(
+      {
+        postId: postId,
+        parentId: null,
+        content: comment.content,
+        coverImgUrl: comment.coverImgUrl,
+      },
+      {
+        onSuccess: (data) => {
+          const newCommentId = data.payload.data;
+
+          const newComment: CommentType = {
+            commentId: newCommentId,
+            postId: postId,
+            parentId: null,
+            userId: userIdComment,
+            content: comment.content,
+            createdAt: new Date().toISOString(),
+            updatedAt: null,
+            replies: [],
+            coverImgUrl: comment.coverImgUrl,
+          };
+
+          // Cập nhật bình luận cho postId tương ứng
+          setCommentsByPostId((prev) => ({
+            ...prev,
+            [postId]: [...(prev[postId] || []), newComment], // Thêm bình luận mới vào mảng bình luận của bài viết
+          }));
+        },
+        onError: (error) => {
+          console.error("Error creating comment:", error);
+        },
+      }
+    );
+  };
+
+  const handleAddReply = (
+    postId: string,
+    parentId: string,
+    reply: { content: string; coverImgUrl?: string | null }
+  ) => {
+    createComment(
+      {
+        postId: postId,
+        parentId: parentId,
+        content: reply.content,
+        coverImgUrl: reply.coverImgUrl,
+      },
+      {
+        onSuccess: async (data) => {
+          try {
+            // Fetch lại toàn bộ comments của post này
+            const commentsResponse = await postApiRequest.getCommentsByPostId(
+              postId
+            );
+
+            // Cập nhật lại toàn bộ comments cho post
+            setCommentsByPostId((prev) => ({
+              ...prev,
+              [postId]: commentsResponse.payload.data,
+            }));
+          } catch (error) {
+            console.error("Error refetching comments:", error);
+          }
+        },
+        onError: (error) => {
+          console.error("Error creating reply:", error);
+        },
+      }
+    );
   };
 
   const handleConfirmDeletePost = async () => {
@@ -235,6 +370,7 @@ export default function OwnPost() {
                   <Button
                     variant="iconDarkMod"
                     className="flex items-center gap-2 p-0"
+                    onClick={() => toggleCommentVisibility(post.postId)}
                   >
                     <MessageSquare className="w-4 h-4" />
                     Bình luận
@@ -248,6 +384,28 @@ export default function OwnPost() {
                   </Button>
                 </div>
               </div>
+
+              <AnimatePresence>
+                {visibleCommentPosts[post.postId] && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full mt-4 overflow-hidden"
+                  >
+                    <CommentSection
+                      comments={commentsByPostId[post.postId] || []}
+                      onAddComment={(comment) =>
+                        handleAddComment(post.postId, comment)
+                      }
+                      onAddReply={(parentId, reply) =>
+                        handleAddReply(post.postId, parentId, reply)
+                      }
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { format, addDays, isSameDay, isBefore, isToday } from "date-fns";
+import { isSameDay, isBefore, isToday, parseISO, isAfter } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
@@ -25,8 +25,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock } from "lucide-react";
-import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useGetExpertAvailability } from "@/queries/useExpert";
+import { useParams } from "next/navigation";
+import {
+  useBookExpertScheduleMutation,
+  useCreatePaymentMutation,
+} from "@/queries/usePayment";
 
 type TimeSlot = {
   id: string;
@@ -37,7 +41,7 @@ type TimeSlot = {
 };
 
 export default function BookExpert() {
-  const userId = getUserIdFromLocalStorage() ?? "";
+  const { expertId } = useParams() ?? "";
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
@@ -47,7 +51,13 @@ export default function BookExpert() {
 
   // Gọi API để lấy lịch trống của chuyên gia dựa trên userId
   const { data: availabilityData, isLoading: isLoadingAvailability } =
-    useGetExpertAvailability(userId);
+    useGetExpertAvailability(expertId as string);
+
+  // Gọi API đặt lịch hẹn
+  const { mutate: bookSchedule } = useBookExpertScheduleMutation();
+
+  // Gọi API tạo thanh toán
+  const { mutate: createPayment } = useCreatePaymentMutation();
 
   // Lấy các khung giờ trống từ dữ liệu API
   const availableSlots = React.useMemo(() => {
@@ -65,6 +75,14 @@ export default function BookExpert() {
       }));
   }, [availabilityData, selectedDate]);
 
+  const isSlotAvailable = (slot: TimeSlot) => {
+    const now = new Date(); // Thời gian hiện tại
+    const slotDateTime = parseISO(`${slot.availableDate}T${slot.startTime}`);
+
+    // Kiểm tra xem slot có phải là trong tương lai không
+    return isAfter(slotDateTime, now);
+  };
+
   const handleDateSelect = (date: Date | undefined) => {
     setSelectedDate(date);
     setSelectedSlot(null);
@@ -77,10 +95,42 @@ export default function BookExpert() {
   const handleBooking = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (selectedSlot) {
-      console.log("Đã xác nhận đặt lịch cho:", selectedSlot);
-      setBookedSlots([...bookedSlots, selectedSlot.id]);
-      setIsBookingDialogOpen(false);
-      setSelectedSlot(null);
+      // Gọi API đặt lịch
+      bookSchedule(
+        { expertAvailabilityId: selectedSlot.expertAvailabilityId },
+        {
+          onSuccess: (response) => {
+            const appointmentId = response.payload.data;
+
+            // Gọi API tạo thanh toán
+            createPayment(
+              {
+                appointmentId,
+                amount: 100000, // Giá tiền cố định
+                description: "Đặt lịch tư vấn",
+                returnUrl: "http://localhost:3000/consultation-calendar",
+                cancelUrl: `http://localhost:3000/user/profile/expert-info/${expertId}`,
+              },
+              {
+                onSuccess: (paymentResponse) => {
+                  console.log("Payment URL:", paymentResponse.payload.data); // Thay vì paymentResponse.data
+                  window.location.href = paymentResponse.payload.data; // Chuyển hướng đến URL trả về
+                },
+                onError: (error) => {
+                  console.error("Error creating payment:", error);
+                },
+              }
+            );
+
+            setBookedSlots([...bookedSlots, selectedSlot.id]);
+            setIsBookingDialogOpen(false);
+            setSelectedSlot(null);
+          },
+          onError: (error) => {
+            console.error("Error booking schedule:", error);
+          },
+        }
+      );
     }
   };
 
@@ -110,33 +160,36 @@ export default function BookExpert() {
               </h3>
               {isLoadingAvailability ? (
                 <p className="text-muted-foreground">Đang tải khung giờ...</p>
-              ) : availableSlots.length > 0 ? (
-                <ScrollArea className="h-[215px]">
-                  <div className="space-y-2">
-                    {availableSlots.map((slot) => (
-                      <Button
-                        key={slot.id}
-                        variant={
-                          selectedSlot?.id === slot.id ? "default" : "outline"
-                        }
-                        className="w-full justify-start"
-                        onClick={() => handleSlotSelect(slot)}
-                        disabled={bookedSlots.includes(slot.id)}
-                      >
-                        {slot.startTime} - {slot.endTime}
-                        {bookedSlots.includes(slot.id) && (
-                          <span className="ml-2 text-muted-foreground">
-                            (Đã đặt)
-                          </span>
-                        )}
-                      </Button>
-                    ))}
-                  </div>
-                </ScrollArea>
-              ) : (
+              ) : availableSlots.length === 0 ||
+                availableSlots.filter(isSlotAvailable).length === 0 ? (
                 <p className="text-muted-foreground">
                   Không có khung giờ nào khả dụng
                 </p>
+              ) : (
+                <ScrollArea className="h-[215px]">
+                  <div className="space-y-2">
+                    {availableSlots
+                      .filter(isSlotAvailable) // Lọc các slot còn khả dụng
+                      .map((slot) => (
+                        <Button
+                          key={slot.id}
+                          variant={
+                            selectedSlot?.id === slot.id ? "default" : "outline"
+                          }
+                          className="w-full justify-start"
+                          onClick={() => handleSlotSelect(slot)}
+                          disabled={bookedSlots.includes(slot.id)}
+                        >
+                          {slot.startTime} - {slot.endTime}
+                          {bookedSlots.includes(slot.id) && (
+                            <span className="ml-2 text-muted-foreground">
+                              (Đã đặt)
+                            </span>
+                          )}
+                        </Button>
+                      ))}
+                  </div>
+                </ScrollArea>
               )}
             </div>
           </div>
@@ -157,7 +210,9 @@ export default function BookExpert() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Xác nhận đặt lịch</DialogTitle>
+                <DialogTitle className="text-textChat">
+                  Xác nhận đặt lịch
+                </DialogTitle>
                 <DialogDescription>
                   Bạn có chắc chắn muốn đặt lịch cho {selectedSlot?.startTime} -{" "}
                   {selectedSlot?.endTime}?
@@ -166,18 +221,26 @@ export default function BookExpert() {
               <form onSubmit={handleBooking}>
                 <div className="grid gap-4">
                   <div>
-                    <Label htmlFor="name">Tên của bạn</Label>
+                    <Label htmlFor="name" className="text-textChat">
+                      Tên của bạn
+                    </Label>
                     <Input id="name" required />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email của bạn</Label>
+                    <Label htmlFor="email" className="text-textChat">
+                      Email của bạn
+                    </Label>
                     <Input id="email" type="email" required />
                   </div>
                 </div>
+                <p className="text-lg font-semibold text-textChat mt-4">
+                  Giá: 100.000 VND
+                </p>
                 <DialogFooter className="mt-4">
                   <Button
                     variant="outline"
                     onClick={() => setIsBookingDialogOpen(false)}
+                    className="text-textChat"
                   >
                     Hủy
                   </Button>

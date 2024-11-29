@@ -1,6 +1,8 @@
 import HighlightPosts from "@/components/homePage/highlightPosts";
-import Posts from "@/components/homePage/posts";
-import QuickPosts from "@/components/homePage/quickPosts";
+// import Posts from "@/components/homePage/posts";
+import PostSEO from "@/components/homePage/postSEO";
+// import QuickPosts from "@/components/homePage/quickPosts";
+import QuickPostSEO from "@/components/homePage/quickPostSEO";
 import React from "react";
 
 export default function HomePage() {
@@ -12,11 +14,13 @@ export default function HomePage() {
         </div>
 
         <div className="col-span-12 md:col-span-6 justify-self-center">
-          <Posts />
+          {/* <Posts /> */}
+          <PostSEO />
         </div>
 
         <div className="col-span-12 md:col-span-3 justify-self-end">
-          <QuickPosts />
+          {/* <QuickPosts /> */}
+          <QuickPostSEO />
         </div>
       </div>
     </div>

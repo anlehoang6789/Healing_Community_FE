@@ -35,8 +35,10 @@ const accountApiRequest = {
     ),
   updateProfileUser: (body: UpdateProfileUserBodyType) =>
     http.put<{ message: string }>("user/api/user/update-user-profile", body),
-  getFollowing: () =>
-    http.get<GetFollowingResType>("user/api/follower/get-following"),
+  getFollowing: (userId: string) =>
+    http.get<GetFollowingResType>(
+      `user/api/follower/get-following?userId=${userId}`
+    ),
   followUser: (body: FollowUserBodyType) =>
     http.post<FollowUserResType>("user/api/follower/follow-user", body),
   unFollowUser: (userId: string) =>
