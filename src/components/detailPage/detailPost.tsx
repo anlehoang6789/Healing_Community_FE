@@ -179,10 +179,13 @@ export default function DetailPost() {
         )}
 
         <div className="flex items-center gap-2 px-4 py-8">
-          <Link href="#">
+          <Link href={`/user/profile/${postById?.payload.data.userId}`}>
             <Avatar className="w-12 h-12 border-2 border-rose-300">
               <AvatarImage
-                src={userById?.payload.data.profilePicture}
+                src={
+                  userById?.payload.data.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
                 alt={
                   userById?.payload.data.fullName ||
                   userById?.payload.data.userName
@@ -195,7 +198,7 @@ export default function DetailPost() {
             </Avatar>
           </Link>
           <div>
-            <Link href="#">
+            <Link href={`/user/profile/${postById?.payload.data.userId}`}>
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                 {userById?.payload.data.fullName ||
                   userById?.payload.data.userName}

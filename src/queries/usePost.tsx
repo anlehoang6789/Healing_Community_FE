@@ -56,15 +56,12 @@ export const useGetPostByUserIdQuery = (userId: string) => {
 
 export const useDeletePostByPostIdMutation = (userId: string) => {
   const queryClient = useQueryClient();
-  const setSelectedPostId = usePostStore((state) => state.setSelectedPostId);
   return useMutation({
     mutationFn: postApiRequest.deletePostByPostId,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post-by-user-id", userId],
-        exact: true,
       });
-      setSelectedPostId(null);
     },
   });
 };
