@@ -25,7 +25,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+
 import { useGetAllGroupsQuery } from "@/queries/useGroup";
 
 export default function ListOfGroups() {
@@ -36,7 +36,28 @@ export default function ListOfGroups() {
   const groups = response?.payload?.data || [];
 
   if (isLoading) {
-    return <div>Đang tải danh sách nhóm...</div>;
+    return (
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-muted-foreground">
+            Các nhóm gợi ý
+          </h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((item) => (
+            <Card key={item} className="animate-pulse">
+              <CardContent className="p-4 flex items-start space-x-4">
+                <div className="bg-gray-200 rounded-lg w-24 h-24"></div>
+                <div className="flex-1">
+                  <div className="bg-gray-200 h-6 w-3/4 mb-2"></div>
+                  <div className="bg-gray-200 h-4 w-1/2"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (isError || !groups.length) {
@@ -164,8 +185,8 @@ export default function ListOfGroups() {
                 <p className="text-sm text-gray-500 flex items-center mt-1">
                   <Users className="h-4 w-4 mr-1" />
                   {group.groupVisibility
-                    ? "Nhóm Công khai"
-                    : "Nhóm Riêng tư"}{" "}
+                    ? "Nhóm Riêng tư"
+                    : " Nhóm Công khai"}{" "}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   {/* {group.friendsInGroup} người bạn ·{" "} */}
