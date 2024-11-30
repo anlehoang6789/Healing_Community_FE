@@ -1,109 +1,82 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 import { Search } from "lucide-react";
 import Link from "next/link";
-
 import Image from "next/image";
-
-type Group = {
-  id: string;
-  name: string;
-  imageUrl: string;
-  lastActive: string;
-};
-
-const groups: Group[] = [
-  {
-    id: "1",
-    name: "Thánh Riviu",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "11 giờ trước",
-  },
-  {
-    id: "2",
-    name: "Maybe You Never Watched This Movie",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "12 giờ trước",
-  },
-  {
-    id: "3",
-    name: "Bộ tộc MixiGaming",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "2 ngày trước",
-  },
-  {
-    id: "4",
-    name: "Đam Mê Độ Xe SH",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "11 giờ trước",
-  },
-  {
-    id: "5",
-    name: "BẤT ĐỘNG SẢN BÌNH DƯƠNG",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "11 giờ trước",
-  },
-  {
-    id: "6",
-    name: "Hội Tai Nghe AirPods Việt Nam",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "13 giờ trước",
-  },
-  {
-    id: "7",
-    name: "Nhà Đất Tân Phú - Bình Tân - Tân Bình",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "11 giờ trước",
-  },
-  {
-    id: "8",
-    name: "Hôm nay tui ăn gì?",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "12 giờ trước",
-  },
-  {
-    id: "9",
-    name: "Hôm nay tui ăn gì?",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "12 giờ trước",
-  },
-  {
-    id: "10",
-    name: "Hôm nay tui ăn gì?",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "12 giờ trước",
-  },
-  {
-    id: "11",
-    name: "Hôm nay tui ăn gì?",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "12 giờ trước",
-  },
-  {
-    id: "12",
-    name: "Hôm nay tui ăn gì?",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    lastActive: "12 giờ trước",
-  },
-];
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { useGetGroupsByUserIdQuery } from "@/queries/useGroup";
+import { GroupJoinedByUserIdType } from "@/schemaValidations/group.schema";
 
 export default function GroupSidebar() {
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUserId = getUserIdFromLocalStorage();
+    setUserId(storedUserId);
+  }, []);
+
+  const {
+    data: response,
+    isLoading,
+    isError,
+  } = useGetGroupsByUserIdQuery(userId as string);
+
+  const groups = (response?.payload as any)?.data || [];
+
+  if (!userId || isLoading) {
+    return (
+      <div className="w-80 h-screen bg-background border-r flex flex-col">
+        <div className="p-4 border-b flex items-center space-x-3">
+          <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
+          <div className="flex-1">
+            <div className="h-4 bg-gray-300 rounded w-3/4 mb-2 animate-pulse"></div>
+            <div className="h-3 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+          </div>
+          <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
+        </div>
+
+        <div className="p-4 border-b">
+          <div className="h-10 bg-gray-300 rounded animate-pulse"></div>
+        </div>
+
+        <div className="p-4">
+          <div className="h-4 bg-gray-300 rounded w-1/2 mb-4 animate-pulse"></div>
+          {[1, 2, 3, 4, 5].map((item) => (
+            <div key={item} className="flex items-center space-x-3 mb-3">
+              <div className="w-10 h-10 bg-gray-300 rounded-full animate-pulse"></div>
+              <div className="flex-1">
+                <div className="h-4 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+              </div>
+              <div className="w-6 h-6 bg-gray-300 rounded-full animate-pulse"></div>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 border-t mt-auto">
+          <div className="grid grid-cols-3 gap-3">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="h-12 bg-gray-300 rounded animate-pulse"
+              ></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="w-80 h-screen bg-background border-r flex items-center justify-center">
+        Lỗi tải danh sách nhóm
+      </div>
+    );
+  }
+
   return (
     <div className="w-80 h-screen bg-background border-r">
       <div className="p-4 flex justify-between items-center">
@@ -121,19 +94,19 @@ export default function GroupSidebar() {
       </div>
       <div className="px-4 flex justify-between items-center">
         <h3 className="font-semibold text-muted-foreground">
-          Nhóm bạn đã tham gia ({groups.length})
+          Nhóm bạn đã tham gia ({groups?.length || 0})
         </h3>
       </div>
       <ScrollArea className="h-[calc(100vh-150px)] px-4">
-        {groups.map((group) => (
+        {groups?.map((group: GroupJoinedByUserIdType) => (
           <Link
-            href={`/groups/${group.id}`}
-            key={group.id}
-            className="flex items-center space-x-4  p-2 rounded-lg hover:bg-hoverCard"
+            href={`/groups/${group.groupId}`}
+            key={group.groupId}
+            className="flex items-center space-x-4 p-2 rounded-lg hover:bg-hoverCard"
           >
             <Image
-              src={group.imageUrl}
-              alt={group.name}
+              src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+              alt={`Ảnh nhóm ${group.groupId}`}
               width={50}
               height={50}
               className="rounded-lg"
@@ -141,10 +114,13 @@ export default function GroupSidebar() {
 
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-muted-foreground truncate">
-                {group.name}
+                {group.groupId}
               </p>
               <p className="text-sm text-muted-foreground truncate">
-                Lần hoạt động gần nhất: {group.lastActive}
+                Vai trò: {group.roleInGroup}
+              </p>
+              <p className="text-sm text-muted-foreground truncate">
+                Ngày tham gia: {new Date(group.joinedAt).toLocaleDateString()}
               </p>
             </div>
           </Link>

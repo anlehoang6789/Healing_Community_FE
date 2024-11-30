@@ -14,7 +14,6 @@ import {
   LogOut,
   MessageSquare,
   MoreHorizontal,
-  Pin,
   Users,
 } from "lucide-react";
 import Image from "next/image";
@@ -26,156 +25,44 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
 
-type Group = {
-  id: string;
-  name: string;
-  imageUrl: string;
-  memberCount: number;
-  lastActive: string;
-  isPublic: boolean;
-  friendsInGroup: number;
-  isJoined: boolean;
-};
-
-const groups: Group[] = [
-  {
-    id: "1",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    lastActive: "6 tuần trước",
-    isPublic: true,
-    friendsInGroup: 2,
-    isJoined: true,
-  },
-  {
-    id: "2",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    lastActive: "7 tuần trước",
-    isPublic: true,
-    friendsInGroup: 5,
-    isJoined: false,
-  },
-  {
-    id: "3",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    lastActive: "12 tuần trước",
-    isPublic: false,
-    friendsInGroup: 3,
-    isJoined: false,
-  },
-  {
-    id: "4",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    lastActive: "6 tuần trước",
-    isPublic: true,
-    friendsInGroup: 2,
-    isJoined: false,
-  },
-  {
-    id: "5",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    lastActive: "7 tuần trước",
-    isPublic: true,
-    friendsInGroup: 5,
-    isJoined: false,
-  },
-  {
-    id: "6",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    lastActive: "12 tuần trước",
-    isPublic: false,
-    friendsInGroup: 3,
-    isJoined: true,
-  },
-  {
-    id: "7",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    lastActive: "6 tuần trước",
-    isPublic: true,
-    friendsInGroup: 2,
-    isJoined: false,
-  },
-  {
-    id: "8",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    lastActive: "7 tuần trước",
-    isPublic: true,
-    friendsInGroup: 5,
-    isJoined: true,
-  },
-  {
-    id: "9",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    lastActive: "12 tuần trước",
-    isPublic: false,
-    friendsInGroup: 3,
-    isJoined: true,
-  },
-  {
-    id: "10",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    lastActive: "6 tuần trước",
-    isPublic: true,
-    friendsInGroup: 2,
-    isJoined: true,
-  },
-  {
-    id: "11",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    lastActive: "7 tuần trước",
-    isPublic: true,
-    friendsInGroup: 5,
-    isJoined: true,
-  },
-  {
-    id: "12",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    lastActive: "12 tuần trước",
-    isPublic: false,
-    friendsInGroup: 3,
-    isJoined: true,
-  },
-];
+import { useGetAllGroupsQuery } from "@/queries/useGroup";
 
 export default function ListOfGroups() {
   const { theme } = useTheme();
+
+  const { data: response, isLoading, isError } = useGetAllGroupsQuery();
+
+  const groups = response?.payload?.data || [];
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-muted-foreground">
+            Các nhóm gợi ý
+          </h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((item) => (
+            <Card key={item} className="animate-pulse">
+              <CardContent className="p-4 flex items-start space-x-4">
+                <div className="bg-gray-200 rounded-lg w-24 h-24"></div>
+                <div className="flex-1">
+                  <div className="bg-gray-200 h-6 w-3/4 mb-2"></div>
+                  <div className="bg-gray-200 h-4 w-1/2"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (isError || !groups.length) {
+    return <div>Không thể tải danh sách nhóm. Vui lòng thử lại sau.</div>;
+  }
 
   return (
     <div className="container mx-auto p-4">
@@ -187,28 +74,30 @@ export default function ListOfGroups() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {groups.map((group) => (
-          <HoverCard key={group.id} openDelay={100} closeDelay={200}>
-            {/* Thêm hiệu ứng nổi bật nếu nhóm đã tham gia */}
+          <HoverCard key={group.groupId} openDelay={100} closeDelay={200}>
             <Card
-              className={`transition-shadow relative ${
-                group.isJoined
-                  ? "border-2 border-rose-300 shadow-lg"
-                  : "border border-gray-300"
-              }`}
+            // className={`transition-shadow relative ${
+            //   group.isJoined
+            //     ? "border-2 border-rose-300 shadow-lg"
+            //     : "border border-gray-300"
+            // }`}
             >
-              {group.isJoined && (
+              {/* {group.isJoined && (
                 <Badge
                   className="absolute bottom-2 right-2 bg-rose-300 text-black"
                   variant="outline"
                 >
                   <Check className="mr-1 h-3 w-3" /> Đã tham gia
                 </Badge>
-              )}
+              )} */}
               <CardContent className="p-4 flex items-start space-x-4 relative">
                 <Link href="#">
                   <Image
-                    src={group.imageUrl}
-                    alt={group.name}
+                    src={
+                      group.avatarGroup ||
+                      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                    }
+                    alt={group.groupName}
                     width={90}
                     height={90}
                     className="cursor-pointer rounded-lg object-cover"
@@ -219,12 +108,15 @@ export default function ListOfGroups() {
                   <HoverCardTrigger asChild>
                     <Link href="#">
                       <h2 className="font-semibold hover:underline">
-                        {group.name}
+                        {group.groupName}
                       </h2>
                     </Link>
                   </HoverCardTrigger>
                   <p className="text-sm text-gray-500">
-                    Lần truy cập gần đây nhất: {group.lastActive}
+                    Thành viên:{" "}
+                    {group.currentMemberCount
+                      ? group.currentMemberCount.toLocaleString()
+                      : "Chưa xác định"}
                   </p>
                 </div>
                 <DropdownMenu>
@@ -235,31 +127,31 @@ export default function ListOfGroups() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className={` ${
+                    className={`${
                       theme === "dark"
                         ? "bg-black text-white"
                         : "bg-white text-black"
                     }`}
                   >
-                    {group.isJoined && (
+                    {/* {group.isJoined && (
                       <DropdownMenuItem>
                         <MessageSquare className="mr-2 h-4 w-4" />
                         <span>Nội dung của bạn</span>
                       </DropdownMenuItem>
-                    )}
+                    )} */}
 
                     <DropdownMenuItem>
                       <Flag className="mr-2 h-4 w-4" />
                       <span>Báo cáo nhóm</span>
                     </DropdownMenuItem>
-                    {group.isJoined && (
+                    {/* {group.isJoined && (
                       <DropdownMenuItem className="border-t-2 group">
                         <LogOut className="mr-2 h-4 w-4 group-hover:text-red-500 " />
                         <span className="group-hover:text-red-500 ">
                           Rời nhóm
                         </span>
                       </DropdownMenuItem>
-                    )}
+                    )} */}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardContent>
@@ -273,24 +165,32 @@ export default function ListOfGroups() {
               <div className="flex items-start gap-4">
                 <Link href="#">
                   <Avatar className="h-16 w-16">
-                    <AvatarImage src={group.imageUrl} alt={group.name} />
-                    <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
+                    <AvatarImage
+                      src={
+                        group.avatarGroup ||
+                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                      }
+                      alt={group.groupName}
+                    />
+                    <AvatarFallback>{group.groupName.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </Link>
                 <Link href="#">
                   <h3 className="font-semibold hover:underline">
-                    {group.name}
+                    {group.groupName}
                   </h3>
                 </Link>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-gray-500 flex items-center mt-1">
                   <Users className="h-4 w-4 mr-1" />
-                  {group.isPublic ? "Nhóm Công khai" : "Nhóm Riêng tư"}{" "}
+                  {group.groupVisibility
+                    ? "Nhóm Riêng tư"
+                    : " Nhóm Công khai"}{" "}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {group.friendsInGroup} người bạn ·{" "}
-                  {group.memberCount.toLocaleString()} thành viên
+                  {/* {group.friendsInGroup} người bạn ·{" "} */}
+                  {group.currentMemberCount?.toLocaleString()} thành viên
                 </p>
               </div>
               <div className="flex gap-4">
