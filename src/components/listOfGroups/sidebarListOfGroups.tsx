@@ -98,33 +98,46 @@ export default function GroupSidebar() {
         </h3>
       </div>
       <ScrollArea className="h-[calc(100vh-150px)] px-4">
-        {groups?.map((group: GroupJoinedByUserIdType) => (
-          <Link
-            href={`/groups/${group.groupId}`}
-            key={group.groupId}
-            className="flex items-center space-x-4 p-2 rounded-lg hover:bg-hoverCard"
-          >
-            <Image
-              src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-              alt={`Ảnh nhóm ${group.groupId}`}
-              width={50}
-              height={50}
-              className="rounded-lg"
-            />
+        {isError ? (
+          <div className="text-center text-red-500 mt-10">
+            Lỗi tải danh sách nhóm. Vui lòng thử lại sau.
+          </div>
+        ) : groups?.length > 0 ? (
+          groups.map((group: GroupJoinedByUserIdType) => (
+            <Link
+              href={`/groups/${group.groupId}`}
+              key={group.groupId}
+              className="flex items-center space-x-4 p-2 rounded-lg hover:bg-hoverCard"
+            >
+              <Image
+                src={
+                  group.groupAvatar ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt={`Ảnh nhóm ${group.groupName}`}
+                width={50}
+                height={50}
+                className="rounded-lg"
+              />
 
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-muted-foreground truncate">
-                {group.groupId}
-              </p>
-              <p className="text-sm text-muted-foreground truncate">
-                Vai trò: {group.roleInGroup}
-              </p>
-              <p className="text-sm text-muted-foreground truncate">
-                Ngày tham gia: {new Date(group.joinedAt).toLocaleDateString()}
-              </p>
-            </div>
-          </Link>
-        ))}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-muted-foreground truncate">
+                  {group.groupName}
+                </p>
+                <p className="text-sm text-muted-foreground truncate">
+                  Vai trò: {group.roleInGroup}
+                </p>
+                <p className="text-sm text-muted-foreground truncate">
+                  Ngày tham gia: {new Date(group.joinedAt).toLocaleDateString()}
+                </p>
+              </div>
+            </Link>
+          ))
+        ) : (
+          <div className="text-center text-muted-foreground mt-10">
+            Bạn chưa tham gia nhóm nào
+          </div>
+        )}
       </ScrollArea>
     </div>
   );
