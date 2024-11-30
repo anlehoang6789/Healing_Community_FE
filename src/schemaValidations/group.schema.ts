@@ -29,3 +29,25 @@ const GetAllGroupsResponseSchema = z.object({
 export type GetAllGroupsResponseType = z.infer<
   typeof GetAllGroupsResponseSchema
 >;
+
+const GroupJoinedByUserIdSchema = z.object({
+  groupId: z.string(),
+  joinedAt: z.string(),
+  roleInGroup: z.enum(["User", "Admin", "Moderator"]),
+});
+
+export type GroupJoinedByUserIdType = z.infer<typeof GroupJoinedByUserIdSchema>;
+
+const GetAllGroupsJoinedByUserIdResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(GroupJoinedByUserIdSchema),
+  errors: z.array(z.string()),
+  timestamp: z.string(),
+});
+
+export type GetAllGroupsJoinedByUserIdResponseType = z.infer<
+  typeof GetAllGroupsJoinedByUserIdResponseSchema
+>;
