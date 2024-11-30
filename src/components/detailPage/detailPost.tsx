@@ -43,7 +43,10 @@ export default function DetailPost() {
   const postIdFromUrl = param?.postId;
   // console.log("postIdFromUrl", postIdFromUrl);
 
-  const { data: postById } = useGetPostByPostIdQuery(postIdFromUrl as string);
+  const { data: postById } = useGetPostByPostIdQuery({
+    postId: postIdFromUrl as string,
+    enabled: true,
+  });
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string

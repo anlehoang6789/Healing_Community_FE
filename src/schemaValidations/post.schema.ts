@@ -177,3 +177,15 @@ export const GetQuickPostList = z.object({
 });
 
 export type GetQuickPostListType = z.TypeOf<typeof GetQuickPostList>;
+
+export const UpdatePersonalPostBody = z.object({
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+});
+
+export type UpdatePersonalPostBodyType = z.TypeOf<
+  typeof UpdatePersonalPostBody
+>;

@@ -35,7 +35,10 @@ export default function ProfileCard() {
   // const { postId } = useQuickPostStore();
   const param = useParams();
   const postIdFromUrl = param?.postId;
-  const { data: postById } = useGetPostByPostIdQuery(postIdFromUrl as string);
+  const { data: postById } = useGetPostByPostIdQuery({
+    postId: postIdFromUrl as string,
+    enabled: true,
+  });
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
@@ -130,7 +133,7 @@ export default function ProfileCard() {
           </Avatar>
         </Link>
         <h2 className="lg:text-2xl md:text-4xl sm:text-4xl text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
-          {userById?.payload.data.userName}
+          {userById?.payload.data.fullName || userById?.payload.data.userName}
         </h2>
       </CardHeader>
       <div className="flex justify-center">
