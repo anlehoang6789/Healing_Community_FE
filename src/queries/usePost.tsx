@@ -1,5 +1,8 @@
 import postApiRequest from "@/apiRequests/post";
-import { GetHomePageSchemaLazyLoadType } from "@/schemaValidations/post.schema";
+import {
+  GetHomePageSchemaLazyLoadType,
+  UpdatePersonalPostBodyType,
+} from "@/schemaValidations/post.schema";
 import { usePostStore } from "@/store/postStore";
 import {
   useInfiniteQuery,
@@ -27,10 +30,17 @@ export const useCreatePostMutation = () => {
   });
 };
 
-export const useGetPostByPostIdQuery = (postId: string) => {
+export const useGetPostByPostIdQuery = ({
+  postId,
+  enabled,
+}: {
+  postId: string;
+  enabled: boolean;
+}) => {
   return useQuery({
     queryKey: ["post-by-post-id", postId],
     queryFn: () => postApiRequest.getPostByPostId(postId),
+    enabled,
   });
 };
 
@@ -121,5 +131,23 @@ export const useGetHomePageLazyLoadQuery = (
         }
       : undefined,
     initialPageParam: 1, // Ensure initialPageParam is set
+  });
+};
+
+export const useUpdatePersonalPostMutation = (userId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...body
+    }: UpdatePersonalPostBodyType & { id: string }) =>
+      postApiRequest.updatePersonalPost(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["post-by-user-id", userId],
+        //exact: true => invalidate cache của 1 employee cụ thể
+        exact: true,
+      });
+    },
   });
 };
