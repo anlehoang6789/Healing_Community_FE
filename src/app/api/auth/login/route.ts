@@ -16,12 +16,17 @@ export async function POST(req: Request) {
     const decodeAccessToken = jwt.decode(token) as { exp: number };
     const decodeRefreshToken = jwt.decode(refreshToken) as { exp: number };
 
-    const decodeUserId = jwt.decode(token) as { [key: string]: any };
+    const decodeToken = jwt.decode(token) as { [key: string]: any };
     const userId =
-      decodeUserId[
+      decodeToken[
         "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
       ];
+    const role =
+      decodeToken[
+        "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+      ];
     // console.log("User ID:", userId);
+    // console.log("Role:", role);
     // console.log("1");
     cookieStore.set("accessToken", token, {
       path: "/",
@@ -38,7 +43,7 @@ export async function POST(req: Request) {
       expires: decodeRefreshToken.exp * 1000,
     });
     // console.log("2");
-    return Response.json({ userId, ...payload });
+    return Response.json({ userId, role, ...payload });
   } catch (error) {
     // console.log("3");
     if (error instanceof HttpError) {

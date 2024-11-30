@@ -1,7 +1,8 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { Role } from "@/constants/type";
 import { toast } from "@/hooks/use-toast";
-import { handleErrorApi } from "@/lib/utils";
+import { getRoleFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useFollowUserMutation } from "@/queries/useAccount";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
@@ -14,6 +15,7 @@ export default function ProfileTabs({
   userId: string | null;
   isOwner: boolean;
 }) {
+  const role = getRoleFromLocalStorage();
   const followUser = useFollowUserMutation();
   const handleFollowUser = () => {
     if (followUser.isPending) return;
@@ -59,25 +61,28 @@ export default function ProfileTabs({
             <Link href={`/user/profile/${userId}`}>Tường nhà</Link>
           </Button>
 
-          <Button
-            variant={"gradientHoverUnderline"}
-            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-          >
-            <Link href={`/user/profile/expert-info/${userId}`}>
-              Thông tin chuyên gia
-            </Link>
-          </Button>
+          {isOwner && role === Role.Expert && (
+            <Button
+              variant={"gradientHoverUnderline"}
+              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+            >
+              <Link href={`/user/profile/expert-info/${userId}`}>
+                Thông tin chuyên gia
+              </Link>
+            </Button>
+          )}
+
+          {isOwner && role !== Role.Expert && (
+            <Button
+              variant={"gradientHoverUnderline"}
+              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+            >
+              <Link href={"/user/profile/information"}>Thông tin cá nhân</Link>
+            </Button>
+          )}
 
           {isOwner && (
             <>
-              <Button
-                variant={"gradientHoverUnderline"}
-                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-              >
-                <Link href={"/user/profile/information"}>
-                  Thông tin cá nhân
-                </Link>
-              </Button>
               <Button
                 variant={"gradientHoverUnderline"}
                 className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
