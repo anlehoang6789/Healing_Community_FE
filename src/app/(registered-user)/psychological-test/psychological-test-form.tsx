@@ -66,7 +66,39 @@ export default function PsychologicalTestForm() {
   }, []);
 
   if (!quizData || !quizData.data) {
-    return <div>Đang tải câu hỏi...</div>;
+    return (
+      <div className="container mx-auto">
+        <div className="sticky top-0 z-10 mb-4 p-4 shadow-md">
+          <div className="animate-pulse">
+            <Progress value={0} className="w-full bg-gray-200 h-4 opacity-65" />
+            <p className="text-right mt-2 bg-gray-300 rounded w-1/4 h-4"></p>
+          </div>
+        </div>
+
+        {[...Array(3)].map((_, categoryIndex) => (
+          <div key={categoryIndex} className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4 bg-gray-300 rounded w-1/2 h-6"></h3>
+            {[...Array(4)].map((_, questionIndex) => (
+              <Card key={questionIndex} className="mb-4 animate-pulse">
+                <CardContent className="p-6">
+                  <h4 className="text-xl font-semibold mb-4 bg-gray-300 rounded w-3/4 h-4"></h4>
+                  <RadioGroup className="gap-4 md:space-x-4 flex flex-col sm:flex-row items-center justify-center">
+                    {[...Array(4)].map((_, optionIndex) => (
+                      <div
+                        key={optionIndex}
+                        className="flex items-center justify-between p-4 border border-gray-700 rounded-full cursor-pointer sm:w-auto w-full"
+                      >
+                        <div className="bg-gray-300 rounded w-3/4 h-4"></div>
+                      </div>
+                    ))}
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const questions =
@@ -148,7 +180,7 @@ export default function PsychologicalTestForm() {
 
       {quizData?.data.dass21Categories.map((category) => (
         <div key={category.categoryName} className="mb-6">
-          <h3 className="text-2xl font-bold text-gray-800 mb-4">
+          <h3 className="text-2xl font-bold text-textChat mb-4">
             Câu hỏi để kiểm tra độ{" "}
             {category.categoryName === "Depression" ? (
               <span className="text-red-500">Trầm cảm</span>
