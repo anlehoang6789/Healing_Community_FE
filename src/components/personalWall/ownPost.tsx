@@ -69,23 +69,11 @@ export default function OwnPost() {
   const { theme } = useTheme();
 
   const { data } = useGetPostByUserIdQuery(userId as string);
-  const postList = data?.payload.data || [];
-  // const [postList, setPostList] = useState<GetPostByUserIdResType["data"]>([]);
+  // const postList = data?.payload.data || [];
+  const [postList, setPostList] = useState<GetPostByUserIdResType["data"]>([]);
   const { data: userById } = useGetUserProfileQuery(userId as string);
   const [postId, setPostId] = useState<string | undefined>(undefined);
   const [postDelete, setPostDelete] = useState<PostItem | null>(null);
-  const [openDropdownPostId, setOpenDropdownPostId] = useState<string | null>(
-    null
-  );
-
-  // Function to handle opening and closing the dropdown based on postId
-  const handleDropdownChange = (postId: string) => {
-    if (openDropdownPostId === postId) {
-      setOpenDropdownPostId(null); // Close dropdown if it's already open
-    } else {
-      setOpenDropdownPostId(postId); // Open the dropdown for the clicked post
-    }
-  };
 
   const userIdComment = getUserIdFromLocalStorage() ?? "";
   const [commentsByPostId, setCommentsByPostId] = useState<{
@@ -96,11 +84,11 @@ export default function OwnPost() {
     [postId: string]: boolean;
   }>({});
 
-  // useEffect(() => {
-  //   if (data) {
-  //     setPostList(data.payload.data);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data) {
+      setPostList(data.payload.data);
+    }
+  }, [data]);
 
   //hàm ẩn/hiện bình luận
   const toggleCommentVisibility = (postId: string) => {
@@ -227,16 +215,14 @@ export default function OwnPost() {
         try {
           // console.log("Trước khi xóa:", postDelete);
           const result = await mutateAsync(postDelete.postId);
-          // setPostList((prev) =>
-          //   prev.filter((post) => post.postId !== postDelete.postId)
-          // );
+          setPostList((prev) =>
+            prev.filter((post) => post.postId !== postDelete.postId)
+          );
           toast({
             description: result.payload.message,
             variant: "success",
           });
           setPostDelete(null);
-          setOpenDropdownPostId(null);
-          // window.location.reload();
         } catch (error) {
           handleErrorApi({ error });
         }
@@ -249,7 +235,6 @@ export default function OwnPost() {
         onOpenChange={(value) => {
           if (!value) {
             setPostDelete(null);
-            setOpenDropdownPostId(null);
           }
         }}
         aria-hidden={false}
@@ -292,11 +277,6 @@ export default function OwnPost() {
       [postId]: shouldExpand,
     }));
   };
-  useEffect(() => {
-    if (postDelete === null) {
-      setOpenDropdownPostId(null); // Đảm bảo rằng dropdown không còn mở
-    }
-  }, [postDelete]);
 
   return (
     <OwnPostContext.Provider
@@ -357,8 +337,9 @@ export default function OwnPost() {
                   {/* Dropdown menu */}
                   {shouldRenderDropdown && (
                     <DropdownMenu
-                      open={openDropdownPostId === post.postId}
-                      onOpenChange={() => handleDropdownChange(post.postId)}
+                      // open={openDropdownPostId === post.postId}
+                      // onOpenChange={() => handleDropdownChange(post.postId)}
+                      modal={false}
                       aria-hidden={false}
                     >
                       <DropdownMenuTrigger asChild className="ml-auto">
