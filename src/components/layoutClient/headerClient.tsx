@@ -39,7 +39,12 @@ import { AnimatedTooltip } from "@/components/ui/animated-tooltip";
 import Image from "next/image";
 import DarkModeToggle from "@/components/dark-mode-toogle";
 import { useState } from "react";
-import { cn, getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import {
+  cn,
+  getRoleFromLocalStorage,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useLogoutMutation } from "@/queries/useAuth";
 import { usePathname, useRouter } from "next/navigation";
 import sidebarItems from "@/components/layoutExpert/sidebarItems";
@@ -48,6 +53,7 @@ import { useAppContext } from "@/components/app-provider";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Role } from "@/constants/type";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/content", authRequired: true },
@@ -83,6 +89,7 @@ export default function Header() {
   const userId = getUserIdFromLocalStorage();
   const { data: userProfile } = useGetUserProfileQuery(userId as string);
   const { data: expertProfile } = useGetExpertProfileQuery(userId as string);
+  const role = getRoleFromLocalStorage();
 
   return (
     <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
@@ -246,12 +253,27 @@ export default function Header() {
                     <Link href={"/user/bookmark"}>Bookmark</Link>
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <FlaskConical className="mr-2 h-4 w-4" />
-                  <span>
-                    <Link href={"/psychological-test"}>Bài test tâm lý</Link>
-                  </span>
-                </DropdownMenuItem>
+                {role === Role.User && (
+                  <>
+                    <DropdownMenuItem>
+                      <FlaskConical className="mr-2 h-4 w-4" />
+                      <span>
+                        <Link href={"/psychological-test"}>
+                          Bài test tâm lý
+                        </Link>
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Clock className="mr-2 h-4 w-4" />
+                      <span>
+                        <Link href={"/consultation-calendar"}>
+                          Lịch hẹn tư vấn
+                        </Link>
+                      </span>
+                    </DropdownMenuItem>
+                  </>
+                )}
+
                 <DropdownMenuItem>
                   <CircleDollarSign className="mr-2 h-4 w-4" />
                   <span>
@@ -260,34 +282,34 @@ export default function Header() {
                     </Link>
                   </span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Clock className="mr-2 h-4 w-4" />
-                  <span>
-                    <Link href={"/consultation-calendar"}>Lịch hẹn tư vấn</Link>
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="hidden lg:flex">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>
-                    <Link href={"/expert/dashboard-expert"}>
-                      Quản lí của chuyên gia
-                    </Link>
-                  </span>
-                </DropdownMenuItem>
-                <DropdownMenuItem className="flex items-center justify-between lg:hidden">
-                  <span
-                    className="flex items-center"
-                    onClick={() => setExpertMenuOpen(!isExpertMenuOpen)} // Toggle expert menu
-                  >
-                    <Settings className="mr-2 h-4 w-4" />
-                    <span>Quản lí của chuyên gia</span>
-                  </span>
-                  {isExpertMenuOpen ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
-                </DropdownMenuItem>
+
+                {role === Role.Expert && (
+                  <>
+                    <DropdownMenuItem className="hidden lg:flex">
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>
+                        <Link href={"/expert/dashboard-expert"}>
+                          Quản lí của chuyên gia
+                        </Link>
+                      </span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center justify-between lg:hidden">
+                      <span
+                        className="flex items-center"
+                        onClick={() => setExpertMenuOpen(!isExpertMenuOpen)} // Toggle expert menu
+                      >
+                        <Settings className="mr-2 h-4 w-4" />
+                        <span>Quản lí của chuyên gia</span>
+                      </span>
+                      {isExpertMenuOpen ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </DropdownMenuItem>
+                  </>
+                )}
+
                 {/* Conditional rendering for sidebar items */}
                 {isExpertMenuOpen && (
                   <div className="flex flex-col ml-4">

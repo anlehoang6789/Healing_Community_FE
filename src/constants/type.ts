@@ -6,16 +6,18 @@ export const TokenType = {
 
 export const Role = {
   Admin: "Admin",
-  Registered_User: "Registered_User",
+  User: "User",
   Moderator: "Moderator",
   Guest: "Guest",
+  Expert: "Expert",
 } as const;
 
 export const RoleValues = [
   Role.Admin,
-  Role.Registered_User,
+  Role.User,
   Role.Moderator,
   Role.Guest,
+  Role.Expert,
 ] as const;
 
 export const PaymentHistoryStatus = {
@@ -25,3 +27,5 @@ export const PaymentHistoryStatus = {
   3: "Cancelled",
   4: "Unknown",
 } as const;
+
+export type RoleType = (typeof Role)[keyof typeof Role];
