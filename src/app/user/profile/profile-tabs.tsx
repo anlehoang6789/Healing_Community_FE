@@ -27,14 +27,17 @@ export default function ProfileTabs({
       handleErrorApi(error);
     }
   };
-  console.log("là chính chủ", isOwner);
-  console.log(isOwner ? "Hiển thị nút đăng bài viết" : "Hiển thị nút theo dõi");
+  // console.log("là chính chủ", isOwner);
+  // console.log(isOwner ? "Hiển thị nút đăng bài viết" : "Hiển thị nút theo dõi");
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center py-4 border-b">
         {isOwner ? (
           <Button className="w-full sm:w-auto rounded-[20px] bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2">
-            <Link href="/new-post" className="flex items-center justify-center">
+            <Link
+              href="/user/create-post"
+              className="flex items-center justify-center"
+            >
               <Pencil className="mr-2 w-4 h-4" />
               <span>Đăng bài viết mới</span>
             </Link>

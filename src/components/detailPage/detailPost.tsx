@@ -29,9 +29,9 @@ import {
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
 import CommentSection from "@/components/commentSection/commentSection";
-import { CommentType, ReplyCommentType } from "@/schemaValidations/post.schema";
-import { useQuickPostStore } from "@/store/postStore";
+import { CommentType } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
+import { useParams } from "next/navigation";
 
 export default function DetailPost() {
   const { theme } = useTheme();
@@ -39,14 +39,18 @@ export default function DetailPost() {
   // data của post theo postId
   // const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
   const userIdComment = getUserIdFromLocalStorage() ?? "";
-  const { postId, userId } = useQuickPostStore();
+  const param = useParams();
+  const postIdFromUrl = param?.postId;
+  // console.log("postIdFromUrl", postIdFromUrl);
 
-  const { data: postById } = useGetPostByPostIdQuery(postId as string);
+  const { data: postById } = useGetPostByPostIdQuery(postIdFromUrl as string);
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
-  const { data: commentsData } = useGetCommentsByPostIdQuery(postId as string);
+  const { data: commentsData } = useGetCommentsByPostIdQuery(
+    postIdFromUrl as string
+  );
 
   const { mutate: createComment } = useCreateCommentMutation();
 
@@ -71,7 +75,7 @@ export default function DetailPost() {
     // Gọi API để tạo bình luận
     createComment(
       {
-        postId: postId as string,
+        postId: postIdFromUrl as string,
         parentId: null,
         content: comment.content,
         coverImgUrl: comment.coverImgUrl,
@@ -83,7 +87,7 @@ export default function DetailPost() {
           // Tạo comment mới với commentId từ API
           const newComment: CommentType = {
             commentId: newCommentId, // Sử dụng commentId từ API
-            postId: postId as string,
+            postId: postIdFromUrl as string,
             parentId: null,
             userId: userIdComment as string,
             content: comment.content,
@@ -109,7 +113,7 @@ export default function DetailPost() {
   ) => {
     createComment(
       {
-        postId: postId as string,
+        postId: postIdFromUrl as string,
         parentId: parentId,
         content: reply.content,
         coverImgUrl: reply.coverImgUrl,
@@ -119,7 +123,7 @@ export default function DetailPost() {
           try {
             // Fetch lại toàn bộ comments của post này
             const commentsResponse = await postApiRequest.getCommentsByPostId(
-              postId as string
+              postIdFromUrl as string
             );
 
             // Cập nhật lại toàn bộ comments
@@ -175,10 +179,13 @@ export default function DetailPost() {
         )}
 
         <div className="flex items-center gap-2 px-4 py-8">
-          <Link href="#">
+          <Link href={`/user/profile/${postById?.payload.data.userId}`}>
             <Avatar className="w-12 h-12 border-2 border-rose-300">
               <AvatarImage
-                src={userById?.payload.data.profilePicture}
+                src={
+                  userById?.payload.data.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
                 alt={
                   userById?.payload.data.fullName ||
                   userById?.payload.data.userName
@@ -191,7 +198,7 @@ export default function DetailPost() {
             </Avatar>
           </Link>
           <div>
-            <Link href="#">
+            <Link href={`/user/profile/${postById?.payload.data.userId}`}>
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                 {userById?.payload.data.fullName ||
                   userById?.payload.data.userName}

@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Bookmark, Flag, Share2, ThumbsUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useGetHomePageLazyLoadQuery } from "@/queries/usePost";
+import {
+  useAddUserReferenceMutation,
+  useGetHomePageLazyLoadQuery,
+} from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { formatDateTime } from "@/lib/utils";
-import Link from "next/link";
-import { useQuickPostStore } from "@/store/postStore";
-import { Skeleton } from "@/components/ui/skeleton";
+import { formatDateTime, handleErrorApi } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { GetHomePageSchemaLazyLoadType } from "@/schemaValidations/post.schema";
 
 type UserProfileProps = {
   userId: string;
@@ -28,7 +30,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
     <div className="flex items-center gap-4 mb-6">
       <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
         <AvatarImage
-          src={user.profilePicture || ""}
+          src={
+            user.profilePicture ||
+            "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+          }
           alt={user.fullName || "Anonymous"}
         />
         <AvatarFallback>
@@ -43,10 +48,20 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
         <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
       </div>
       <div className="ml-auto">
-        <Button className=" rounded-full" variant={"ghost"} size={"icon"}>
+        <Button
+          className=" rounded-full"
+          variant={"ghost"}
+          size={"icon"}
+          onClick={(e) => e.stopPropagation()}
+        >
           <Bookmark className="w-5 h-5 text-textChat" />
         </Button>
-        <Button className=" rounded-full" variant={"ghost"} size={"icon"}>
+        <Button
+          className=" rounded-full"
+          variant={"ghost"}
+          size={"icon"}
+          onClick={(e) => e.stopPropagation()}
+        >
           <Flag className="w-5 h-5 text-textChat" />
         </Button>
       </div>
@@ -54,32 +69,60 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
   );
 };
 
-export default function Posts() {
+export default function Posts({
+  initialArticles,
+}: {
+  initialArticles: GetHomePageSchemaLazyLoadType[];
+}) {
   const pageSizes = 5;
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const [articles, setArticles] = useState(
+    initialArticles?.slice(0, pageSizes) || []
+  );
+
+  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetHomePageLazyLoadQuery(pageSizes);
-  const { setPostData } = useQuickPostStore();
-  const handleClickedPost = (postId: string, userId: string) => {
-    setPostData(postId, userId);
-  };
+  const router = useRouter();
+  const { mutateAsync } = useAddUserReferenceMutation();
 
   // Hàm xử lý sự kiện cuộn
   const handleScroll = () => {
     if (
-      window.innerHeight + window.scrollY >= document.body.scrollHeight - 100 &&
+      window.innerHeight + window.scrollY >= document.body.scrollHeight * 0.8 &&
       hasNextPage &&
       !isFetchingNextPage
     ) {
       setIsLoadingMore(true);
       fetchNextPage()
-        .then(() => setIsLoadingMore(false))
-        .catch(() => setIsLoadingMore(false));
+        .then((fetchResult) => {
+          const newArticles =
+            fetchResult.data?.pages.flatMap((page) => page.payload.data) || [];
+          // console.log("dữ liệu ban đầu của bài viết", newArticles);
+          setArticles((prevArticles) => {
+            const existingPostIds = new Set(
+              prevArticles.map((article) => article.postId)
+            );
+            const uniqueArticles = newArticles.filter(
+              (article) => !existingPostIds.has(article.postId)
+            );
+            // console.log("du lieu sau khi load", [
+            //   ...prevArticles,
+            //   ...uniqueArticles,
+            // ]);
+
+            return [...prevArticles, ...uniqueArticles];
+          });
+        })
+        .catch((error) => {
+          console.error("Error while fetching next page:", error);
+        })
+        .finally(() => setIsLoadingMore(false));
     }
   };
 
   // Thêm sự kiện cuộn vào window
   useEffect(() => {
+    if (!initialArticles) return;
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -87,7 +130,27 @@ export default function Posts() {
   }, [hasNextPage, isFetchingNextPage]);
 
   // Ghép các trang dữ liệu
-  const articles = data?.pages.flatMap((page) => page.payload.data) || [];
+  // const articles = data?.pages.flatMap((page) => page.payload.data) || [];
+
+  const handlePostClick = async (
+    postId: string,
+    categoryId: string,
+    e: React.MouseEvent
+  ) => {
+    const target = e.target as HTMLElement;
+    // Nếu click vào nút, ngừng sự kiện
+    if (target.closest("button")) {
+      e.stopPropagation();
+    } else {
+      try {
+        await mutateAsync({ categoryId });
+        // Nếu không phải nút, chuyển hướng tới bài viết
+        router.push(`/content/${postId}`);
+      } catch (error: any) {
+        handleErrorApi(error);
+      }
+    }
+  };
 
   return (
     <div>
@@ -100,29 +163,21 @@ export default function Posts() {
           <div
             key={article.postId}
             className="p-4 rounded-lg shadow-lg border mb-6"
+            onClick={(e) =>
+              handlePostClick(article.postId, article.categoryId, e)
+            }
           >
             <UserProfile userId={article.userId} postDate={article.createAt} />
 
             <div className="whitespace-pre-wrap mb-4 text-textChat flex flex-col">
-              <div className="font-bold text-lg text-center mb-2">
+              <h1 className="font-bold text-lg text-center mb-2">
                 {article.title}
-              </div>
+              </h1>
               <div
                 dangerouslySetInnerHTML={{
                   __html: truncatedDescription,
                 }}
               />
-              <div className="flex justify-end mt-2">
-                <Link
-                  href={`/content/${article.postId}`}
-                  className="text-blue-500 hover:underline"
-                  onClick={() =>
-                    handleClickedPost(article.postId, article.userId)
-                  }
-                >
-                  Xem thêm
-                </Link>
-              </div>
 
               <Image
                 src={
@@ -147,6 +202,7 @@ export default function Posts() {
                 <Button
                   variant="iconDarkMod"
                   className="flex items-center gap-2 p-0"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <ThumbsUp className="w-4 h-4" />
                   Thích
@@ -154,6 +210,7 @@ export default function Posts() {
                 <Button
                   variant="iconDarkMod"
                   className="flex items-center gap-2 p-0"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <Share2 className="w-4 h-4" />
                   Chia sẻ
@@ -163,12 +220,23 @@ export default function Posts() {
           </div>
         );
       })}
-      {(isFetchingNextPage || isLoadingMore) && (
-        <div className="p-4 rounded-lg shadow-lg border mb-6">
-          <Skeleton className="h-10 w-full mb-4" />
-          <Skeleton className="h-6 w-3/4 mb-2" />
-          <Skeleton className="h-6 w-full mb-4" />
-          <Skeleton className="h-48 w-full rounded-md" />
+      {isLoadingMore && (
+        <div className="animate-pulse p-4 bg-gray-500 rounded-lg shadow-lg border mb-6">
+          <div className="whitespace-pre-wrap mb-4 text-gray-500 flex flex-col">
+            <h1 className="h-6 mb-2 bg-gray-300 rounded"></h1>
+            <div className="h-20 bg-gray-300 rounded mb-4"></div>
+            <div className="h-48 bg-gray-300 rounded"></div>
+          </div>
+          <div className="flex flex-col items-start gap-4">
+            <div className="flex justify-between w-full">
+              <span className="h-4 w-24 bg-gray-300 rounded"></span>
+              <span className="h-4 w-24 bg-gray-300 rounded"></span>
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2 p-0 h-6 w-16 bg-gray-300 rounded"></div>
+              <div className="flex items-center gap-2 p-0 h-6 w-16 bg-gray-300 rounded"></div>
+            </div>
+          </div>
         </div>
       )}
     </div>
