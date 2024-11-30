@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   HoverCard,
@@ -26,7 +26,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useGetAllGroupsQuery } from "@/queries/useGroup";
+import {
+  useGetAllGroupsQuery,
+  useGetGroupsByUserIdQuery,
+} from "@/queries/useGroup";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { GroupJoinedByUserIdType } from "@/schemaValidations/group.schema";
 
 export default function ListOfGroups() {
   const { theme } = useTheme();
@@ -34,6 +40,28 @@ export default function ListOfGroups() {
   const { data: response, isLoading, isError } = useGetAllGroupsQuery();
 
   const groups = response?.payload?.data || [];
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedUserId = getUserIdFromLocalStorage();
+    setUserId(storedUserId);
+  }, []);
+
+  const { data: joinedGroupsResponse } = useGetGroupsByUserIdQuery(
+    userId as string
+  );
+
+  // Thêm kiểm tra và type assertion
+  const joinedGroupIds = joinedGroupsResponse
+    ? (joinedGroupsResponse as any).payload.data.map(
+        (group: any) => group.groupId
+      )
+    : [];
+
+  // Kiểm tra xem một nhóm có được tham gia không
+  const isGroupJoined = (groupId: string) => {
+    return joinedGroupIds.includes(groupId);
+  };
 
   if (isLoading) {
     return (
@@ -76,20 +104,20 @@ export default function ListOfGroups() {
         {groups.map((group) => (
           <HoverCard key={group.groupId} openDelay={100} closeDelay={200}>
             <Card
-            // className={`transition-shadow relative ${
-            //   group.isJoined
-            //     ? "border-2 border-rose-300 shadow-lg"
-            //     : "border border-gray-300"
-            // }`}
+              className={`transition-shadow relative ${
+                isGroupJoined(group.groupId)
+                  ? "border-2 border-rose-300 shadow-lg"
+                  : "border border-gray-300"
+              }`}
             >
-              {/* {group.isJoined && (
+              {isGroupJoined(group.groupId) && (
                 <Badge
                   className="absolute bottom-2 right-2 bg-rose-300 text-black"
                   variant="outline"
                 >
                   <Check className="mr-1 h-3 w-3" /> Đã tham gia
                 </Badge>
-              )} */}
+              )}
               <CardContent className="p-4 flex items-start space-x-4 relative">
                 <Link href="#">
                   <Image
@@ -133,25 +161,25 @@ export default function ListOfGroups() {
                         : "bg-white text-black"
                     }`}
                   >
-                    {/* {group.isJoined && (
+                    {isGroupJoined(group.groupId) && (
                       <DropdownMenuItem>
                         <MessageSquare className="mr-2 h-4 w-4" />
                         <span>Nội dung của bạn</span>
                       </DropdownMenuItem>
-                    )} */}
+                    )}
 
                     <DropdownMenuItem>
                       <Flag className="mr-2 h-4 w-4" />
                       <span>Báo cáo nhóm</span>
                     </DropdownMenuItem>
-                    {/* {group.isJoined && (
+                    {isGroupJoined(group.groupId) && (
                       <DropdownMenuItem className="border-t-2 group">
                         <LogOut className="mr-2 h-4 w-4 group-hover:text-red-500 " />
                         <span className="group-hover:text-red-500 ">
                           Rời nhóm
                         </span>
                       </DropdownMenuItem>
-                    )} */}
+                    )}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardContent>

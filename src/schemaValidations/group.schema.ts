@@ -32,6 +32,8 @@ export type GetAllGroupsResponseType = z.infer<
 
 const GroupJoinedByUserIdSchema = z.object({
   groupId: z.string(),
+  groupName: z.string(),
+  groupAvatar: z.string().nullable(),
   joinedAt: z.string(),
   roleInGroup: z.enum(["User", "Admin", "Moderator"]),
 });
