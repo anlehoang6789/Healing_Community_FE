@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useGetAllCategoryQuery } from "@/queries/usePost";
 import { Check, ChevronsUpDown } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 interface CategoryComboboxProps {
   id: string;
@@ -33,7 +33,12 @@ export default function CategoryCombobox({
   const categoryList = data?.payload.data || [];
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={setOpen}
+      // modal={false}
+      aria-hidden={false}
+    >
       <PopoverTrigger asChild>
         <Button
           id={id}
@@ -58,6 +63,7 @@ export default function CategoryCombobox({
                   value={category.categoryId}
                   onSelect={(currentValue) => {
                     onChange(currentValue === value ? "" : currentValue);
+                    // onChange(currentValue);
                     setOpen(false);
                   }}
                 >

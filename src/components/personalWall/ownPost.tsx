@@ -49,6 +49,7 @@ import {
   GetPostByUserIdResType,
 } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
+import EditPersonalPost from "@/components/personalWall/editPersonalPost";
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -239,9 +240,11 @@ export default function OwnPost() {
         }}
         aria-hidden={false}
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-backgroundChat">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xóa bài viết?</AlertDialogTitle>
+            <AlertDialogTitle className="text-textChat font-bold text-lg">
+              Xóa bài viết?
+            </AlertDialogTitle>
             <AlertDialogDescription>
               Bài viết có tiêu đề{" "}
               <span className="bg-muted text-primary-foreground rounded px-1">
@@ -297,8 +300,10 @@ export default function OwnPost() {
             const isExpanded = expandedPosts[post.postId] || false;
             const truncate = shouldTruncateDescription(post.description);
             const openDeletePost = () => {
-              // console.log("Mở AlertDialog với bài viết:", post);
               setPostDelete(post);
+            };
+            const openEditPost = () => {
+              setPostId(post.postId);
             };
             const shouldRenderDropdown = userIdFromLocalStorage === userId;
             return (
@@ -336,12 +341,7 @@ export default function OwnPost() {
 
                   {/* Dropdown menu */}
                   {shouldRenderDropdown && (
-                    <DropdownMenu
-                      // open={openDropdownPostId === post.postId}
-                      // onOpenChange={() => handleDropdownChange(post.postId)}
-                      modal={false}
-                      aria-hidden={false}
-                    >
+                    <DropdownMenu modal={false} aria-hidden={false}>
                       <DropdownMenuTrigger asChild className="ml-auto">
                         <Button variant="iconSend">
                           <Ellipsis />
@@ -354,7 +354,7 @@ export default function OwnPost() {
                             : "bg-white text-black"
                         }`}
                       >
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={openEditPost}>
                           <FilePenLine className="mr-2 h-4 w-4" />
                           <span>Sửa bài viết</span>
                         </DropdownMenuItem>
@@ -370,26 +370,17 @@ export default function OwnPost() {
                     </DropdownMenu>
                   )}
                 </div>
+                <EditPersonalPost
+                  postId={postId}
+                  setPostId={setPostId}
+                  onSubmitSuccess={() => {}}
+                />
                 <AlertDialogDeletePost
                   postDelete={postDelete}
                   setPostDelete={setPostDelete}
                 />
 
                 {/* Body of story */}
-
-                {/* <div className="whitespace-pre-wrap mb-4 text-textChat">
-                <div className="font-bold text-lg text-center mb-2">
-                  {post.title}
-                </div>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: isExpanded
-                      ? post.description
-                      : post.description.slice(0, 300) +
-                        (truncate ? "..." : ""),
-                  }}
-                />
-              </div> */}
                 <motion.div
                   animate={{ height: isExpanded ? "auto" : 300 }} // auto cho phép nội dung mở rộng tự nhiên
                   initial={{ height: 300 }}

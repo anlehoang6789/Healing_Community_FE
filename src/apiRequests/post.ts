@@ -10,6 +10,7 @@ import {
   GetPostByUserIdResType,
   GetQuickPostListType,
   PostByIdType,
+  UpdatePersonalPostBodyType,
   UploadImageCoverResponseType,
 } from "@/schemaValidations/post.schema";
 
@@ -45,6 +46,8 @@ const postApiRequest = {
     ),
   getQuickPostHomePage: () =>
     http.get<GetQuickPostListType>("post/api/post/get-side-recommendation"),
+  updatePersonalPost: (id: string, body: UpdatePersonalPostBodyType) =>
+    http.put<{ message: string }>(`post/api/post/update-post/${id}`, body),
 };
 
 export default postApiRequest;
