@@ -28,7 +28,44 @@ export default function ExpertProfile() {
 
   // Xử lý trường hợp loading và error
   if (isLoading) {
-    return <div>Đang tải thông tin...</div>;
+    return (
+      <div className="container mx-auto">
+        <Card>
+          <CardContent className="mt-4">
+            <h3 className="text-lg font-semibold mb-2 animate-pulse bg-gray-300 rounded w-3/4 h-6"></h3>
+            <p className="mb-4 animate-pulse bg-gray-300 rounded w-full h-4"></p>
+
+            <h3 className="text-lg font-semibold mb-2 flex items-center">
+              <Briefcase className="mr-2" />
+              <span className="animate-pulse bg-gray-300 rounded w-1/2 h-6"></span>
+            </h3>
+            <p className="mb-4 animate-pulse bg-gray-300 rounded w-full h-4"></p>
+
+            <h3 className="text-lg font-semibold mb-2 flex items-center">
+              <Briefcase className="mr-2" />
+              <span className="animate-pulse bg-gray-300 rounded w-1/2 h-6"></span>
+            </h3>
+            <p className="mb-4 animate-pulse bg-gray-300 rounded w-full h-4"></p>
+
+            <h3 className="text-lg font-semibold mb-2 flex items-center">
+              <Album className="mr-2" />
+              <span className="animate-pulse bg-gray-300 rounded w-1/2 h-6"></span>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {[...Array(4)].map((_, index) => (
+                <Card key={index} className="animate-pulse">
+                  <CardContent className="flex flex-col items-center pt-4">
+                    <div className="w-full h-48 bg-gray-300 rounded mb-2"></div>
+                    <p className="text-sm font-medium mt-2 bg-gray-300 rounded w-3/4 h-4"></p>
+                    <p className="text-xs text-gray-500 bg-gray-300 rounded w-1/2 h-4"></p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (error) {

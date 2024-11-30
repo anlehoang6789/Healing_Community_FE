@@ -29,7 +29,43 @@ export default function TestResult() {
 
   // Nếu chưa có kết quả, hiển thị loading
   if (!quizResult) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen p-8">
+        <Card className="w-full max-w-6xl mx-auto">
+          <div className="w-full">
+            <CardHeader className="relative">
+              <CardTitle className="text-green-500 text-3xl font-bold text-center mb-2 bg-gray-300 rounded h-8"></CardTitle>
+              <div className="relative w-full h-[300px] bg-gray-300 rounded"></div>
+            </CardHeader>
+            <CardContent className="p-6 mb-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="bg-green-100 p-4 rounded-lg animate-pulse">
+                  <h3 className="font-bold text-green-700 mb-2 bg-gray-300 rounded h-6"></h3>
+                  <p className="text-gray-700 bg-gray-300 rounded h-4 mb-2"></p>
+                  <p className="text-sm mt-2 text-gray-700 bg-gray-300 rounded h-4"></p>
+                </div>
+                <div className="bg-blue-100 p-4 rounded-lg animate-pulse">
+                  <h3 className="font-bold text-blue-700 mb-2 bg-gray-300 rounded h-6"></h3>
+                  <p className="text-gray-700 bg-gray-300 rounded h-4 mb-2"></p>
+                  <p className="text-sm mt-2 text-gray-700 bg-gray-300 rounded h-4"></p>
+                </div>
+                <div className="bg-red-100 p-4 rounded-lg animate-pulse">
+                  <h3 className="font-bold text-red-700 mb-2 bg-gray-300 rounded h-6"></h3>
+                  <p className="text-gray-700 bg-gray-300 rounded h-4 mb-2"></p>
+                  <p className="text-sm mt-2 text-gray-700 bg-gray-300 rounded h-4"></p>
+                </div>
+              </div>
+            </CardContent>
+          </div>
+          <div className="animate-pulse">
+            <ContentTestResultTabs />
+          </div>
+          <div className="animate-pulse">
+            <ButtonTestAgain />
+          </div>
+        </Card>
+      </div>
+    );
   }
 
   return (
