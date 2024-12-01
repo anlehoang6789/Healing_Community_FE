@@ -65,6 +65,11 @@ const expertApiRequest = {
         return response;
       });
   },
+
+  deleteAvailableTimeSlotById: (expertAvailabilityId: string) =>
+    http.delete<{ message: string }>(
+      `expert/api/expertavailability/delete/${expertAvailabilityId}`
+    ),
 };
 
 export default expertApiRequest;

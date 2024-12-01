@@ -194,7 +194,7 @@ export default function BookExpert() {
             </div>
           </div>
         </CardContent>
-        <CardFooter>
+        <CardFooter className="flex justify-end">
           <Dialog
             open={isBookingDialogOpen}
             onOpenChange={setIsBookingDialogOpen}

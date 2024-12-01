@@ -32,7 +32,7 @@ import {
 } from "@/queries/useGroup";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { GroupJoinedByUserIdType } from "@/schemaValidations/group.schema";
+
 
 export default function ListOfGroups() {
   const { theme } = useTheme();
