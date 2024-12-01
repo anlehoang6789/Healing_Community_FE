@@ -96,3 +96,15 @@ export const useGetExpertAvailability = (expertProfileId: string) => {
     enabled: !!expertProfileId, // Chỉ chạy query khi expertProfileId có giá trị
   });
 };
+
+export const useDeleteAvailableTimeSlotByIdMutation = (expertProfileId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.deleteAvailableTimeSlotById,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expertAvailability-by-expertProfile-id", expertProfileId],
+      });
+    },
+  });
+};

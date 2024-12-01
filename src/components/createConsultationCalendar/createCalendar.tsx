@@ -17,32 +17,80 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   useCreateAvailableTimeSlot,
+  useDeleteAvailableTimeSlotByIdMutation,
   useGetExpertAvailability,
 } from "@/queries/useExpert";
 import { toast } from "@/hooks/use-toast";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { ExpertAvailabilityType } from "@/schemaValidations/expert.schema";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function CreateCalendar() {
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
   const [isAddingSlot, setIsAddingSlot] = React.useState(false);
+  const [deleteConfirmationSlotId, setDeleteConfirmationSlotId] =
+    React.useState<string | null>(null);
 
   const createTimeSlotMutation = useCreateAvailableTimeSlot();
   const expertProfileId = getUserIdFromLocalStorage();
   const { data: expertAvailability, refetch } = useGetExpertAvailability(
     expertProfileId as string
   );
+
+  const deleteTimeSlotMutation = useDeleteAvailableTimeSlotByIdMutation(
+    expertProfileId as string
+  );
+
+  const handleDeleteTimeSlot = (expertAvailabilityId: string) => {
+    deleteTimeSlotMutation.mutate(expertAvailabilityId, {
+      onSuccess: () => {
+        toast({
+          title: "Xóa lịch trống thành công",
+          variant: "success",
+        });
+        refetch();
+
+        setDeleteConfirmationSlotId(null);
+      },
+      onError: (error) => {
+        handleErrorApi({ error });
+      },
+    });
+  };
+
   const handleAddSlot = (newSlot: { startTime: string; endTime: string }) => {
     // Thêm kiểm tra thời gian
     const startTime = new Date(`2023-01-01T${newSlot.startTime}`);
     const endTime = new Date(`2023-01-01T${newSlot.endTime}`);
 
+    // Tính khoảng thời gian giữa start và end (tính bằng phút)
+    const timeDifference =
+      (endTime.getTime() - startTime.getTime()) / (1000 * 60);
+
     if (startTime >= endTime) {
       toast({
         title: "Thời gian không hợp lệ",
         description: "Thời gian bắt đầu phải trước thời gian kết thúc",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (timeDifference < 30) {
+      toast({
+        title: "Thời gian slot không hợp lệ",
+        description: "Mỗi slot trống phải kéo dài ít nhất 30 phút",
         variant: "destructive",
       });
       return;
@@ -122,13 +170,59 @@ export default function CreateCalendar() {
                     {slot.startTime.slice(0, 5)} - {slot.endTime.slice(0, 5)}
                   </span>
                   <div className="flex items-center space-x-2">
-                    <Button
-                      variant="iconSend"
-                      size="sm"
-                      className="text-red-500 hover:text-red-700"
+                    <AlertDialog
+                      open={
+                        deleteConfirmationSlotId === slot.expertAvailabilityId
+                      }
+                      onOpenChange={(open) => {
+                        if (!open) {
+                          setDeleteConfirmationSlotId(null);
+                        }
+                      }}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                      <Button
+                        variant="iconSend"
+                        size="sm"
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() =>
+                          setDeleteConfirmationSlotId(slot.expertAvailabilityId)
+                        }
+                        disabled={deleteTimeSlotMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+
+                      <AlertDialogContent className="bg-backgroundChat text-red-500">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Bạn có chắc chắn muốn xóa?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Lịch trống từ{" "}
+                            <b>
+                              {slot.startTime.slice(0, 5)} -{" "}
+                              {slot.endTime.slice(0, 5)}
+                            </b>{" "}
+                            sẽ bị xóa <b className="text-red-500">vĩnh viễn</b>.
+                            Bạn không thể hoàn tác sau khi xóa.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Hủy</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-500 text-white"
+                            onClick={() =>
+                              handleDeleteTimeSlot(slot.expertAvailabilityId)
+                            }
+                            disabled={deleteTimeSlotMutation.isPending}
+                          >
+                            {deleteTimeSlotMutation.isPending
+                              ? "Đang xóa..."
+                              : "Xóa"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))
