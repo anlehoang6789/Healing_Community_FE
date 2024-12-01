@@ -135,6 +135,7 @@ const request = async <Response>(
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
             localStorage.removeItem("userId");
+            localStorage.removeItem("role");
             clientLogoutRequest = null;
             /**
              * Redirect về trang login có thể dẫn đến loop vô hạn
@@ -162,13 +163,15 @@ const request = async <Response>(
       const { token, refreshToken } = (payload as LoginResType).data;
       localStorage.setItem("accessToken", token);
       localStorage.setItem("refreshToken", refreshToken);
-      const { userId } = payload as any;
+      const { userId, role } = payload as any;
       localStorage.setItem("userId", userId);
-      console.log("User ID:", userId);
+      // console.log("User ID:", userId);
+      localStorage.setItem("role", role);
     } else if (normalizedUrl === "api/auth/logout") {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userId");
+      localStorage.removeItem("role");
     }
   }
   return data;

@@ -177,3 +177,7 @@ export const formatTime = (timeString: string) => {
 
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
+
+export const getRoleFromLocalStorage = () => {
+  return isBrowser ? localStorage.getItem("role") : null;
+};
