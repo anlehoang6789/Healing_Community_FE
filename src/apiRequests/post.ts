@@ -50,6 +50,9 @@ const postApiRequest = {
     http.get<GetQuickPostListType>("post/api/post/get-side-recommendation"),
   updatePersonalPost: (id: string, body: UpdatePersonalPostBodyType) =>
     http.put<{ message: string }>(`post/api/post/update-post/${id}`, body),
+
+  deleteCommentByCommentId: (commentId: string) =>
+    http.delete<{ message: string }>(`post/api/comment/delete/${commentId}`),
 };
 
 export default postApiRequest;
