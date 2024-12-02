@@ -23,6 +23,7 @@ import {
 import { useTheme } from "next-themes";
 import {
   useCreateCommentMutation,
+  useDeleteCommentByCommnetIdMutation,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
 } from "@/queries/usePost";
@@ -42,6 +43,9 @@ export default function DetailPost() {
   const param = useParams();
   const postIdFromUrl = param?.postId;
   // console.log("postIdFromUrl", postIdFromUrl);
+
+  const { mutate: deleteComment } =
+    useDeleteCommentByCommnetIdMutation(userIdComment);
 
   const { data: postById } = useGetPostByPostIdQuery({
     postId: postIdFromUrl as string,
@@ -66,6 +70,24 @@ export default function DetailPost() {
       setComments(commentsData.payload.data);
     }
   }, [commentsData]);
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteComment(commentId, {
+      onSuccess: async () => {
+        // Refetch toàn bộ comments của post
+        try {
+          const commentsResponse = await postApiRequest.getCommentsByPostId(
+            postIdFromUrl as string
+          );
+
+          // Cập nhật lại toàn bộ comments
+          setComments(commentsResponse.payload.data);
+        } catch (error) {
+          console.error("Error refetching comments:", error);
+        }
+      },
+    });
+  };
 
   const handleAddComment = (comment: {
     content: string;
@@ -302,6 +324,7 @@ export default function DetailPost() {
                 comments={comments}
                 onAddComment={handleAddComment}
                 onAddReply={handleAddReply}
+                deleteComment={handleDeleteComment}
               />
             </div>
           </div>

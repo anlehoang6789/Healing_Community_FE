@@ -22,6 +22,7 @@ import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
   useCreateCommentMutation,
+  useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
   useGetPostByUserIdQuery,
 } from "@/queries/usePost";
@@ -84,6 +85,13 @@ export default function OwnPost() {
   const [visibleCommentPosts, setVisibleCommentPosts] = useState<{
     [postId: string]: boolean;
   }>({});
+
+  const { mutate: deleteComment } =
+    useDeleteCommentByCommnetIdMutation(userIdComment);
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteComment(commentId);
+  };
 
   useEffect(() => {
     if (data) {
@@ -461,6 +469,9 @@ export default function OwnPost() {
                         }
                         onAddReply={(parentId, reply) =>
                           handleAddReply(post.postId, parentId, reply)
+                        }
+                        deleteComment={(commentId) =>
+                          handleDeleteComment(commentId)
                         }
                       />
                     </motion.div>
