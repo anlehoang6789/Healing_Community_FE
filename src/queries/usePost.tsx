@@ -151,3 +151,17 @@ export const useUpdatePersonalPostMutation = (userId: string) => {
     },
   });
 };
+
+export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: postApiRequest.deleteCommentByCommentId,
+    onSuccess: () => {
+      // Invalidate và refetch comments của post
+      queryClient.invalidateQueries({
+        queryKey: ["comments", postId],
+      });
+    },
+  });
+};
