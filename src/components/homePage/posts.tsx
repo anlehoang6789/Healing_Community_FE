@@ -10,7 +10,6 @@ import {
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
-import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { GetHomePageSchemaLazyLoadType } from "@/schemaValidations/post.schema";
 
@@ -31,7 +30,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
     <div className="flex items-center gap-4 mb-6">
       <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
         <AvatarImage
-          src={user.profilePicture || ""}
+          src={
+            user.profilePicture ||
+            "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+          }
           alt={user.fullName || "Anonymous"}
         />
         <AvatarFallback>
@@ -219,11 +221,22 @@ export default function Posts({
         );
       })}
       {isLoadingMore && (
-        <div className="p-4 rounded-lg shadow-lg border mb-6">
-          <Skeleton className="h-10 w-full mb-4" />
-          <Skeleton className="h-6 w-3/4 mb-2" />
-          <Skeleton className="h-6 w-full mb-4" />
-          <Skeleton className="h-48 w-full rounded-md" />
+        <div className="animate-pulse p-4 bg-gray-500 rounded-lg shadow-lg border mb-6">
+          <div className="whitespace-pre-wrap mb-4 text-gray-500 flex flex-col">
+            <h1 className="h-6 mb-2 bg-gray-300 rounded"></h1>
+            <div className="h-20 bg-gray-300 rounded mb-4"></div>
+            <div className="h-48 bg-gray-300 rounded"></div>
+          </div>
+          <div className="flex flex-col items-start gap-4">
+            <div className="flex justify-between w-full">
+              <span className="h-4 w-24 bg-gray-300 rounded"></span>
+              <span className="h-4 w-24 bg-gray-300 rounded"></span>
+            </div>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2 p-0 h-6 w-16 bg-gray-300 rounded"></div>
+              <div className="flex items-center gap-2 p-0 h-6 w-16 bg-gray-300 rounded"></div>
+            </div>
+          </div>
         </div>
       )}
     </div>

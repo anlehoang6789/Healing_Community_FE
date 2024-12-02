@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,8 +22,8 @@ import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
   useCreateCommentMutation,
+  useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
-  useGetCommentsByPostIdQuery,
   useGetPostByUserIdQuery,
 } from "@/queries/usePost";
 import {
@@ -44,36 +44,38 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { usePostStore } from "@/store/postStore";
 import CommentSection from "@/components/commentSection/commentSection";
 import {
   CommentType,
-  GetCommentsByPostIdResponseType,
-  PostByIdSchemaType,
-  ReplyCommentType,
+  GetPostByUserIdResType,
 } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
+import EditPersonalPost from "@/components/personalWall/editPersonalPost";
+
+type PostItem = GetPostByUserIdResType["data"][0];
+const OwnPostContext = createContext<{
+  postId: string | undefined;
+  setPostId: (value: string | undefined) => void;
+  postDelete: PostItem | null;
+  setPostDelete: (value: PostItem | null) => void;
+}>({
+  postId: undefined,
+  setPostId: (value: string | undefined) => {},
+  postDelete: null,
+  setPostDelete: (value: PostItem | null) => {},
+});
 
 export default function OwnPost() {
   const { userId } = useParams(); //lấy userId từ url
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
 
   const { data } = useGetPostByUserIdQuery(userId as string);
-  const postList = data?.payload.data || [];
-  const userIdByPost = postList.map((post) => post.userId);
-  //lấy 1 userId từ mảng userIdByPost
-  // const userIdPostItem = userIdByPost[0];
+  // const postList = data?.payload.data || [];
+  const [postList, setPostList] = useState<GetPostByUserIdResType["data"]>([]);
   const { data: userById } = useGetUserProfileQuery(userId as string);
-  const selectedPostId = usePostStore((state) => state.selectedPostId);
-  const setSelectedPostId = usePostStore((state) => state.setSelectedPostId);
-  const [selectedPostTitle, setSelectedPostTitle] = useState<string | null>(
-    null
-  );
-  const { mutateAsync } = useDeletePostByPostIdMutation(userId as string);
-  const handleOpenDeleteDialog = (postId: string, postTitle: string) => {
-    setSelectedPostId(postId);
-    setSelectedPostTitle(postTitle);
-  };
+  const [postId, setPostId] = useState<string | undefined>(undefined);
+  const [postDelete, setPostDelete] = useState<PostItem | null>(null);
 
   const userIdComment = getUserIdFromLocalStorage() ?? "";
   const [commentsByPostId, setCommentsByPostId] = useState<{
@@ -83,6 +85,19 @@ export default function OwnPost() {
   const [visibleCommentPosts, setVisibleCommentPosts] = useState<{
     [postId: string]: boolean;
   }>({});
+
+  const { mutate: deleteComment } =
+    useDeleteCommentByCommnetIdMutation(userIdComment);
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteComment(commentId);
+  };
+
+  useEffect(() => {
+    if (data) {
+      setPostList(data.payload.data);
+    }
+  }, [data]);
 
   //hàm ẩn/hiện bình luận
   const toggleCommentVisibility = (postId: string) => {
@@ -196,22 +211,64 @@ export default function OwnPost() {
     );
   };
 
-  const handleConfirmDeletePost = async () => {
-    if (selectedPostId) {
-      try {
-        const result = await mutateAsync(selectedPostId);
-        setSelectedPostId(null);
-        setSelectedPostTitle(null);
-        toast({
-          description: result.payload.message,
-          variant: "success",
-        });
-        window.location.reload();
-      } catch (error: any) {
-        handleErrorApi(error);
+  function AlertDialogDeletePost({
+    postDelete,
+    setPostDelete,
+  }: {
+    postDelete: PostItem | null;
+    setPostDelete: (value: PostItem | null) => void;
+  }) {
+    const { mutateAsync } = useDeletePostByPostIdMutation(userId as string);
+    const deletePost = async () => {
+      if (postDelete) {
+        try {
+          // console.log("Trước khi xóa:", postDelete);
+          const result = await mutateAsync(postDelete.postId);
+          setPostList((prev) =>
+            prev.filter((post) => post.postId !== postDelete.postId)
+          );
+          toast({
+            description: result.payload.message,
+            variant: "success",
+          });
+          setPostDelete(null);
+        } catch (error) {
+          handleErrorApi({ error });
+        }
       }
-    }
-  };
+    };
+
+    return (
+      <AlertDialog
+        open={Boolean(postDelete)}
+        onOpenChange={(value) => {
+          if (!value) {
+            setPostDelete(null);
+          }
+        }}
+        aria-hidden={false}
+      >
+        <AlertDialogContent className="bg-backgroundChat">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-textChat font-bold text-lg">
+              Xóa bài viết?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Bài viết có tiêu đề{" "}
+              <span className="bg-muted text-primary-foreground rounded px-1">
+                {postDelete?.title}
+              </span>{" "}
+              sẽ bị xóa vĩnh viễn
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={deletePost}>Xác nhận</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+  }
 
   // Trạng thái lưu thông tin mở rộng của từng bài viết
   const [expandedPosts, setExpandedPosts] = useState<{
@@ -233,210 +290,198 @@ export default function OwnPost() {
   };
 
   return (
-    <div className="mb-2">
-      {postList.length === 0 ? (
-        <div className="text-textChat text-center p-4 rounded-lg shadow-lg border mb-6">
-          Hiện chưa có bài viết nào
-        </div>
-      ) : (
-        postList.map((post) => {
-          const isExpanded = expandedPosts[post.postId] || false;
-          const truncate = shouldTruncateDescription(post.description);
-          return (
-            <div
-              key={post.postId}
-              className="p-4 rounded-lg shadow-lg border mb-6"
-            >
-              <div className="flex items-center gap-4 mb-6">
-                {/* Avatar, name*/}
-                <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
-                  <AvatarImage
-                    src={userById?.payload.data.profilePicture}
-                    alt={
-                      userById?.payload.data.fullName ||
-                      userById?.payload.data.userName
-                    }
-                  />
-                  <AvatarFallback>
-                    {userById?.payload.data.fullName ||
-                      userById?.payload.data.userName}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                    {userById?.payload.data.fullName ||
-                      userById?.payload.data.userName}
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    {formatDateTime(post.createAt)}
-                  </p>
-                </div>
-
-                {/* Dropdown menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild className="ml-auto">
-                    <Button variant="iconSend">
-                      <Ellipsis />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className={`w-56 mt-4 ${
-                      theme === "dark"
-                        ? "bg-black text-white"
-                        : "bg-white text-black"
-                    }`}
-                  >
-                    <DropdownMenuItem>
-                      <FilePenLine className="mr-2 h-4 w-4" />
-                      <span>Sửa bài viết</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        handleOpenDeleteDialog(post.postId, post.title)
-                      }
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      <span>Xóa bài viết</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <ShieldMinus className="mr-2 h-4 w-4" />
-                      <span>Chỉnh sửa quyền riêng tư</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-
-              {/* Body of story */}
-
-              {/* <div className="whitespace-pre-wrap mb-4 text-textChat">
-                <div className="font-bold text-lg text-center mb-2">
-                  {post.title}
-                </div>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: isExpanded
-                      ? post.description
-                      : post.description.slice(0, 300) +
-                        (truncate ? "..." : ""),
-                  }}
-                />
-              </div> */}
-              <motion.div
-                animate={{ height: isExpanded ? "auto" : 300 }} // auto cho phép nội dung mở rộng tự nhiên
-                initial={{ height: 300 }}
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="overflow-hidden"
+    <OwnPostContext.Provider
+      value={{
+        postId,
+        setPostId,
+        postDelete,
+        setPostDelete,
+      }}
+    >
+      <div className="mb-2">
+        {postList.length === 0 ? (
+          <div className="text-textChat text-center p-4 rounded-lg shadow-lg border mb-6">
+            Hiện chưa có bài viết nào
+          </div>
+        ) : (
+          postList.map((post) => {
+            const isExpanded = expandedPosts[post.postId] || false;
+            const truncate = shouldTruncateDescription(post.description);
+            const openDeletePost = () => {
+              setPostDelete(post);
+            };
+            const openEditPost = () => {
+              setPostId(post.postId);
+            };
+            const shouldRenderDropdown = userIdFromLocalStorage === userId;
+            return (
+              <div
+                key={post.postId}
+                className="p-4 rounded-lg shadow-lg border mb-6"
               >
-                <div className="whitespace-pre-wrap mb-4 text-textChat">
-                  <div className="font-bold text-lg text-center mb-2">
-                    {post.title}
-                  </div>
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: post.description,
-                    }}
-                  />
-                </div>
-              </motion.div>
-
-              {truncate && (
-                <div className="flex justify-end">
-                  <button
-                    onClick={() => toggleExpand(post.postId, !isExpanded)}
-                    className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
-                  >
-                    {isExpanded ? "Thu gọn" : "Xem thêm"}
-                  </button>
-                </div>
-              )}
-
-              {/* Like, share, comment tabs*/}
-              <div className="flex flex-col items-start gap-4">
-                <div className="flex justify-between w-full">
-                  <span className="text-sm text-gray-500">10 lượt thích</span>
-                  <span className="justify-end text-sm text-gray-500">
-                    10 bình luận
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between w-full">
-                  <Button
-                    variant="iconDarkMod"
-                    className="flex items-center gap-2 p-0"
-                  >
-                    <ThumbsUp className="w-4 h-4" />
-                    Thích
-                  </Button>
-                  <Button
-                    variant="iconDarkMod"
-                    className="flex items-center gap-2 p-0"
-                    onClick={() => toggleCommentVisibility(post.postId)}
-                  >
-                    <MessageSquare className="w-4 h-4" />
-                    Bình luận
-                  </Button>
-                  <Button
-                    variant="iconDarkMod"
-                    className="flex items-center gap-2 p-0"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    Chia sẻ
-                  </Button>
-                </div>
-              </div>
-
-              <AnimatePresence>
-                {visibleCommentPosts[post.postId] && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="w-full mt-4 overflow-hidden"
-                  >
-                    <CommentSection
-                      comments={commentsByPostId[post.postId] || []}
-                      onAddComment={(comment) =>
-                        handleAddComment(post.postId, comment)
+                <div className="flex items-center gap-4 mb-6">
+                  {/* Avatar, name*/}
+                  <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
+                    <AvatarImage
+                      src={
+                        userById?.payload.data.profilePicture ||
+                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                       }
-                      onAddReply={(parentId, reply) =>
-                        handleAddReply(post.postId, parentId, reply)
+                      alt={
+                        userById?.payload.data.fullName ||
+                        userById?.payload.data.userName
                       }
                     />
-                  </motion.div>
+                    <AvatarFallback>
+                      {userById?.payload.data.fullName ||
+                        userById?.payload.data.userName}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                      {userById?.payload.data.fullName ||
+                        userById?.payload.data.userName}
+                    </h2>
+                    <p className="text-sm text-gray-500">
+                      {formatDateTime(post.createAt)}
+                    </p>
+                  </div>
+
+                  {/* Dropdown menu */}
+                  {shouldRenderDropdown && (
+                    <DropdownMenu modal={false} aria-hidden={false}>
+                      <DropdownMenuTrigger asChild className="ml-auto">
+                        <Button variant="iconSend">
+                          <Ellipsis />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className={`w-56 mt-4 ${
+                          theme === "dark"
+                            ? "bg-black text-white"
+                            : "bg-white text-black"
+                        }`}
+                      >
+                        <DropdownMenuItem onClick={openEditPost}>
+                          <FilePenLine className="mr-2 h-4 w-4" />
+                          <span>Sửa bài viết</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={openDeletePost}>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Xóa bài viết</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <ShieldMinus className="mr-2 h-4 w-4" />
+                          <span>Chỉnh sửa quyền riêng tư</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+                <EditPersonalPost
+                  postId={postId}
+                  setPostId={setPostId}
+                  onSubmitSuccess={() => {}}
+                />
+                <AlertDialogDeletePost
+                  postDelete={postDelete}
+                  setPostDelete={setPostDelete}
+                />
+
+                {/* Body of story */}
+                <motion.div
+                  animate={{ height: isExpanded ? "auto" : 300 }} // auto cho phép nội dung mở rộng tự nhiên
+                  initial={{ height: 300 }}
+                  transition={{ duration: 0.4, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  <div className="whitespace-pre-wrap mb-4 text-textChat">
+                    <div className="font-bold text-lg text-center mb-2">
+                      {post.title}
+                    </div>
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: post.description,
+                      }}
+                    />
+                  </div>
+                </motion.div>
+
+                {truncate && (
+                  <div className="flex justify-end">
+                    <button
+                      onClick={() => toggleExpand(post.postId, !isExpanded)}
+                      className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
+                    >
+                      {isExpanded ? "Thu gọn" : "Xem thêm"}
+                    </button>
+                  </div>
                 )}
-              </AnimatePresence>
-            </div>
-          );
-        })
-      )}
-      <AlertDialog
-        open={Boolean(selectedPostId)}
-        onOpenChange={(value) => {
-          if (!value) {
-            setSelectedPostId(null);
-          }
-        }}
-      >
-        <AlertDialogContent className="bg-backgroundChat text-textChat">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Xác nhận xóa bài viết</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa bài viết này với tiêu đề{" "}
-              <span className="font-semibold text-red-500">
-                {selectedPostTitle}
-              </span>{" "}
-              này không? Hành động này không thể hoàn tác.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDeletePost}>
-              Xác nhận
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+
+                {/* Like, share, comment tabs*/}
+                <div className="flex flex-col items-start gap-4">
+                  <div className="flex justify-between w-full">
+                    <span className="text-sm text-gray-500">10 lượt thích</span>
+                    <span className="justify-end text-sm text-gray-500">
+                      10 bình luận
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between w-full">
+                    <Button
+                      variant="iconDarkMod"
+                      className="flex items-center gap-2 p-0"
+                    >
+                      <ThumbsUp className="w-4 h-4" />
+                      Thích
+                    </Button>
+                    <Button
+                      variant="iconDarkMod"
+                      className="flex items-center gap-2 p-0"
+                      onClick={() => toggleCommentVisibility(post.postId)}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Bình luận
+                    </Button>
+                    <Button
+                      variant="iconDarkMod"
+                      className="flex items-center gap-2 p-0"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      Chia sẻ
+                    </Button>
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {visibleCommentPosts[post.postId] && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="w-full mt-4 overflow-hidden"
+                    >
+                      <CommentSection
+                        comments={commentsByPostId[post.postId] || []}
+                        onAddComment={(comment) =>
+                          handleAddComment(post.postId, comment)
+                        }
+                        onAddReply={(parentId, reply) =>
+                          handleAddReply(post.postId, parentId, reply)
+                        }
+                        deleteComment={(commentId) =>
+                          handleDeleteComment(commentId)
+                        }
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </OwnPostContext.Provider>
   );
 }

@@ -23,6 +23,7 @@ import {
 import { useTheme } from "next-themes";
 import {
   useCreateCommentMutation,
+  useDeleteCommentByCommnetIdMutation,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
 } from "@/queries/usePost";
@@ -43,7 +44,13 @@ export default function DetailPost() {
   const postIdFromUrl = param?.postId;
   // console.log("postIdFromUrl", postIdFromUrl);
 
-  const { data: postById } = useGetPostByPostIdQuery(postIdFromUrl as string);
+  const { mutate: deleteComment } =
+    useDeleteCommentByCommnetIdMutation(userIdComment);
+
+  const { data: postById } = useGetPostByPostIdQuery({
+    postId: postIdFromUrl as string,
+    enabled: true,
+  });
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
@@ -63,6 +70,24 @@ export default function DetailPost() {
       setComments(commentsData.payload.data);
     }
   }, [commentsData]);
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteComment(commentId, {
+      onSuccess: async () => {
+        // Refetch toàn bộ comments của post
+        try {
+          const commentsResponse = await postApiRequest.getCommentsByPostId(
+            postIdFromUrl as string
+          );
+
+          // Cập nhật lại toàn bộ comments
+          setComments(commentsResponse.payload.data);
+        } catch (error) {
+          console.error("Error refetching comments:", error);
+        }
+      },
+    });
+  };
 
   const handleAddComment = (comment: {
     content: string;
@@ -179,10 +204,13 @@ export default function DetailPost() {
         )}
 
         <div className="flex items-center gap-2 px-4 py-8">
-          <Link href="#">
+          <Link href={`/user/profile/${postById?.payload.data.userId}`}>
             <Avatar className="w-12 h-12 border-2 border-rose-300">
               <AvatarImage
-                src={userById?.payload.data.profilePicture}
+                src={
+                  userById?.payload.data.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
                 alt={
                   userById?.payload.data.fullName ||
                   userById?.payload.data.userName
@@ -195,7 +223,7 @@ export default function DetailPost() {
             </Avatar>
           </Link>
           <div>
-            <Link href="#">
+            <Link href={`/user/profile/${postById?.payload.data.userId}`}>
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                 {userById?.payload.data.fullName ||
                   userById?.payload.data.userName}
@@ -240,12 +268,12 @@ export default function DetailPost() {
             }}
           />
 
-          <div className="flex gap-10 justify-center text-muted-foreground">
+          {/* <div className="flex gap-10 justify-center text-muted-foreground">
             <span>#Chữa lành</span>
             <span>#Chữa lành</span>
             <span>#Chữa lành</span>
             <span>#Chữa lành</span>
-          </div>
+          </div> */}
         </div>
         <div className="flex bg-gray-500 w-auto h-0.5 mx-8 mb-8"></div>
 
@@ -296,6 +324,7 @@ export default function DetailPost() {
                 comments={comments}
                 onAddComment={handleAddComment}
                 onAddReply={handleAddReply}
+                deleteComment={handleDeleteComment}
               />
             </div>
           </div>

@@ -10,6 +10,7 @@ import {
   GetPostByUserIdResType,
   GetQuickPostListType,
   PostByIdType,
+  UpdatePersonalPostBodyType,
   UploadImageCoverResponseType,
 } from "@/schemaValidations/post.schema";
 
@@ -34,7 +35,9 @@ const postApiRequest = {
     http.post<CreateCommentResponseType>("post/api/comment/create", body),
 
   getPostByUserId: (userId: string) =>
-    http.get<GetPostByUserIdResType>(`post/api/post/get-by-user-id/${userId}`),
+    http.get<GetPostByUserIdResType>(
+      `post/api/post/get-user-post?userId=${userId}`
+    ),
   deletePostByPostId: (postId: string) =>
     http.delete<{ message: string }>(`post/api/post/delete/${postId}`),
   addUserReference: (body: AddUserReferenceBodyType) =>
@@ -45,6 +48,11 @@ const postApiRequest = {
     ),
   getQuickPostHomePage: () =>
     http.get<GetQuickPostListType>("post/api/post/get-side-recommendation"),
+  updatePersonalPost: (id: string, body: UpdatePersonalPostBodyType) =>
+    http.put<{ message: string }>(`post/api/post/update-post/${id}`, body),
+
+  deleteCommentByCommentId: (commentId: string) =>
+    http.delete<{ message: string }>(`post/api/comment/delete/${commentId}`),
 };
 
 export default postApiRequest;

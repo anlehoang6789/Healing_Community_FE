@@ -1,5 +1,5 @@
 import authApiRequest from "@/apiRequests/auth";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useLoginMutation = () => {
   return useMutation({
@@ -16,5 +16,12 @@ export const useRegisterUserMutation = () => {
 export const useLogoutMutation = () => {
   return useMutation({
     mutationFn: authApiRequest.logoutFromNextClientToNextServer,
+  });
+};
+
+export const useGetRoleByUserIdQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["role-by-user-id", userId],
+    queryFn: () => authApiRequest.getRoleByUserId(userId),
   });
 };

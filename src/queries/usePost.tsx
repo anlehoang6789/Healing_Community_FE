@@ -1,5 +1,8 @@
 import postApiRequest from "@/apiRequests/post";
-import { GetHomePageSchemaLazyLoadType } from "@/schemaValidations/post.schema";
+import {
+  GetHomePageSchemaLazyLoadType,
+  UpdatePersonalPostBodyType,
+} from "@/schemaValidations/post.schema";
 import { usePostStore } from "@/store/postStore";
 import {
   useInfiniteQuery,
@@ -27,10 +30,17 @@ export const useCreatePostMutation = () => {
   });
 };
 
-export const useGetPostByPostIdQuery = (postId: string) => {
+export const useGetPostByPostIdQuery = ({
+  postId,
+  enabled,
+}: {
+  postId: string;
+  enabled: boolean;
+}) => {
   return useQuery({
     queryKey: ["post-by-post-id", postId],
     queryFn: () => postApiRequest.getPostByPostId(postId),
+    enabled,
   });
 };
 
@@ -56,15 +66,12 @@ export const useGetPostByUserIdQuery = (userId: string) => {
 
 export const useDeletePostByPostIdMutation = (userId: string) => {
   const queryClient = useQueryClient();
-  const setSelectedPostId = usePostStore((state) => state.setSelectedPostId);
   return useMutation({
     mutationFn: postApiRequest.deletePostByPostId,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post-by-user-id", userId],
-        exact: true,
       });
-      setSelectedPostId(null);
     },
   });
 };
@@ -124,5 +131,37 @@ export const useGetHomePageLazyLoadQuery = (
         }
       : undefined,
     initialPageParam: 1, // Ensure initialPageParam is set
+  });
+};
+
+export const useUpdatePersonalPostMutation = (userId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...body
+    }: UpdatePersonalPostBodyType & { id: string }) =>
+      postApiRequest.updatePersonalPost(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["post-by-user-id", userId],
+        //exact: true => invalidate cache của 1 employee cụ thể
+        exact: true,
+      });
+    },
+  });
+};
+
+export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: postApiRequest.deleteCommentByCommentId,
+    onSuccess: () => {
+      // Invalidate và refetch comments của post
+      queryClient.invalidateQueries({
+        queryKey: ["comments", postId],
+      });
+    },
   });
 };

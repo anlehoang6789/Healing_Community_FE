@@ -3,13 +3,31 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
 import Link from "next/link";
-import { SendHorizontal, ImageIcon, X, Smile, ThumbsUp } from "lucide-react";
+import {
+  SendHorizontal,
+  ImageIcon,
+  X,
+  Smile,
+  ThumbsUp,
+  Trash2,
+} from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { CommentType } from "@/schemaValidations/post.schema";
 import { useGetAllUsers } from "@/queries/useUser";
 import { UserType } from "@/schemaValidations/user.schema";
 import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CommentSectionProps {
   comments: CommentType[];
@@ -24,12 +42,14 @@ interface CommentSectionProps {
       coverImgUrl?: string | null;
     }
   ) => void;
+  deleteComment: (commentId: string, options?: any) => void; // Thêm prop này
 }
 
 export default function CommentSection({
   comments: initialComments,
   onAddComment,
   onAddReply,
+  deleteComment,
 }: CommentSectionProps) {
   const { data: users } = useGetAllUsers();
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -45,6 +65,9 @@ export default function CommentSection({
   const [emojiPickerForReply, setEmojiPickerForReply] = useState<string | null>(
     null
   );
+  const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+
+  const userIdComment = getUserIdFromLocalStorage() ?? "";
 
   const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
 
@@ -113,6 +136,21 @@ export default function CommentSection({
     }
   };
 
+  // Thêm hàm xử lý xóa comment
+  const handleDeleteComment = () => {
+    if (commentToDelete) {
+      setComments((prevComments) =>
+        prevComments.filter((comment) => comment.commentId !== commentToDelete)
+      );
+
+      deleteComment(commentToDelete, {
+        onSuccess: () => {
+          setCommentToDelete(null);
+        },
+      });
+    }
+  };
+
   const findUserById = (userId: string): UserType | undefined => {
     return users?.find((user) => user.userId === userId);
   };
@@ -120,6 +158,9 @@ export default function CommentSection({
     return comments.map((comment) => {
       // Tìm thông tin người dùng dựa trên userId
       const user = findUserById(comment.userId);
+
+      // Kiểm tra xem comment có phải của người dùng hiện tại không
+      const isCurrentUserComment = comment.userId === userIdComment;
 
       return (
         <div
@@ -137,7 +178,49 @@ export default function CommentSection({
           </Link>
 
           <div className="flex-1">
-            <div className="bg-gray-100 rounded-lg p-2 overflow-hidden break-words">
+            <div className="bg-gray-100 rounded-lg p-2 overflow-hidden break-words relative">
+              {isCurrentUserComment && (
+                <>
+                  <AlertDialog
+                    open={commentToDelete === comment.commentId}
+                    onOpenChange={() => setCommentToDelete(null)}
+                  >
+                    <AlertDialogContent className="bg-backgroundChat text-red-500">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Bạn có chắc chắn muốn xóa bình luận này?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Hành động này không thể hoàn tác. Bình luận sẽ bị xóa{" "}
+                          <b className="text-red-500">vĩnh viễn</b>.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel
+                          onClick={() => setCommentToDelete(null)}
+                        >
+                          Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-500 text-white"
+                          onClick={handleDeleteComment}
+                        >
+                          Xóa
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 text-red-500 hover:text-red-700"
+                    onClick={() => setCommentToDelete(comment.commentId)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
               <Link href="#">
                 <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                   {user?.fullName || user?.userName || comment.userId}

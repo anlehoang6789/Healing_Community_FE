@@ -123,3 +123,17 @@ export const RegisterExpertBody = z
     }
   });
 export type RegisterExpertBodyType = z.TypeOf<typeof RegisterExpertBody>;
+
+export const GetRoleByUserIdSchema = z.object({
+  roleId: z.number(),
+  roleName: z.string(),
+});
+
+export type GetRoleByUserIdSchemaType = z.TypeOf<typeof GetRoleByUserIdSchema>;
+
+export const GetRoleByUserIdRes = z.object({
+  data: GetRoleByUserIdSchema,
+  message: z.string(),
+});
+
+export type GetRoleByUserIdResType = z.TypeOf<typeof GetRoleByUserIdRes>;
