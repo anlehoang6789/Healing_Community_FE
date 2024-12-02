@@ -1,4 +1,5 @@
 import {
+  GetRoleByUserIdResType,
   LogoutBodyType,
   RefreshTokenBodyType,
   RefreshTokenResType,
@@ -62,6 +63,8 @@ const authApiRequest = {
     this.refreshTokenRequest = null;
     return result;
   },
+  getRoleByUserId: (userId: string) =>
+    http.get<GetRoleByUserIdResType>(`user/api/user/get-user-role/${userId}`),
 };
 
 export default authApiRequest;

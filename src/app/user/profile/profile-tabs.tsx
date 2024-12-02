@@ -4,6 +4,7 @@ import { Role } from "@/constants/type";
 import { toast } from "@/hooks/use-toast";
 import { getRoleFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useFollowUserMutation } from "@/queries/useAccount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
 import React from "react";
@@ -16,6 +17,8 @@ export default function ProfileTabs({
   isOwner: boolean;
 }) {
   const role = getRoleFromLocalStorage();
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const followUser = useFollowUserMutation();
   const handleFollowUser = () => {
     if (followUser.isPending) return;
@@ -61,7 +64,7 @@ export default function ProfileTabs({
             <Link href={`/user/profile/${userId}`}>Tường nhà</Link>
           </Button>
 
-          {isOwner && role === Role.Expert && (
+          {(isOwner && role === Role.Expert) || (!isOwner && isExpert) ? (
             <Button
               variant={"gradientHoverUnderline"}
               className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
@@ -70,7 +73,7 @@ export default function ProfileTabs({
                 Thông tin chuyên gia
               </Link>
             </Button>
-          )}
+          ) : null}
 
           {isOwner && role !== Role.Expert && (
             <Button
