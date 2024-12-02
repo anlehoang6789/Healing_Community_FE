@@ -246,12 +246,12 @@ export default function DetailPost() {
             }}
           />
 
-          <div className="flex gap-10 justify-center text-muted-foreground">
+          {/* <div className="flex gap-10 justify-center text-muted-foreground">
             <span>#Chữa lành</span>
             <span>#Chữa lành</span>
             <span>#Chữa lành</span>
             <span>#Chữa lành</span>
-          </div>
+          </div> */}
         </div>
         <div className="flex bg-gray-500 w-auto h-0.5 mx-8 mb-8"></div>
 

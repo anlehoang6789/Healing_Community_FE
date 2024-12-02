@@ -35,7 +35,9 @@ const postApiRequest = {
     http.post<CreateCommentResponseType>("post/api/comment/create", body),
 
   getPostByUserId: (userId: string) =>
-    http.get<GetPostByUserIdResType>(`post/api/post/get-by-user-id/${userId}`),
+    http.get<GetPostByUserIdResType>(
+      `post/api/post/get-user-post?userId=${userId}`
+    ),
   deletePostByPostId: (postId: string) =>
     http.delete<{ message: string }>(`post/api/post/delete/${postId}`),
   addUserReference: (body: AddUserReferenceBodyType) =>
