@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import {
   Ellipsis,
   FilePenLine,
+  Globe,
+  LockKeyhole,
   MessageSquare,
   Share2,
   ShieldMinus,
@@ -51,6 +53,8 @@ import {
 } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
 import EditPersonalPost from "@/components/personalWall/editPersonalPost";
+import Image from "next/image";
+import { useUserIsOwnerStore } from "@/store/userStore";
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -69,6 +73,7 @@ export default function OwnPost() {
   const { userId } = useParams(); //lấy userId từ url
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
+  const { isThatOwner } = useUserIsOwnerStore();
 
   const { data } = useGetPostByUserIdQuery(userId as string);
   // const postList = data?.payload.data || [];
@@ -76,6 +81,10 @@ export default function OwnPost() {
   const { data: userById } = useGetUserProfileQuery(userId as string);
   const [postId, setPostId] = useState<string | undefined>(undefined);
   const [postDelete, setPostDelete] = useState<PostItem | null>(null);
+  // filter bài viết theo status dựa theo isThatOwner. Nêú nó là isThatOwner thì hiển thị tất cả bài viết, ngược lại thì chỉ hiển thị bài viết public
+  const postListByStatus = postList.filter(
+    (post) => isThatOwner || post.status === 0
+  );
 
   const userIdComment = getUserIdFromLocalStorage() ?? "";
   const [commentsByPostId, setCommentsByPostId] = useState<{
@@ -299,12 +308,12 @@ export default function OwnPost() {
       }}
     >
       <div className="mb-2">
-        {postList.length === 0 ? (
+        {postListByStatus.length === 0 ? (
           <div className="text-textChat text-center p-4 rounded-lg shadow-lg border mb-6">
             Hiện chưa có bài viết nào
           </div>
         ) : (
-          postList.map((post) => {
+          postListByStatus.map((post) => {
             const isExpanded = expandedPosts[post.postId] || false;
             const truncate = shouldTruncateDescription(post.description);
             const openDeletePost = () => {
@@ -312,14 +321,23 @@ export default function OwnPost() {
             };
             const openEditPost = () => {
               setPostId(post.postId);
+              console.log("postId dùng để sửa bài viết", post.postId);
             };
             const shouldRenderDropdown = userIdFromLocalStorage === userId;
+            const isPostPublic = post.status === 0;
             return (
               <div
                 key={post.postId}
-                className="p-4 rounded-lg shadow-lg border mb-6"
+                className=" rounded-lg shadow-lg border mb-6"
               >
-                <div className="flex items-center gap-4 mb-6">
+                <Image
+                  src={post.coverImgUrl}
+                  alt="Banner"
+                  width={1000}
+                  height={500}
+                  className="w-full h-[250px] object-cover rounded-t-lg"
+                />
+                <div className="flex items-center gap-4 mb-6 p-4">
                   {/* Avatar, name*/}
                   <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
                     <AvatarImage
@@ -342,9 +360,18 @@ export default function OwnPost() {
                       {userById?.payload.data.fullName ||
                         userById?.payload.data.userName}
                     </h2>
-                    <p className="text-sm text-gray-500">
-                      {formatDateTime(post.createAt)}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-500">
+                        {formatDateTime(post.createAt)}
+                      </p>
+                      <p className="text-gray-500">
+                        {isPostPublic ? (
+                          <Globe className="h-4 w-4" />
+                        ) : (
+                          <LockKeyhole className="h-4 w-4" />
+                        )}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Dropdown menu */}
@@ -395,7 +422,7 @@ export default function OwnPost() {
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <div className="whitespace-pre-wrap mb-4 text-textChat">
+                  <div className="whitespace-pre-wrap mb-4 text-textChat p-4">
                     <div className="font-bold text-lg text-center mb-2">
                       {post.title}
                     </div>
@@ -408,7 +435,7 @@ export default function OwnPost() {
                 </motion.div>
 
                 {truncate && (
-                  <div className="flex justify-end">
+                  <div className="flex justify-end p-4">
                     <button
                       onClick={() => toggleExpand(post.postId, !isExpanded)}
                       className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
@@ -419,7 +446,7 @@ export default function OwnPost() {
                 )}
 
                 {/* Like, share, comment tabs*/}
-                <div className="flex flex-col items-start gap-4">
+                <div className="flex flex-col items-start gap-4 p-4">
                   <div className="flex justify-between w-full">
                     <span className="text-sm text-gray-500">10 lượt thích</span>
                     <span className="justify-end text-sm text-gray-500">
