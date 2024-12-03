@@ -9,3 +9,13 @@ export const useUserStore = create<UserStore>((set) => ({
   userId: null,
   setUserId: (id: string) => set(() => ({ userId: id })),
 }));
+
+interface UserIsOwnerStore {
+  isThatOwner: boolean;
+  setIsThatOwner: (isOwner: boolean) => void;
+}
+
+export const useUserIsOwnerStore = create<UserIsOwnerStore>((set) => ({
+  isThatOwner: false,
+  setIsThatOwner: (isThatOwner: boolean) => set(() => ({ isThatOwner })),
+}));
