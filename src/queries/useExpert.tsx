@@ -29,10 +29,14 @@ export const useUploadProfileImageForExpert = () => {
   });
 };
 
-export const useGetExpertProfileQuery = (expertId: string) => {
+export const useGetExpertProfileQuery = (
+  expertId: string,
+  enabled?: boolean
+) => {
   return useQuery({
     queryKey: ["expert-profile", expertId],
     queryFn: () => expertApiRequest.getExpertProfile(expertId),
+    enabled,
   });
 };
 
@@ -97,7 +101,9 @@ export const useGetExpertAvailability = (expertProfileId: string) => {
   });
 };
 
-export const useDeleteAvailableTimeSlotByIdMutation = (expertProfileId: string) => {
+export const useDeleteAvailableTimeSlotByIdMutation = (
+  expertProfileId: string
+) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: expertApiRequest.deleteAvailableTimeSlotById,

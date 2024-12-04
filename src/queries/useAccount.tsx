@@ -24,11 +24,11 @@ export const useResetPasswordWhenHaveOtpMutation = (onSuccess?: () => void) => {
   });
 };
 
-export const useGetUserProfileQuery = (userId: string) => {
+export const useGetUserProfileQuery = (userId: string, enabled?: boolean) => {
   return useQuery({
     queryKey: ["userProfile", userId],
     queryFn: () => accountApiRequest.getUserProfile(userId),
-    enabled: !!userId,
+    enabled,
   });
 };
 
