@@ -1,5 +1,4 @@
 import groupApiRequest from "@/apiRequests/group";
-import { GetAllGroupsJoinedByUserIdResponseType } from "@/schemaValidations/group.schema";
 import { useQuery } from "@tanstack/react-query";
 
 export const useGetAllGroupsQuery = () => {
