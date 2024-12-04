@@ -7,6 +7,7 @@ import {
   useGetFollowingQuery,
   useUnfollowUserMutation,
 } from "@/queries/useAccount";
+import { useUserIsOwnerStore } from "@/store/userStore";
 import { BadgeCheck } from "lucide-react";
 
 import Image from "next/image";
@@ -18,9 +19,10 @@ export default function FollowedUser() {
   const { userId } = useParams();
   const { data } = useGetFollowingQuery(userId as string);
   const getFollowingList = data?.payload.data;
+  const { isThatOwner } = useUserIsOwnerStore();
 
   //handle unfollow
-  const unFollowUser = useUnfollowUserMutation();
+  const unFollowUser = useUnfollowUserMutation(userId as string);
   const handleUnfollow = (userId: string) => {
     if (unFollowUser.isPending) return;
     try {
@@ -85,19 +87,21 @@ export default function FollowedUser() {
                     </div>
                   </Link>
 
-                  <div className="flex items-center space-x-1 sm:space-x-1 md:space-x-1 lg:space-x-2">
-                    <Button
-                      variant="outline"
-                      className="flex items-center bg-[#c2eaf7] hover:bg-[#d2f5ff] text-black text-xs rounded-full border-none px-4 py-2 md:px-1 md:py-0 sm:px-4 sm:py-2 lg:px-3 lg:py-1 sm:text-xs md:text-[10px] lg:text-xs"
-                      onClick={() => handleUnfollow(user.userId)}
-                    >
-                      <BadgeCheck
-                        className="w-5 h-5 mr-1 text-green-700 lg:w-5 lg:h-5 md:w-4 md:h-4 sm:w-5 sm:h-5"
-                        strokeWidth="3px"
-                      />
-                      Đã theo dõi
-                    </Button>
-                  </div>
+                  {isThatOwner && (
+                    <div className="flex items-center space-x-1 sm:space-x-1 md:space-x-1 lg:space-x-2">
+                      <Button
+                        variant="outline"
+                        className="flex items-center bg-[#c2eaf7] hover:bg-[#d2f5ff] text-black text-xs rounded-full border-none px-4 py-2 md:px-1 md:py-0 sm:px-4 sm:py-2 lg:px-3 lg:py-1 sm:text-xs md:text-[10px] lg:text-xs"
+                        onClick={() => handleUnfollow(user.userId)}
+                      >
+                        <BadgeCheck
+                          className="w-5 h-5 mr-1 text-green-700 lg:w-5 lg:h-5 md:w-4 md:h-4 sm:w-5 sm:h-5"
+                          strokeWidth="3px"
+                        />
+                        Đã theo dõi
+                      </Button>
+                    </div>
+                  )}
                 </li>
               ))}
             </>

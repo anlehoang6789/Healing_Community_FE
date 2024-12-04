@@ -58,26 +58,26 @@ export const useGetFollowingQuery = (userId: string) => {
   });
 };
 
-export const useFollowUserMutation = () => {
+export const useFollowUserMutation = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: accountApiRequest.followUser,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["following"],
+        queryKey: ["following", userId],
         exact: true,
       });
     },
   });
 };
 
-export const useUnfollowUserMutation = () => {
+export const useUnfollowUserMutation = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: accountApiRequest.unFollowUser,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["following"],
+        queryKey: ["following", userId],
         exact: true,
       });
     },
