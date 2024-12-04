@@ -6,7 +6,9 @@ import { toast } from "@/hooks/use-toast";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import {
   useFollowUserMutation,
+  useGetFollowingQuery,
   useGetUserProfileQuery,
+  useUnfollowUserMutation,
 } from "@/queries/useAccount";
 import { useGetPostByPostIdQuery } from "@/queries/usePost";
 import {
@@ -20,6 +22,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const isValidUrl = (url: string) => {
   try {
@@ -43,12 +46,17 @@ export default function ProfileCard() {
     postById?.payload.data.userId as string
   );
   const userId = getUserIdFromLocalStorage();
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
   const postUserId = postById?.payload.data.userId;
-  const followUser = useFollowUserMutation();
+  const unFollowUser = useUnfollowUserMutation(postUserId as string); //unfollow người ta
+  const followUser = useFollowUserMutation(postUserId as string); //follow người ta
+  const { data } = useGetFollowingQuery(userId as string); //lấy danh sách người đang theo dõi của chính mình
+  const getFollowingList = data?.payload.data;
   const handleFollowUser = () => {
     if (followUser.isPending) return;
     try {
       followUser.mutateAsync({ followerId: postUserId as string });
+      setIsFollowing(true);
       toast({
         description: "Đã theo dõi người dùng",
         variant: "success",
@@ -57,6 +65,35 @@ export default function ProfileCard() {
       handleErrorApi(error);
     }
   };
+
+  const handleUnfollow = (userId: string) => {
+    if (unFollowUser.isPending) return;
+    try {
+      unFollowUser.mutateAsync(userId);
+      setIsFollowing(false);
+      toast({
+        description: "Đã bỏ theo dõi người dùng",
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchFollowStatus = () => {
+      if (!getFollowingList || !postUserId) return;
+
+      // Kiểm tra xem userId mục tiêu có trong danh sách theo dõi không
+      const isUserFollowing = getFollowingList.some(
+        (followedUser) => followedUser.userId === postUserId
+      );
+
+      setIsFollowing(isUserFollowing);
+    };
+
+    fetchFollowStatus();
+  }, [getFollowingList, postUserId]);
 
   // Check if the postUserId matches the logged-in userId
   if (userId === postUserId) {
@@ -139,9 +176,11 @@ export default function ProfileCard() {
       <div className="flex justify-center">
         <Button
           className="h-7 w-full ml-8 mr-8 mt-2 mb-4 bg-gradient-custom-left-to-right text-gray-600 font-bold"
-          onClick={handleFollowUser}
+          onClick={() =>
+            isFollowing ? handleUnfollow(postUserId!) : handleFollowUser()
+          }
         >
-          Theo dõi
+          {isFollowing ? "Bỏ theo dõi" : "Theo dõi"}
         </Button>
       </div>
       <CardContent>

@@ -335,6 +335,7 @@ export default function OwnPost() {
                   alt="Banner"
                   width={1000}
                   height={500}
+                  priority={true}
                   className="w-full h-[250px] object-cover rounded-t-lg"
                 />
                 <div className="flex items-center gap-4 mb-6 p-4">

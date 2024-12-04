@@ -24,11 +24,11 @@ export const useResetPasswordWhenHaveOtpMutation = (onSuccess?: () => void) => {
   });
 };
 
-export const useGetUserProfileQuery = (userId: string) => {
+export const useGetUserProfileQuery = (userId: string, enabled?: boolean) => {
   return useQuery({
     queryKey: ["userProfile", userId],
     queryFn: () => accountApiRequest.getUserProfile(userId),
-    enabled: !!userId,
+    enabled,
   });
 };
 
@@ -58,26 +58,26 @@ export const useGetFollowingQuery = (userId: string) => {
   });
 };
 
-export const useFollowUserMutation = () => {
+export const useFollowUserMutation = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: accountApiRequest.followUser,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["following"],
+        queryKey: ["following", userId],
         exact: true,
       });
     },
   });
 };
 
-export const useUnfollowUserMutation = () => {
+export const useUnfollowUserMutation = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: accountApiRequest.unFollowUser,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["following"],
+        queryKey: ["following", userId],
         exact: true,
       });
     },

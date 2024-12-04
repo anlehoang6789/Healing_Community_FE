@@ -2,8 +2,11 @@
 import ProfileTabs from "@/app/user/profile/profile-tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { Role } from "@/constants/type";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { useParams } from "next/navigation";
 import React, { createContext, useEffect, useState } from "react";
 
@@ -24,6 +27,7 @@ export default function ProfileUserLayout({
   const userIdFromPath = params.userId as string;
   const currentUserId = getUserIdFromLocalStorage();
   const [userId, setUserId] = useState<string | null>(null);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
 
   const isOwner = currentUserId === userId;
   useEffect(() => {
@@ -34,7 +38,15 @@ export default function ProfileUserLayout({
   }, [userIdFromPath, currentUserId, userId]);
 
   // Fetch user profile data
-  const { data: userProfile } = useGetUserProfileQuery(userId as string);
+  const { data: userProfile } = useGetUserProfileQuery(
+    userId as string,
+    roleByUserId?.payload.data.roleName === Role.User && !!userId
+  );
+
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    userId as string,
+    roleByUserId?.payload.data.roleName === Role.Expert && !!userId
+  );
 
   if (!userId) {
     return (
@@ -104,18 +116,23 @@ export default function ProfileUserLayout({
             <AvatarImage
               src={
                 userProfile?.payload.data.profilePicture ||
+                expertProfile?.payload.data.profileImageUrl ||
                 "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
               }
               alt="Hoàng An"
             />
             <AvatarFallback>
               {userProfile?.payload.data.fullName ||
-                userProfile?.payload.data.userName}
+                userProfile?.payload.data.userName ||
+                expertProfile?.payload.data.fullname ||
+                expertProfile?.payload.data.email}
             </AvatarFallback>
           </Avatar>
           <h1 className="text-xl sm:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
             {userProfile?.payload.data.fullName ||
-              userProfile?.payload.data.userName}
+              userProfile?.payload.data.userName ||
+              expertProfile?.payload.data.fullname ||
+              expertProfile?.payload.data.email}
           </h1>
           <div className="flex flex-col items-center justify-center">
             {/* First information */}
