@@ -1,174 +1,63 @@
 "use client";
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { Button } from "@/components/ui/button";
-import {
-  Check,
-  Flag,
-  LogOut,
-  MessageSquare,
-  MoreHorizontal,
-  Pencil,
-  Pin,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+
 import DeleteGroup from "@/app/moderator/manage-groups/delete-group";
 import EditGroup from "@/app/moderator/manage-groups/edit-group";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 
-type Group = {
-  id: string;
-  name: string;
-  imageUrl: string;
-  memberCount: number;
-  isPublic: boolean;
-  createdDate: string;
-  leader?: string;
-};
-
-const groups: Group[] = [
-  {
-    id: "1",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "2",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "3",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    createdDate: "2023-01-01",
-    isPublic: false,
-    leader: "Gia Minh",
-  },
-  {
-    id: "4",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "5",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "6",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    createdDate: "2023-01-01",
-    isPublic: false,
-    leader: "Gia Minh",
-  },
-  {
-    id: "7",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "8",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "9",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    createdDate: "2023-01-01",
-    isPublic: false,
-    leader: "Gia Minh",
-  },
-  {
-    id: "10",
-    name: "PHỐT MÁI ẤM HOA HỒNG QUẬN 12",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 5000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "11",
-    name: "Capital3group USA | EB3 Unskilled Green Card",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 10000,
-    createdDate: "2023-01-01",
-    isPublic: true,
-  },
-  {
-    id: "12",
-    name: "Thanh lý khu vui chơi",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    memberCount: 15000,
-    createdDate: "2023-01-01",
-    isPublic: false,
-    leader: "Gia Minh",
-  },
-];
+import AutoPagination from "@/components/auto-pagination";
+import { useSearchParams } from "next/navigation";
+import { useGetAllGroupsQuery } from "@/queries/useGroup";
 
 export default function ListOfGroupsForModerator() {
   const { theme } = useTheme();
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const groupsPerPage = 9; // Số nhóm hiển thị trên mỗi trang
+
+  const groupsPerPage = 9;
+
+  const searchParams = useSearchParams();
+  const pageFromParams = searchParams.get("page");
+  const currentPage = pageFromParams ? parseInt(pageFromParams) : 1;
+
+  const indexOfLastGroup = currentPage * groupsPerPage;
+  const indexOfFirstGroup = indexOfLastGroup - groupsPerPage;
+
+  const { data: response, isLoading, error } = useGetAllGroupsQuery();
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3].map((item) => (
+            <Card key={item} className="animate-pulse">
+              <CardContent className="p-4 flex items-start space-x-4">
+                <div className="bg-gray-200 rounded-lg w-24 h-24"></div>
+                <div className="flex-1">
+                  <div className="bg-gray-200 h-6 w-3/4 mb-2"></div>
+                  <div className="bg-gray-200 h-4 w-1/2"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (error) {
+    return <div>Đã xảy ra lỗi khi tải dữ liệu nhóm.</div>;
+  }
+
+  const groups = response?.payload?.data || [];
   const totalPages = Math.ceil(groups.length / groupsPerPage);
 
   const getCurrentPageGroups = () => {
@@ -178,15 +67,18 @@ export default function ListOfGroupsForModerator() {
   };
 
   return (
-    <div className="container mx-auto ">
+    <div className="container mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
         {getCurrentPageGroups().map((group) => (
-          <Card key={group.id} className="transition-shadow relative">
+          <Card key={group.groupId} className="transition-shadow relative">
             <CardContent className="p-4 flex items-center space-x-4 relative">
               <Link href="#">
                 <Image
-                  src={group.imageUrl}
-                  alt={group.name}
+                  src={
+                    group.avatarGroup ||
+                    "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                  }
+                  alt={group.groupName}
                   width={90}
                   height={90}
                   className="cursor-pointer rounded-lg object-cover"
@@ -194,20 +86,20 @@ export default function ListOfGroupsForModerator() {
               </Link>
 
               <div className="flex-1">
-                {/* <HoverCardTrigger asChild> */}
                 <Link href="#">
                   <h2 className="font-semibold hover:underline">
-                    {group.name}
+                    {group.groupName}
                   </h2>
                 </Link>
-                {/* </HoverCardTrigger> */}
                 <p className="text-sm text-gray-500">
-                  Thành viên: {group.memberCount.toLocaleString()}
+                  Thành viên: {group.currentMemberCount.toLocaleString()}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Trạng thái: {group.isPublic ? "Công khai" : "Riêng tư"}
+                  Trạng thái:{" "}
+                  {group.isAutoApprove ? "Tự động duyệt" : "Duyệt thủ công"}
                 </p>
               </div>
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="mb-auto">
@@ -216,7 +108,7 @@ export default function ListOfGroupsForModerator() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
                   align="end"
-                  className={` ${
+                  className={`${
                     theme === "dark"
                       ? "bg-black text-white"
                       : "bg-white text-black"
@@ -225,88 +117,30 @@ export default function ListOfGroupsForModerator() {
                   {/* Chỉnh sửa nhóm */}
                   <EditGroup group={group} />
 
-                  {/* xóa nhóm */}
+                  {/* Xóa nhóm */}
                   <DeleteGroup />
                 </DropdownMenuContent>
               </DropdownMenu>
             </CardContent>
           </Card>
-
-          //     <HoverCardContent
-          //       className={`w-80 mt-4 ${
-          //         theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-          //       }`}
-          //     >
-          //       <div className="flex items-start gap-4">
-          //         <Link href="#">
-          //           <Avatar className="h-16 w-16">
-          //             <AvatarImage src={group.imageUrl} alt={group.name} />
-          //             <AvatarFallback>{group.name.charAt(0)}</AvatarFallback>
-          //           </Avatar>
-          //         </Link>
-          //         <Link href="#">
-          //           <h3 className="font-semibold hover:underline">
-          //             {group.name}
-          //           </h3>
-          //         </Link>
-          //       </div>
-          //       <div className="mt-4">
-          //         <p className="text-sm text-gray-500 flex items-center mt-1">
-          //           <Users className="h-4 w-4 mr-1" />
-          //           {group.isPublic ? "Nhóm Công khai" : "Nhóm Riêng tư"}{" "}
-          //         </p>
-          //         <p className="text-sm text-gray-500 mt-1">
-          //           {group.memberCount.toLocaleString()} thành viên
-          //         </p>
-          //       </div>
-          //       <div className="flex gap-4">
-          //         <Button className="w-full mt-4">Truy cập vào nhóm</Button>
-          //       </div>
-          //     </HoverCardContent>
-          //   </HoverCard>
         ))}
       </div>
 
-      <div className="mt-4">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.max(prev - 1, 1));
-                }}
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  className="text-muted-foreground"
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(index + 1);
-                  }}
-                  isActive={currentPage === index + 1}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="text-xs text-muted-foreground py-4 flex-1 ">
+          Hiển thị{" "}
+          <strong>
+            {indexOfFirstGroup + 1}-{Math.min(indexOfLastGroup, groups.length)}
+          </strong>{" "}
+          trong <strong>{groups.length}</strong> kết quả
+        </div>
+        <div>
+          <AutoPagination
+            page={currentPage}
+            pageSize={totalPages}
+            pathname="/moderator/manage-groups"
+          />
+        </div>
       </div>
     </div>
   );

@@ -10,53 +10,44 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { GroupType } from "@/schemaValidations/group.schema";
 import { Pencil } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 
-type Group = {
-  id: string;
-  name: string;
-  memberCount: number;
-  createdDate: string;
-  isPublic: boolean;
-  leader?: string;
-  imageUrl: string;
-};
-
 type EditGroupProps = {
-  group: Group;
+  group: GroupType;
 };
 
 const EditGroup: React.FC<EditGroupProps> = ({ group }) => {
-  const [name, setName] = useState(group.name);
-  const [isPublic, setIsPublic] = useState(group.isPublic);
-  const [leader, setLeader] = useState(
-    group.isPublic ? "" : group.leader || ""
+  const [groupName, setGroupName] = useState(group.groupName);
+  const [isPublic, setIsPublic] = useState(group.groupVisibility === 0);
+  const [avatarGroup, setAvatarGroup] = useState(
+    group.avatarGroup ||
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
   );
+  const [description, setDescription] = useState(group.description || "");
 
-  const [imageUrl, setImageUrl] = useState(group.imageUrl); // State cho hình ảnh
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageUrl(reader.result as string); // Cập nhật hình ảnh
+        setAvatarGroup(reader.result as string); // Cập nhật avatar
       };
-      reader.readAsDataURL(file); // Đọc file hình ảnh
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Xử lý cập nhật nhóm ở đây
     console.log({
-      id: group.id,
-      name,
-      isPublic,
-      leader,
-      imageUrl,
+      groupId: group.groupId,
+      groupName,
+      description,
+      avatarGroup,
+      isAutoApprove: group.isAutoApprove,
+      groupVisibility: isPublic ? 1 : 0,
     });
   };
 
@@ -76,17 +67,23 @@ const EditGroup: React.FC<EditGroupProps> = ({ group }) => {
         <form onSubmit={handleSubmit} className="p-4">
           <div className="mb-3">
             <div className="flex flex-col items-center gap-3">
-              <Image
-                width={200}
-                height={200}
-                src={imageUrl}
-                alt="Group"
-                className="rounded-lg object-cover"
-              />
+              {avatarGroup ? (
+                <Image
+                  width={200}
+                  height={200}
+                  src={avatarGroup}
+                  alt="Group"
+                  className="rounded-lg object-cover"
+                />
+              ) : (
+                <div className="h-52 w-52 bg-gray-300 flex items-center justify-center text-gray-700">
+                  No Image
+                </div>
+              )}
               <Input
                 type="file"
                 accept="image/*"
-                onChange={handleImageChange}
+                onChange={handleAvatarChange}
                 className="w-full border border-gray-300 rounded-md "
               />
             </div>
@@ -96,59 +93,33 @@ const EditGroup: React.FC<EditGroupProps> = ({ group }) => {
             <label className="block text-sm font-medium">Tên nhóm</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
               required
             />
           </div>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium">
-              Số lượng thành viên
-            </label>
-            <span className="block w-full  rounded-md ">
-              {group.memberCount.toLocaleString()}
-            </span>
-          </div>
-
-          <div className="mb-3">
-            <label className="block text-sm font-medium">Ngày tạo</label>
-            <span className=" block w-full  rounded-md ">
-              {group.createdDate}
-            </span>
+            <label className="block text-sm font-medium">Mô tả nhóm</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            />
           </div>
 
           <div className="mb-3">
             <label className="block text-sm font-medium">Trạng thái nhóm</label>
             <select
               value={isPublic ? "public" : "private"}
-              onChange={(e) => {
-                const value = e.target.value === "public";
-                setIsPublic(value);
-                if (value) {
-                  setLeader(""); // Reset trưởng nhóm nếu chuyển sang công khai
-                }
-              }}
+              onChange={(e) => setIsPublic(e.target.value === "public")}
               className="mt-1 block w-full border border-gray-300 rounded-md p-2"
             >
               <option value="public">Công khai</option>
               <option value="private">Riêng tư</option>
             </select>
           </div>
-
-          {!isPublic && (
-            <div className="mb-4">
-              <label className="block text-sm font-medium">Trưởng nhóm</label>
-              <Input
-                type="text"
-                value={leader}
-                onChange={(e) => setLeader(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-                required
-              />
-            </div>
-          )}
         </form>
         <DialogFooter>
           <DialogClose asChild>
