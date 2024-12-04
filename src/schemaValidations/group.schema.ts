@@ -53,3 +53,16 @@ const GetAllGroupsJoinedByUserIdResponseSchema = z.object({
 export type GetAllGroupsJoinedByUserIdResponseType = z.infer<
   typeof GetAllGroupsJoinedByUserIdResponseSchema
 >;
+
+const CreateGroupRequestSchema = z.object({
+  groupName: z.string(),
+  description: z.string(),
+  avatarGroup: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  isAutoApprove: z.boolean(),
+  groupVisibility: z.number(),
+  memberLimit: z.number(),
+});
+
+export type CreateGroupRequestType = z.infer<typeof CreateGroupRequestSchema>;
