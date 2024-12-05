@@ -24,6 +24,7 @@ import { useTheme } from "next-themes";
 import {
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
+  useGetCommentCountQuery,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
   useGetReactionCountQuery,
@@ -45,6 +46,10 @@ export default function DetailPost() {
   const postIdFromUrl = param?.postId;
   // console.log("postIdFromUrl", postIdFromUrl);
   const { data: reactionCount } = useGetReactionCountQuery(
+    postIdFromUrl as string
+  );
+
+  const { data: commentCount } = useGetCommentCountQuery(
     postIdFromUrl as string
   );
 
@@ -182,7 +187,7 @@ export default function DetailPost() {
           <MessageCircle className="h-8 w-8 text-blue-500" />
         </Button>
         <span className="text-xs font-semibold text-muted-foreground">
-          {10}
+          {commentCount?.payload.data?.countTotalComment || 0}
         </span>
         <Button variant="ghost" size="icon" className="rounded-full mt-5">
           <Share2 className="h-8 w-8 text-green-500" />

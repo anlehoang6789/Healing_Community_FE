@@ -186,3 +186,10 @@ export const useAddReactionMutation = () => {
     },
   });
 };
+
+export const useGetCommentCountQuery = (postId: string) => {
+  return useQuery({
+    queryKey: ["comment-count", postId],
+    queryFn: () => postApiRequest.getCommentCount(postId),
+  });
+};
