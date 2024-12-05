@@ -145,9 +145,8 @@ const CreateGroupDialog = () => {
             </label>
             <input
               type="number"
-              value={memberLimit}
               onChange={(e) => setMemberLimit(Number(e.target.value))}
-              className="mt-1 block w-[345px] lg:w-[482px] md:w-[482px] sm:w-[482px] border border-gray-300 rounded-md p-2 text-textChat"
+              className="mt-1 block w-[345px] lg:w-[482px] md:w-[482px] sm:w-[482px] border border-gray-300 rounded-md p-2 text-textChat appearance-none"
               required
             />
           </div>
