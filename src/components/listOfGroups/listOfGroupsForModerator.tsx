@@ -118,7 +118,10 @@ export default function ListOfGroupsForModerator() {
                   <EditGroup group={group} />
 
                   {/* Xóa nhóm */}
-                  <DeleteGroup />
+                  <DeleteGroup
+                    groupId={group.groupId}
+                    groupName={group.groupName}
+                  />
                 </DropdownMenuContent>
               </DropdownMenu>
             </CardContent>

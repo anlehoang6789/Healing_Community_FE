@@ -14,6 +14,9 @@ const groupApiRequest = {
 
   createGroup: (payload: CreateGroupRequestType) =>
     http.post("group/api/group/create-group", payload),
+
+  deleteGroupByGroupId: (groupId: string) =>
+    http.delete<{ message: string }>(`group/api/group/delete-group/${groupId}`),
 };
 
 export default groupApiRequest;
