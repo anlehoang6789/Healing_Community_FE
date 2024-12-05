@@ -23,10 +23,12 @@ import {
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
+  useAddReactionMutation,
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
   useGetPostByUserIdQuery,
+  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import {
   formatDateTime,
@@ -55,6 +57,25 @@ import postApiRequest from "@/apiRequests/post";
 import EditPersonalPost from "@/components/personalWall/editPersonalPost";
 import Image from "next/image";
 import { useUserIsOwnerStore } from "@/store/userStore";
+import { useReactionStore } from "@/store/reactionStore";
+import ReactionEmoji from "@/components/homePage/reactionEmoji";
+
+const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
+  const { data, isLoading, isError } = useGetReactionCountQuery(postId);
+
+  if (isLoading)
+    return (
+      <span className="text-sm text-gray-500 animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      </span>
+    );
+  if (isError || !data)
+    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
+
+  const reactionCount = data.payload.data.total;
+
+  return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
+};
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -85,6 +106,22 @@ export default function OwnPost() {
   const postListByStatus = postList.filter(
     (post) => isThatOwner || post.status === 0
   );
+
+  //Phần xử lí add reaction
+  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
+  const { selectedReactions, setReaction } = useReactionStore();
+  const addReactionMutation = useAddReactionMutation();
+  const handleEmojiSelect = (
+    reactionTypeId: string,
+    emoji: string,
+    postId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    addReactionMutation.mutate({ postId, reactionTypeId });
+    setReaction(postId, emoji);
+    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
+  };
 
   const userIdComment = getUserIdFromLocalStorage() ?? "";
   const [commentsByPostId, setCommentsByPostId] = useState<{
@@ -449,20 +486,51 @@ export default function OwnPost() {
                 {/* Like, share, comment tabs*/}
                 <div className="flex flex-col items-start gap-4 p-4">
                   <div className="flex justify-between w-full">
-                    <span className="text-sm text-gray-500">10 lượt thích</span>
+                    <ReactionCount postId={post.postId} />
                     <span className="justify-end text-sm text-gray-500">
                       10 bình luận
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between w-full">
-                    <Button
-                      variant="iconDarkMod"
-                      className="flex items-center gap-2 p-0"
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                      Thích
-                    </Button>
+                    <div className="relative">
+                      <div
+                        className="inline-block"
+                        onMouseEnter={() => setHoveredPostId(post.postId)}
+                        onMouseLeave={() => setHoveredPostId(null)}
+                      >
+                        <Button
+                          variant="iconDarkMod"
+                          className="flex items-center gap-2 p-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {selectedReactions[post.postId] ? (
+                            <span className="text-xl">
+                              {selectedReactions[post.postId]}
+                            </span>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <ThumbsUp className="w-4 h-4" />
+                              Thích
+                            </div>
+                          )}
+                        </Button>
+
+                        {/* Hiển thị ReactionEmoji khi hover */}
+                        {hoveredPostId === post.postId && (
+                          <ReactionEmoji
+                            onSelect={(reactionId, emoji, e) =>
+                              handleEmojiSelect(
+                                reactionId,
+                                emoji,
+                                post.postId,
+                                e
+                              )
+                            }
+                          />
+                        )}
+                      </div>
+                    </div>
                     <Button
                       variant="iconDarkMod"
                       className="flex items-center gap-2 p-0"
