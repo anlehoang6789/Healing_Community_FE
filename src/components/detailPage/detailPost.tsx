@@ -26,6 +26,7 @@ import {
   useDeleteCommentByCommnetIdMutation,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
+  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
@@ -43,6 +44,9 @@ export default function DetailPost() {
   const param = useParams();
   const postIdFromUrl = param?.postId;
   // console.log("postIdFromUrl", postIdFromUrl);
+  const { data: reactionCount } = useGetReactionCountQuery(
+    postIdFromUrl as string
+  );
 
   const { mutate: deleteComment } =
     useDeleteCommentByCommnetIdMutation(userIdComment);
@@ -172,7 +176,7 @@ export default function DetailPost() {
           <Heart className="h-8 w-8 text-red-500" />
         </Button>
         <span className="text-xs font-semibold text-muted-foreground">
-          {20}
+          {reactionCount?.payload.data?.total || 0}
         </span>
         <Button variant="ghost" size="icon" className="rounded-full mt-5">
           <MessageCircle className="h-8 w-8 text-blue-500" />
