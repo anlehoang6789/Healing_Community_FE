@@ -1,5 +1,6 @@
 import postApiRequest from "@/apiRequests/post";
 import {
+  AddReactionBodyType,
   GetHomePageSchemaLazyLoadType,
   UpdatePersonalPostBodyType,
 } from "@/schemaValidations/post.schema";
@@ -161,6 +162,26 @@ export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
       // Invalidate và refetch comments của post
       queryClient.invalidateQueries({
         queryKey: ["comments", postId],
+      });
+    },
+  });
+};
+
+export const useGetReactionCountQuery = (postId: string) => {
+  return useQuery({
+    queryKey: ["reaction-count", postId],
+    queryFn: () => postApiRequest.getReactionCount(postId),
+  });
+};
+
+export const useAddReactionMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: AddReactionBodyType) => postApiRequest.addReaction(body),
+    onSuccess: (_, { postId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-count", postId],
       });
     },
   });

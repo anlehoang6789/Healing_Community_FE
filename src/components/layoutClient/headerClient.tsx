@@ -86,10 +86,16 @@ export default function Header() {
     }
   };
 
-  const userId = getUserIdFromLocalStorage();
-  const { data: userProfile } = useGetUserProfileQuery(userId as string);
-  const { data: expertProfile } = useGetExpertProfileQuery(userId as string);
   const role = getRoleFromLocalStorage();
+  const userId = getUserIdFromLocalStorage();
+  const { data: userProfile } = useGetUserProfileQuery(
+    userId as string,
+    role === Role.User && !!userId
+  );
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    userId as string,
+    role === Role.Expert && !!userId
+  );
 
   return (
     <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
@@ -104,6 +110,7 @@ export default function Header() {
             alt="Logo"
             width={40}
             height={40}
+            priority={true}
             style={{ width: "auto", height: "auto" }}
           />
         </Link>

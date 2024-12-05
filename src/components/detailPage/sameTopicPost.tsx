@@ -51,7 +51,7 @@ export default function SameTopicPost() {
 
       <div className="space-y-4">
         {posts.map((post, index) => (
-          <Card key={index} className="overflow-hidden bg-white">
+          <Card key={index} className="overflow-hidden">
             <CardContent className="flex flex-col py-2 px-2">
               <Image
                 src={post.imageUrl}
@@ -63,10 +63,10 @@ export default function SameTopicPost() {
               />
               <div className="ml-4 flex flex-col justify-between">
                 <div>
-                  <h3 className="lg:text-lg md:text-2xl sm:text-2xl text-lg mt-2 font-medium text-gray-800">
+                  <h3 className="lg:text-lg md:text-2xl sm:text-2xl text-lg mt-2 font-medium text-textChat">
                     {post.title}
                   </h3>
-                  <p className="lg:text-sm md:text-xl sm:text-xl text-sm text-gray-600 line-clamp-2">
+                  <p className="lg:text-sm md:text-xl sm:text-xl text-sm text-muted-foreground line-clamp-2">
                     {post.description}
                   </p>
                 </div>

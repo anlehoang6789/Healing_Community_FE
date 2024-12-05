@@ -1,10 +1,12 @@
 import ListOfGroupsForModerator from "@/components/listOfGroups/listOfGroupsForModerator";
-import React from "react";
+import React, { Suspense } from "react";
 
 export default function ListOfGroups() {
   return (
     <div>
-      <ListOfGroupsForModerator />
+      <Suspense>
+        <ListOfGroupsForModerator />
+      </Suspense>
     </div>
   );
 }

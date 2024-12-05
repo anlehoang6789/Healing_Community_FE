@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import {
   Ellipsis,
   FilePenLine,
+  Globe,
+  LockKeyhole,
   MessageSquare,
   Share2,
   ShieldMinus,
@@ -21,10 +23,12 @@ import {
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
+  useAddReactionMutation,
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
   useGetPostByUserIdQuery,
+  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import {
   formatDateTime,
@@ -51,6 +55,27 @@ import {
 } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
 import EditPersonalPost from "@/components/personalWall/editPersonalPost";
+import Image from "next/image";
+import { useUserIsOwnerStore } from "@/store/userStore";
+import { useReactionStore } from "@/store/reactionStore";
+import ReactionEmoji from "@/components/homePage/reactionEmoji";
+
+const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
+  const { data, isLoading, isError } = useGetReactionCountQuery(postId);
+
+  if (isLoading)
+    return (
+      <span className="text-sm text-gray-500 animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      </span>
+    );
+  if (isError || !data)
+    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
+
+  const reactionCount = data.payload.data.total;
+
+  return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
+};
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -69,6 +94,7 @@ export default function OwnPost() {
   const { userId } = useParams(); //lấy userId từ url
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
+  const { isThatOwner } = useUserIsOwnerStore();
 
   const { data } = useGetPostByUserIdQuery(userId as string);
   // const postList = data?.payload.data || [];
@@ -76,6 +102,26 @@ export default function OwnPost() {
   const { data: userById } = useGetUserProfileQuery(userId as string);
   const [postId, setPostId] = useState<string | undefined>(undefined);
   const [postDelete, setPostDelete] = useState<PostItem | null>(null);
+  // filter bài viết theo status dựa theo isThatOwner. Nêú nó là isThatOwner thì hiển thị tất cả bài viết, ngược lại thì chỉ hiển thị bài viết public
+  const postListByStatus = postList.filter(
+    (post) => isThatOwner || post.status === 0
+  );
+
+  //Phần xử lí add reaction
+  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
+  const { selectedReactions, setReaction } = useReactionStore();
+  const addReactionMutation = useAddReactionMutation();
+  const handleEmojiSelect = (
+    reactionTypeId: string,
+    emoji: string,
+    postId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    addReactionMutation.mutate({ postId, reactionTypeId });
+    setReaction(postId, emoji);
+    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
+  };
 
   const userIdComment = getUserIdFromLocalStorage() ?? "";
   const [commentsByPostId, setCommentsByPostId] = useState<{
@@ -299,12 +345,12 @@ export default function OwnPost() {
       }}
     >
       <div className="mb-2">
-        {postList.length === 0 ? (
+        {postListByStatus.length === 0 ? (
           <div className="text-textChat text-center p-4 rounded-lg shadow-lg border mb-6">
             Hiện chưa có bài viết nào
           </div>
         ) : (
-          postList.map((post) => {
+          postListByStatus.map((post) => {
             const isExpanded = expandedPosts[post.postId] || false;
             const truncate = shouldTruncateDescription(post.description);
             const openDeletePost = () => {
@@ -312,14 +358,24 @@ export default function OwnPost() {
             };
             const openEditPost = () => {
               setPostId(post.postId);
+              console.log("postId dùng để sửa bài viết", post.postId);
             };
             const shouldRenderDropdown = userIdFromLocalStorage === userId;
+            const isPostPublic = post.status === 0;
             return (
               <div
                 key={post.postId}
-                className="p-4 rounded-lg shadow-lg border mb-6"
+                className=" rounded-lg shadow-lg border mb-6"
               >
-                <div className="flex items-center gap-4 mb-6">
+                <Image
+                  src={post.coverImgUrl}
+                  alt="Banner"
+                  width={1000}
+                  height={500}
+                  priority={true}
+                  className="w-full h-[250px] object-cover rounded-t-lg"
+                />
+                <div className="flex items-center gap-4 mb-6 p-4">
                   {/* Avatar, name*/}
                   <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
                     <AvatarImage
@@ -342,9 +398,18 @@ export default function OwnPost() {
                       {userById?.payload.data.fullName ||
                         userById?.payload.data.userName}
                     </h2>
-                    <p className="text-sm text-gray-500">
-                      {formatDateTime(post.createAt)}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-gray-500">
+                        {formatDateTime(post.createAt)}
+                      </p>
+                      <p className="text-gray-500">
+                        {isPostPublic ? (
+                          <Globe className="h-4 w-4" />
+                        ) : (
+                          <LockKeyhole className="h-4 w-4" />
+                        )}
+                      </p>
+                    </div>
                   </div>
 
                   {/* Dropdown menu */}
@@ -395,7 +460,7 @@ export default function OwnPost() {
                   transition={{ duration: 0.4, ease: "easeInOut" }}
                   className="overflow-hidden"
                 >
-                  <div className="whitespace-pre-wrap mb-4 text-textChat">
+                  <div className="whitespace-pre-wrap mb-4 text-textChat p-4">
                     <div className="font-bold text-lg text-center mb-2">
                       {post.title}
                     </div>
@@ -408,7 +473,7 @@ export default function OwnPost() {
                 </motion.div>
 
                 {truncate && (
-                  <div className="flex justify-end">
+                  <div className="flex justify-end p-4">
                     <button
                       onClick={() => toggleExpand(post.postId, !isExpanded)}
                       className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
@@ -419,22 +484,53 @@ export default function OwnPost() {
                 )}
 
                 {/* Like, share, comment tabs*/}
-                <div className="flex flex-col items-start gap-4">
+                <div className="flex flex-col items-start gap-4 p-4">
                   <div className="flex justify-between w-full">
-                    <span className="text-sm text-gray-500">10 lượt thích</span>
+                    <ReactionCount postId={post.postId} />
                     <span className="justify-end text-sm text-gray-500">
                       10 bình luận
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between w-full">
-                    <Button
-                      variant="iconDarkMod"
-                      className="flex items-center gap-2 p-0"
-                    >
-                      <ThumbsUp className="w-4 h-4" />
-                      Thích
-                    </Button>
+                    <div className="relative">
+                      <div
+                        className="inline-block"
+                        onMouseEnter={() => setHoveredPostId(post.postId)}
+                        onMouseLeave={() => setHoveredPostId(null)}
+                      >
+                        <Button
+                          variant="iconDarkMod"
+                          className="flex items-center gap-2 p-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {selectedReactions[post.postId] ? (
+                            <span className="text-xl">
+                              {selectedReactions[post.postId]}
+                            </span>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <ThumbsUp className="w-4 h-4" />
+                              Thích
+                            </div>
+                          )}
+                        </Button>
+
+                        {/* Hiển thị ReactionEmoji khi hover */}
+                        {hoveredPostId === post.postId && (
+                          <ReactionEmoji
+                            onSelect={(reactionId, emoji, e) =>
+                              handleEmojiSelect(
+                                reactionId,
+                                emoji,
+                                post.postId,
+                                e
+                              )
+                            }
+                          />
+                        )}
+                      </div>
+                    </div>
                     <Button
                       variant="iconDarkMod"
                       className="flex items-center gap-2 p-0"

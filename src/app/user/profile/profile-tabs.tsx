@@ -2,12 +2,21 @@
 import { Button } from "@/components/ui/button";
 import { Role } from "@/constants/type";
 import { toast } from "@/hooks/use-toast";
-import { getRoleFromLocalStorage, handleErrorApi } from "@/lib/utils";
-import { useFollowUserMutation } from "@/queries/useAccount";
+import {
+  getRoleFromLocalStorage,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
+import {
+  useFollowUserMutation,
+  useGetFollowingQuery,
+  useUnfollowUserMutation,
+} from "@/queries/useAccount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { useUserIsOwnerStore } from "@/store/userStore";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 export default function ProfileTabs({
   userId,
@@ -19,11 +28,19 @@ export default function ProfileTabs({
   const role = getRoleFromLocalStorage();
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
-  const followUser = useFollowUserMutation();
+  const { setIsThatOwner } = useUserIsOwnerStore();
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const followUser = useFollowUserMutation(userId as string);
+  const unFollowUser = useUnfollowUserMutation(userId as string);
+  const ownerUserId = getUserIdFromLocalStorage();
+  const { data } = useGetFollowingQuery(ownerUserId as string);
+  const getFollowingList = data?.payload.data;
+
   const handleFollowUser = () => {
     if (followUser.isPending) return;
     try {
       followUser.mutateAsync({ followerId: userId as string });
+      setIsFollowing(true);
       toast({
         description: "Đã theo dõi người dùng",
         variant: "success",
@@ -32,8 +49,37 @@ export default function ProfileTabs({
       handleErrorApi(error);
     }
   };
-  // console.log("là chính chủ", isOwner);
-  // console.log(isOwner ? "Hiển thị nút đăng bài viết" : "Hiển thị nút theo dõi");
+
+  const handleUnfollow = (userId: string) => {
+    if (unFollowUser.isPending) return;
+    try {
+      unFollowUser.mutateAsync(userId);
+      setIsFollowing(false);
+      toast({
+        description: "Đã bỏ theo dõi người dùng",
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  useEffect(() => {
+    setIsThatOwner(isOwner);
+    const fetchFollowStatus = () => {
+      if (!getFollowingList || !userId) return;
+
+      // Kiểm tra xem userId mục tiêu có trong danh sách theo dõi không
+      const isUserFollowing = getFollowingList.some(
+        (followedUser) => followedUser.userId === userId
+      );
+
+      setIsFollowing(isUserFollowing);
+    };
+
+    if (!isOwner) fetchFollowStatus();
+  }, [isOwner, setIsThatOwner, getFollowingList, userId]);
+
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center py-4 border-b">
@@ -50,9 +96,11 @@ export default function ProfileTabs({
         ) : (
           <Button
             className="w-full sm:w-auto rounded-[20px] bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2"
-            onClick={handleFollowUser}
+            onClick={() =>
+              isFollowing ? handleUnfollow(userId!) : handleFollowUser()
+            }
           >
-            Theo dõi
+            {isFollowing ? "Bỏ theo dõi" : "Theo dõi"}
           </Button>
         )}
 

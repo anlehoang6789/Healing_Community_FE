@@ -24,6 +24,7 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 import {
+  useGetAllCategoryQuery,
   useGetPostByPostIdQuery,
   useUpdatePersonalPostMutation,
   useUploadAvatarCoverFromFileMutation,
@@ -52,7 +53,8 @@ export default function EditPersonalPost({
   const [file, setFile] = useState<File | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [wordCount, setWordCount] = useState(0);
-  const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const { data: categoryData } = useGetAllCategoryQuery();
+  const categoryList = categoryData?.payload.data || [];
   const form = useForm<UpdatePersonalPostBodyType>({
     resolver: zodResolver(UpdatePersonalPostBody),
     defaultValues: {
@@ -149,7 +151,7 @@ export default function EditPersonalPost({
           reset();
         }
       }}
-      modal={false}
+      // modal={false}
       aria-hidden={false}
     >
       <DialogContent className="sm:max-w-[900px] max-h-screen overflow-auto">
@@ -170,6 +172,7 @@ export default function EditPersonalPost({
               onSubmit={form.handleSubmit(onSubmit, (error) => {
                 console.warn(error);
               })}
+              onReset={reset}
             >
               <div className="grid gap-4">
                 <FormField
@@ -344,26 +347,59 @@ export default function EditPersonalPost({
                             Chọn thể loại bài viết của bạn
                           </Label>
                         </div>
-                        <CategoryCombobox
+                        {/* <CategoryCombobox
                           id="categoryId"
                           aria-labelledby="category-label"
                           value={field.value}
                           onChange={field.onChange}
-                        />
+                        /> */}
+                        <div className="relative">
+                          <select
+                            id="categoryId"
+                            value={field.value}
+                            onChange={(e) => field.onChange(e.target.value)}
+                            className="w-[20%] p-2 border border-gray-300 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-700"
+                          >
+                            {categoryList.map((category) => (
+                              <option
+                                key={category.categoryId}
+                                value={category.categoryId}
+                                className="text-black"
+                              >
+                                {category.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                         <FormMessage />
                       </div>
                     </FormItem>
                   )}
                 />
+                <div className="flex flex-col items-center md:justify-end mt-4 md:flex-row">
+                  <Button
+                    type="reset"
+                    className="bg-white text-black md:mr-3 mb-2 md:mb-0 w-full md:w-auto"
+                    variant={"outline"}
+                  >
+                    Hủy
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="bg-black hover:bg-gray-800 w-full md:w-auto"
+                  >
+                    Lưu
+                  </Button>
+                </div>
               </div>
             </form>
           </Form>
         </div>
-        <DialogFooter>
+        {/* <DialogFooter>
           <Button type="submit" form="edit-post-form">
             Lưu
           </Button>
-        </DialogFooter>
+        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );

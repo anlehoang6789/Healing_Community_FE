@@ -189,3 +189,30 @@ export const UpdatePersonalPostBody = z.object({
 export type UpdatePersonalPostBodyType = z.TypeOf<
   typeof UpdatePersonalPostBody
 >;
+
+export const AddReactionBody = z.object({
+  postId: z.string(),
+  reactionTypeId: z.string(),
+});
+
+export type AddReactionBodyType = z.TypeOf<typeof AddReactionBody>;
+
+export const GetReactionCountSchema = z.object({
+  postId: z.string(),
+  like: z.number(),
+  love: z.number(),
+  haha: z.number(),
+  wow: z.number(),
+  sad: z.number(),
+  angry: z.number(),
+  total: z.number(),
+});
+
+export type GetReactionCountSchema = z.TypeOf<typeof GetReactionCountSchema>;
+
+export const GetReactionCountRes = z.object({
+  data: GetReactionCountSchema,
+  message: z.string(),
+});
+
+export type GetReactionCountResType = z.TypeOf<typeof GetReactionCountRes>;

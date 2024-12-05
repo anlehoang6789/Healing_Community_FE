@@ -1,6 +1,6 @@
 import groupApiRequest from "@/apiRequests/group";
-import { GetAllGroupsJoinedByUserIdResponseType } from "@/schemaValidations/group.schema";
-import { useQuery } from "@tanstack/react-query";
+import { CreateGroupRequestType } from "@/schemaValidations/group.schema";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllGroupsQuery = () => {
   return useQuery({
@@ -14,5 +14,20 @@ export const useGetGroupsByUserIdQuery = (userId: string) => {
     queryKey: ["get-groups-by-user-id", userId],
     queryFn: () => groupApiRequest.getGroupsJoinedByUserId(userId),
     enabled: !!userId,
+  });
+};
+
+export const useCreateGroupMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreateGroupRequestType) =>
+      groupApiRequest.createGroup(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
+    },
+    onError: (error) => {
+      console.error("Failed to create group:", error);
+    },
   });
 };
