@@ -5,13 +5,17 @@ import Image from "next/image";
 import { Bookmark, Flag, Share2, ThumbsUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
+  useAddReactionMutation,
   useAddUserReferenceMutation,
   useGetHomePageLazyLoadQuery,
+  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { GetHomePageSchemaLazyLoadType } from "@/schemaValidations/post.schema";
+import ReactionEmoji from "@/components/homePage/reactionEmoji";
+import { useReactionStore } from "@/store/reactionStore";
 
 type UserProfileProps = {
   userId: string;
@@ -69,6 +73,23 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
   );
 };
 
+const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
+  const { data, isLoading, isError } = useGetReactionCountQuery(postId);
+
+  if (isLoading)
+    return (
+      <span className="text-sm text-gray-500 animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      </span>
+    );
+  if (isError || !data)
+    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
+
+  const reactionCount = data.payload.data.total;
+
+  return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
+};
+
 export default function Posts({
   initialArticles,
 }: {
@@ -80,9 +101,26 @@ export default function Posts({
     initialArticles?.slice(0, pageSizes) || []
   );
 
+  //Phần xử lí add reaction
+  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
+  const { selectedReactions, setReaction } = useReactionStore();
+  const addReactionMutation = useAddReactionMutation();
+  const handleEmojiSelect = (
+    reactionTypeId: string,
+    emoji: string,
+    postId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    addReactionMutation.mutate({ postId, reactionTypeId });
+    setReaction(postId, emoji);
+    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
+  };
+
   const { fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetHomePageLazyLoadQuery(pageSizes);
   const router = useRouter();
+
   const { mutateAsync } = useAddUserReferenceMutation();
 
   // Hàm xử lý sự kiện cuộn
@@ -159,6 +197,7 @@ export default function Posts({
           article.description.length > 300
             ? article.description.slice(0, 300) + "..."
             : article.description;
+
         return (
           <div
             key={article.postId}
@@ -192,21 +231,51 @@ export default function Posts({
             </div>
             <div className="flex flex-col items-start gap-4">
               <div className="flex justify-between w-full">
-                <span className="text-sm text-gray-500">10 lượt thích</span>
+                <ReactionCount postId={article.postId} />
                 <span className="justify-end text-sm text-gray-500">
                   10 lượt chia sẻ
                 </span>
               </div>
 
               <div className="flex items-center justify-between w-full">
-                <Button
-                  variant="iconDarkMod"
-                  className="flex items-center gap-2 p-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <ThumbsUp className="w-4 h-4" />
-                  Thích
-                </Button>
+                <div className="relative">
+                  <div
+                    className="inline-block"
+                    onMouseEnter={() => setHoveredPostId(article.postId)}
+                    onMouseLeave={() => setHoveredPostId(null)}
+                  >
+                    <Button
+                      variant="iconDarkMod"
+                      className="flex items-center gap-2 p-0"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {selectedReactions[article.postId] ? (
+                        <span className="text-xl">
+                          {selectedReactions[article.postId]}
+                        </span>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <ThumbsUp className="w-4 h-4" />
+                          Thích
+                        </div>
+                      )}
+                    </Button>
+
+                    {/* Hiển thị ReactionEmoji khi hover */}
+                    {hoveredPostId === article.postId && (
+                      <ReactionEmoji
+                        onSelect={(reactionId, emoji, e) =>
+                          handleEmojiSelect(
+                            reactionId,
+                            emoji,
+                            article.postId,
+                            e
+                          )
+                        }
+                      />
+                    )}
+                  </div>
+                </div>
                 <Button
                   variant="iconDarkMod"
                   className="flex items-center gap-2 p-0"

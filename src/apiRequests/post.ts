@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import {
+  AddReactionBodyType,
   AddUserReferenceBodyType,
   CategoryListSchemaType,
   CreateCommentBodyType,
@@ -9,6 +10,7 @@ import {
   GetHomePageListLazyLoadType,
   GetPostByUserIdResType,
   GetQuickPostListType,
+  GetReactionCountResType,
   PostByIdType,
   UpdatePersonalPostBodyType,
   UploadImageCoverResponseType,
@@ -53,6 +55,12 @@ const postApiRequest = {
 
   deleteCommentByCommentId: (commentId: string) =>
     http.delete<{ message: string }>(`post/api/comment/delete/${commentId}`),
+  addReaction: (body: AddReactionBodyType) =>
+    http.post<{ message: string }>("post/api/reaction/add-reaction", body),
+  getReactionCount: (postId: string) =>
+    http.get<GetReactionCountResType>(
+      `post/api/reaction/get-reaction-count/${postId}`
+    ),
 };
 
 export default postApiRequest;
