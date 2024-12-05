@@ -216,3 +216,16 @@ export const GetReactionCountRes = z.object({
 });
 
 export type GetReactionCountResType = z.TypeOf<typeof GetReactionCountRes>;
+
+export const GetCommentCountSchema = z.object({
+  countTotalComment: z.number(),
+});
+
+export type GetCommentCountSchema = z.TypeOf<typeof GetCommentCountSchema>;
+
+export const GetCommentCountRes = z.object({
+  data: GetCommentCountSchema,
+  message: z.string(),
+});
+
+export type GetCommentCountResType = z.TypeOf<typeof GetCommentCountRes>;
