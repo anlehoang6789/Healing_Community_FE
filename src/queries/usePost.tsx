@@ -58,6 +58,7 @@ export const useCreateCommentMutation = () => {
     mutationFn: postApiRequest.createComment,
   });
 };
+
 export const useGetPostByUserIdQuery = (userId: string) => {
   return useQuery({
     queryKey: ["post-by-user-id", userId],
@@ -159,9 +160,12 @@ export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
   return useMutation({
     mutationFn: postApiRequest.deleteCommentByCommentId,
     onSuccess: () => {
-      // Invalidate và refetch comments của post
       queryClient.invalidateQueries({
         queryKey: ["comments", postId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["comment-count", postId],
       });
     },
   });
