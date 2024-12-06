@@ -21,7 +21,11 @@ import {
   useGetExpertAvailability,
 } from "@/queries/useExpert";
 import { toast } from "@/hooks/use-toast";
-import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import {
+  formatCurrency,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import { ExpertAvailabilityType } from "@/schemaValidations/expert.schema";
 import {
   AlertDialog,
@@ -33,18 +37,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTheme } from "next-themes";
 
 export default function CreateCalendar() {
+  const { theme } = useTheme();
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
   const [isAddingSlot, setIsAddingSlot] = React.useState(false);
   const [deleteConfirmationSlotId, setDeleteConfirmationSlotId] =
     React.useState<string | null>(null);
-
-  const createTimeSlotMutation = useCreateAvailableTimeSlot();
   const expertProfileId = getUserIdFromLocalStorage();
-  const { data: expertAvailability, refetch } = useGetExpertAvailability(
+
+  const createTimeSlotMutation = useCreateAvailableTimeSlot(
+    expertProfileId as string
+  );
+
+  const { data: expertAvailability } = useGetExpertAvailability(
     expertProfileId as string
   );
 
@@ -59,7 +68,6 @@ export default function CreateCalendar() {
           title: "Xóa lịch trống thành công",
           variant: "success",
         });
-        refetch();
 
         setDeleteConfirmationSlotId(null);
       },
@@ -69,7 +77,11 @@ export default function CreateCalendar() {
     });
   };
 
-  const handleAddSlot = (newSlot: { startTime: string; endTime: string }) => {
+  const handleAddSlot = (newSlot: {
+    startTime: string;
+    endTime: string;
+    amount: number;
+  }) => {
     // Thêm kiểm tra thời gian
     const startTime = new Date(`2023-01-01T${newSlot.startTime}`);
     const endTime = new Date(`2023-01-01T${newSlot.endTime}`);
@@ -108,15 +120,15 @@ export default function CreateCalendar() {
         availableDate: format(selectedDate, "yyyy-MM-dd"),
         startTime: `${newSlot.startTime}:00`,
         endTime: `${newSlot.endTime}:00`,
+        amount: newSlot.amount,
       },
       {
-        onSuccess: (response) => {
+        onSuccess: () => {
           toast({
             title: "Tạo lịch trống thành công",
             variant: "success",
           });
           setIsAddingSlot(false);
-          refetch();
         },
         onError: (error) => {
           handleErrorApi({ error });
@@ -164,11 +176,19 @@ export default function CreateCalendar() {
               filteredTimeSlots.map((slot: ExpertAvailabilityType) => (
                 <div
                   key={slot.expertAvailabilityId}
-                  className="flex justify-between items-center bg-gray-100 p-2 rounded-md"
+                  className={`flex justify-between items-center  p-2 rounded-md ${
+                    theme === "dark"
+                      ? "bg-black text-white"
+                      : "bg-gray-100 text-black"
+                  }`}
                 >
-                  <span>
-                    {slot.startTime.slice(0, 5)} - {slot.endTime.slice(0, 5)}
-                  </span>
+                  <div className="flex flex-col">
+                    <span>
+                      {slot.startTime.slice(0, 5)} - {slot.endTime.slice(0, 5)}
+                    </span>
+                    <span>{formatCurrency(slot.amount)}</span>
+                  </div>
+
                   <div className="flex items-center space-x-2">
                     <AlertDialog
                       open={
@@ -246,7 +266,9 @@ export default function CreateCalendar() {
       <Dialog open={isAddingSlot} onOpenChange={setIsAddingSlot}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Thêm lịch trống mới</DialogTitle>
+            <DialogTitle className="text-textChat">
+              Thêm lịch trống mới
+            </DialogTitle>
             <DialogDescription>
               Tạo lịch trống cho ngày{" "}
               {selectedDate && format(selectedDate, "dd/MM/yyyy")}
@@ -264,7 +286,11 @@ export default function CreateCalendar() {
 }
 
 type TimeSlotFormProps = {
-  onSubmit: (data: { startTime: string; endTime: string }) => void;
+  onSubmit: (data: {
+    startTime: string;
+    endTime: string;
+    amount: number;
+  }) => void;
   onCancel: () => void;
   isLoading?: boolean;
 };
@@ -272,17 +298,55 @@ type TimeSlotFormProps = {
 function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
   const [startTime, setStartTime] = React.useState("");
   const [endTime, setEndTime] = React.useState("");
+  const [amount, setAmount] = React.useState<number | "">("");
+  const [displayAmount, setDisplayAmount] = React.useState("");
+
+  const formatNumber = (value: number | string) => {
+    return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
+  const parseNumber = (value: string) => {
+    return Number(value.replace(/,/g, ""));
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+
+    const sanitizedValue = inputValue.replace(/[^0-9]/g, "");
+
+    if (sanitizedValue === "") {
+      setAmount("");
+      setDisplayAmount("");
+      return;
+    }
+
+    const numericValue = parseNumber(sanitizedValue);
+
+    setAmount(numericValue);
+
+    setDisplayAmount(formatNumber(numericValue));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ startTime, endTime });
+    if (amount === "" || amount <= 2000) {
+      toast({
+        title: "Giá tiền không hợp lệ",
+        description: "Giá tiền phải lớn hơn 2.000",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    onSubmit({ startTime, endTime, amount: Number(amount) });
+    console.log("Submitted data:", { startTime, endTime, amount });
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <div className="grid gap-4 py-4">
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="start-time" className="text-right">
+          <Label htmlFor="start-time" className="text-right text-textChat">
             Thời gian bắt đầu
           </Label>
           <Input
@@ -290,12 +354,12 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
             type="time"
             value={startTime}
             onChange={(e) => setStartTime(e.target.value)}
-            className="col-span-3"
+            className={`col-span-3 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:contrast-200`}
             required
           />
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="end-time" className="text-right">
+          <Label htmlFor="end-time" className="text-right text-textChat">
             Thời gian kết thúc
           </Label>
           <Input
@@ -303,7 +367,21 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
             type="time"
             value={endTime}
             onChange={(e) => setEndTime(e.target.value)}
+            className={`col-span-3 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:contrast-200`}
+            required
+          />
+        </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="amount" className="text-right text-textChat">
+            GIá tiền
+          </Label>
+          <Input
+            id="amount"
+            type="text"
+            value={displayAmount}
+            onChange={handleAmountChange}
             className="col-span-3"
+            min="2000"
             required
           />
         </div>
@@ -314,6 +392,7 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
           variant="outline"
           onClick={onCancel}
           disabled={isLoading}
+          className="text-textChat"
         >
           Hủy
         </Button>

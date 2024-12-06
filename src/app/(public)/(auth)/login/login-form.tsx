@@ -18,6 +18,8 @@ import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 import { useAppContext } from "@/components/app-provider";
 import DialogForgotPassword from "@/components/forgot-password/dialog-forgot-password";
+import jwt from "jsonwebtoken";
+import { Role } from "@/constants/type";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -46,12 +48,34 @@ export default function LoginForm() {
     if (loginMutation.isPending) return;
     try {
       const result = await loginMutation.mutateAsync(data);
+      const { token } = result.payload.data;
+      const decodeToken = token
+        ? (jwt.decode(token) as { [key: string]: any })
+        : null;
+      const role = decodeToken
+        ? decodeToken[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ]
+        : null;
       toast({
         description: result.payload.message,
         variant: "success",
       });
       setIsAuth(true);
-      router.push("/content");
+      // router.push("/content");
+      switch (role) {
+        case Role.Moderator:
+          router.push("/moderator/manage-groups");
+          break;
+        case Role.Admin:
+          router.push("/admin/dashboard");
+          break;
+        case Role.User:
+        case Role.Expert:
+        default:
+          router.push("/content");
+          break;
+      }
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
     }

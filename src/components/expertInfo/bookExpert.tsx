@@ -31,12 +31,14 @@ import {
   useBookExpertScheduleMutation,
   useCreatePaymentMutation,
 } from "@/queries/usePayment";
+import { formatCurrency } from "@/lib/utils";
 
 type TimeSlot = {
   id: string;
   availableDate: string;
   startTime: string;
   endTime: string;
+  amount: number;
   expertAvailabilityId: string;
 };
 
@@ -71,6 +73,7 @@ export default function BookExpert() {
         availableDate: slot.availableDate,
         startTime: slot.startTime,
         endTime: slot.endTime,
+        amount: slot.amount,
         expertAvailabilityId: slot.expertAvailabilityId,
       }));
   }, [availabilityData, selectedDate]);
@@ -106,7 +109,7 @@ export default function BookExpert() {
             createPayment(
               {
                 appointmentId,
-                amount: 100000, // Giá tiền cố định
+                amount: selectedSlot.amount,
                 description: "Đặt lịch tư vấn",
                 returnUrl: "http://localhost:3000/consultation-calendar",
                 cancelUrl: `http://localhost:3000/user/profile/expert-info/${expertId}`,
@@ -166,7 +169,7 @@ export default function BookExpert() {
                   Không có khung giờ nào khả dụng
                 </p>
               ) : (
-                <ScrollArea className="h-[215px]">
+                <ScrollArea className="h-full max-h-[215px]">
                   <div className="space-y-2">
                     {availableSlots
                       .filter(isSlotAvailable) // Lọc các slot còn khả dụng
@@ -176,16 +179,25 @@ export default function BookExpert() {
                           variant={
                             selectedSlot?.id === slot.id ? "default" : "outline"
                           }
-                          className="w-full justify-start"
+                          className="w-full flex"
                           onClick={() => handleSlotSelect(slot)}
                           disabled={bookedSlots.includes(slot.id)}
                         >
-                          {slot.startTime} - {slot.endTime}
-                          {bookedSlots.includes(slot.id) && (
-                            <span className="ml-2 text-muted-foreground">
-                              (Đã đặt)
-                            </span>
-                          )}
+                          <div className="flex justify-between items-center w-full">
+                            <div>
+                              {slot.startTime.slice(0, 5)} -{" "}
+                              {slot.endTime.slice(0, 5)}
+                            </div>
+                            {formatCurrency(slot.amount)}
+                          </div>
+                          <div className="self-end mt-2">
+                            {" "}
+                            {bookedSlots.includes(slot.id) && (
+                              <span className="text-muted-foreground">
+                                (Đã đặt)
+                              </span>
+                            )}
+                          </div>
                         </Button>
                       ))}
                   </div>
@@ -234,7 +246,7 @@ export default function BookExpert() {
                   </div>
                 </div>
                 <p className="text-lg font-semibold text-textChat mt-4">
-                  Giá: 100.000 VND
+                  Giá: {formatCurrency(selectedSlot?.amount || 0)}
                 </p>
                 <DialogFooter className="mt-4">
                   <Button

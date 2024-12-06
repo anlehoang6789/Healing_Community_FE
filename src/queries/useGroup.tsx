@@ -31,3 +31,15 @@ export const useCreateGroupMutation = () => {
     },
   });
 };
+
+export const useDeleteGroupByGroupIdMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: groupApiRequest.deleteGroupByGroupId,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get-all-groups"],
+      });
+    },
+  });
+};

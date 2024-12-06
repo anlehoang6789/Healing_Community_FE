@@ -80,41 +80,47 @@ const EditGroup: React.FC<EditGroupProps> = ({ group }) => {
                   No Image
                 </div>
               )}
-              <Input
+              <input
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
-                className="w-full border border-gray-300 rounded-md "
+                className="w-full border border-gray-300 text-textChat "
               />
             </div>
           </div>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium">Tên nhóm</label>
+            <label className="block text-sm font-medium text-textChat ">
+              Tên nhóm
+            </label>
             <input
               type="text"
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-textChat "
               required
             />
           </div>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium">Mô tả nhóm</label>
+            <label className="block text-sm font-medium text-textChat ">
+              Mô tả nhóm
+            </label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-textChat resize-none h-[80px]"
             />
           </div>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium">Trạng thái nhóm</label>
+            <label className="block text-sm font-medium text-textChat ">
+              Trạng thái nhóm
+            </label>
             <select
               value={isPublic ? "public" : "private"}
               onChange={(e) => setIsPublic(e.target.value === "public")}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2 text-textChat "
             >
               <option value="public">Công khai</option>
               <option value="private">Riêng tư</option>
@@ -123,7 +129,7 @@ const EditGroup: React.FC<EditGroupProps> = ({ group }) => {
         </form>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline" type="submit">
+            <Button variant="outline" type="submit" className="text-textChat ">
               Cập nhật nhóm
             </Button>
           </DialogClose>

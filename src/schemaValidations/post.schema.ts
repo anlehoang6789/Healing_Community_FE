@@ -216,3 +216,40 @@ export const GetReactionCountRes = z.object({
 });
 
 export type GetReactionCountResType = z.TypeOf<typeof GetReactionCountRes>;
+
+export const GetCommentCountSchema = z.object({
+  countTotalComment: z.number(),
+});
+
+export type GetCommentCountSchema = z.TypeOf<typeof GetCommentCountSchema>;
+
+export const GetCommentCountRes = z.object({
+  data: GetCommentCountSchema,
+  message: z.string(),
+});
+
+export type GetCommentCountResType = z.TypeOf<typeof GetCommentCountRes>;
+
+export const GetUserReactionByPostIdSchema = z.object({
+  reactionId: z.string(),
+  userId: z.string(),
+  postId: z.string(),
+  reactionTypeId: z.string(),
+  reactionType: z.object({
+    reactionTypeId: z.string(),
+    name: z.string(),
+  }),
+});
+
+export type GetUserReactionByPostIdSchemaType = z.TypeOf<
+  typeof GetUserReactionByPostIdSchema
+>;
+
+export const GetUserReactionByPostIdRes = z.object({
+  data: GetUserReactionByPostIdSchema,
+  message: z.string(),
+});
+
+export type GetUserReactionByPostIdResType = z.TypeOf<
+  typeof GetUserReactionByPostIdRes
+>;
