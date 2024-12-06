@@ -181,3 +181,4 @@ export const formatTime = (timeString: string) => {
 export const getRoleFromLocalStorage = () => {
   return isBrowser ? localStorage.getItem("role") : null;
 };
+
