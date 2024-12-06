@@ -329,10 +329,10 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (amount === "" || amount <= 1) {
+    if (amount === "" || amount <= 2000) {
       toast({
         title: "Giá tiền không hợp lệ",
-        description: "Giá tiền phải lớn hơn 1",
+        description: "Giá tiền phải lớn hơn 2.000",
         variant: "destructive",
       });
       return;
@@ -381,7 +381,7 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
             value={displayAmount}
             onChange={handleAmountChange}
             className="col-span-3"
-            min="1"
+            min="2000"
             required
           />
         </div>
