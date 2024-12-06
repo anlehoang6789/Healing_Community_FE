@@ -81,10 +81,16 @@ export const useGetAppointmentForExpert = () => {
   });
 };
 
-export const useCreateAvailableTimeSlot = () => {
+export const useCreateAvailableTimeSlot = (expertProfileId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateAvailableTimeSlotBodyType) =>
       expertApiRequest.createAvailableTimeSlot(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-availability", expertProfileId],
+      });
+    },
     onError: (error) => {
       console.error("Mutation Error:", error);
     },
@@ -109,7 +115,7 @@ export const useDeleteAvailableTimeSlotByIdMutation = (
     mutationFn: expertApiRequest.deleteAvailableTimeSlotById,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["expertAvailability-by-expertProfile-id", expertProfileId],
+        queryKey: ["expert-availability", expertProfileId],
       });
     },
   });
