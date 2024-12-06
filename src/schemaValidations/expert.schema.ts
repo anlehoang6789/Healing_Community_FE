@@ -196,6 +196,7 @@ export const CreateAvailableTimeSlotBody = z.object({
   endTime: z
     .string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, "Invalid time format"),
+  amount: z.number().min(1),
 });
 
 export type CreateAvailableTimeSlotBodyType = z.TypeOf<
@@ -225,6 +226,7 @@ const ExpertAvailabilitySchema = z.object({
   status: z.number(),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
+  amount: z.number(),
   expertProfile: z.null(),
   appointments: z.array(z.any()).optional(),
 });

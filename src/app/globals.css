@@ -13,6 +13,18 @@
   }
 }
 
+/* Ẩn nút spinner trong các trình duyệt webkit (Chrome, Edge, Safari) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Ẩn nút spinner trong Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 ::-webkit-scrollbar {
   height: 8px;
   width: 10px;

@@ -81,7 +81,7 @@ export default function ListOfGroupsForModerator() {
                   alt={group.groupName}
                   width={90}
                   height={90}
-                  className="cursor-pointer rounded-lg object-cover"
+                  className="cursor-pointer h-[90px] w-[90px] rounded-lg object-cover"
                 />
               </Link>
 
@@ -92,11 +92,14 @@ export default function ListOfGroupsForModerator() {
                   </h2>
                 </Link>
                 <p className="text-sm text-gray-500">
-                  Thành viên: {group.currentMemberCount.toLocaleString()}
+                  Thành viên: {group.currentMemberCount}/{group.memberLimit}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Trạng thái:{" "}
+                  Duyệt:{" "}
                   {group.isAutoApprove ? "Tự động duyệt" : "Duyệt thủ công"}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Trạng thái: {group.groupVisibility ? "Riêng tư" : "Công khai"}
                 </p>
               </div>
 
