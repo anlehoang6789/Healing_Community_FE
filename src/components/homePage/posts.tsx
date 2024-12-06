@@ -13,7 +13,6 @@ import {
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import { GetHomePageSchemaLazyLoadType } from "@/schemaValidations/post.schema";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import { useReactionStore } from "@/store/reactionStore";
 
@@ -73,7 +72,9 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
   );
 };
 
-const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
+const ReactionCount: React.FC<{
+  postId: string;
+}> = ({ postId }) => {
   const { data, isLoading, isError } = useGetReactionCountQuery(postId);
 
   if (isLoading)
@@ -90,37 +91,21 @@ const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
   return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
 };
 
-export default function Posts({
-  initialArticles,
-}: {
-  initialArticles: GetHomePageSchemaLazyLoadType[];
-}) {
+export default function Posts() {
   const pageSizes = 5;
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [articles, setArticles] = useState(
-    initialArticles?.slice(0, pageSizes) || []
-  );
 
   //Phần xử lí add reaction
   const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
   const { selectedReactions, setReaction } = useReactionStore();
   const addReactionMutation = useAddReactionMutation();
-  const handleEmojiSelect = (
-    reactionTypeId: string,
-    emoji: string,
-    postId: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
-    addReactionMutation.mutate({ postId, reactionTypeId });
-    setReaction(postId, emoji);
-    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
-  };
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  //Phần home page lazy load
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetHomePageLazyLoadQuery(pageSizes);
   const router = useRouter();
 
+  //hành vi người dùng
   const { mutateAsync } = useAddUserReferenceMutation();
 
   // Hàm xử lý sự kiện cuộn
@@ -130,27 +115,7 @@ export default function Posts({
       hasNextPage &&
       !isFetchingNextPage
     ) {
-      setIsLoadingMore(true);
       fetchNextPage()
-        .then((fetchResult) => {
-          const newArticles =
-            fetchResult.data?.pages.flatMap((page) => page.payload.data) || [];
-          // console.log("dữ liệu ban đầu của bài viết", newArticles);
-          setArticles((prevArticles) => {
-            const existingPostIds = new Set(
-              prevArticles.map((article) => article.postId)
-            );
-            const uniqueArticles = newArticles.filter(
-              (article) => !existingPostIds.has(article.postId)
-            );
-            // console.log("du lieu sau khi load", [
-            //   ...prevArticles,
-            //   ...uniqueArticles,
-            // ]);
-
-            return [...prevArticles, ...uniqueArticles];
-          });
-        })
         .catch((error) => {
           console.error("Error while fetching next page:", error);
         })
@@ -160,7 +125,6 @@ export default function Posts({
 
   // Thêm sự kiện cuộn vào window
   useEffect(() => {
-    if (!initialArticles) return;
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
@@ -168,7 +132,10 @@ export default function Posts({
   }, [hasNextPage, isFetchingNextPage]);
 
   // Ghép các trang dữ liệu
-  // const articles = data?.pages.flatMap((page) => page.payload.data) || [];
+  const articles = data?.pages.flatMap((page) => page.payload.data) || [];
+  // const uniqueArticles = Array.from(
+  //   new Map(articles.map((article) => [article.postId, article])).values()
+  // );
 
   const handlePostClick = async (
     postId: string,
@@ -189,6 +156,35 @@ export default function Posts({
       }
     }
   };
+
+  const handleEmojiSelect = (
+    reactionTypeId: string,
+    emoji: string,
+    postId: string,
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    addReactionMutation.mutate({ postId, reactionTypeId });
+    setReaction(postId, emoji);
+    sessionStorage.setItem(postId, emoji);
+    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
+  };
+
+  // Khi component mount, lấy reaction từ localStorage
+  useEffect(() => {
+    const reactionsFromSessionStorage = Object.keys(sessionStorage).reduce(
+      (acc, postId) => {
+        const emoji = sessionStorage.getItem(postId);
+        if (emoji) acc[postId] = emoji;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+    // Cập nhật store reaction nếu có
+    for (const postId in reactionsFromSessionStorage) {
+      setReaction(postId, reactionsFromSessionStorage[postId]);
+    }
+  }, [setReaction]);
 
   return (
     <div>

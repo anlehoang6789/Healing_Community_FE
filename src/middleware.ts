@@ -44,7 +44,17 @@ export function middleware(request: NextRequest) {
 
   // Đã đăng nhập thì không cho vào các đường dẫn unAuthPaths
   if (unAuthPaths.some((path) => pathname.startsWith(path)) && refreshToken) {
-    return NextResponse.redirect(new URL("/content", request.url));
+    if (role === Role.User || role === Role.Expert) {
+      return NextResponse.redirect(new URL("/content", request.url));
+    }
+    if (role === Role.Moderator) {
+      return NextResponse.redirect(
+        new URL("/moderator/manage-groups", request.url)
+      );
+    }
+    if (role === Role.Admin) {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+    }
   }
 
   // Nếu đã đăng nhập, không cho truy cập đúng đường dẫn "/" (landing-page)
@@ -55,28 +65,67 @@ export function middleware(request: NextRequest) {
   //Nếu đã đăng nhập thì bắt đầu check role để nó không cho vào các đường dẫn không phù hợp với role
   if (privatePaths.some((path) => pathname.startsWith(path))) {
     // Chỉ User được truy cập userPaths
-    if (
-      userPaths.some((path) => pathname.startsWith(path)) &&
-      role !== Role.User
-    ) {
-      return NextResponse.redirect(new URL("/content", request.url));
+    if (userPaths.some((path) => pathname.startsWith(path))) {
+      if (role === Role.Expert) {
+        return NextResponse.redirect(new URL("/content", request.url));
+      }
+      if (role === Role.Moderator) {
+        return NextResponse.redirect(
+          new URL("/moderator/manage-groups", request.url)
+        );
+      }
+      if (role === Role.Admin) {
+        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      }
     }
 
     // Chỉ Expert được truy cập expertPaths
-    if (
-      expertPaths.some((path) => pathname.startsWith(path)) &&
-      role !== Role.Expert
-    ) {
-      return NextResponse.redirect(new URL("/content", request.url));
+    if (expertPaths.some((path) => pathname.startsWith(path))) {
+      if (role === Role.User) {
+        return NextResponse.redirect(new URL("/content", request.url));
+      }
+      if (role === Role.Moderator) {
+        return NextResponse.redirect(
+          new URL("/moderator/manage-groups", request.url)
+        );
+      }
+      if (role === Role.Admin) {
+        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      }
     }
 
     // Chỉ User và Expert được truy cập userAndExpertPaths
-    if (
-      userAndExpertPaths.some((path) => pathname.startsWith(path)) &&
-      role !== Role.User &&
-      role !== Role.Expert
-    ) {
-      return NextResponse.redirect(new URL("/content", request.url));
+    if (userAndExpertPaths.some((path) => pathname.startsWith(path))) {
+      if (role === Role.Moderator) {
+        return NextResponse.redirect(
+          new URL("/moderator/manage-groups", request.url)
+        );
+      }
+      if (role === Role.Admin) {
+        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      }
+    }
+
+    //Chỉ moderator được truy cập moderatorPaths
+    if (moderatorPaths.some((path) => pathname.startsWith(path))) {
+      if (role === Role.User || role === Role.Expert) {
+        return NextResponse.redirect(new URL("/content", request.url));
+      }
+      if (role === Role.Admin) {
+        return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      }
+    }
+
+    //Chỉ admin được truy cập adminPaths
+    if (adminPaths.some((path) => pathname.startsWith(path))) {
+      if (role === Role.User || role === Role.Expert) {
+        return NextResponse.redirect(new URL("/content", request.url));
+      }
+      if (role === Role.Moderator) {
+        return NextResponse.redirect(
+          new URL("/moderator/manage-groups", request.url)
+        );
+      }
     }
   }
 
@@ -111,5 +160,7 @@ export const config = {
     "/consultation-calendar",
     "/psychological-test",
     "/test-result",
+    "/admin/:path*",
+    "/moderator/:path*",
   ],
 };

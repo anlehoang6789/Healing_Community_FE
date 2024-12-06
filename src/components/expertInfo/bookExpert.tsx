@@ -106,7 +106,7 @@ export default function BookExpert() {
             createPayment(
               {
                 appointmentId,
-                amount: 100000, // Giá tiền cố định
+                amount: 3000, // Giá tiền cố định
                 description: "Đặt lịch tư vấn",
                 returnUrl: "http://localhost:3000/consultation-calendar",
                 cancelUrl: `http://localhost:3000/user/profile/expert-info/${expertId}`,

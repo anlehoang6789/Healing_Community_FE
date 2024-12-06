@@ -12,6 +12,7 @@ import {
   GetPostByUserIdResType,
   GetQuickPostListType,
   GetReactionCountResType,
+  GetUserReactionByPostIdResType,
   PostByIdType,
   UpdatePersonalPostBodyType,
   UploadImageCoverResponseType,
@@ -62,10 +63,13 @@ const postApiRequest = {
     http.get<GetReactionCountResType>(
       `post/api/reaction/get-reaction-count/${postId}`
     ),
-
   getCommentCount: (postId: string) =>
     http.get<GetCommentCountResType>(
       `post/api/comment/count-by-post-id/${postId}`
+    ),
+  getUserReactionByPostId: (postId: string) =>
+    http.get<GetUserReactionByPostIdResType>(
+      `post/api/reaction/get-user-reaction-by-post-id/${postId}`
     ),
 };
 
