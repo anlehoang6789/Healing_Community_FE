@@ -8,5 +8,5 @@ export default async function PostSEO() {
   const result = await postApiRequest.getHomePageLazyLoad(pageNumber, pageSize);
   const articles = result.payload.data;
   // console.log(articles);
-  return <Posts initialArticles={articles} />;
+  return <div>SEO POST</div>;
 }

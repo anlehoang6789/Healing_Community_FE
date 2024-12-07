@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { PanelLeft } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -32,12 +33,14 @@ export default function ModeratorMobileSidebar() {
         </SheetDescription>
         <nav className="grid gap-6 text-lg font-medium">
           <Link
-            href="#"
+            href="/moderator/manage-groups"
             className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
           >
-            <img
-              src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            <Image
+              src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Flogo.png?alt=media&token=4e7cda70-2c98-4185-a693-b03564f68a4c"
               alt="logo"
+              width={24}
+              height={24}
               sizes="icon"
             />
             <span className="sr-only">Acme Inc</span>
