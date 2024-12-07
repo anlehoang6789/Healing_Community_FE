@@ -53,12 +53,6 @@ export const useGetCommentsByPostIdQuery = (postId: string) => {
   });
 };
 
-export const useCreateCommentMutation = () => {
-  return useMutation({
-    mutationFn: postApiRequest.createComment,
-  });
-};
-
 export const useGetPostByUserIdQuery = (userId: string) => {
   return useQuery({
     queryKey: ["post-by-user-id", userId],
@@ -154,6 +148,13 @@ export const useUpdatePersonalPostMutation = (userId: string) => {
   });
 };
 
+export const useGetReactionCountQuery = (postId: string) => {
+  return useQuery({
+    queryKey: ["reaction-count", postId],
+    queryFn: () => postApiRequest.getReactionCount(postId),
+  });
+};
+
 export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
   const queryClient = useQueryClient();
 
@@ -171,10 +172,19 @@ export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
   });
 };
 
-export const useGetReactionCountQuery = (postId: string) => {
-  return useQuery({
-    queryKey: ["reaction-count", postId],
-    queryFn: () => postApiRequest.getReactionCount(postId),
+export const useCreateCommentMutation = (postId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.createComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["comments", postId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["comment-count", postId],
+      });
+    },
   });
 };
 
