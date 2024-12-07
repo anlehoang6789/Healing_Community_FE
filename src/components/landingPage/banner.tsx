@@ -9,11 +9,18 @@ import { useAppContext } from "@/components/app-provider";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 
-const phrases = [
-  "Khám phá cảm hứng chữa lành",
-  "Tìm ý tưởng tự chăm sóc",
-  "Tìm hoạt động thư giãn",
-  "Lan tỏa năng lượng tích cực",
+const phrasesTop = [
+  "Khám phá câu chuyện chữa lành",
+  "Bắt đầu hành trình chữa lành",
+  "Tìm nguồn động viên để bước tiếp",
+  "Lan tỏa câu chuyện chữa lành",
+];
+
+const phrasesBottom = [
+  "truyền cảm hứng tiếp theo của bạn",
+  "tâm hồn của bạn ngay hôm nay",
+  "trên con đường hạnh phúc",
+  "và hy vọng đến cộng đồng",
 ];
 
 const colors = [
@@ -105,7 +112,7 @@ export default function Component() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentPhrase((prev) => (prev + 1) % phrases.length);
+      setCurrentPhrase((prev) => (prev + 1) % phrasesTop.length);
     }, 4000);
 
     return () => clearInterval(interval);
@@ -132,14 +139,29 @@ export default function Component() {
                   className="mb-8"
                   style={{ color: colors[currentPhrase] }}
                 >
-                  {phrases[currentPhrase]}
+                  {phrasesTop[currentPhrase]}
                 </motion.div>
               </AnimatePresence>
-              tiếp theo của bạn
+            </h1>
+
+            <h1 className="mb-4 text-6xl font-bold tracking-tight text-textChat">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentPhrase}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ duration: 1 }}
+                  className="mb-8"
+                  style={{ color: colors[currentPhrase] }}
+                >
+                  {phrasesBottom[currentPhrase]}
+                </motion.div>
+              </AnimatePresence>
             </h1>
 
             <div className="mt-4 flex items-center gap-2">
-              {phrases.map((_, index) => (
+              {phrasesTop.map((_, index) => (
                 <div
                   key={index}
                   onClick={() => handleDotClick(index)}
