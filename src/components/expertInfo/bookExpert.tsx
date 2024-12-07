@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { isSameDay, isBefore, isToday, parseISO, isAfter } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -31,7 +31,8 @@ import {
   useBookExpertScheduleMutation,
   useCreatePaymentMutation,
 } from "@/queries/usePayment";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, getUserIdFromLocalStorage } from "@/lib/utils";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 type TimeSlot = {
   id: string;
@@ -60,6 +61,21 @@ export default function BookExpert() {
 
   // Gọi API tạo thanh toán
   const { mutate: createPayment } = useCreatePaymentMutation();
+
+  const userId = getUserIdFromLocalStorage();
+  const { data: userById } = useGetUserProfileQuery(userId as string);
+
+  const [fullName, setFullName] = useState(
+    userById?.payload.data.fullName || ""
+  );
+  const [email, setEmail] = useState(userById?.payload.data.email || "");
+
+  useEffect(() => {
+    if (userById) {
+      setFullName(userById.payload.data.fullName);
+      setEmail(userById.payload.data.email);
+    }
+  }, [userById]);
 
   // Lấy các khung giờ trống từ dữ liệu API
   const availableSlots = React.useMemo(() => {
@@ -236,13 +252,24 @@ export default function BookExpert() {
                     <Label htmlFor="name" className="text-textChat">
                       Tên của bạn
                     </Label>
-                    <Input id="name" required />
+                    <Input
+                      id="name"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      required
+                    />
                   </div>
                   <div>
                     <Label htmlFor="email" className="text-textChat">
                       Email của bạn
                     </Label>
-                    <Input id="email" type="email" required />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
                   </div>
                 </div>
                 <p className="text-lg font-semibold text-textChat mt-4">
