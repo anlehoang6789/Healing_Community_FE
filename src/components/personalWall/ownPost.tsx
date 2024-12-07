@@ -27,6 +27,7 @@ import {
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
+  useGetCommentCountQuery,
   useGetPostByUserIdQuery,
   useGetReactionCountQuery,
 } from "@/queries/usePost";
@@ -75,6 +76,25 @@ const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
   const reactionCount = data.payload.data.total;
 
   return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
+};
+
+const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
+  const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
+
+  if (isLoading)
+    return (
+      <span className="text-sm text-gray-500 animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      </span>
+    );
+  if (isError || !data)
+    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
+
+  const commentCount = data.payload.data.countTotalComment;
+
+  return (
+    <span className="text-sm text-gray-500">{commentCount} bình luận</span>
+  );
 };
 
 type PostItem = GetPostByUserIdResType["data"][0];
@@ -132,8 +152,9 @@ export default function OwnPost() {
     [postId: string]: boolean;
   }>({});
 
-  const { mutate: deleteComment } =
-    useDeleteCommentByCommnetIdMutation(userIdComment);
+  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation(
+    postId as string
+  );
 
   const handleDeleteComment = (commentId: string) => {
     deleteComment(commentId, {
@@ -521,7 +542,7 @@ export default function OwnPost() {
                   <div className="flex justify-between w-full">
                     <ReactionCount postId={post.postId} />
                     <span className="justify-end text-sm text-gray-500">
-                      10 bình luận
+                      <CommentCount postId={post.postId} />
                     </span>
                   </div>
 
@@ -591,18 +612,20 @@ export default function OwnPost() {
                       transition={{ duration: 0.3 }}
                       className="w-full mt-4 overflow-hidden"
                     >
-                      <CommentSection
-                        comments={commentsByPostId[post.postId] || []}
-                        onAddComment={(comment) =>
-                          handleAddComment(post.postId, comment)
-                        }
-                        onAddReply={(parentId, reply) =>
-                          handleAddReply(post.postId, parentId, reply)
-                        }
-                        deleteComment={(commentId) =>
-                          handleDeleteComment(commentId)
-                        }
-                      />
+                      <div className="px-5">
+                        <CommentSection
+                          comments={commentsByPostId[post.postId] || []}
+                          onAddComment={(comment) =>
+                            handleAddComment(post.postId, comment)
+                          }
+                          onAddReply={(parentId, reply) =>
+                            handleAddReply(post.postId, parentId, reply)
+                          }
+                          deleteComment={(commentId) =>
+                            handleDeleteComment(commentId)
+                          }
+                        />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

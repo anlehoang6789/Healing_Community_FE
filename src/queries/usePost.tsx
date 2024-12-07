@@ -155,11 +155,17 @@ export const useGetReactionCountQuery = (postId: string) => {
   });
 };
 
-export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
-  const queryClient = useQueryClient();
+export const useGetCommentCountQuery = (postId: string) => {
+  return useQuery({
+    queryKey: ["comment-count", postId],
+    queryFn: () => postApiRequest.getCommentCount(postId),
+  });
+};
 
+export const useCreateCommentMutation = (postId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postApiRequest.deleteCommentByCommentId,
+    mutationFn: postApiRequest.createComment,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["comments", postId],
@@ -172,10 +178,11 @@ export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
   });
 };
 
-export const useCreateCommentMutation = (postId: string) => {
+export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: postApiRequest.createComment,
+    mutationFn: postApiRequest.deleteCommentByCommentId,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["comments", postId],
@@ -198,13 +205,6 @@ export const useAddReactionMutation = () => {
         queryKey: ["reaction-count", postId],
       });
     },
-  });
-};
-
-export const useGetCommentCountQuery = (postId: string) => {
-  return useQuery({
-    queryKey: ["comment-count", postId],
-    queryFn: () => postApiRequest.getCommentCount(postId),
   });
 };
 
