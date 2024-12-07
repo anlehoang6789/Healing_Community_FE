@@ -127,7 +127,7 @@ export default function OwnPost() {
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
   }>({});
-  const { mutate: createComment } = useCreateCommentMutation();
+  const { mutate: createComment } = useCreateCommentMutation(postId as string);
   const [visibleCommentPosts, setVisibleCommentPosts] = useState<{
     [postId: string]: boolean;
   }>({});
@@ -136,9 +136,49 @@ export default function OwnPost() {
     useDeleteCommentByCommnetIdMutation(userIdComment);
 
   const handleDeleteComment = (commentId: string) => {
-    deleteComment(commentId);
-  };
+    deleteComment(commentId, {
+      onSuccess: async () => {
+        // Lặp qua từng post để tìm và cập nhật comments
+        const updatedCommentsByPostId = { ...commentsByPostId };
 
+        Object.keys(updatedCommentsByPostId).forEach((postId) => {
+          updatedCommentsByPostId[postId] = updatedCommentsByPostId[
+            postId
+          ].filter(
+            (comment) =>
+              comment.commentId !== commentId && comment.parentId !== commentId
+          );
+        });
+
+        // Cập nhật state comments
+        setCommentsByPostId(updatedCommentsByPostId);
+
+        // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng post
+        try {
+          const postIds = Object.keys(commentsByPostId);
+          const commentsPromises = postIds.map((postId) =>
+            postApiRequest.getCommentsByPostId(postId)
+          );
+
+          const commentsResults = await Promise.all(commentsPromises);
+
+          const refreshedCommentsByPostId: { [key: string]: CommentType[] } =
+            {};
+          postIds.forEach((postId, index) => {
+            refreshedCommentsByPostId[postId] =
+              commentsResults[index].payload.data;
+          });
+
+          setCommentsByPostId(refreshedCommentsByPostId);
+        } catch (error) {
+          console.error("Error refetching comments:", error);
+        }
+      },
+      onError: (error) => {
+        console.error("Error deleting comment:", error);
+      },
+    });
+  };
   useEffect(() => {
     if (data) {
       setPostList(data.payload.data);
@@ -194,25 +234,18 @@ export default function OwnPost() {
       },
       {
         onSuccess: (data) => {
-          const newCommentId = data.payload.data;
-
-          const newComment: CommentType = {
-            commentId: newCommentId,
-            postId: postId,
-            parentId: null,
-            userId: userIdComment,
-            content: comment.content,
-            createdAt: new Date().toISOString(),
-            updatedAt: null,
-            replies: [],
-            coverImgUrl: comment.coverImgUrl,
-          };
-
-          // Cập nhật bình luận cho postId tương ứng
-          setCommentsByPostId((prev) => ({
-            ...prev,
-            [postId]: [...(prev[postId] || []), newComment], // Thêm bình luận mới vào mảng bình luận của bài viết
-          }));
+          // Thay vì tạo comment ngay lập tức, hãy refetch toàn bộ comments
+          postApiRequest
+            .getCommentsByPostId(postId)
+            .then((commentsResponse) => {
+              setCommentsByPostId((prev) => ({
+                ...prev,
+                [postId]: commentsResponse.payload.data,
+              }));
+            })
+            .catch((error) => {
+              console.error("Error fetching comments:", error);
+            });
         },
         onError: (error) => {
           console.error("Error creating comment:", error);

@@ -250,7 +250,11 @@ export default function CommentSection({
               >
                 Trả lời
               </button>
-              <span>{new Date(comment.createdAt).toLocaleString()}</span>
+              <span>
+                {new Date(comment.createdAt).toLocaleString("vi-VN", {
+                  timeZone: "UTC",
+                })}
+              </span>
               {/* {comment.likes > 0 && (
               <span className="flex items-center gap-1">
                 <ThumbsUp className="w-3 h-3" /> {comment.likes}
