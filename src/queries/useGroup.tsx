@@ -1,5 +1,8 @@
 import groupApiRequest from "@/apiRequests/group";
-import { CreateGroupRequestType } from "@/schemaValidations/group.schema";
+import {
+  CreateGroupRequestType,
+  JoinGroupRequestType,
+} from "@/schemaValidations/group.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllGroupsQuery = () => {
@@ -40,6 +43,22 @@ export const useDeleteGroupByGroupIdMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["get-all-groups"],
       });
+    },
+  });
+};
+
+export const useJoinGroupMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: JoinGroupRequestType) =>
+      groupApiRequest.joinGroup(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
+      queryClient.invalidateQueries({ queryKey: ["get-groups-by-user-id"] });
+    },
+    onError: (error) => {
+      console.error("Lỗi khi tham gia nhóm:", error);
     },
   });
 };
