@@ -27,6 +27,7 @@ import {
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
+  useGetCommentCountQuery,
   useGetPostByUserIdQuery,
   useGetReactionCountQuery,
 } from "@/queries/usePost";
@@ -75,6 +76,25 @@ const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
   const reactionCount = data.payload.data.total;
 
   return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
+};
+
+const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
+  const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
+
+  if (isLoading)
+    return (
+      <span className="text-sm text-gray-500 animate-pulse">
+        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+      </span>
+    );
+  if (isError || !data)
+    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
+
+  const commentCount = data.payload.data.countTotalComment;
+
+  return (
+    <span className="text-sm text-gray-500">{commentCount} bình luận</span>
+  );
 };
 
 type PostItem = GetPostByUserIdResType["data"][0];
@@ -127,18 +147,59 @@ export default function OwnPost() {
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
   }>({});
-  const { mutate: createComment } = useCreateCommentMutation();
+  const { mutate: createComment } = useCreateCommentMutation(postId as string);
   const [visibleCommentPosts, setVisibleCommentPosts] = useState<{
     [postId: string]: boolean;
   }>({});
 
-  const { mutate: deleteComment } =
-    useDeleteCommentByCommnetIdMutation(userIdComment);
+  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation(
+    postId as string
+  );
 
   const handleDeleteComment = (commentId: string) => {
-    deleteComment(commentId);
-  };
+    deleteComment(commentId, {
+      onSuccess: async () => {
+        // Lặp qua từng post để tìm và cập nhật comments
+        const updatedCommentsByPostId = { ...commentsByPostId };
 
+        Object.keys(updatedCommentsByPostId).forEach((postId) => {
+          updatedCommentsByPostId[postId] = updatedCommentsByPostId[
+            postId
+          ].filter(
+            (comment) =>
+              comment.commentId !== commentId && comment.parentId !== commentId
+          );
+        });
+
+        // Cập nhật state comments
+        setCommentsByPostId(updatedCommentsByPostId);
+
+        // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng post
+        try {
+          const postIds = Object.keys(commentsByPostId);
+          const commentsPromises = postIds.map((postId) =>
+            postApiRequest.getCommentsByPostId(postId)
+          );
+
+          const commentsResults = await Promise.all(commentsPromises);
+
+          const refreshedCommentsByPostId: { [key: string]: CommentType[] } =
+            {};
+          postIds.forEach((postId, index) => {
+            refreshedCommentsByPostId[postId] =
+              commentsResults[index].payload.data;
+          });
+
+          setCommentsByPostId(refreshedCommentsByPostId);
+        } catch (error) {
+          console.error("Error refetching comments:", error);
+        }
+      },
+      onError: (error) => {
+        console.error("Error deleting comment:", error);
+      },
+    });
+  };
   useEffect(() => {
     if (data) {
       setPostList(data.payload.data);
@@ -194,25 +255,18 @@ export default function OwnPost() {
       },
       {
         onSuccess: (data) => {
-          const newCommentId = data.payload.data;
-
-          const newComment: CommentType = {
-            commentId: newCommentId,
-            postId: postId,
-            parentId: null,
-            userId: userIdComment,
-            content: comment.content,
-            createdAt: new Date().toISOString(),
-            updatedAt: null,
-            replies: [],
-            coverImgUrl: comment.coverImgUrl,
-          };
-
-          // Cập nhật bình luận cho postId tương ứng
-          setCommentsByPostId((prev) => ({
-            ...prev,
-            [postId]: [...(prev[postId] || []), newComment], // Thêm bình luận mới vào mảng bình luận của bài viết
-          }));
+          // Thay vì tạo comment ngay lập tức, hãy refetch toàn bộ comments
+          postApiRequest
+            .getCommentsByPostId(postId)
+            .then((commentsResponse) => {
+              setCommentsByPostId((prev) => ({
+                ...prev,
+                [postId]: commentsResponse.payload.data,
+              }));
+            })
+            .catch((error) => {
+              console.error("Error fetching comments:", error);
+            });
         },
         onError: (error) => {
           console.error("Error creating comment:", error);
@@ -488,7 +542,7 @@ export default function OwnPost() {
                   <div className="flex justify-between w-full">
                     <ReactionCount postId={post.postId} />
                     <span className="justify-end text-sm text-gray-500">
-                      10 bình luận
+                      <CommentCount postId={post.postId} />
                     </span>
                   </div>
 
@@ -558,18 +612,20 @@ export default function OwnPost() {
                       transition={{ duration: 0.3 }}
                       className="w-full mt-4 overflow-hidden"
                     >
-                      <CommentSection
-                        comments={commentsByPostId[post.postId] || []}
-                        onAddComment={(comment) =>
-                          handleAddComment(post.postId, comment)
-                        }
-                        onAddReply={(parentId, reply) =>
-                          handleAddReply(post.postId, parentId, reply)
-                        }
-                        deleteComment={(commentId) =>
-                          handleDeleteComment(commentId)
-                        }
-                      />
+                      <div className="px-5">
+                        <CommentSection
+                          comments={commentsByPostId[post.postId] || []}
+                          onAddComment={(comment) =>
+                            handleAddComment(post.postId, comment)
+                          }
+                          onAddReply={(parentId, reply) =>
+                            handleAddReply(post.postId, parentId, reply)
+                          }
+                          deleteComment={(commentId) =>
+                            handleDeleteComment(commentId)
+                          }
+                        />
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

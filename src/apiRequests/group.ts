@@ -3,6 +3,7 @@ import {
   CreateGroupRequestType,
   GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
+  JoinGroupRequestType,
 } from "@/schemaValidations/group.schema";
 
 const groupApiRequest = {
@@ -17,6 +18,9 @@ const groupApiRequest = {
 
   deleteGroupByGroupId: (groupId: string) =>
     http.delete<{ message: string }>(`group/api/group/delete-group/${groupId}`),
+
+  joinGroup: (payload: JoinGroupRequestType) =>
+    http.post<{ message: string }>("group/api/usergroup/join", payload),
 };
 
 export default groupApiRequest;

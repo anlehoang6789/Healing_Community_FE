@@ -117,7 +117,7 @@ export default function GroupSidebar() {
                 alt={`Ảnh nhóm ${group.groupName}`}
                 width={50}
                 height={50}
-                className="rounded-lg"
+                className="rounded-lg h-[50px] w-[50px]"
               />
 
               <div className="flex-1 min-w-0">
@@ -128,7 +128,12 @@ export default function GroupSidebar() {
                   Vai trò: {group.roleInGroup}
                 </p>
                 <p className="text-sm text-muted-foreground truncate">
-                  Ngày tham gia: {new Date(group.joinedAt).toLocaleDateString()}
+                  Ngày tham gia:{" "}
+                  {new Date(group.joinedAt).toLocaleDateString("vi-VN", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
                 </p>
               </div>
             </Link>

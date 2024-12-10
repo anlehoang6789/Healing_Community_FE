@@ -29,10 +29,11 @@ import {
 import {
   useGetAllGroupsQuery,
   useGetGroupsByUserIdQuery,
+  useJoinGroupMutation,
 } from "@/queries/useGroup";
-import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-
+import { toast } from "@/hooks/use-toast";
 
 export default function ListOfGroups() {
   const { theme } = useTheme();
@@ -41,6 +42,8 @@ export default function ListOfGroups() {
 
   const groups = response?.payload?.data || [];
   const [userId, setUserId] = useState<string | null>(null);
+
+  const joinGroupMutation = useJoinGroupMutation();
 
   useEffect(() => {
     const storedUserId = getUserIdFromLocalStorage();
@@ -61,6 +64,19 @@ export default function ListOfGroups() {
   // Kiểm tra xem một nhóm có được tham gia không
   const isGroupJoined = (groupId: string) => {
     return joinedGroupIds.includes(groupId);
+  };
+
+  const handleJoinGroup = async (groupId: string) => {
+    try {
+      const result = await joinGroupMutation.mutateAsync({ groupId });
+
+      toast({
+        description: result.payload.message || "Tham gia nhóm thành công!",
+        variant: "success",
+      });
+    } catch (error) {
+      handleErrorApi({ error });
+    }
   };
 
   if (isLoading) {
@@ -128,7 +144,7 @@ export default function ListOfGroups() {
                     alt={group.groupName}
                     width={90}
                     height={90}
-                    className="cursor-pointer rounded-lg object-cover"
+                    className="cursor-pointer h-[90px] ww-[90px] rounded-lg object-cover"
                   />
                 </Link>
 
@@ -141,10 +157,8 @@ export default function ListOfGroups() {
                     </Link>
                   </HoverCardTrigger>
                   <p className="text-sm text-gray-500">
-                    Thành viên:{" "}
-                    {group.currentMemberCount
-                      ? group.currentMemberCount.toLocaleString()
-                      : "Chưa xác định"}
+                    Thành viên: {group.currentMemberCount.toLocaleString()}/
+                    {group.memberLimit.toLocaleString()}
                   </p>
                 </div>
                 <DropdownMenu>
@@ -183,6 +197,18 @@ export default function ListOfGroups() {
                   </DropdownMenuContent>
                 </DropdownMenu>
               </CardContent>
+
+              {!isGroupJoined(group.groupId) && (
+                <div className="flex justify-center mb-4 px-20">
+                  <Button
+                    onClick={() => handleJoinGroup(group.groupId)}
+                    className="w-full"
+                    variant={"headerIcon"}
+                  >
+                    Tham gia nhóm
+                  </Button>
+                </div>
+              )}
             </Card>
 
             <HoverCardContent
@@ -203,11 +229,16 @@ export default function ListOfGroups() {
                     <AvatarFallback>{group.groupName.charAt(0)}</AvatarFallback>
                   </Avatar>
                 </Link>
-                <Link href="#">
-                  <h3 className="font-semibold hover:underline">
-                    {group.groupName}
-                  </h3>
-                </Link>
+                <div className="flex-col">
+                  <Link href="#">
+                    <h3 className="font-semibold hover:underline">
+                      {group.groupName}
+                    </h3>
+                  </Link>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {group.description}
+                  </p>
+                </div>
               </div>
               <div className="mt-4">
                 <p className="text-sm text-gray-500 flex items-center mt-1">
