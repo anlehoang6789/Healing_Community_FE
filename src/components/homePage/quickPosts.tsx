@@ -1,7 +1,9 @@
 "use client";
+import { Card, CardContent } from "@/components/ui/card";
 // import { useGetQuickPostHomePageQuery } from "@/queries/usePost";
 import { QuickPostType } from "@/schemaValidations/post.schema";
 import { useQuickPostStore } from "@/store/postStore";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function QuickViewNews({
@@ -16,31 +18,40 @@ export default function QuickViewNews({
     setPostData(postId, userId);
   };
   return (
-    <div className="pl-4">
+    <aside className="pl-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-muted-foreground">
           Xem nhanh
         </h2>
       </div>
       <ul className="space-y-4 relative">
-        <div className="absolute left-[-2px] top-0 bottom-0 w-0.5 bg-blue-400"></div>
+        <div className="absolute left-[-2px] top-0 bottom-0 w-0.5 bg-yellow-700"></div>
         {quickPostList.map((item) => (
           <li key={item.postId} className="flex items-start space-x-4 relative">
-            <div className="absolute left-[-6px] top-2 w-[10px] h-[10px] bg-blue-400 rounded-full"></div>
-            <div className="flex-1">
-              <Link
-                href={`/content/${item.postId}`}
-                className="hover:underline"
-                onClick={() => handleClickedPost(item.postId, item.userId)}
-              >
-                <h3 className="text-sm font-medium text-muted-foreground line-clamp-3">
-                  {item.title}
-                </h3>
-              </Link>
+            <div className="absolute left-[-6px] top-2 w-[20px] h-[20px]">
+              <Image
+                src={"/leaf.png"}
+                alt="leaf"
+                className="w-full h-full object-contain"
+                width={20}
+                height={20}
+              />
             </div>
+            <Card className="w-full transition-all duration-300">
+              <CardContent className="p-3">
+                <Link
+                  href={`/content/${item.postId}`}
+                  onClick={() => handleClickedPost(item.postId, item.userId)}
+                >
+                  <h3 className="text-sm font-medium text-textChat line-clamp-3">
+                    {item.title}
+                  </h3>
+                </Link>
+              </CardContent>
+            </Card>
           </li>
         ))}
       </ul>
-    </div>
+    </aside>
   );
 }

@@ -1,3 +1,4 @@
+import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import React from "react";
 
@@ -31,16 +32,6 @@ const highlightPosts: HighlightPost[] = [
     title: "7 yếu tố mà Samsung cần nâng cấp trên Galaxy S25 Series",
     author: "Cao - Foxtek",
   },
-  {
-    id: 5,
-    title: "Hình ảnh Marshall tại sự kiện V1Z10N Launch Event",
-    author: "HThanhLoi",
-  },
-  {
-    id: 6,
-    title: "StreamCast Asia ra mắt KEF Q Series tại Việt Nam",
-    author: "HThanhLoi",
-  },
 ];
 export default function HighlightPosts() {
   return (
@@ -51,21 +42,26 @@ export default function HighlightPosts() {
         </h2>
         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-x-8 gap-y-4">
           {highlightPosts.map((post) => (
-            <div key={post.id} className="flex items-start space-x-3">
-              <div className="text-4xl font-bold text-rose-400 w-10 flex-shrink-0 -mt-1">
-                #{post.id}
-              </div>
-              <div>
-                <Link href="#">
-                  <h3 className="font-bold text-base mb-1 text-muted-foreground ">
-                    {post.title}
-                  </h3>
-                </Link>
-                <Link href="#">
-                  <p className="text-sm text-muted-foreground">{post.author}</p>
-                </Link>
-              </div>
-            </div>
+            <Card key={post.id} className="flex flex-col items-start space-x-3">
+              <CardContent className="p-3">
+                <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] w-10 flex-shrink-0 -mt-1">
+                  #{post.id}
+                </div>
+                <div>
+                  <Link href="#">
+                    <h3 className="font-bold text-base mb-1 text-textChat ">
+                      {post.title}
+                    </h3>
+                  </Link>
+                  <Link href="#">
+                    <p className="text-sm text-muted-foreground">
+                      Tác giả:{" "}
+                      <span className="text-textChat">{post.author}</span>
+                    </p>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
