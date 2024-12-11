@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import React from "react";
@@ -6,6 +7,7 @@ interface HighlightPost {
   id: number;
   title: string;
   author: string;
+  category: string;
 }
 
 const highlightPosts: HighlightPost[] = [
@@ -14,23 +16,27 @@ const highlightPosts: HighlightPost[] = [
     title:
       "Top những điểm ấn tượng Apple Watch Series 10: Bản titan RẤT đẹp, mua",
     author: "Anh Tú",
+    category: "Âm nhạc trị liệu",
   },
   {
     id: 2,
     title:
       "Trên tay Apple Watch Series 10 Natural Titanium: máy đẹp, mỏng và nhẹ, hoàn thiện đẳng bóng",
     author: "Pnghuy",
+    category: "Review phim chữa lành",
   },
   {
     id: 3,
     title:
       "LG nộp bằng sáng chế mới về smartphone màn hình cuộn, dấu hiệu cho sự quay trở lại của LG?",
     author: "Cao - Foxtek",
+    category: "Âm nhạc trị liệu",
   },
   {
     id: 4,
     title: "7 yếu tố mà Samsung cần nâng cấp trên Galaxy S25 Series",
     author: "Cao - Foxtek",
+    category: "Sức khỏe tinh thần",
   },
 ];
 export default function HighlightPosts() {
@@ -44,8 +50,17 @@ export default function HighlightPosts() {
           {highlightPosts.map((post) => (
             <Card key={post.id} className="flex flex-col items-start space-x-3">
               <CardContent className="p-3">
-                <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] w-10 flex-shrink-0 -mt-1">
+                {/* <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] w-10 flex-shrink-0 -mt-1">
                   #{post.id}
+                </div> */}
+                <div className="flex items-center justify-between mb-4">
+                  <Badge
+                    variant="outline"
+                    className="bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black text-sm"
+                  >
+                    #{post.id}
+                  </Badge>
+                  <Badge>{post.category}</Badge>
                 </div>
                 <div>
                   <Link href="#">
