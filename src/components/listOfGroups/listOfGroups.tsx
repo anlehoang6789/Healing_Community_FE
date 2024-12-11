@@ -30,6 +30,7 @@ import {
   useGetAllGroupsQuery,
   useGetGroupsByUserIdQuery,
   useJoinGroupMutation,
+  useLeaveGroupByGroupIdMutation,
 } from "@/queries/useGroup";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,8 @@ export default function ListOfGroups() {
   const [userId, setUserId] = useState<string | null>(null);
 
   const joinGroupMutation = useJoinGroupMutation();
+
+  const leaveGroupMutation = useLeaveGroupByGroupIdMutation();
 
   useEffect(() => {
     const storedUserId = getUserIdFromLocalStorage();
@@ -72,6 +75,19 @@ export default function ListOfGroups() {
 
       toast({
         description: result.payload.message || "Tham gia nhóm thành công!",
+        variant: "success",
+      });
+    } catch (error) {
+      handleErrorApi({ error });
+    }
+  };
+
+  const handleLeaveGroup = async (groupId: string) => {
+    try {
+      const result = await leaveGroupMutation.mutateAsync({ groupId });
+
+      toast({
+        description: result.payload.message || "Rời nhóm thành công!",
         variant: "success",
       });
     } catch (error) {
@@ -189,9 +205,17 @@ export default function ListOfGroups() {
                     {isGroupJoined(group.groupId) && (
                       <DropdownMenuItem className="border-t-2 group">
                         <LogOut className="mr-2 h-4 w-4 group-hover:text-red-500 " />
-                        <span className="group-hover:text-red-500 ">
+                        <Button
+                          className={`group-hover:text-red-500 m-[-6px] ml-[-15px] border-none bg-transparent shadow-none hover:bg-transparent font-normal ${
+                            theme === "dark" ? " text-white" : " text-black"
+                          } `}
+                          onClick={() => handleLeaveGroup(group.groupId)}
+                        >
                           Rời nhóm
-                        </span>
+                        </Button>
+                        {/* <span className="group-hover:text-red-500 ">
+                          Rời nhóm
+                        </span> */}
                       </DropdownMenuItem>
                     )}
                   </DropdownMenuContent>
