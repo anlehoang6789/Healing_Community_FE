@@ -120,6 +120,7 @@ export default function PostStoryForm() {
           onSubmit={form.handleSubmit(onSubmit, (error) => {
             console.warn(error);
           })}
+          onReset={reset}
         >
           <div className="grid gap-4">
             <FormField
@@ -302,11 +303,11 @@ export default function PostStoryForm() {
 
             <div className="flex flex-col items-center md:justify-end mt-4 md:flex-row">
               <Button
-                type="button"
+                type="reset"
                 className="bg-white text-black md:mr-3 mb-2 md:mb-0 w-full md:w-auto"
                 variant={"outline"}
               >
-                Xem trước
+                Hủy
               </Button>
               <Button
                 type="submit"
