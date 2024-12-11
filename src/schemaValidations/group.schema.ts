@@ -73,6 +73,12 @@ const JoinGroupRequestSchema = z.object({
 
 export type JoinGroupRequestType = z.infer<typeof JoinGroupRequestSchema>;
 
+const LeaveGroupRequestSchema = z.object({
+  groupId: z.string(),
+});
+
+export type LeaveGroupRequestType = z.infer<typeof LeaveGroupRequestSchema>;
+
 
 
 

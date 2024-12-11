@@ -2,6 +2,7 @@ import groupApiRequest from "@/apiRequests/group";
 import {
   CreateGroupRequestType,
   JoinGroupRequestType,
+  LeaveGroupRequestType,
 } from "@/schemaValidations/group.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -59,6 +60,21 @@ export const useJoinGroupMutation = () => {
     },
     onError: (error) => {
       console.error("Lỗi khi tham gia nhóm:", error);
+    },
+  });
+};
+
+export const useLeaveGroupByGroupIdMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: LeaveGroupRequestType) =>
+      groupApiRequest.leaveGroupByGroupId(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
+      queryClient.invalidateQueries({ queryKey: ["get-groups-by-user-id"] });
+    },
+    onError: (error) => {
+      console.error("Lỗi khi rời nhóm:", error);
     },
   });
 };

@@ -4,6 +4,7 @@ import {
   GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
   JoinGroupRequestType,
+  LeaveGroupRequestType,
 } from "@/schemaValidations/group.schema";
 
 const groupApiRequest = {
@@ -21,6 +22,12 @@ const groupApiRequest = {
 
   joinGroup: (payload: JoinGroupRequestType) =>
     http.post<{ message: string }>("group/api/usergroup/join", payload),
+
+  leaveGroupByGroupId: (payload: LeaveGroupRequestType) =>
+    http.post<{ message: string }>(
+      `group/api/usergroup/leave?groupId=${payload.groupId}`,
+      {}
+    ),
 };
 
 export default groupApiRequest;
