@@ -69,6 +69,7 @@ export default function CarouselHome() {
                     src={item.image}
                     alt={item.quote || item.tip || "Healing image"}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="rounded-lg object-cover"
                   />
                   <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-white p-4 rounded-lg">
