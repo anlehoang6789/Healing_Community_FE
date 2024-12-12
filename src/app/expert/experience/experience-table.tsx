@@ -54,7 +54,10 @@ import {
 } from "@/schemaValidations/expert.schema";
 import AddExperience from "@/app/expert/experience/add-experience";
 import EditExperience from "@/app/expert/experience/edit-experience";
-import { useGetExpertExperienceList } from "@/queries/useExpert";
+import {
+  useDeleteExpertExperienceMutation,
+  useGetExpertExperienceList,
+} from "@/queries/useExpert";
 
 type ExperienceItem = ExpertExperienceListResType["data"][0];
 
@@ -175,20 +178,21 @@ function AlertDialogDeleteAccount({
   experienceDelete: ExperienceItem | null;
   setExperienceDelete: (value: ExperienceItem | null) => void;
 }) {
-  //   const { mutateAsync } = useDeleteEmployeeMutation();
-  //   const deleteEmployee = async () => {
-  //     if (experienceDelete) {
-  //       try {
-  //         const result = await mutateAsync(experienceDelete.workExperienceId);
-  //         setExperienceDelete(null);
-  //         toast({
-  //           description: result.payload.message,
-  //         });
-  //       } catch (error) {
-  //         handleErrorApi({ error });
-  //       }
-  //     }
-  //   };
+  const { mutateAsync } = useDeleteExpertExperienceMutation();
+  const deleteExperience = async () => {
+    if (experienceDelete) {
+      try {
+        const result = await mutateAsync(experienceDelete.workExperienceId);
+        setExperienceDelete(null);
+        toast({
+          description: result.payload.message,
+          variant: "success",
+        });
+      } catch (error) {
+        handleErrorApi({ error });
+      }
+    }
+  };
 
   return (
     <AlertDialog
@@ -214,7 +218,9 @@ function AlertDialogDeleteAccount({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
-          <AlertDialogAction>Tiếp tục</AlertDialogAction>
+          <AlertDialogAction onClick={deleteExperience}>
+            Tiếp tục
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
