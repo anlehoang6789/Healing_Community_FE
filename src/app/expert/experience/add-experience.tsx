@@ -23,9 +23,10 @@ import {
   CreateExpertExperienceBodyType,
 } from "@/schemaValidations/expert.schema";
 import { Textarea } from "@/components/ui/textarea";
+import { useAddExpertExperienceMutation } from "@/queries/useExpert";
+import { format, parse } from "date-fns";
 
 export default function AddExperience() {
-  const [file, setFile] = useState<File | null>(null);
   const [open, setOpen] = useState(false);
   const form = useForm<CreateExpertExperienceBodyType>({
     resolver: zodResolver(CreateExpertExperienceBody),
@@ -38,35 +39,37 @@ export default function AddExperience() {
     },
   });
 
-  //   const updateAvatar = useUploadMediaMutation();
-  //   const addEmployee = useAddEmployeeMutation();
+  const addExperience = useAddExpertExperienceMutation();
   const reset = () => {
     form.reset();
-    setFile(null);
   };
 
-  //   const onSubmit = async (data: CreateEmployeeAccountBodyType) => {
-  //     if (addEmployee.isPending) return;
-  //     try {
-  //       //check xem có upload file cho avatar không
-  //       let body = data;
-  //       if (file) {
-  //         const formData = new FormData();
-  //         formData.append("avatar", file);
-  //         const uploadAvatarResult = await updateAvatar.mutateAsync(formData);
-  //         const imageUrl = uploadAvatarResult.payload.data;
-  //         body = { ...data, avatar: imageUrl };
-  //       }
-  //       const result = await addEmployee.mutateAsync(body);
-  //       toast({
-  //         description: result.payload.message,
-  //       });
-  //       reset();
-  //       setOpen(false);
-  //     } catch (error) {
-  //       handleErrorApi({ error, setError: form.setError });
-  //     }
-  //   };
+  const onSubmit = async (data: CreateExpertExperienceBodyType) => {
+    if (addExperience.isPending) return;
+    try {
+      const body = {
+        ...data,
+        startDate: data.startDate
+          ? format(
+              parse(data.startDate, "dd/MM/yyyy", new Date()),
+              "yyyy-MM-dd"
+            )
+          : "",
+        endDate: data.endDate
+          ? format(parse(data.endDate, "dd/MM/yyyy", new Date()), "yyyy-MM-dd")
+          : "",
+      };
+      const result = await addExperience.mutateAsync(body);
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+      reset();
+      setOpen(false);
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
   return (
     <Dialog onOpenChange={setOpen} open={open}>
       <DialogTrigger asChild>
@@ -79,18 +82,23 @@ export default function AddExperience() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto">
         <DialogHeader>
-          <DialogTitle>Thêm kinh nghiệm làm việc</DialogTitle>
+          <DialogTitle className="text-textChat font-bold">
+            Thêm kinh nghiệm làm việc
+          </DialogTitle>
+          <DialogDescription className="text-textChat font-bold sr-only">
+            Thêm thông tin kinh nghiệm làm việc của bạn
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
             id="add-dish-form"
-            // onSubmit={form.handleSubmit(onSubmit, (error) => {
-            //   console.warn(error);
-            // })}
+            onSubmit={form.handleSubmit(onSubmit, (error) => {
+              console.warn(error);
+            })}
           >
-            <div className="grid gap-4 py-4">
+            <div className="grid gap-4 py-4 text-textChat">
               <FormField
                 control={form.control}
                 name="companyName"
@@ -138,7 +146,8 @@ export default function AddExperience() {
                           id="startDate"
                           className="w-full"
                           {...field}
-                          type="number"
+                          type="text"
+                          placeholder="dd/mm/yyyy"
                         />
                         <FormMessage />
                       </div>
@@ -158,7 +167,8 @@ export default function AddExperience() {
                           id="endDate"
                           className="w-full"
                           {...field}
-                          type="number"
+                          type="text"
+                          placeholder="dd/mm/yyyy"
                         />
                         <FormMessage />
                       </div>

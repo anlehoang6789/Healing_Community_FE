@@ -4,6 +4,7 @@ import {
   AppointmentUserListResType,
   CreateAvailableTimeSlotBodyType,
   CreateAvailableTimeSlotResponseType,
+  CreateExpertExperienceBodyType,
   DeleteCertificateResponseType,
   ExpertExperienceListResType,
   GetAllCertificatesResponseType,
@@ -71,6 +72,8 @@ const expertApiRequest = {
     ),
   getExpertExperienceList: () =>
     http.get<ExpertExperienceListResType>("expert/api/workexperience/get"),
+  addExpertExperience: (body: CreateExpertExperienceBodyType) =>
+    http.post<{ message: string }>("expert/api/workexperience/create", body),
 };
 
 export default expertApiRequest;
