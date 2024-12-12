@@ -11,7 +11,7 @@ export default function ExpertLayout({
       <div className="flex flex-grow">
         <SidebarLayout />
 
-        <main className="flex-grow flex flex-col sm:gap-4 sm:py-4 sm:pl-4">
+        <main className="flex-grow flex flex-col sm:gap-4 sm:py-4 sm:pl-4 max-w-full">
           {children}
         </main>
       </div>

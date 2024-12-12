@@ -127,3 +127,15 @@ export const useGetExpertExperienceList = () => {
     queryFn: expertApiRequest.getExpertExperienceList,
   });
 };
+
+export const useAddExpertExperienceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.addExpertExperience,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-experience-list"],
+      });
+    },
+  });
+};

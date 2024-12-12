@@ -291,7 +291,7 @@ export default function ExperienceTable() {
           experienceDelete={experienceDelete}
           setExperienceDelete={setExperienceDelete}
         />
-        <div className="flex items-center py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center py-4 gap-4 sm:gap-2">
           <Input
             placeholder="Tìm kiếm tên công ty ..."
             value={
@@ -302,12 +302,12 @@ export default function ExperienceTable() {
             }
             className="max-w-sm"
           />
-          <div className="ml-auto flex items-center gap-2">
+          <div className="sm:ml-auto flex items-center gap-2">
             <AddExperience />
           </div>
         </div>
-        <div className="rounded-md border">
-          <Table>
+        <div className="rounded-md border overflow-x-auto max-w-full">
+          <Table className="max-w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -356,8 +356,8 @@ export default function ExperienceTable() {
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="text-xs text-muted-foreground py-4 flex-1 ">
+        <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 py-4">
+          <div className="text-xs text-muted-foreground text-center flex-1 sm:text-left">
             Hiển thị{" "}
             <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
             <strong>{data.length}</strong> kết quả

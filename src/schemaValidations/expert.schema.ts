@@ -271,11 +271,11 @@ export type ExpertExperienceListResType = z.TypeOf<
 >;
 
 export const CreateExpertExperienceBody = z.object({
-  companyName: z.string(),
-  positionTitle: z.string(),
+  companyName: z.string().max(30),
+  positionTitle: z.string().max(15),
   startDate: z.string(),
   endDate: z.string(),
-  description: z.string(),
+  description: z.string().max(45),
 });
 
 export type CreateExpertExperienceBodyType = z.TypeOf<
