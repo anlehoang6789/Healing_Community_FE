@@ -139,3 +139,15 @@ export const useAddExpertExperienceMutation = () => {
     },
   });
 };
+
+export const useDeleteExpertExperienceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.deleteExpertExperience,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-experience-list"],
+      });
+    },
+  });
+};

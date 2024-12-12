@@ -74,6 +74,10 @@ const expertApiRequest = {
     http.get<ExpertExperienceListResType>("expert/api/workexperience/get"),
   addExpertExperience: (body: CreateExpertExperienceBodyType) =>
     http.post<{ message: string }>("expert/api/workexperience/create", body),
+  deleteExpertExperience: (workExperienceId: string) =>
+    http.delete<{ message: string }>(
+      `expert/api/workexperience/delete/${workExperienceId}`
+    ),
 };
 
 export default expertApiRequest;
