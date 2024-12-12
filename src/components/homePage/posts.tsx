@@ -2,7 +2,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Bookmark, Flag, Share2, ThumbsUp } from "lucide-react";
+import {
+  Bookmark,
+  Flag,
+  Globe,
+  LockKeyhole,
+  Share2,
+  ThumbsUp,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   useAddReactionMutation,
@@ -19,9 +26,14 @@ import { useReactionStore } from "@/store/reactionStore";
 type UserProfileProps = {
   userId: string;
   postDate: string;
+  isPostPublic: boolean;
 };
 
-const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
+const UserProfile: React.FC<UserProfileProps> = ({
+  userId,
+  postDate,
+  isPostPublic,
+}) => {
   const { data, isLoading, isError } = useGetUserProfileQuery(userId);
 
   if (isLoading) return <div>Loading...</div>;
@@ -48,7 +60,16 @@ const UserProfile: React.FC<UserProfileProps> = ({ userId, postDate }) => {
           {user.fullName || user.userName || "Anonymous"}
         </h2>
         {/* Ngày tạo acc người dùng */}
-        <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
+        <div className="flex items-center gap-2">
+          <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
+          <p className="text-gray-500">
+            {isPostPublic ? (
+              <Globe className="h-4 w-4" />
+            ) : (
+              <LockKeyhole className="h-4 w-4" />
+            )}
+          </p>
+        </div>
       </div>
       <div className="ml-auto">
         <Button
@@ -193,7 +214,7 @@ export default function Posts() {
           article.description.length > 300
             ? article.description.slice(0, 300) + "..."
             : article.description;
-
+        const isPostPublic = article.status === 0;
         return (
           <div
             key={article.postId}
@@ -202,7 +223,11 @@ export default function Posts() {
               handlePostClick(article.postId, article.categoryId, e)
             }
           >
-            <UserProfile userId={article.userId} postDate={article.createAt} />
+            <UserProfile
+              userId={article.userId}
+              postDate={article.createAt}
+              isPostPublic={isPostPublic}
+            />
 
             <div className="whitespace-pre-wrap mb-4 text-textChat flex flex-col">
               <h1 className="font-bold text-lg text-center mb-2">

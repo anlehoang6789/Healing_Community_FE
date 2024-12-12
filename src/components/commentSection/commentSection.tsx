@@ -10,6 +10,8 @@ import {
   Smile,
   ThumbsUp,
   Trash2,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
@@ -28,6 +30,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { AnimatePresence, motion } from "framer-motion";
+import { useTheme } from "next-themes";
 
 interface CommentSectionProps {
   comments: CommentType[];
@@ -51,6 +55,7 @@ export default function CommentSection({
   onAddReply,
   deleteComment,
 }: CommentSectionProps) {
+  const { theme } = useTheme();
   const { data: users } = useGetAllUsers();
   const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -66,6 +71,21 @@ export default function CommentSection({
     null
   );
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // state để quản lý việc mở/đóng replies
+  const [expandedComments, setExpandedComments] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  // Hàm toggle mở/đóng replies
+  const toggleRepliesVisibility = (commentId: string) => {
+    setExpandedComments((prev) => ({
+      ...prev,
+      [commentId]: !prev[commentId],
+    }));
+  };
 
   const userIdComment = getUserIdFromLocalStorage() ?? "";
 
@@ -111,6 +131,20 @@ export default function CommentSection({
     }
   };
 
+  const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const textarea = e.target;
+    textarea.style.height = "auto"; // Reset height
+
+    // Tính toán chiều cao mới
+    const newHeight = textarea.scrollHeight;
+
+    // Giới hạn chiều cao tối đa là 150px
+    textarea.style.height = `${Math.min(newHeight, 150)}px`;
+
+    // Cập nhật giá trị comment
+    setNewComment(textarea.value);
+  };
+
   const handleAddComment = () => {
     if (newComment.trim()) {
       onAddComment({
@@ -118,7 +152,12 @@ export default function CommentSection({
         coverImgUrl: commentImage,
       });
 
+      if (textareaRef.current) {
+        textareaRef.current.style.height = "65.6px";
+      }
+
       setNewComment("");
+
       setCommentImage(null); // Reset hình ảnh sau khi gửi
     }
   };
@@ -162,10 +201,15 @@ export default function CommentSection({
       // Kiểm tra xem comment có phải của người dùng hiện tại không
       const isCurrentUserComment = comment.userId === userIdComment;
 
+      const replies = comment.replies ?? [];
+      // Kiểm tra xem comment có replies không
+      const hasReplies = replies.length > 0;
+      const isRepliesExpanded = expandedComments[comment.commentId];
+
       return (
         <div
           key={comment.commentId}
-          className={`flex items-start gap-2 mt-2 ${depth > 0 ? "ml-8" : ""}`}
+          className={`flex items-start gap-2 mt-2 ${depth > 0 ? "" : ""}`}
         >
           <Link href="#">
             <Avatar className="w-8 h-8 border-2 border-rose-300">
@@ -178,7 +222,13 @@ export default function CommentSection({
           </Link>
 
           <div className="flex-1">
-            <div className="bg-gray-100 rounded-lg p-2 overflow-hidden break-words relative">
+            <div
+              className={` rounded-lg p-2 overflow-hidden break-words relative ${
+                theme === "dark"
+                  ? "bg-black text-white"
+                  : "bg-gray-100 text-black"
+              }`}
+            >
               {isCurrentUserComment && (
                 <>
                   <AlertDialog
@@ -227,7 +277,7 @@ export default function CommentSection({
                 </span>
               </Link>
 
-              <p className="text-black whitespace-pre-wrap break-all">
+              <p className=" whitespace-pre-wrap break-all">
                 {comment.content}
               </p>
 
@@ -243,20 +293,47 @@ export default function CommentSection({
             </div>
 
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
-              <button className="hover:underline">Thích</button>
               <button
                 className="hover:underline"
                 onClick={() => setReplyingTo(comment.commentId)}
               >
-                Trả lời
+                Phản hồi
               </button>
-              <span>{new Date(comment.createdAt).toLocaleString()}</span>
+              <span>
+                {new Date(comment.createdAt).toLocaleString("vi-VN", {
+                  timeZone: "UTC",
+                })}
+              </span>
               {/* {comment.likes > 0 && (
               <span className="flex items-center gap-1">
                 <ThumbsUp className="w-3 h-3" /> {comment.likes}
               </span>
             )} */}
             </div>
+
+            {/* Nút mở/đóng replies */}
+            {hasReplies && (
+              <div className="flex justify-start items-center">
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="text-gray-500 "
+                  onClick={() => toggleRepliesVisibility(comment.commentId)}
+                >
+                  {isRepliesExpanded ? (
+                    <>
+                      Thu gọn
+                      <ChevronUp className="ml-1 h-4 w-4" />
+                    </>
+                  ) : (
+                    <>
+                      {replies.length} phản hồi{" "}
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
 
             {replyingTo === comment.commentId && (
               <div className="mt-2 flex items-center w-full relative">
@@ -369,11 +446,33 @@ export default function CommentSection({
             )}
 
             {/* Hiển thị replies */}
-            {comment.replies && comment.replies.length > 0 && (
-              <div className="mt-2">
-                {renderComments(comment.replies, depth + 1)}
-              </div>
-            )}
+            <AnimatePresence>
+              {hasReplies && isRepliesExpanded && (
+                <motion.div
+                  key={`replies-${comment.commentId}`}
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{
+                    opacity: 1,
+                    height: "auto",
+                    transition: {
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    },
+                  }}
+                  exit={{
+                    opacity: 0,
+                    height: 0,
+                    transition: {
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    },
+                  }}
+                  className="mt-2 pl-4 border-l-2 overflow-hidden"
+                >
+                  {renderComments(replies, depth + 1)}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       );
@@ -385,23 +484,20 @@ export default function CommentSection({
       {/* Input comment */}
       <div className="w-full flex items-center relative">
         <textarea
+          ref={textareaRef}
           value={newComment}
-          onChange={(e) => {
-            const textarea = e.target;
-            textarea.rows = 1;
-            const newRowCount = Math.ceil(
-              textarea.scrollHeight / textarea.offsetHeight
-            );
-            textarea.rows = newRowCount;
-            setNewComment(textarea.value);
-          }}
+          onChange={handleTextareaChange}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
+            if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               handleAddComment();
             }
           }}
-          className="border rounded-lg p-2 pr-10 flex-1 resize-none h-auto text-muted-foreground"
+          className="border rounded-lg p-2 pr-10 flex-1 resize-none text-muted-foreground"
+          style={{
+            height: "65.6px",
+            maxHeight: "150px",
+          }}
           placeholder="Nhập bình luận..."
         />
 

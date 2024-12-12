@@ -66,3 +66,19 @@ const CreateGroupRequestSchema = z.object({
 });
 
 export type CreateGroupRequestType = z.infer<typeof CreateGroupRequestSchema>;
+
+const JoinGroupRequestSchema = z.object({
+  groupId: z.string(),
+});
+
+export type JoinGroupRequestType = z.infer<typeof JoinGroupRequestSchema>;
+
+const LeaveGroupRequestSchema = z.object({
+  groupId: z.string(),
+});
+
+export type LeaveGroupRequestType = z.infer<typeof LeaveGroupRequestSchema>;
+
+
+
+

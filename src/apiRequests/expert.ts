@@ -3,14 +3,16 @@ import {
   AppointmentExpertListResType,
   AppointmentUserListResType,
   CreateAvailableTimeSlotBodyType,
-  CreateAvailableTimeSlotResponseSchema,
   CreateAvailableTimeSlotResponseType,
-  DeleteCertificateResponseSchema,
+  CreateExpertExperienceBodyType,
   DeleteCertificateResponseType,
+  ExpertExperienceListResType,
   GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
+  GetDetailExpertExperienceResType,
   GetExpertAvailabilityExpertProfileIdResponseType,
   GetExpertProfileResType,
+  UpdateExpertExperienceBodyType,
   UpdateProfileExpertBodyType,
   UploadFileForExpertResponseType,
   UploadProfileImageForExpertResponseType,
@@ -70,6 +72,20 @@ const expertApiRequest = {
     http.delete<{ message: string }>(
       `expert/api/expertavailability/delete/${expertAvailabilityId}`
     ),
+  getExpertExperienceList: () =>
+    http.get<ExpertExperienceListResType>("expert/api/workexperience/get"),
+  addExpertExperience: (body: CreateExpertExperienceBodyType) =>
+    http.post<{ message: string }>("expert/api/workexperience/create", body),
+  deleteExpertExperience: (workExperienceId: string) =>
+    http.delete<{ message: string }>(
+      `expert/api/workexperience/delete/${workExperienceId}`
+    ),
+  getExpertExperienceDetail: (workExperienceId: string) =>
+    http.get<GetDetailExpertExperienceResType>(
+      `expert/api/workexperience/get/${workExperienceId}`
+    ),
+  updateExpertExperience: (body: UpdateExpertExperienceBodyType) =>
+    http.put<{ message: string }>("expert/api/workexperience/update", body),
 };
 
 export default expertApiRequest;

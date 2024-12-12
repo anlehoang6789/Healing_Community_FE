@@ -53,8 +53,9 @@ export default function DetailPost() {
     postIdFromUrl as string
   );
 
-  const { mutate: deleteComment } =
-    useDeleteCommentByCommnetIdMutation(userIdComment);
+  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation(
+    postIdFromUrl as string
+  );
 
   const { data: postById } = useGetPostByPostIdQuery({
     postId: postIdFromUrl as string,
@@ -68,7 +69,9 @@ export default function DetailPost() {
     postIdFromUrl as string
   );
 
-  const { mutate: createComment } = useCreateCommentMutation();
+  const { mutate: createComment } = useCreateCommentMutation(
+    postIdFromUrl as string
+  );
 
   // Sử dụng kiểu CommentType từ schema
   const [comments, setComments] = useState<CommentType[]>([]);

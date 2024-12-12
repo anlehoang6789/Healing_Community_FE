@@ -3,8 +3,8 @@ import {
   LayoutDashboard,
   CalendarPlus,
   CalendarSearch,
-  Clapperboard,
   Info,
+  FileClock,
 } from "lucide-react";
 
 const sidebarItems = [
@@ -33,6 +33,11 @@ const sidebarItems = [
     title: "Cập nhật thông tin cá nhân",
     Icon: Info,
     href: "/expert/update-information",
+  },
+  {
+    title: "Kinh nghiệm làm việc",
+    Icon: FileClock,
+    href: "/expert/experience",
   },
 ];
 
