@@ -3,10 +3,9 @@ import {
   AppointmentExpertListResType,
   AppointmentUserListResType,
   CreateAvailableTimeSlotBodyType,
-  CreateAvailableTimeSlotResponseSchema,
   CreateAvailableTimeSlotResponseType,
-  DeleteCertificateResponseSchema,
   DeleteCertificateResponseType,
+  ExpertExperienceListResType,
   GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
   GetExpertAvailabilityExpertProfileIdResponseType,
@@ -70,6 +69,8 @@ const expertApiRequest = {
     http.delete<{ message: string }>(
       `expert/api/expertavailability/delete/${expertAvailabilityId}`
     ),
+  getExpertExperienceList: () =>
+    http.get<ExpertExperienceListResType>("expert/api/workexperience/get"),
 };
 
 export default expertApiRequest;

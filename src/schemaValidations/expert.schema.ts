@@ -246,3 +246,38 @@ export const GetExpertAvailabilityByExpertProfileIdResponseSchema = z.object({
 export type GetExpertAvailabilityExpertProfileIdResponseType = z.TypeOf<
   typeof GetExpertAvailabilityByExpertProfileIdResponseSchema
 >;
+
+export const ExpertExperienceSchema = z.object({
+  workExperienceId: z.string(),
+  expertProfileId: z.string(),
+  companyName: z.string(),
+  positionTitle: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  description: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type ExpertExperienceSchema = z.TypeOf<typeof ExpertExperienceSchema>;
+
+export const ExpertExperienceListRes = z.object({
+  data: z.array(ExpertExperienceSchema),
+  message: z.string(),
+});
+
+export type ExpertExperienceListResType = z.TypeOf<
+  typeof ExpertExperienceListRes
+>;
+
+export const CreateExpertExperienceBody = z.object({
+  companyName: z.string(),
+  positionTitle: z.string(),
+  startDate: z.string(),
+  endDate: z.string(),
+  description: z.string(),
+});
+
+export type CreateExpertExperienceBodyType = z.TypeOf<
+  typeof CreateExpertExperienceBody
+>;

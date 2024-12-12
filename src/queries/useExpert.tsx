@@ -120,3 +120,10 @@ export const useDeleteAvailableTimeSlotByIdMutation = (
     },
   });
 };
+
+export const useGetExpertExperienceList = () => {
+  return useQuery({
+    queryKey: ["expert-experience-list"],
+    queryFn: expertApiRequest.getExpertExperienceList,
+  });
+};
