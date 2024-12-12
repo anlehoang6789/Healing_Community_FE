@@ -11,14 +11,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import {
-  CreateExpertExperienceBody,
-  CreateExpertExperienceBodyType,
+  UpdateExpertExperienceBody,
+  UpdateExpertExperienceBodyType,
 } from "@/schemaValidations/expert.schema";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  useGetExpertExperienceDetail,
+  useUpdateExpertExperienceMutation,
+} from "@/queries/useExpert";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
+import { format, parse } from "date-fns";
 
 export default function EditExperience({
   id,
@@ -29,9 +36,10 @@ export default function EditExperience({
   setId: (value: string | undefined) => void;
   onSubmitSuccess?: () => void;
 }) {
-  const form = useForm<CreateExpertExperienceBodyType>({
-    resolver: zodResolver(CreateExpertExperienceBody),
+  const form = useForm<UpdateExpertExperienceBodyType>({
+    resolver: zodResolver(UpdateExpertExperienceBody),
     defaultValues: {
+      workExperienceId: "",
       companyName: "",
       positionTitle: "",
       startDate: "",
@@ -40,53 +48,61 @@ export default function EditExperience({
     },
   });
 
-  //   const { data } = useEmployeeDetailsQuery({
-  //     id: id as number,
-  //     enabled: Boolean(id),
-  //   });
+  const { data } = useGetExpertExperienceDetail({
+    workExperienceId: id as string,
+    enabled: Boolean(id),
+  });
 
   //useEffect này sẽ chạy khi data thay đổi => show data lên form
-  //   useEffect(() => {
-  //     if (data) {
-  //       const { name, email, avatar } = data.payload.data;
-  //       form.reset({
-  //         name,
-  //         email,
-  //         avatar: avatar ?? undefined,
-  //         changePassword: form.getValues("changePassword"),
-  //         password: form.getValues("password"),
-  //         confirmPassword: form.getValues("confirmPassword"),
-  //       });
-  //     }
-  //   }, [data, form]);
+  useEffect(() => {
+    if (data) {
+      const {
+        companyName,
+        positionTitle,
+        description,
+        startDate,
+        endDate,
+        workExperienceId,
+      } = data.payload.data;
+      form.reset({
+        workExperienceId,
+        companyName,
+        positionTitle,
+        description,
+        startDate,
+        endDate,
+      });
+    }
+  }, [data, form]);
 
-  //ham submit form giup thay doi thong tin tai khoan
-  //   const updateEmployeeMutation = useUpdateEmployeeMutation();
-  //   const updateAvatar = useUploadMediaMutation();
-  //   const onSubmit = async (data: UpdateEmployeeAccountBodyType) => {
-  //     if (updateEmployeeMutation.isPending) return;
-  //     try {
-  //       let body: UpdateEmployeeAccountBodyType & { id: number } = {
-  //         id: id as number,
-  //         ...data,
-  //       };
-  //       if (file) {
-  //         const formData = new FormData();
-  //         formData.append("avatar", file);
-  //         const uploadAvatarResult = await updateAvatar.mutateAsync(formData);
-  //         const imageUrl = uploadAvatarResult.payload.data;
-  //         body = { ...body, avatar: imageUrl };
-  //       }
-  //       const result = await updateEmployeeMutation.mutateAsync(body);
-  //       toast({
-  //         description: result.payload.message,
-  //       });
-  //       reset();
-  //       onSubmitSuccess && onSubmitSuccess();
-  //     } catch (error) {
-  //       handleErrorApi({ error, setError: form.setError });
-  //     }
-  //   };
+  //ham submit form giup thay doi kinh nghiem lam viec
+  const updateExperienceMutation = useUpdateExpertExperienceMutation();
+  const onSubmit = async (data: UpdateExpertExperienceBodyType) => {
+    if (updateExperienceMutation.isPending) return;
+    try {
+      const body = {
+        ...data,
+        startDate: data.startDate
+          ? format(
+              parse(data.startDate, "yyyy-MM-dd", new Date()),
+              "yyyy-MM-dd"
+            )
+          : "",
+        endDate: data.endDate
+          ? format(parse(data.endDate, "yyyy-MM-dd", new Date()), "yyyy-MM-dd")
+          : "",
+      };
+      const result = await updateExperienceMutation.mutateAsync(body);
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+      reset();
+      onSubmitSuccess && onSubmitSuccess();
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
 
   const reset = () => {
     setId(undefined);
@@ -101,10 +117,12 @@ export default function EditExperience({
         }
       }}
     >
-      <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto text-textChat">
         <DialogHeader>
-          <DialogTitle>Cập nhật tài khoản</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="font-bold text-lg">
+            Cập nhật kinh nghiệm làm việc của bạn
+          </DialogTitle>
+          <DialogDescription className="sr-only">
             Các trường tên, email, mật khẩu là bắt buộc
           </DialogDescription>
         </DialogHeader>
@@ -112,12 +130,17 @@ export default function EditExperience({
           <form
             noValidate
             className="grid auto-rows-max items-start gap-4 md:gap-8"
-            id="add-dish-form"
-            // onSubmit={form.handleSubmit(onSubmit, (error) => {
-            //   console.warn(error);
-            // })}
+            id="edit-experience-form"
+            onSubmit={form.handleSubmit(onSubmit, (error) => {
+              console.warn(error);
+            })}
           >
             <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="workExperienceId"
+                render={({ field }) => <Input type="hidden" {...field} />}
+              />
               <FormField
                 control={form.control}
                 name="companyName"
@@ -165,7 +188,8 @@ export default function EditExperience({
                           id="startDate"
                           className="w-full"
                           {...field}
-                          type="number"
+                          type="text"
+                          placeholder="dd/mm/yyyy"
                         />
                         <FormMessage />
                       </div>
@@ -185,7 +209,8 @@ export default function EditExperience({
                           id="endDate"
                           className="w-full"
                           {...field}
-                          type="number"
+                          type="text"
+                          placeholder="dd/mm/yyyy"
                         />
                         <FormMessage />
                       </div>
@@ -199,7 +224,7 @@ export default function EditExperience({
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid grid-cols-4 items-center justify-items-start gap-4">
-                      <Label htmlFor="description">Mô tả sản phẩm</Label>
+                      <Label htmlFor="description">Mô tả</Label>
                       <div className="col-span-3 w-full space-y-2">
                         <Textarea
                           id="description"
@@ -216,7 +241,7 @@ export default function EditExperience({
           </form>
         </Form>
         <DialogFooter>
-          <Button type="submit" form="edit-employee-form">
+          <Button type="submit" form="edit-experience-form">
             Lưu
           </Button>
         </DialogFooter>

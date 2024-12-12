@@ -47,7 +47,7 @@ import {
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 import { toast } from "@/hooks/use-toast";
-import { handleErrorApi } from "@/lib/utils";
+import { formatDate, handleErrorApi } from "@/lib/utils";
 import {
   ExpertExperienceListResType,
   ExpertExperienceSchema,
@@ -114,7 +114,9 @@ export const columns: ColumnDef<ExpertExperienceSchema>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="">{row.getValue("startDate")}</div>,
+    cell: ({ row }) => (
+      <div className="">{formatDate(row.getValue("startDate"))}</div>
+    ),
   },
   {
     accessorKey: "endDate",
@@ -129,7 +131,9 @@ export const columns: ColumnDef<ExpertExperienceSchema>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="">{row.getValue("endDate")}</div>,
+    cell: ({ row }) => (
+      <div className="">{formatDate(row.getValue("endDate"))}</div>
+    ),
   },
   {
     accessorKey: "description",

@@ -151,3 +151,29 @@ export const useDeleteExpertExperienceMutation = () => {
     },
   });
 };
+
+export const useGetExpertExperienceDetail = ({
+  workExperienceId,
+  enabled,
+}: {
+  workExperienceId: string;
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["expert-experience-detail", workExperienceId],
+    queryFn: () => expertApiRequest.getExpertExperienceDetail(workExperienceId),
+    enabled,
+  });
+};
+
+export const useUpdateExpertExperienceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.updateExpertExperience,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-experience-list"],
+      });
+    },
+  });
+};
