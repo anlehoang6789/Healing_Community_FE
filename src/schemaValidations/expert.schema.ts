@@ -272,7 +272,7 @@ export type ExpertExperienceListResType = z.TypeOf<
 
 export const CreateExpertExperienceBody = z.object({
   companyName: z.string().max(30),
-  positionTitle: z.string().max(15),
+  positionTitle: z.string().max(30),
   startDate: z.string(),
   endDate: z.string(),
   description: z.string().max(45),
@@ -280,4 +280,26 @@ export const CreateExpertExperienceBody = z.object({
 
 export type CreateExpertExperienceBodyType = z.TypeOf<
   typeof CreateExpertExperienceBody
+>;
+
+export const GetDetailExpertExperienceRes = z.object({
+  data: ExpertExperienceSchema,
+  message: z.string(),
+});
+
+export type GetDetailExpertExperienceResType = z.TypeOf<
+  typeof GetDetailExpertExperienceRes
+>;
+
+export const UpdateExpertExperienceBody = z.object({
+  workExperienceId: z.string(),
+  companyName: z.string().max(30),
+  positionTitle: z.string().max(15),
+  startDate: z.string(),
+  endDate: z.string(),
+  description: z.string().max(45),
+});
+
+export type UpdateExpertExperienceBodyType = z.TypeOf<
+  typeof UpdateExpertExperienceBody
 >;

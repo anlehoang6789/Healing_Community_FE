@@ -9,8 +9,10 @@ import {
   ExpertExperienceListResType,
   GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
+  GetDetailExpertExperienceResType,
   GetExpertAvailabilityExpertProfileIdResponseType,
   GetExpertProfileResType,
+  UpdateExpertExperienceBodyType,
   UpdateProfileExpertBodyType,
   UploadFileForExpertResponseType,
   UploadProfileImageForExpertResponseType,
@@ -78,6 +80,12 @@ const expertApiRequest = {
     http.delete<{ message: string }>(
       `expert/api/workexperience/delete/${workExperienceId}`
     ),
+  getExpertExperienceDetail: (workExperienceId: string) =>
+    http.get<GetDetailExpertExperienceResType>(
+      `expert/api/workexperience/get/${workExperienceId}`
+    ),
+  updateExpertExperience: (body: UpdateExpertExperienceBodyType) =>
+    http.put<{ message: string }>("expert/api/workexperience/update", body),
 };
 
 export default expertApiRequest;
