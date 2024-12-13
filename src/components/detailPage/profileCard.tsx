@@ -3,7 +3,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
-import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import {
+  formatDate,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import {
   useFollowUserMutation,
   useGetFollowingQuery,
@@ -99,15 +103,6 @@ export default function ProfileCard() {
   if (userId === postUserId) {
     return null; // Do not render the component if they match
   }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
-
-    return `${day}/${month}/${year}`;
-  };
 
   const renderSocialLinks = () => {
     const socialLinks = userById?.payload.data.socialLink;

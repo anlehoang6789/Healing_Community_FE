@@ -120,3 +120,60 @@ export const useDeleteAvailableTimeSlotByIdMutation = (
     },
   });
 };
+
+export const useGetExpertExperienceList = () => {
+  return useQuery({
+    queryKey: ["expert-experience-list"],
+    queryFn: expertApiRequest.getExpertExperienceList,
+  });
+};
+
+export const useAddExpertExperienceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.addExpertExperience,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-experience-list"],
+      });
+    },
+  });
+};
+
+export const useDeleteExpertExperienceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.deleteExpertExperience,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-experience-list"],
+      });
+    },
+  });
+};
+
+export const useGetExpertExperienceDetail = ({
+  workExperienceId,
+  enabled,
+}: {
+  workExperienceId: string;
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["expert-experience-detail", workExperienceId],
+    queryFn: () => expertApiRequest.getExpertExperienceDetail(workExperienceId),
+    enabled,
+  });
+};
+
+export const useUpdateExpertExperienceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.updateExpertExperience,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-experience-list"],
+      });
+    },
+  });
+};
