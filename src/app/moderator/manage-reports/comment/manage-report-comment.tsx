@@ -20,8 +20,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -47,12 +45,12 @@ import {
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 
-type ManageReportStoryItem = {
+type ManageReportCommentItem = {
   id: number;
   name: string;
   nameReport: string;
   email: string;
-  title: string;
+  commentContent: string;
   contentReport: string;
   createAt: string;
   status: string;
@@ -61,16 +59,16 @@ type ManageReportStoryItem = {
 const AccountTableContext = createContext<{
   setEmployeeIdEdit: (value: number) => void;
   employeeIdEdit: number | undefined;
-  employeeDelete: ManageReportStoryItem | null;
-  setEmployeeDelete: (value: ManageReportStoryItem | null) => void;
+  employeeDelete: ManageReportCommentItem | null;
+  setEmployeeDelete: (value: ManageReportCommentItem | null) => void;
 }>({
   setEmployeeIdEdit: (value: number | undefined) => {},
   employeeIdEdit: undefined,
   employeeDelete: null,
-  setEmployeeDelete: (value: ManageReportStoryItem | null) => {},
+  setEmployeeDelete: (value: ManageReportCommentItem | null) => {},
 });
 
-const columns: ColumnDef<ManageReportStoryItem>[] = [
+const columns: ColumnDef<ManageReportCommentItem>[] = [
   {
     id: "id",
     header: "STT",
@@ -102,9 +100,13 @@ const columns: ColumnDef<ManageReportStoryItem>[] = [
     cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {
-    accessorKey: "title",
-    header: "Tiêu đề bài viết",
-    cell: ({ row }) => <div>{row.getValue("title")}</div>,
+    accessorKey: "commentContent",
+    header: "Nội dung bình luận",
+    cell: ({ row }) => (
+      <div className="break-words max-w-[300px]">
+        {row.getValue("commentContent")}
+      </div>
+    ),
   },
   {
     accessorKey: "contentReport",
@@ -117,6 +119,7 @@ const columns: ColumnDef<ManageReportStoryItem>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="ml-[-15px]"
       >
         Thời gian
         <CaretSortIcon className="ml-2 h-4 w-4" />
@@ -165,14 +168,14 @@ const columns: ColumnDef<ManageReportStoryItem>[] = [
   },
 ];
 
-const mockData: ManageReportStoryItem[] = [
+const mockData: ManageReportCommentItem[] = [
   {
     id: 1,
     name: "Nguyễn Văn A",
     nameReport: "Trần Thị B",
     email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Bài viết của bạn thật tuyệt vời, rất cảm động!",
+    contentReport: "Ngôn từ đả kích",
     createAt: "2024-12-12",
     status: "Đang xử lý",
   },
@@ -181,8 +184,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Lê Thị C",
     nameReport: "Phạm Văn D",
     email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Bài viết này không có ý nghĩa gì cả.",
+    contentReport: "Vi phạm quy tắc cộng đồng",
     createAt: "2024-12-10",
     status: "Đã xử lý",
   },
@@ -191,8 +194,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Nguyễn Văn A",
     nameReport: "Trần Thị B",
     email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Câu chuyện chữa lành này rất sâu sắc.",
+    contentReport: "Thông tin sai lệch",
     createAt: "2024-12-12",
     status: "Đang xử lý",
   },
@@ -201,8 +204,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Lê Thị C",
     nameReport: "Phạm Văn D",
     email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Đây là một bài viết thiếu sự thấu hiểu.",
+    contentReport: "Vi phạm quy tắc cộng đồng",
     createAt: "2024-12-10",
     status: "Đã xử lý",
   },
@@ -211,8 +214,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Nguyễn Văn A",
     nameReport: "Trần Thị B",
     email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Bài viết này không có giá trị giáo dục.",
+    contentReport: "Ngôn từ đả kích",
     createAt: "2024-12-12",
     status: "Đang xử lý",
   },
@@ -221,8 +224,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Lê Thị C",
     nameReport: "Phạm Văn D",
     email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Câu chuyện này quá bi kịch và không phù hợp với nền tảng.",
+    contentReport: "Có chứa hình ảnh phản cảm",
     createAt: "2024-12-10",
     status: "Đã xử lý",
   },
@@ -231,8 +234,9 @@ const mockData: ManageReportStoryItem[] = [
     name: "Nguyễn Văn A",
     nameReport: "Trần Thị B",
     email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent:
+      "Bài viết này có thông tin rất hữu ích về sức khỏe tinh thần.",
+    contentReport: "Vi phạm quy tắc cộng đồng",
     createAt: "2024-12-12",
     status: "Đang xử lý",
   },
@@ -241,8 +245,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Lê Thị C",
     nameReport: "Phạm Văn D",
     email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Lý thuyết về chữa lành này không có căn cứ khoa học.",
+    contentReport: "Thông tin sai lệch",
     createAt: "2024-12-10",
     status: "Đã xử lý",
   },
@@ -251,8 +255,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Nguyễn Văn A",
     nameReport: "Trần Thị B",
     email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Tôi rất thích cách bạn viết về sự cảm thông.",
+    contentReport: "Ngôn từ đả kích",
     createAt: "2024-12-12",
     status: "Đang xử lý",
   },
@@ -261,8 +265,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Lê Thị C",
     nameReport: "Phạm Văn D",
     email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Bài viết này quá dài và khó hiểu.",
+    contentReport: "Vi phạm quy tắc cộng đồng",
     createAt: "2024-12-10",
     status: "Đã xử lý",
   },
@@ -271,8 +275,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Nguyễn Văn A",
     nameReport: "Trần Thị B",
     email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Bài viết này rất dễ hiểu và dễ áp dụng.",
+    contentReport: "Có chứa hình ảnh phản cảm",
     createAt: "2024-12-12",
     status: "Đang xử lý",
   },
@@ -281,8 +285,8 @@ const mockData: ManageReportStoryItem[] = [
     name: "Lê Thị C",
     nameReport: "Phạm Văn D",
     email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
+    commentContent: "Tôi không đồng ý với những gì bạn viết.",
+    contentReport: "Thông tin sai lệch",
     createAt: "2024-12-10",
     status: "Đã xử lý",
   },
@@ -290,14 +294,14 @@ const mockData: ManageReportStoryItem[] = [
 
 const PAGE_SIZE = 10;
 
-export default function ManageReportStory() {
+export default function ManageReportComment() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
 
   const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>();
   const [employeeDelete, setEmployeeDelete] =
-    useState<ManageReportStoryItem | null>(null);
+    useState<ManageReportCommentItem | null>(null);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -361,7 +365,7 @@ export default function ManageReportStory() {
               <AlertDialogDescription>
                 Báo cáo của bài viết {""}
                 <span className="text-red-500">
-                  {employeeDelete?.title}
+                  {employeeDelete?.commentContent}
                 </span>{" "}
                 {""}
                 sẽ bị xóa <b className="text-red-500">vĩnh viễn</b>.
@@ -378,10 +382,15 @@ export default function ManageReportStory() {
 
         <div className="flex items-center py-4">
           <Input
-            placeholder="Tìm kiếm theo tiêu đề bài viết ..."
-            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+            placeholder="Tìm kiếm theo bình luận ..."
+            value={
+              (table.getColumn("commentContent")?.getFilterValue() as string) ??
+              ""
+            }
             onChange={(event) =>
-              table.getColumn("title")?.setFilterValue(event.target.value)
+              table
+                .getColumn("commentContent")
+                ?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
