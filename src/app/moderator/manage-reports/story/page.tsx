@@ -15,7 +15,7 @@ export default function ManageReportStoryPage() {
         <Card x-chunk="dashboard-06-chunk-0">
           <CardHeader>
             <CardTitle>Báo cáo</CardTitle>
-            <CardDescription>Quản lý báo cáo người dùng</CardDescription>
+            <CardDescription>Quản lý báo cáo câu chuyện</CardDescription>
           </CardHeader>
           <CardContent>
             <Suspense>
