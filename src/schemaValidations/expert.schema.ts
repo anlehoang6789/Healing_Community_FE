@@ -75,7 +75,17 @@ export const GetExpertProfileSchema = z.object({
       fileUrl: z.string().url(),
     })
   ),
-  workExperiences: z.array(z.any()).optional(), // Có thể điều chỉnh chi tiết sau
+  workExperiences: z.array(
+    z.object({
+      workExperienceId: z.string(),
+      companyName: z.string(),
+      positionTitle: z.string(),
+      startDate: z.string().date(),
+      endDate: z.string().date().optional(),
+      description: z.string().optional(),
+    })
+  ),
+
   appointments: z
     .array(
       z.object({
