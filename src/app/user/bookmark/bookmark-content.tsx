@@ -3,10 +3,16 @@ import { useState } from "react";
 import { SortAsc, SortDesc, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GetBookmarkListSchemaType } from "@/schemaValidations/post.schema";
-import { useGetBookmarkListDetailsQuery } from "@/queries/usePost";
+import {
+  DeleteBookmarkListDetailsBodyType,
+  GetBookmarkListSchemaType,
+} from "@/schemaValidations/post.schema";
+import {
+  useDeleteBookmarkListDetailsMutation,
+  useGetBookmarkListDetailsQuery,
+} from "@/queries/usePost";
 import Link from "next/link";
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, handleErrorApi } from "@/lib/utils";
 
 interface MainContentProps {
   selectedBookmark: GetBookmarkListSchemaType | null;
@@ -22,6 +28,8 @@ MainContentProps) {
     bookmarkId: selectedBookmark?.bookmarkId!,
     enabled: !!selectedBookmark?.bookmarkId,
   });
+  const deleteBookmarkListDetailsMutation =
+    useDeleteBookmarkListDetailsMutation(selectedBookmark?.bookmarkId || "");
   const posts = data?.payload?.data || [];
 
   const filteredPosts = posts
@@ -40,6 +48,42 @@ MainContentProps) {
 
   if (!selectedBookmark) {
     return <div className="p-6">Vui lòng chọn một danh sách bookmark</div>;
+  }
+
+  const handleDelete = async (body: DeleteBookmarkListDetailsBodyType) => {
+    if (deleteBookmarkListDetailsMutation.isPending) return;
+    try {
+      await deleteBookmarkListDetailsMutation.mutateAsync(body);
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse p-4 md:p-6 overflow-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
+          <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+          <div className="flex items-center space-x-2 w-full md:w-auto">
+            <div className="h-8 bg-gray-200 rounded w-full md:w-64"></div>
+            <div className="h-8 bg-gray-200 rounded w-8"></div>
+          </div>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="h-64 bg-gray-200 rounded-lg"></div>
+          <div className="h-64 bg-gray-200 rounded-lg"></div>
+          <div className="h-64 bg-gray-200 rounded-lg"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 text-textChat text-center">
+        Chức năng đang bảo trì, vui lòng thử lại sau
+      </div>
+    );
   }
 
   return (
@@ -101,6 +145,12 @@ MainContentProps) {
                 variant="headerIcon"
                 size="icon"
                 className="!hover:bg-none border-none"
+                onClick={() =>
+                  handleDelete({
+                    postId: post.postId,
+                    bookmarkId: selectedBookmark.bookmarkId,
+                  })
+                }
               >
                 <Trash2 className="h-4 w-4 text-textChat hover:text-red-500" />
               </Button>

@@ -6,6 +6,7 @@ import {
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
+  DeleteBookmarkListDetailsBodyType,
   GetBookmarkListDetailsResponseType,
   GetBookmarkListResponseType,
   GetCommentCountResType,
@@ -79,6 +80,10 @@ const postApiRequest = {
     http.get<GetBookmarkListDetailsResponseType>(
       `post/api/bookmark/get-post-bookmark?bookmarkId=${bookmarkId}`
     ),
+  deleteBookmarkListDetails: (body: DeleteBookmarkListDetailsBodyType) =>
+    http.delete<{ message: string }>("post/api/bookmark/delete-bookmark-post", {
+      body,
+    }),
 };
 
 export default postApiRequest;
