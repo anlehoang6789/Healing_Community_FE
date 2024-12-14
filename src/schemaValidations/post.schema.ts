@@ -253,3 +253,48 @@ export const GetUserReactionByPostIdRes = z.object({
 export type GetUserReactionByPostIdResType = z.TypeOf<
   typeof GetUserReactionByPostIdRes
 >;
+
+export const GetBookmarkListSchema = z.object({
+  bookmarkId: z.string(),
+  userId: z.string(),
+  name: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetBookmarkListSchemaType = z.TypeOf<typeof GetBookmarkListSchema>;
+
+export const GetBookmarkListResponse = z.object({
+  data: z.array(GetBookmarkListSchema),
+  message: z.string(),
+});
+
+export type GetBookmarkListResponseType = z.TypeOf<
+  typeof GetBookmarkListResponse
+>;
+
+export const GetBookmarkListDetailsSchema = z.object({
+  postId: z.string(),
+  userId: z.string(),
+  groupId: z.string().optional(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type GetBookmarkListDetailsSchemaType = z.TypeOf<
+  typeof GetBookmarkListDetailsSchema
+>;
+
+export const GetBookmarkListDetailsResponse = z.object({
+  data: z.array(GetBookmarkListDetailsSchema),
+  message: z.string(),
+});
+
+export type GetBookmarkListDetailsResponseType = z.TypeOf<
+  typeof GetBookmarkListDetailsResponse
+>;

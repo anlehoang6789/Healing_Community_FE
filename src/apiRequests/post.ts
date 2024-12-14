@@ -6,6 +6,8 @@ import {
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
+  GetBookmarkListDetailsResponseType,
+  GetBookmarkListResponseType,
   GetCommentCountResType,
   GetCommentsByPostIdResponseType,
   GetHomePageListLazyLoadType,
@@ -70,6 +72,12 @@ const postApiRequest = {
   getUserReactionByPostId: (postId: string) =>
     http.get<GetUserReactionByPostIdResType>(
       `post/api/reaction/get-user-reaction-by-post-id/${postId}`
+    ),
+  getBookmarkList: () =>
+    http.get<GetBookmarkListResponseType>("post/api/bookmark/get-bookmark"),
+  getBookmarkListDetails: (bookmarkId: string) =>
+    http.get<GetBookmarkListDetailsResponseType>(
+      `post/api/bookmark/get-post-bookmark?bookmarkId=${bookmarkId}`
     ),
 };
 

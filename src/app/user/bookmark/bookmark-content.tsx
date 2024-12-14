@@ -3,49 +3,42 @@ import { useState } from "react";
 import { SortAsc, SortDesc, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-interface Post {
-  id: string;
-  title: string;
-  url: string;
-  date: string;
-  description: string;
-}
-
-interface BookmarkList {
-  id: string;
-  name: string;
-  posts: Post[];
-}
+import { GetBookmarkListSchemaType } from "@/schemaValidations/post.schema";
+import { useGetBookmarkListDetailsQuery } from "@/queries/usePost";
+import Link from "next/link";
+import { formatDateTime } from "@/lib/utils";
 
 interface MainContentProps {
-  selectedList: BookmarkList | null;
-  onDeletePost: (listId: string, postId: string) => void;
+  selectedBookmark: GetBookmarkListSchemaType | null;
 }
 
 export default function BookmarkContent({
-  selectedList,
-  onDeletePost,
-}: MainContentProps) {
+  selectedBookmark,
+}: // onDeletePost,
+MainContentProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+  const { data, isLoading, isError } = useGetBookmarkListDetailsQuery({
+    bookmarkId: selectedBookmark?.bookmarkId!,
+    enabled: !!selectedBookmark?.bookmarkId,
+  });
+  const posts = data?.payload?.data || [];
 
-  const filteredPosts = selectedList
-    ? selectedList.posts.filter(
+  const filteredPosts = posts
+    ? posts.filter(
         (post) =>
           post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          post.url.toLowerCase().includes(searchTerm.toLowerCase()) ||
           post.description.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : [];
 
   const sortedPosts = [...filteredPosts].sort((a, b) =>
     sortOrder === "asc"
-      ? new Date(a.date).getTime() - new Date(b.date).getTime()
-      : new Date(b.date).getTime() - new Date(a.date).getTime()
+      ? new Date(a.createAt).getTime() - new Date(b.createAt).getTime()
+      : new Date(b.createAt).getTime() - new Date(a.createAt).getTime()
   );
 
-  if (!selectedList) {
+  if (!selectedBookmark) {
     return <div className="p-6">Vui lòng chọn một danh sách bookmark</div>;
   }
 
@@ -53,7 +46,7 @@ export default function BookmarkContent({
     <div className="p-4 md:p-6 overflow-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 space-y-4 md:space-y-0">
         <h2 className="text-2xl md:text-3xl font-bold text-textChat">
-          {selectedList.name}
+          {selectedBookmark.name}
         </h2>
         <div className="flex items-center space-x-2 w-full md:w-auto">
           <Input
@@ -77,35 +70,51 @@ export default function BookmarkContent({
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sortedPosts.map((post) => (
-          <div key={post.id} className="bg-card p-3 md:p-4 rounded-lg shadow">
+          <div
+            key={post.postId}
+            className="bg-card p-3 md:p-4 rounded-lg shadow"
+          >
             <div className="flex justify-between items-start">
               <div>
-                <a
-                  href={post.url}
+                <Link
+                  href={`/content/${post.postId}`}
                   className="text-lg font-semibold text-textChat hover:underline"
                 >
                   {post.title}
-                </a>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {post.description}
-                </p>
+                </Link>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: post.description,
+                  }}
+                  className="text-sm text-textChat mt-1"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    WebkitLineClamp: 3, // Số dòng muốn hiển thị
+                    maxHeight: "4.5em", // Giới hạn chiều cao (phụ thuộc vào line-height)
+                  }}
+                />
               </div>
               <Button
-                variant="ghost"
+                variant="headerIcon"
                 size="icon"
-                onClick={() => onDeletePost(selectedList.id, post.id)}
+                className="!hover:bg-none border-none"
               >
-                <Trash2 className="h-4 w-4 text-textChat" />
+                <Trash2 className="h-4 w-4 text-textChat hover:text-red-500" />
               </Button>
             </div>
             <div className="flex justify-between items-center mt-2">
-              <span className="text-sm text-muted-foreground">{post.date}</span>
-              <a
-                href={post.url}
+              <span className="text-sm text-muted-foreground">
+                {formatDateTime(post.createAt)}
+              </span>
+              <Link
+                href={`/content/${post.postId}`}
                 className="text-sm text-textChat hover:underline"
               >
                 Đọc thêm
-              </a>
+              </Link>
             </div>
           </div>
         ))}
