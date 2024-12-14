@@ -298,3 +298,12 @@ export const GetBookmarkListDetailsResponse = z.object({
 export type GetBookmarkListDetailsResponseType = z.TypeOf<
   typeof GetBookmarkListDetailsResponse
 >;
+
+export const DeleteBookmarkListDetailsBody = z.object({
+  postId: z.string(),
+  bookmarkId: z.string(),
+});
+
+export type DeleteBookmarkListDetailsBodyType = z.TypeOf<
+  typeof DeleteBookmarkListDetailsBody
+>;

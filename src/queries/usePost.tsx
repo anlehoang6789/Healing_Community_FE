@@ -233,3 +233,15 @@ export const useGetBookmarkListDetailsQuery = ({
     enabled,
   });
 };
+
+export const useDeleteBookmarkListDetailsMutation = (bookmarkId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteBookmarkListDetails,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list-details", bookmarkId],
+      });
+    },
+  });
+};
