@@ -3,6 +3,7 @@ import {
   AddReactionBodyType,
   AddUserReferenceBodyType,
   CategoryListSchemaType,
+  CreateBookmarkListBodyType,
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
@@ -83,6 +84,12 @@ const postApiRequest = {
   deleteBookmarkListDetails: (body: DeleteBookmarkListDetailsBodyType) =>
     http.delete<{ message: string }>("post/api/bookmark/delete-bookmark-post", {
       body,
+    }),
+  createBookmarkList: (body: CreateBookmarkListBodyType) =>
+    http.post<{ message: string }>("post/api/bookmark/create-bookmark", body),
+  deleteBookmarkList: (bookmarkId: string) =>
+    http.delete<{ message: string }>(`post/api/bookmark/delete-bookmark`, {
+      body: { bookmarkId },
     }),
 };
 

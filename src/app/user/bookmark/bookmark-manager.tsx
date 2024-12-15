@@ -13,6 +13,9 @@ export default function BookmarkManager() {
   const [selectedList, setSelectedList] =
     useState<GetBookmarkListSchemaType | null>(null);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+  const [bookmarkTotals, setBookmarkTotals] = useState<Record<string, number>>(
+    {}
+  );
 
   const bookmarkList = useMemo(
     () => data?.payload.data || [],
@@ -24,6 +27,15 @@ export default function BookmarkManager() {
       setSelectedList(bookmarkList[0]);
     }
   }, [bookmarkList, selectedList]);
+
+  const handleUpdateTotal = (bookmarkId: string, total: number) => {
+    setBookmarkTotals((prev) => {
+      // Nếu total không thay đổi, không cần cập nhật state
+      if (prev[bookmarkId] === total) return prev;
+
+      return { ...prev, [bookmarkId]: total };
+    });
+  };
 
   if (isLoading) {
     return (
@@ -72,12 +84,16 @@ export default function BookmarkManager() {
             setIsSidebarVisible(false);
           }}
           isVisible={isSidebarVisible}
+          bookmarkTotals={bookmarkTotals}
         />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <BookmarkContent selectedBookmark={selectedList || null} />
+        <BookmarkContent
+          selectedBookmark={selectedList || null}
+          onUpdateTotal={handleUpdateTotal}
+        />
       </div>
     </div>
   );

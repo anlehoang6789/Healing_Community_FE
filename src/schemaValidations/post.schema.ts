@@ -291,6 +291,7 @@ export type GetBookmarkListDetailsSchemaType = z.TypeOf<
 >;
 
 export const GetBookmarkListDetailsResponse = z.object({
+  total: z.number(),
   data: z.array(GetBookmarkListDetailsSchema),
   message: z.string(),
 });
@@ -306,4 +307,12 @@ export const DeleteBookmarkListDetailsBody = z.object({
 
 export type DeleteBookmarkListDetailsBodyType = z.TypeOf<
   typeof DeleteBookmarkListDetailsBody
+>;
+
+export const CreateBookmarkListBody = z.object({
+  name: z.string(),
+});
+
+export type CreateBookmarkListBodyType = z.TypeOf<
+  typeof CreateBookmarkListBody
 >;

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SortAsc, SortDesc, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,18 +16,26 @@ import { formatDateTime, handleErrorApi } from "@/lib/utils";
 
 interface MainContentProps {
   selectedBookmark: GetBookmarkListSchemaType | null;
+  onUpdateTotal: (bookmarkId: string, total: number) => void;
 }
 
 export default function BookmarkContent({
   selectedBookmark,
-}: // onDeletePost,
-MainContentProps) {
+  onUpdateTotal,
+}: MainContentProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const { data, isLoading, isError } = useGetBookmarkListDetailsQuery({
     bookmarkId: selectedBookmark?.bookmarkId!,
     enabled: !!selectedBookmark?.bookmarkId,
   });
+
+  useEffect(() => {
+    if (data && selectedBookmark) {
+      onUpdateTotal(selectedBookmark.bookmarkId, data.payload.total); // Update total
+    }
+  }, [data, selectedBookmark, onUpdateTotal]);
+
   const deleteBookmarkListDetailsMutation =
     useDeleteBookmarkListDetailsMutation(selectedBookmark?.bookmarkId || "");
   const posts = data?.payload?.data || [];
@@ -113,61 +121,69 @@ MainContentProps) {
         </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {sortedPosts.map((post) => (
-          <div
-            key={post.postId}
-            className="bg-card p-3 md:p-4 rounded-lg shadow"
-          >
-            <div className="flex justify-between items-start">
-              <div>
+        {posts.length > 0 ? (
+          sortedPosts.map((post) => (
+            <div
+              key={post.postId}
+              className="bg-card p-3 md:p-4 rounded-lg shadow"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <Link
+                    href={`/content/${post.postId}`}
+                    className="text-lg font-semibold text-textChat hover:underline"
+                  >
+                    {post.title}
+                  </Link>
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: post.description,
+                    }}
+                    className="text-sm text-textChat mt-1"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      WebkitLineClamp: 3, // Số dòng muốn hiển thị
+                      maxHeight: "4.5em", // Giới hạn chiều cao (phụ thuộc vào line-height)
+                    }}
+                  />
+                </div>
+                <Button
+                  variant="headerIcon"
+                  size="icon"
+                  className="!hover:bg-none border-none"
+                  onClick={() =>
+                    handleDelete({
+                      postId: post.postId,
+                      bookmarkId: selectedBookmark.bookmarkId,
+                    })
+                  }
+                >
+                  <Trash2 className="h-4 w-4 text-textChat hover:text-red-500" />
+                </Button>
+              </div>
+              <div className="flex justify-between items-center mt-2">
+                <span className="text-sm text-muted-foreground">
+                  {formatDateTime(post.createAt)}
+                </span>
                 <Link
                   href={`/content/${post.postId}`}
-                  className="text-lg font-semibold text-textChat hover:underline"
+                  className="text-sm text-textChat hover:underline"
                 >
-                  {post.title}
+                  Đọc thêm
                 </Link>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: post.description,
-                  }}
-                  className="text-sm text-textChat mt-1"
-                  style={{
-                    display: "-webkit-box",
-                    WebkitBoxOrient: "vertical",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    WebkitLineClamp: 3, // Số dòng muốn hiển thị
-                    maxHeight: "4.5em", // Giới hạn chiều cao (phụ thuộc vào line-height)
-                  }}
-                />
               </div>
-              <Button
-                variant="headerIcon"
-                size="icon"
-                className="!hover:bg-none border-none"
-                onClick={() =>
-                  handleDelete({
-                    postId: post.postId,
-                    bookmarkId: selectedBookmark.bookmarkId,
-                  })
-                }
-              >
-                <Trash2 className="h-4 w-4 text-textChat hover:text-red-500" />
-              </Button>
             </div>
-            <div className="flex justify-between items-center mt-2">
-              <span className="text-sm text-muted-foreground">
-                {formatDateTime(post.createAt)}
-              </span>
-              <Link
-                href={`/content/${post.postId}`}
-                className="text-sm text-textChat hover:underline"
-              >
-                Đọc thêm
-              </Link>
-            </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-textChat text-center">
+            Hãy thêm bài viết vào bộ sưu tập{" "}
+            <span className="font-semibold">{selectedBookmark.name}</span> nào
+            ❤️
+          </p>
+        )}
       </div>
     </div>
   );
