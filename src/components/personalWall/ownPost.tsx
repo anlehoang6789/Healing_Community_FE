@@ -362,7 +362,7 @@ export default function OwnPost() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={deletePost}>Xác nhận</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

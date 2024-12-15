@@ -245,3 +245,27 @@ export const useDeleteBookmarkListDetailsMutation = (bookmarkId: string) => {
     },
   });
 };
+
+export const useCreateBookmarkListMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.createBookmarkList,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list"],
+      });
+    },
+  });
+};
+
+export const useDeleteBookmarkListMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteBookmarkList,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list"],
+      });
+    },
+  });
+};
