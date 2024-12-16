@@ -7,52 +7,15 @@ import { CardTooltip } from "@/components/ui/card-tooltip";
 import { useParams } from "next/navigation";
 import { useGetGroupsByUserIdQuery } from "@/queries/useGroup";
 import { GroupJoinedByUserIdType } from "@/schemaValidations/group.schema";
-
-interface Group {
-  name: string;
-  avatarUrl: string;
-}
-
-const groups: Group[] = [
-  {
-    name: "Chia sẻ câu chuyện",
-    avatarUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    name: "Yêu và thương",
-    avatarUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    name: "Kết bạn 4 phương",
-    avatarUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    name: "Lắng nghe trái tim",
-    avatarUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    name: "Các quán cà phê",
-    avatarUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-  {
-    name: "Các bài nhạc hay",
-    avatarUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-  },
-];
+import { Button } from "@/components/ui/button";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
 
 export default function JoinedGroup() {
   const { userId } = useParams();
-  const {
-    data: response,
-    isLoading,
-    isError,
-  } = useGetGroupsByUserIdQuery(userId as string);
+  const { data: response } = useGetGroupsByUserIdQuery(userId as string);
+  const ownUserId = getUserIdFromLocalStorage();
+
+  const isOwnProfile = ownUserId === userId;
 
   const groups = (response?.payload as any)?.data || [];
   return (
@@ -62,10 +25,12 @@ export default function JoinedGroup() {
           Nhóm đã tham gia
         </h2>
       </div>
-      <p className="text-sm text-gray-500 mb-4  pt-2">
+      <p className="text-sm text-gray-500 mb-4 pt-2">
         {groups.length > 0
           ? `${groups.length} nhóm`
-          : "Hiện bạn chưa tham gia nhóm nào"}
+          : isOwnProfile
+          ? "Hiện tại bạn chưa tham gia nhóm nào"
+          : "Chưa tham gia nhóm nào"}
       </p>
 
       <div className="grid grid-cols-3 gap-4">
@@ -105,6 +70,17 @@ export default function JoinedGroup() {
           className="flex justify-end mt-6 text-sm sm:text-xs text-gray-500"
         >
           Xem tất cả nhóm
+        </Link>
+      )}
+
+      {isOwnProfile && groups.length === 0 && (
+        <Link
+          href="/user/list-of-groups"
+          className="flex justify-center text-sm sm:text-xs text-gray-500"
+        >
+          <Button className="hidden sm:inline-flex bg-gradient-to-r from-rose-400 to-violet-500 text-black flex-shrink-0 font-normal rounded-[20px]">
+            Tham gia ngay
+          </Button>
         </Link>
       )}
     </div>
