@@ -4,6 +4,9 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { CardTooltip } from "@/components/ui/card-tooltip";
+import { useParams } from "next/navigation";
+import { useGetGroupsByUserIdQuery } from "@/queries/useGroup";
+import { GroupJoinedByUserIdType } from "@/schemaValidations/group.schema";
 
 interface Group {
   name: string;
@@ -44,6 +47,14 @@ const groups: Group[] = [
 ];
 
 export default function JoinedGroup() {
+  const { userId } = useParams();
+  const {
+    data: response,
+    isLoading,
+    isError,
+  } = useGetGroupsByUserIdQuery(userId as string);
+
+  const groups = (response?.payload as any)?.data || [];
   return (
     <div className="p-4 rounded-lg shadow-lg border">
       <div className="flex justify-between items-center ">
@@ -51,28 +62,35 @@ export default function JoinedGroup() {
           Nhóm đã tham gia
         </h2>
       </div>
-      <p className="text-sm text-gray-500 mb-4">10 nhóm</p>
+      <p className="text-sm text-gray-500 mb-4  pt-2">
+        {groups.length > 0
+          ? `${groups.length} nhóm`
+          : "Hiện bạn chưa tham gia nhóm nào"}
+      </p>
 
       <div className="grid grid-cols-3 gap-4">
-        {groups.map((group) => (
-          <CardTooltip key={group.name} content={group.name}>
-            <Card key={group.name} className="overflow-hidden bg-gray-200">
+        {groups.map((group: GroupJoinedByUserIdType) => (
+          <CardTooltip key={group.groupId} content={group.groupName}>
+            <Card key={group.groupName} className="overflow-hidden bg-gray-200">
               <CardContent className="p-2">
                 <Link
-                  href={`/group/${encodeURIComponent(group.name)}`}
+                  href={`/group/${encodeURIComponent(group.groupId)}`}
                   className="block"
                 >
                   <Image
-                    src={group.avatarUrl}
-                    alt={`${group.name}'s avatar`}
+                    src={
+                      group.groupAvatar ||
+                      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                    }
+                    alt={`${group.groupName}'s avatar`}
                     width={100}
                     height={100}
-                    className="w-full h-auto rounded-lg object-cover"
+                    className="w-full h-auto rounded-lg  h-[70px] object-cover"
                     priority
                   />
 
                   <p className="mt-2 text-center text-sm font-medium text-gray-700 truncate">
-                    {group.name}
+                    {group.groupName}
                   </p>
                 </Link>
               </CardContent>
@@ -81,12 +99,14 @@ export default function JoinedGroup() {
         ))}
       </div>
 
-      <Link
-        href="/user/list-of-groups"
-        className="flex justify-end mt-6 text-sm sm:text-xs text-gray-500"
-      >
-        Xem tất cả nhóm
-      </Link>
+      {groups.length > 6 && (
+        <Link
+          href="/user/list-of-groups"
+          className="flex justify-end mt-6 text-sm sm:text-xs text-gray-500"
+        >
+          Xem tất cả nhóm
+        </Link>
+      )}
     </div>
   );
 }
