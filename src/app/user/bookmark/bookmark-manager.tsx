@@ -98,36 +98,3 @@ export default function BookmarkManager() {
     </div>
   );
 }
-
-{
-  /* dialog để thêm bài viết vào bookmark */
-}
-{
-  /* <Dialog>
-        <DialogTrigger asChild>
-          <Button className="fixed bottom-4 right-4">
-            <Bookmark className="mr-2 h-4 w-4" /> Lưu bài viết
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Lưu vào danh sách Bookmark</DialogTitle>
-          </DialogHeader>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">Chọn danh sách</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              {bookmarkLists.map((list) => (
-                <DropdownMenuItem
-                  key={list.id}
-                  onSelect={() => addPostToList(list.id, currentPost)}
-                >
-                  {list.name}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </DialogContent>
-      </Dialog> */
-}

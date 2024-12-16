@@ -316,3 +316,12 @@ export const CreateBookmarkListBody = z.object({
 export type CreateBookmarkListBodyType = z.TypeOf<
   typeof CreateBookmarkListBody
 >;
+
+export const AddBookmarkListDetailsBody = z.object({
+  postId: z.string(),
+  bookmarkId: z.string(),
+});
+
+export type AddBookmarkListDetailsBodyType = z.TypeOf<
+  typeof AddBookmarkListDetailsBody
+>;
