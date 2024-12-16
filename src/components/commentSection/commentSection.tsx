@@ -12,6 +12,7 @@ import {
   Trash2,
   ChevronUp,
   ChevronDown,
+  Flag,
 } from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
@@ -71,6 +72,7 @@ export default function CommentSection({
     null
   );
   const [commentToDelete, setCommentToDelete] = useState<string | null>(null);
+  const [hoveredCommentId, setHoveredCommentId] = useState<string | null>(null);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -210,6 +212,8 @@ export default function CommentSection({
         <div
           key={comment.commentId}
           className={`flex items-start gap-2 mt-2 ${depth > 0 ? "" : ""}`}
+          onMouseEnter={() => setHoveredCommentId(comment.commentId)} // Set ID khi hover
+          onMouseLeave={() => setHoveredCommentId(null)} // Reset ID khi rời khỏi hover
         >
           <Link href="#">
             <Avatar className="w-8 h-8 border-2 border-rose-300">
@@ -290,6 +294,21 @@ export default function CommentSection({
                   className="mt-2 rounded-lg"
                 />
               )}
+
+              {/* Hiển thị icon Flag khi hover và comment không phải của người đăng nhập */}
+              {!isCurrentUserComment &&
+                hoveredCommentId === comment.commentId && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
+                    onClick={() =>
+                      alert(`Report comment: ${comment.commentId}`)
+                    }
+                  >
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                )}
             </div>
 
             <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
