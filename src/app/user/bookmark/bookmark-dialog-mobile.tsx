@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,8 +22,17 @@ import { Bookmark } from "lucide-react";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import { DeleteBookmarkListDetailsBodyType } from "@/schemaValidations/post.schema";
 
-export default function BookmarkDialog({ postId }: { postId: string }) {
-  const [isOpen, setIsOpen] = useState(false);
+interface BookmarkDialogMobileProps {
+  postId: string;
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+export default function BookmarkDialogMobile({
+  postId,
+  isOpen,
+  setIsOpen,
+}: BookmarkDialogMobileProps) {
   const [selectedBookmark, setSelectedBookmark] = useState<string | null>(null);
   //show bookmark list
   const {
@@ -91,16 +101,14 @@ export default function BookmarkDialog({ postId }: { postId: string }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full mt-7">
-          <Bookmark className="h-8 w-8 text-textChat" />
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-textChat">
             Chọn danh sách Bookmark
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Phiên bản mobile cho trang details post
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           {isLoadingBookmarks ? (
@@ -131,7 +139,10 @@ export default function BookmarkDialog({ postId }: { postId: string }) {
                     ? "bg-purple-100 border-purple-400"
                     : "hover:bg-gray-100"
                 }`}
-                onClick={() => setSelectedBookmark(bookmarkItem.bookmarkId)}
+                onClick={(e) => {
+                  setSelectedBookmark(bookmarkItem.bookmarkId);
+                  e.stopPropagation();
+                }}
               >
                 <p className="font-semibold text-textChat">
                   {bookmarkItem.name}
@@ -153,7 +164,7 @@ export default function BookmarkDialog({ postId }: { postId: string }) {
         <DialogFooter>
           <Button
             variant="outline"
-            className="text-muted-foreground"
+            className="text-muted-foreground mt-2"
             onClick={() => {
               setSelectedBookmark(null);
               setIsOpen(false);
