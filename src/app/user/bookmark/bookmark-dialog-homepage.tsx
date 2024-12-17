@@ -21,7 +21,7 @@ import { Bookmark } from "lucide-react";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
 import { DeleteBookmarkListDetailsBodyType } from "@/schemaValidations/post.schema";
 
-export default function BookmarkDialog({ postId }: { postId: string }) {
+export default function BookmarkDialogHomepage({ postId }: { postId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedBookmark, setSelectedBookmark] = useState<string | null>(null);
   //show bookmark list
@@ -92,8 +92,13 @@ export default function BookmarkDialog({ postId }: { postId: string }) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full mt-7">
-          <Bookmark className="h-8 w-8 text-textChat" />
+        <Button
+          className=" rounded-full"
+          variant={"ghost"}
+          size={"icon"}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Bookmark className="w-5 h-5 text-textChat" />
         </Button>
       </DialogTrigger>
       <DialogContent>
@@ -131,7 +136,10 @@ export default function BookmarkDialog({ postId }: { postId: string }) {
                     ? "bg-purple-100 border-purple-400"
                     : "hover:bg-gray-100"
                 }`}
-                onClick={() => setSelectedBookmark(bookmarkItem.bookmarkId)}
+                onClick={(e) => {
+                  setSelectedBookmark(bookmarkItem.bookmarkId);
+                  e.stopPropagation();
+                }}
               >
                 <p className="font-semibold text-textChat">
                   {bookmarkItem.name}

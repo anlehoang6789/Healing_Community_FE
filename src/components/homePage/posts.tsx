@@ -2,14 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import {
-  Bookmark,
-  Flag,
-  Globe,
-  LockKeyhole,
-  Share2,
-  ThumbsUp,
-} from "lucide-react";
+import { Flag, Globe, LockKeyhole, Share2, ThumbsUp } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   useAddReactionMutation,
@@ -22,18 +15,23 @@ import { formatDateTime, handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import { useReactionStore } from "@/store/reactionStore";
+import BookmarkDialogHomepage from "@/app/user/bookmark/bookmark-dialog-homepage";
+import { useAppContext } from "@/components/app-provider";
 
 type UserProfileProps = {
   userId: string;
   postDate: string;
   isPostPublic: boolean;
+  postId: string;
 };
 
 const UserProfile: React.FC<UserProfileProps> = ({
   userId,
   postDate,
   isPostPublic,
+  postId,
 }) => {
+  const { isAuth } = useAppContext();
   const { data, isLoading, isError } = useGetUserProfileQuery(userId);
 
   if (isLoading) return <div>Loading...</div>;
@@ -71,24 +69,19 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </p>
         </div>
       </div>
-      <div className="ml-auto">
-        <Button
-          className=" rounded-full"
-          variant={"ghost"}
-          size={"icon"}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Bookmark className="w-5 h-5 text-textChat" />
-        </Button>
-        <Button
-          className=" rounded-full"
-          variant={"ghost"}
-          size={"icon"}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <Flag className="w-5 h-5 text-textChat" />
-        </Button>
-      </div>
+      {isAuth && (
+        <div className="ml-auto">
+          <BookmarkDialogHomepage postId={postId} />
+          <Button
+            className=" rounded-full"
+            variant={"ghost"}
+            size={"icon"}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Flag className="w-5 h-5 text-textChat" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
@@ -113,6 +106,7 @@ const ReactionCount: React.FC<{
 };
 
 export default function Posts() {
+  const { isAuth } = useAppContext();
   const pageSizes = 5;
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -227,6 +221,7 @@ export default function Posts() {
               userId={article.userId}
               postDate={article.createAt}
               isPostPublic={isPostPublic}
+              postId={article.postId}
             />
 
             <div className="whitespace-pre-wrap mb-4 text-textChat flex flex-col">
@@ -250,63 +245,65 @@ export default function Posts() {
                 className="w-full h-auto md:h-[450px] object-cover mt-4 rounded-md"
               />
             </div>
-            <div className="flex flex-col items-start gap-4">
-              <div className="flex justify-between w-full">
-                <ReactionCount postId={article.postId} />
-                <span className="justify-end text-sm text-gray-500">
-                  10 lượt chia sẻ
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between w-full">
-                <div className="relative">
-                  <div
-                    className="inline-block"
-                    onMouseEnter={() => setHoveredPostId(article.postId)}
-                    onMouseLeave={() => setHoveredPostId(null)}
-                  >
-                    <Button
-                      variant="iconDarkMod"
-                      className="flex items-center gap-2 p-0"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {selectedReactions[article.postId] ? (
-                        <span className="text-xl">
-                          {selectedReactions[article.postId]}
-                        </span>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <ThumbsUp className="w-4 h-4" />
-                          Thích
-                        </div>
-                      )}
-                    </Button>
-
-                    {/* Hiển thị ReactionEmoji khi hover */}
-                    {hoveredPostId === article.postId && (
-                      <ReactionEmoji
-                        onSelect={(reactionId, emoji, e) =>
-                          handleEmojiSelect(
-                            reactionId,
-                            emoji,
-                            article.postId,
-                            e
-                          )
-                        }
-                      />
-                    )}
-                  </div>
+            {isAuth && (
+              <div className="flex flex-col items-start gap-4">
+                <div className="flex justify-between w-full">
+                  <ReactionCount postId={article.postId} />
+                  <span className="justify-end text-sm text-gray-500">
+                    10 lượt chia sẻ
+                  </span>
                 </div>
-                <Button
-                  variant="iconDarkMod"
-                  className="flex items-center gap-2 p-0"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Share2 className="w-4 h-4" />
-                  Chia sẻ
-                </Button>
+
+                <div className="flex items-center justify-between w-full">
+                  <div className="relative">
+                    <div
+                      className="inline-block"
+                      onMouseEnter={() => setHoveredPostId(article.postId)}
+                      onMouseLeave={() => setHoveredPostId(null)}
+                    >
+                      <Button
+                        variant="iconDarkMod"
+                        className="flex items-center gap-2 p-0"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {selectedReactions[article.postId] ? (
+                          <span className="text-xl">
+                            {selectedReactions[article.postId]}
+                          </span>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <ThumbsUp className="w-4 h-4" />
+                            Thích
+                          </div>
+                        )}
+                      </Button>
+
+                      {/* Hiển thị ReactionEmoji khi hover */}
+                      {hoveredPostId === article.postId && (
+                        <ReactionEmoji
+                          onSelect={(reactionId, emoji, e) =>
+                            handleEmojiSelect(
+                              reactionId,
+                              emoji,
+                              article.postId,
+                              e
+                            )
+                          }
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    variant="iconDarkMod"
+                    className="flex items-center gap-2 p-0"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Chia sẻ
+                  </Button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         );
       })}

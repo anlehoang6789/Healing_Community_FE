@@ -285,7 +285,7 @@ export default function Component() {
                   {/* Search bar overlay */}
                   <div className="absolute left-[35%] top-[10%] z-10 flex items-center gap-2 rounded-full bg-white px-6 py-3 shadow-lg">
                     <Search className="h-5 w-5 text-gray-500" />
-                    <span className="text-lg font-semibold">
+                    <span className="text-lg font-semibold text-textChat">
                       chữa lành tâm hồn
                     </span>
                   </div>
