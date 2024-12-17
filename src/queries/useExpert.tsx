@@ -11,7 +11,22 @@ export const useGetCertificateTypesQuery = () => {
   });
 };
 
-export const useUploadFileForExpert = () => {
+export const useGetAllCertificates = () => {
+  return useQuery({
+    queryKey: ["certificates"],
+    queryFn: () => expertApiRequest.getAllCertificates(),
+  });
+};
+
+export const useGetCertificatesByExpertId = (expertId: string) => {
+  return useQuery({
+    queryKey: ["certificate-by-expertId", expertId],
+    queryFn: () => expertApiRequest.getCertificatesByExpertId(expertId),
+  });
+};
+
+export const useUploadFileForExpert = (expertId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       formData,
@@ -20,6 +35,12 @@ export const useUploadFileForExpert = () => {
       formData: FormData;
       certificationTypeId: string;
     }) => expertApiRequest.uploadFileForExpert(formData, certificationTypeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["certificate-by-expertId", expertId],
+        exact: true,
+      });
+    },
   });
 };
 
@@ -53,17 +74,17 @@ export const useUpdateProfileExpertMutation = () => {
   });
 };
 
-export const useDeleteCertificate = () => {
+export const useDeleteCertificate = (expertId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (certificateId: string) =>
       expertApiRequest.deleteCertificate(certificateId),
-  });
-};
-
-export const useGetAllCertificates = () => {
-  return useQuery({
-    queryKey: ["certificates"],
-    queryFn: () => expertApiRequest.getAllCertificates(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["certificate-by-expertId", expertId],
+        exact: true,
+      });
+    },
   });
 };
 
