@@ -70,6 +70,8 @@ export default function BookExpert() {
   );
   const [email, setEmail] = useState(userById?.payload.data.email || "");
 
+  const isOwnProfile = expertId === userId;
+
   useEffect(() => {
     if (userById) {
       setFullName(userById.payload.data.fullName);
@@ -223,71 +225,73 @@ export default function BookExpert() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
-          <Dialog
-            open={isBookingDialogOpen}
-            onOpenChange={setIsBookingDialogOpen}
-          >
-            <DialogTrigger asChild>
-              <Button
-                variant="default"
-                onClick={() => setIsBookingDialogOpen(true)}
-                disabled={!selectedSlot}
-              >
-                Xác nhận đặt lịch
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle className="text-textChat">
+          {!isOwnProfile && (
+            <Dialog
+              open={isBookingDialogOpen}
+              onOpenChange={setIsBookingDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button
+                  variant="default"
+                  onClick={() => setIsBookingDialogOpen(true)}
+                  disabled={!selectedSlot}
+                >
                   Xác nhận đặt lịch
-                </DialogTitle>
-                <DialogDescription>
-                  Bạn có chắc chắn muốn đặt lịch cho {selectedSlot?.startTime} -{" "}
-                  {selectedSlot?.endTime}?
-                </DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleBooking}>
-                <div className="grid gap-4">
-                  <div>
-                    <Label htmlFor="name" className="text-textChat">
-                      Tên của bạn
-                    </Label>
-                    <Input
-                      id="name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                    />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="text-textChat">
+                    Xác nhận đặt lịch
+                  </DialogTitle>
+                  <DialogDescription>
+                    Bạn có chắc chắn muốn đặt lịch cho {selectedSlot?.startTime}{" "}
+                    - {selectedSlot?.endTime}?
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleBooking}>
+                  <div className="grid gap-4">
+                    <div>
+                      <Label htmlFor="name" className="text-textChat">
+                        Tên của bạn
+                      </Label>
+                      <Input
+                        id="name"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="email" className="text-textChat">
+                        Email của bạn
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Label htmlFor="email" className="text-textChat">
-                      Email của bạn
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <p className="text-lg font-semibold text-textChat mt-4">
-                  Giá: {formatCurrency(selectedSlot?.amount || 0)}
-                </p>
-                <DialogFooter className="mt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => setIsBookingDialogOpen(false)}
-                    className="text-textChat"
-                  >
-                    Hủy
-                  </Button>
-                  <Button type="submit">Đặt lịch</Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <p className="text-lg font-semibold text-textChat mt-4">
+                    Giá: {formatCurrency(selectedSlot?.amount || 0)}
+                  </p>
+                  <DialogFooter className="mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsBookingDialogOpen(false)}
+                      className="text-textChat"
+                    >
+                      Hủy
+                    </Button>
+                    <Button type="submit">Đặt lịch</Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </CardFooter>
       </Card>
     </div>
