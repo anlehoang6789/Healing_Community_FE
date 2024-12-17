@@ -269,3 +269,15 @@ export const useDeleteBookmarkListMutation = () => {
     },
   });
 };
+
+export const useAddBookmarkListDetailsMutation = (bookmarkId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.addBookmarkListDetails,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list-details", bookmarkId],
+      });
+    },
+  });
+};

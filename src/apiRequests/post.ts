@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import {
+  AddBookmarkListDetailsBodyType,
   AddReactionBodyType,
   AddUserReferenceBodyType,
   CategoryListSchemaType,
@@ -91,6 +92,8 @@ const postApiRequest = {
     http.delete<{ message: string }>(`post/api/bookmark/delete-bookmark`, {
       body: { bookmarkId },
     }),
+  addBookmarkListDetails: (body: AddBookmarkListDetailsBodyType) =>
+    http.post<{ message: string }>("post/api/bookmark/add-bookmark-post", body),
 };
 
 export default postApiRequest;
