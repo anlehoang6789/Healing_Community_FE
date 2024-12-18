@@ -1,5 +1,6 @@
 "use client";
 import DeleteAccountModerator from "@/app/admin/manage-accounts-moderator/delete-account-moderator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Pagination,
@@ -190,11 +191,15 @@ export default function TableListModreator() {
               {getCurrentPageTransactions().map((transaction) => (
                 <TableRow key={transaction.id}>
                   <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    <img
-                      src={transaction.avatar}
-                      alt="avatar"
-                      className="h-5 w-5 md:h-10 md:w-10 rounded-full"
-                    />
+                    <Avatar>
+                      <AvatarImage
+                        src={transaction.avatar ?? undefined}
+                        alt={transaction.moderatorName}
+                      />
+                      <AvatarFallback>
+                        {transaction.moderatorName.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </TableCell>
                   <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
                     {transaction.moderatorName}
