@@ -192,6 +192,24 @@ export default function UploadFileForExpert() {
   };
 
   const handleSave = async () => {
+    // Kiểm tra nếu chưa chọn loại tài liệu
+    if (!documentType) {
+      toast({
+        title: "Vui lòng chọn Loại tài liệu",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Kiểm tra nếu chưa upload file nào
+    if (!filesByType[documentType] || filesByType[documentType].length === 0) {
+      toast({
+        title: "Vui lòng tải lên tài liệu",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const uploadPromises = Object.entries(filesByType).map(
         async ([docType, files]) => {
@@ -211,12 +229,19 @@ export default function UploadFileForExpert() {
                 [docType]: {
                   ...prev[docType],
                   [file.name]: {
+                    ...prev[docType][file.name],
                     progress: 100,
                     paused: false,
                     uploaded: true,
                     certificateId: uploadResult.payload.data.certificateId, // Lưu certificateId
                   },
                 },
+              }));
+
+              // Xóa file đã upload khỏi state
+              setFilesByType((prev) => ({
+                ...prev,
+                [docType]: prev[docType].filter((f) => f.name !== file.name),
               }));
 
               return uploadResult;
@@ -231,8 +256,6 @@ export default function UploadFileForExpert() {
       );
 
       await Promise.all(uploadPromises);
-
-      setUploadCompleted(true);
 
       toast({
         title: "Tải lên tài liệu thành công",
@@ -372,77 +395,82 @@ export default function UploadFileForExpert() {
         {!uploadCompleted && (
           <ul>
             {Object.entries(filesByType).flatMap(([docType, files]) =>
-              files.map((file) => {
-                const fileProgress = progressByType[docType]?.[file.name];
+              files
+                .filter((file) => {
+                  const fileProgress = progressByType[docType]?.[file.name];
+                  return !fileProgress?.uploaded; // Chỉ hiển thị các tệp chưa tải lên
+                })
+                .map((file) => {
+                  const fileProgress = progressByType[docType]?.[file.name];
 
-                return (
-                  <li
-                    key={`${docType}-${file.name}`}
-                    className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
-                  >
-                    <span className="text-muted-foreground mb-1">
-                      {documentTypes.find((type) => type.value === docType)
-                        ?.label || "Chưa chọn"}
-                    </span>
-                    <span className="text-muted-foreground">{file.name}</span>
-                    <div className="flex items-center w-full">
-                      <div className="flex-grow">
-                        <Progress value={fileProgress?.progress || 0} />
-                      </div>
-                      <div className="flex items-center ml-4">
-                        {fileProgress?.uploaded ? (
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" className="ml-2">
-                                Xóa tệp
+                  return (
+                    <li
+                      key={`${docType}-${file.name}`}
+                      className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
+                    >
+                      <span className="text-muted-foreground mb-1">
+                        {documentTypes.find((type) => type.value === docType)
+                          ?.label || "Chưa chọn"}
+                      </span>
+                      <span className="text-muted-foreground">{file.name}</span>
+                      <div className="flex items-center w-full">
+                        <div className="flex-grow">
+                          <Progress value={fileProgress?.progress || 0} />
+                        </div>
+                        <div className="flex items-center ml-4">
+                          {fileProgress?.uploaded ? (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="ml-2">
+                                  Xóa tệp
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-backgroundChat text-textChat">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Bạn có chắc chắn muốn xóa tệp này?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Thao tác này sẽ xóa vĩnh viễn tệp{" "}
+                                    <span className="font-semibold text-red-500">
+                                      {file.name}
+                                    </span>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                  <AlertDialogAction
+                                  // onClick={() =>
+                                  //   handleDeleteCertificate(file, docType)
+                                  // }
+                                  >
+                                    Xóa
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          ) : fileProgress?.progress === 100 ? (
+                            <>
+                              <span className="text-green-600 font-semibold mr-2">
+                                Thành công
+                              </span>
+                              <Button
+                                onClick={() => handleDelete(file.name, docType)}
+                                variant="destructive"
+                                size="icon"
+                                className="h-6 w-6"
+                              >
+                                <X className="h-4 w-4" />
                               </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-backgroundChat text-textChat">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Bạn có chắc chắn muốn xóa tệp này?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Thao tác này sẽ xóa vĩnh viễn tệp{" "}
-                                  <span className="font-semibold text-red-500">
-                                    {file.name}
-                                  </span>
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                <AlertDialogAction
-                                // onClick={() =>
-                                //   handleDeleteCertificate(file, docType)
-                                // }
-                                >
-                                  Xóa
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        ) : fileProgress?.progress === 100 ? (
-                          <>
-                            <span className="text-green-600 font-semibold mr-2">
-                              Thành công
-                            </span>
-                            <Button
-                              onClick={() => handleDelete(file.name, docType)}
-                              variant="destructive"
-                              size="icon"
-                              className="h-6 w-6"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </>
-                        ) : (
-                          <div></div>
-                        )}
+                            </>
+                          ) : (
+                            <div></div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </li>
-                );
-              })
+                    </li>
+                  );
+                })
             )}
           </ul>
         )}
