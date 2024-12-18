@@ -9,6 +9,7 @@ import {
   CreateCommentResponseType,
   CreatePostBodyType,
   DeleteBookmarkListDetailsBodyType,
+  GetAllReactionTypeResponseType,
   GetBookmarkListDetailsResponseType,
   GetBookmarkListResponseType,
   GetCommentCountResType,
@@ -94,6 +95,12 @@ const postApiRequest = {
     }),
   addBookmarkListDetails: (body: AddBookmarkListDetailsBodyType) =>
     http.post<{ message: string }>("post/api/bookmark/add-bookmark-post", body),
+  getAllReactionType: () =>
+    http.get<GetAllReactionTypeResponseType>("post/api/reactiontype/get-all"),
+  removeReaction: (postId: string) =>
+    http.delete<{ message: string }>(`post/api/reaction/remove-reaction`, {
+      body: { postId },
+    }),
 };
 
 export default postApiRequest;

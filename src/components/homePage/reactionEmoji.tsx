@@ -1,38 +1,94 @@
-import React from "react";
+"use client";
+import { Button } from "@/components/ui/button";
+import { handleErrorApi } from "@/lib/utils";
+import {
+  useAddReactionMutation,
+  useGetAllReactionTypeQuery,
+  useGetUserReactionByPostIdQuery,
+  useRemoveReactionMutation,
+} from "@/queries/usePost";
+import { AddReactionBodyType } from "@/schemaValidations/post.schema";
+import { ThumbsUp } from "lucide-react";
+import React, { useState } from "react";
 
-type EmojiSelectorProps = {
-  onSelect: (reaction: string, emoji: string, e: React.MouseEvent) => void;
-};
+export default function ReactionEmoji({ postId }: { postId: string }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const { data: reactionType } = useGetAllReactionTypeQuery();
+  const reactionTypeList = reactionType?.payload.data || [];
 
-export default function ReactionEmoji({ onSelect }: EmojiSelectorProps) {
-  const reactions = [
-    { emoji: "👍", id: "1" }, // Thích
-    { emoji: "😂", id: "2" }, // Haha
-    { emoji: "😢", id: "3" }, // Buồn
-    { emoji: "😡", id: "4" }, // Phẫn nộ
-    { emoji: "❤️", id: "5" }, // Yêu
-    { emoji: "😮", id: "6" }, // Wow
-  ];
-  const handleEmojiClick = (
-    reactionId: string,
-    emoji: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation(); // Ngừng sự kiện click để tránh chuyển trang
-    onSelect(reactionId, emoji, e); // Truyền sự kiện e vào onSelect
+  //show reaction when user choose
+  const { data: emojiSelected } = useGetUserReactionByPostIdQuery(postId);
+  const emojiSelectedItem = emojiSelected?.payload.data;
+
+  //add reaction
+  const addReactionMutation = useAddReactionMutation(postId);
+  const handleAddReaction = async (body: AddReactionBodyType) => {
+    if (addReactionMutation.isPending) return;
+    try {
+      await addReactionMutation.mutateAsync(body);
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
   };
+
+  //remove reaction
+  const removeReactionMutation = useRemoveReactionMutation(postId);
+  const handleRemoveReaction = async (postId: string) => {
+    if (removeReactionMutation.isPending) return;
+    try {
+      await removeReactionMutation.mutateAsync(postId);
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
   return (
-    <div className="absolute bottom-full left-0 flex gap-2 p-2 bg-card border shadow-md rounded-md z-10">
-      {reactions.map((reaction) => (
-        <div
-          key={reaction.id}
-          onClick={(e) => handleEmojiClick(reaction.id, reaction.emoji, e)}
-          className="cursor-pointer text-2xl hover:scale-150 transition-transform"
-          title={reaction.emoji}
-        >
-          {reaction.emoji}
+    <div
+      className="relative inline-block"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <Button
+        variant="iconDarkMod"
+        className="flex items-center gap-2 p-0"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleRemoveReaction(postId);
+        }}
+      >
+        {emojiSelectedItem ? (
+          // Hiển thị icon từ dữ liệu API nếu có
+          <span className="flex items-center gap-2">
+            <span className="text-xl">
+              {emojiSelectedItem?.reactionType.icon}
+            </span>
+          </span>
+        ) : (
+          <span className="flex items-center gap-2">
+            <ThumbsUp className="w-4 h-4" />
+            Thích
+          </span>
+        )}
+      </Button>
+      {isHovered && (
+        <div className="absolute bottom-full left-0 mt-2 flex gap-2 p-2 bg-white border border-gray-300 shadow-md rounded-md">
+          {reactionTypeList.map((reactionItem) => (
+            <button
+              key={reactionItem.name}
+              className="flex flex-col items-center justify-center p-1 hover:scale-150"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddReaction({
+                  postId,
+                  reactionTypeId: reactionItem.reactionTypeId,
+                });
+              }}
+            >
+              <span className="text-xl">{reactionItem.icon}</span>
+            </button>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

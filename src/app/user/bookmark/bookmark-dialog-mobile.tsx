@@ -164,7 +164,7 @@ export default function BookmarkDialogMobile({
         <DialogFooter>
           <Button
             variant="outline"
-            className="text-muted-foreground mt-2"
+            className="text-muted-foreground mt-2 md:mt-0"
             onClick={() => {
               setSelectedBookmark(null);
               setIsOpen(false);
