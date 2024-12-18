@@ -2,10 +2,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import { Flag, Globe, LockKeyhole, Share2, ThumbsUp } from "lucide-react";
+import {
+  Bookmark,
+  Ellipsis,
+  Flag,
+  Globe,
+  LockKeyhole,
+  Share2,
+  ThumbsUp,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
-  useAddReactionMutation,
   useAddUserReferenceMutation,
   useGetHomePageLazyLoadQuery,
   useGetReactionCountQuery,
@@ -14,9 +21,15 @@ import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
-import { useReactionStore } from "@/store/reactionStore";
-import BookmarkDialogHomepage from "@/app/user/bookmark/bookmark-dialog-homepage";
 import { useAppContext } from "@/components/app-provider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useTheme } from "next-themes";
+import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 
 type UserProfileProps = {
   userId: string;
@@ -32,12 +45,17 @@ const UserProfile: React.FC<UserProfileProps> = ({
   postId,
 }) => {
   const { isAuth } = useAppContext();
+  const { theme } = useTheme();
+  const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
   const { data, isLoading, isError } = useGetUserProfileQuery(userId);
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !data) return <div>Error fetching user profile</div>;
 
   const user = data.payload.data;
+  const openBookmarkDialog = () => {
+    setIsBookmarkDialogOpen(true);
+  };
 
   return (
     <div className="flex items-center gap-4 mb-6">
@@ -71,7 +89,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       </div>
       {isAuth && (
         <div className="ml-auto">
-          <BookmarkDialogHomepage postId={postId} />
+          {/* <BookmarkDialogHomepage postId={postId} />
           <Button
             className=" rounded-full"
             variant={"ghost"}
@@ -79,7 +97,38 @@ const UserProfile: React.FC<UserProfileProps> = ({
             onClick={(e) => e.stopPropagation()}
           >
             <Flag className="w-5 h-5 text-textChat" />
-          </Button>
+          </Button> */}
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild className="ml-auto">
+              <Button variant="iconSend" size="icon">
+                <Ellipsis className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className={`w-56 mt-4 z-50${
+                theme === "dark" ? "bg-black text-white" : "bg-white text-black"
+              }`}
+            >
+              <DropdownMenuItem
+                onClick={(e) => {
+                  openBookmarkDialog();
+                  e.stopPropagation();
+                }}
+              >
+                <Bookmark className="mr-2 h-4 w-4" />
+                <span>Lưu bài viết</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Flag className="mr-2 h-4 w-4" />
+                <span>Báo cáo bài viết</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <BookmarkDialogMobile
+            postId={postId}
+            isOpen={isBookmarkDialogOpen}
+            setIsOpen={setIsBookmarkDialogOpen}
+          />
         </div>
       )}
     </div>
@@ -98,7 +147,11 @@ const ReactionCount: React.FC<{
       </span>
     );
   if (isError || !data)
-    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
+    return (
+      <div className="text-textChat">
+        Hiện tại chức năng đang bảo trì bạn chờ chút nhé
+      </div>
+    );
 
   const reactionCount = data.payload.data.total;
 
@@ -110,11 +163,6 @@ export default function Posts() {
   const pageSizes = 5;
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  //Phần xử lí add reaction
-  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
-  const { selectedReactions, setReaction } = useReactionStore();
-  const addReactionMutation = useAddReactionMutation();
-
   //Phần home page lazy load
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetHomePageLazyLoadQuery(pageSizes);
@@ -124,27 +172,28 @@ export default function Posts() {
   const { mutateAsync } = useAddUserReferenceMutation();
 
   // Hàm xử lý sự kiện cuộn
-  const handleScroll = () => {
-    if (
-      window.innerHeight + window.scrollY >= document.body.scrollHeight * 0.8 &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
-      fetchNextPage()
-        .catch((error) => {
-          console.error("Error while fetching next page:", error);
-        })
-        .finally(() => setIsLoadingMore(false));
-    }
-  };
-
   // Thêm sự kiện cuộn vào window
   useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.body.scrollHeight * 0.8 &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
+        fetchNextPage()
+          .catch((error) => {
+            console.error("Error while fetching next page:", error);
+          })
+          .finally(() => setIsLoadingMore(false));
+      }
+    };
+
     window.addEventListener("scroll", handleScroll);
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [hasNextPage, isFetchingNextPage]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Ghép các trang dữ liệu
   const articles = data?.pages.flatMap((page) => page.payload.data) || [];
@@ -171,35 +220,6 @@ export default function Posts() {
       }
     }
   };
-
-  const handleEmojiSelect = (
-    reactionTypeId: string,
-    emoji: string,
-    postId: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
-    addReactionMutation.mutate({ postId, reactionTypeId });
-    setReaction(postId, emoji);
-    sessionStorage.setItem(postId, emoji);
-    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
-  };
-
-  // Khi component mount, lấy reaction từ localStorage
-  useEffect(() => {
-    const reactionsFromSessionStorage = Object.keys(sessionStorage).reduce(
-      (acc, postId) => {
-        const emoji = sessionStorage.getItem(postId);
-        if (emoji) acc[postId] = emoji;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
-    // Cập nhật store reaction nếu có
-    for (const postId in reactionsFromSessionStorage) {
-      setReaction(postId, reactionsFromSessionStorage[postId]);
-    }
-  }, [setReaction]);
 
   return (
     <div>
@@ -255,44 +275,7 @@ export default function Posts() {
                 </div>
 
                 <div className="flex items-center justify-between w-full">
-                  <div className="relative">
-                    <div
-                      className="inline-block"
-                      onMouseEnter={() => setHoveredPostId(article.postId)}
-                      onMouseLeave={() => setHoveredPostId(null)}
-                    >
-                      <Button
-                        variant="iconDarkMod"
-                        className="flex items-center gap-2 p-0"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {selectedReactions[article.postId] ? (
-                          <span className="text-xl">
-                            {selectedReactions[article.postId]}
-                          </span>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <ThumbsUp className="w-4 h-4" />
-                            Thích
-                          </div>
-                        )}
-                      </Button>
-
-                      {/* Hiển thị ReactionEmoji khi hover */}
-                      {hoveredPostId === article.postId && (
-                        <ReactionEmoji
-                          onSelect={(reactionId, emoji, e) =>
-                            handleEmojiSelect(
-                              reactionId,
-                              emoji,
-                              article.postId,
-                              e
-                            )
-                          }
-                        />
-                      )}
-                    </div>
-                  </div>
+                  <ReactionEmoji postId={article.postId} />
                   <Button
                     variant="iconDarkMod"
                     className="flex items-center gap-2 p-0"
