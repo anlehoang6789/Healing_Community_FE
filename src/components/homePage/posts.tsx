@@ -89,15 +89,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       </div>
       {isAuth && (
         <div className="ml-auto">
-          {/* <BookmarkDialogHomepage postId={postId} />
-          <Button
-            className=" rounded-full"
-            variant={"ghost"}
-            size={"icon"}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Flag className="w-5 h-5 text-textChat" />
-          </Button> */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild className="ml-auto">
               <Button variant="iconSend" size="icon">
