@@ -4,14 +4,14 @@ import { createContext, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  Bookmark,
   Ellipsis,
   FilePenLine,
+  Flag,
   Globe,
   LockKeyhole,
   MessageSquare,
   Share2,
-  ShieldMinus,
-  ThumbsUp,
   Trash2,
 } from "lucide-react";
 import {
@@ -23,7 +23,6 @@ import {
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
-  useAddReactionMutation,
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
@@ -58,8 +57,8 @@ import postApiRequest from "@/apiRequests/post";
 import EditPersonalPost from "@/components/personalWall/editPersonalPost";
 import Image from "next/image";
 import { useUserIsOwnerStore } from "@/store/userStore";
-import { useReactionStore } from "@/store/reactionStore";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
+import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 
 const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError } = useGetReactionCountQuery(postId);
@@ -111,6 +110,7 @@ const OwnPostContext = createContext<{
 });
 
 export default function OwnPost() {
+  const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
   const { userId } = useParams(); //lấy userId từ url
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
@@ -372,6 +372,10 @@ export default function OwnPost() {
     }));
   };
 
+  const openBookmarkDialog = () => {
+    setIsBookmarkDialogOpen(true);
+  };
+
   return (
     <OwnPostContext.Provider
       value={{
@@ -450,7 +454,7 @@ export default function OwnPost() {
                   </div>
 
                   {/* Dropdown menu */}
-                  {shouldRenderDropdown && (
+                  {shouldRenderDropdown ? (
                     <DropdownMenu modal={false} aria-hidden={false}>
                       <DropdownMenuTrigger asChild className="ml-auto">
                         <Button variant="iconSend">
@@ -474,6 +478,42 @@ export default function OwnPost() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  ) : (
+                    <>
+                      <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild className="ml-auto">
+                          <Button variant="iconSend" size="icon">
+                            <Ellipsis className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className={`w-56 mt-4 z-50${
+                            theme === "dark"
+                              ? "bg-black text-white"
+                              : "bg-white text-black"
+                          }`}
+                        >
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              openBookmarkDialog();
+                              e.stopPropagation();
+                            }}
+                          >
+                            <Bookmark className="mr-2 h-4 w-4" />
+                            <span>Lưu bài viết</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Flag className="mr-2 h-4 w-4" />
+                            <span>Báo cáo bài viết</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <BookmarkDialogMobile
+                        postId={post.postId}
+                        isOpen={isBookmarkDialogOpen}
+                        setIsOpen={setIsBookmarkDialogOpen}
+                      />
+                    </>
                   )}
                 </div>
                 <EditPersonalPost
