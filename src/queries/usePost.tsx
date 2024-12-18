@@ -1,10 +1,8 @@
 import postApiRequest from "@/apiRequests/post";
 import {
   AddReactionBodyType,
-  GetHomePageSchemaLazyLoadType,
   UpdatePersonalPostBodyType,
 } from "@/schemaValidations/post.schema";
-import { usePostStore } from "@/store/postStore";
 import {
   useInfiniteQuery,
   useMutation,
@@ -195,14 +193,16 @@ export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
   });
 };
 
-export const useAddReactionMutation = () => {
+export const useAddReactionMutation = (postId: string) => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (body: AddReactionBodyType) => postApiRequest.addReaction(body),
-    onSuccess: (_, { postId }) => {
+    mutationFn: postApiRequest.addReaction,
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["reaction-count", postId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", postId],
       });
     },
   });
@@ -212,5 +212,96 @@ export const useGetUserReactionByPostIdQuery = (postId: string) => {
   return useQuery({
     queryKey: ["user-reaction-by-post-id", postId],
     queryFn: () => postApiRequest.getUserReactionByPostId(postId),
+  });
+};
+
+export const useGetBookmarkListQuery = () => {
+  return useQuery({
+    queryKey: ["bookmark-list"],
+    queryFn: postApiRequest.getBookmarkList,
+  });
+};
+
+export const useGetBookmarkListDetailsQuery = ({
+  bookmarkId,
+  enabled,
+}: {
+  bookmarkId: string;
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["bookmark-list-details", bookmarkId],
+    queryFn: () => postApiRequest.getBookmarkListDetails(bookmarkId),
+    enabled,
+  });
+};
+
+export const useDeleteBookmarkListDetailsMutation = (bookmarkId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteBookmarkListDetails,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list-details", bookmarkId],
+      });
+    },
+  });
+};
+
+export const useCreateBookmarkListMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.createBookmarkList,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list"],
+      });
+    },
+  });
+};
+
+export const useDeleteBookmarkListMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteBookmarkList,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list"],
+      });
+    },
+  });
+};
+
+export const useAddBookmarkListDetailsMutation = (bookmarkId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.addBookmarkListDetails,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["bookmark-list-details", bookmarkId],
+      });
+    },
+  });
+};
+
+export const useGetAllReactionTypeQuery = () => {
+  return useQuery({
+    queryKey: ["reaction-type"],
+    queryFn: postApiRequest.getAllReactionType,
+  });
+};
+
+export const useRemoveReactionMutation = (postId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.removeReaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-count", postId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", postId],
+      });
+    },
   });
 };

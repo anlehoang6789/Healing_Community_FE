@@ -46,6 +46,11 @@ const expertApiRequest = {
   getAllCertificates: () =>
     http.get<GetAllCertificatesResponseType>("expert/api/certificate/all"),
 
+  getCertificatesByExpertId: (expertId: string) =>
+    http.get<GetAllCertificatesResponseType>(
+      `expert/api/certificate/get-certificates-by-expert/${expertId}`
+    ),
+
   getAppointmentForUser: () =>
     http.get<AppointmentUserListResType>("expert/api/appointment/user"),
   getAppointmentForExpert: () =>

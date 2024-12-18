@@ -127,23 +127,6 @@ export default function OwnPost() {
     (post) => isThatOwner || post.status === 0
   );
 
-  //Phần xử lí add reaction
-  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
-  const { selectedReactions, setReaction } = useReactionStore();
-  const addReactionMutation = useAddReactionMutation();
-  const handleEmojiSelect = (
-    reactionTypeId: string,
-    emoji: string,
-    postId: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
-    addReactionMutation.mutate({ postId, reactionTypeId });
-    setReaction(postId, emoji);
-    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
-  };
-
-  const userIdComment = getUserIdFromLocalStorage() ?? "";
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
   }>({});
@@ -362,7 +345,7 @@ export default function OwnPost() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
             <AlertDialogAction onClick={deletePost}>Xác nhận</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -489,10 +472,6 @@ export default function OwnPost() {
                           <Trash2 className="mr-2 h-4 w-4" />
                           <span>Xóa bài viết</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <ShieldMinus className="mr-2 h-4 w-4" />
-                          <span>Chỉnh sửa quyền riêng tư</span>
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   )}
@@ -547,44 +526,7 @@ export default function OwnPost() {
                   </div>
 
                   <div className="flex items-center justify-between w-full">
-                    <div className="relative">
-                      <div
-                        className="inline-block"
-                        onMouseEnter={() => setHoveredPostId(post.postId)}
-                        onMouseLeave={() => setHoveredPostId(null)}
-                      >
-                        <Button
-                          variant="iconDarkMod"
-                          className="flex items-center gap-2 p-0"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {selectedReactions[post.postId] ? (
-                            <span className="text-xl">
-                              {selectedReactions[post.postId]}
-                            </span>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <ThumbsUp className="w-4 h-4" />
-                              Thích
-                            </div>
-                          )}
-                        </Button>
-
-                        {/* Hiển thị ReactionEmoji khi hover */}
-                        {hoveredPostId === post.postId && (
-                          <ReactionEmoji
-                            onSelect={(reactionId, emoji, e) =>
-                              handleEmojiSelect(
-                                reactionId,
-                                emoji,
-                                post.postId,
-                                e
-                              )
-                            }
-                          />
-                        )}
-                      </div>
-                    </div>
+                    <ReactionEmoji postId={post.postId} />
                     <Button
                       variant="iconDarkMod"
                       className="flex items-center gap-2 p-0"
@@ -612,7 +554,7 @@ export default function OwnPost() {
                       transition={{ duration: 0.3 }}
                       className="w-full mt-4 overflow-hidden"
                     >
-                      <div className="px-5">
+                      <div className="px-4 pb-4">
                         <CommentSection
                           comments={commentsByPostId[post.postId] || []}
                           onAddComment={(comment) =>

@@ -200,7 +200,7 @@ const http = {
   },
   delete<Response>(
     url: string,
-    options?: Omit<CustomOptions, "body"> | undefined
+    options?: Omit<CustomOptions, "body"> | { body?: any }
   ) {
     return request<Response>("DELETE", url, { ...options });
   },

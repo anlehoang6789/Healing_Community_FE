@@ -22,8 +22,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import {
+  useAddBookmarkListDetailsMutation,
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
+  useGetBookmarkListQuery,
   useGetCommentCountQuery,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
@@ -32,15 +34,19 @@ import {
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
 import CommentSection from "@/components/commentSection/commentSection";
-import { CommentType } from "@/schemaValidations/post.schema";
+import {
+  AddBookmarkListDetailsBodyType,
+  CommentType,
+} from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
 import { useParams } from "next/navigation";
+import BookmarkDialog from "@/app/user/bookmark/bookmark-dialog";
+import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 
 export default function DetailPost() {
   const { theme } = useTheme();
+  const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
 
-  // data của post theo postId
-  // const postId = "01JDHS5Z5ECX2AWNKGQ2NHG2Z8";
   const userIdComment = getUserIdFromLocalStorage() ?? "";
   const param = useParams();
   const postIdFromUrl = param?.postId;
@@ -65,6 +71,7 @@ export default function DetailPost() {
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
+  const imageComment = useGetUserProfileQuery(userIdComment);
   const { data: commentsData } = useGetCommentsByPostIdQuery(
     postIdFromUrl as string
   );
@@ -176,6 +183,10 @@ export default function DetailPost() {
     );
   };
 
+  const openBookmarkDialog = () => {
+    setIsBookmarkDialogOpen(true);
+  };
+
   return (
     <div className="w-full relative">
       {/* Vertical icon bar */}
@@ -195,9 +206,7 @@ export default function DetailPost() {
         <Button variant="ghost" size="icon" className="rounded-full mt-5">
           <Share2 className="h-8 w-8 text-green-500" />
         </Button>
-        <Button variant="ghost" size="icon" className="rounded-full mt-7">
-          <Bookmark className="h-8 w-8 text-purple-500" />
-        </Button>
+        <BookmarkDialog postId={postIdFromUrl as string} />
         <Button variant="ghost" size="icon" className="rounded-full mt-7">
           <Flag className="h-8 w-8 text-red-500" />
         </Button>
@@ -247,7 +256,7 @@ export default function DetailPost() {
           </div>
 
           {/* Mobile action buttons */}
-          <DropdownMenu>
+          <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild className="ml-auto lg:hidden">
               <Button variant="iconSend" size="icon">
                 <MoreHorizontal className="h-5 w-5" />
@@ -258,7 +267,7 @@ export default function DetailPost() {
                 theme === "dark" ? "bg-black text-white" : "bg-white text-black"
               }`}
             >
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={openBookmarkDialog}>
                 <Bookmark className="mr-2 h-4 w-4" />
                 <span>Lưu bài viết</span>
               </DropdownMenuItem>
@@ -268,6 +277,11 @@ export default function DetailPost() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <BookmarkDialogMobile
+            postId={postIdFromUrl as string}
+            isOpen={isBookmarkDialogOpen}
+            setIsOpen={setIsBookmarkDialogOpen}
+          />
         </div>
 
         <h1 className="flex justify-center text-3xl px-4 font-bold text-textChat">
@@ -279,13 +293,6 @@ export default function DetailPost() {
               __html: postById?.payload.data.description as string,
             }}
           />
-
-          {/* <div className="flex gap-10 justify-center text-muted-foreground">
-            <span>#Chữa lành</span>
-            <span>#Chữa lành</span>
-            <span>#Chữa lành</span>
-            <span>#Chữa lành</span>
-          </div> */}
         </div>
         <div className="flex bg-gray-500 w-auto h-0.5 mx-8 mb-8"></div>
 
@@ -323,11 +330,15 @@ export default function DetailPost() {
             <Link href="#">
               <Avatar className="w-9 h-9 border-2 border-rose-300">
                 <AvatarImage
-                  src={userById?.payload.data.profilePicture}
-                  alt={userById?.payload.data.userName}
+                  src={imageComment.data?.payload.data.profilePicture}
+                  alt={
+                    imageComment.data?.payload.data.fullName ||
+                    imageComment.data?.payload.data.userName
+                  }
                 />
                 <AvatarFallback>
-                  {userById?.payload.data.userName}
+                  {imageComment.data?.payload.data.fullName ||
+                    imageComment.data?.payload.data.userName}
                 </AvatarFallback>
               </Avatar>
             </Link>
@@ -340,27 +351,6 @@ export default function DetailPost() {
               />
             </div>
           </div>
-
-          {/* image comment preview */}
-          {/* {commentImage && (
-            <div className="relative w-24 h-24 mb-4">
-              <Image
-                src={commentImage}
-                alt="Uploaded image"
-                layout="fill"
-                objectFit="cover"
-                className="rounded-lg"
-              />
-              <Button
-                variant="destructive"
-                size="icon"
-                onClick={() => setCommentImage(null)}
-                className="absolute top-1 right-1 h-6 w-6 rounded-full"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )} */}
         </div>
       </div>
     </div>

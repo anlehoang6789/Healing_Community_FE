@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/popover";
 import { CheckIcon, FolderUp, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { cn, handleErrorApi } from "@/lib/utils";
+import { cn, getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { CaretSortIcon } from "@radix-ui/react-icons";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,8 @@ import { CertificateSchemaType } from "@/schemaValidations/expert.schema";
 
 import {
   useDeleteCertificate,
-  useGetAllCertificates,
+  useGetCertificatesByExpertId,
+  useGetCertificateTypesQuery,
   useUploadFileForExpert,
 } from "@/queries/useExpert";
 
@@ -43,6 +44,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import Link from "next/link";
 
 export default function UploadFileForExpert() {
   const [filesByType, setFilesByType] = useState<{ [key: string]: File[] }>({});
@@ -63,10 +65,28 @@ export default function UploadFileForExpert() {
     { value: string; label: string }[]
   >([]); // State to hold document types
 
-  const { data: certificatesData } = useGetAllCertificates();
+  const [uploadCompleted, setUploadCompleted] = useState(false);
 
-  const uploadFileForExpert = useUploadFileForExpert();
-  const deleteCertificate = useDeleteCertificate();
+  const expertId = getUserIdFromLocalStorage();
+
+  const { data: certificatesData } = useGetCertificatesByExpertId(
+    expertId as string
+  );
+
+  const { data: certificateTypesResponse } = useGetCertificateTypesQuery();
+
+  const certificates = certificatesData?.payload.data;
+
+  const certificateTypeMap = certificateTypesResponse?.payload.data.reduce(
+    (acc, certificateType) => {
+      acc[certificateType.certificateTypeId] = certificateType.name;
+      return acc;
+    },
+    {} as Record<string, string>
+  );
+
+  const uploadFileForExpert = useUploadFileForExpert(expertId as string);
+  const deleteCertificate = useDeleteCertificate(expertId as string);
 
   useEffect(() => {
     const fetchCertificateTypes = async () => {
@@ -172,6 +192,24 @@ export default function UploadFileForExpert() {
   };
 
   const handleSave = async () => {
+    // Kiểm tra nếu chưa chọn loại tài liệu
+    if (!documentType) {
+      toast({
+        title: "Vui lòng chọn Loại tài liệu",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Kiểm tra nếu chưa upload file nào
+    if (!filesByType[documentType] || filesByType[documentType].length === 0) {
+      toast({
+        title: "Vui lòng tải lên tài liệu",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const uploadPromises = Object.entries(filesByType).map(
         async ([docType, files]) => {
@@ -191,12 +229,19 @@ export default function UploadFileForExpert() {
                 [docType]: {
                   ...prev[docType],
                   [file.name]: {
+                    ...prev[docType][file.name],
                     progress: 100,
                     paused: false,
                     uploaded: true,
                     certificateId: uploadResult.payload.data.certificateId, // Lưu certificateId
                   },
                 },
+              }));
+
+              // Xóa file đã upload khỏi state
+              setFilesByType((prev) => ({
+                ...prev,
+                [docType]: prev[docType].filter((f) => f.name !== file.name),
               }));
 
               return uploadResult;
@@ -221,10 +266,10 @@ export default function UploadFileForExpert() {
     }
   };
 
-  const handleDeleteCertificate = async (file: File, docType: string) => {
+  const handleDeleteCertificate = async (certificateId: string) => {
     try {
-      const fileProgress = progressByType[docType]?.[file.name];
-      if (!fileProgress || !fileProgress.certificateId) {
+      // Kiểm tra xem certificateId có hợp lệ không
+      if (!certificateId) {
         toast({
           title: "Không tìm thấy chứng chỉ để xóa",
           variant: "destructive",
@@ -232,23 +277,8 @@ export default function UploadFileForExpert() {
         return;
       }
 
-      const certificateId = fileProgress.certificateId;
-
-      // Gọi API xóa certificate bằng certificateId
+      // Gọi API xóa chứng chỉ bằng certificateId
       await deleteCertificate.mutateAsync(certificateId);
-
-      // Xóa file khỏi state
-      setFilesByType((prev) => ({
-        ...prev,
-        [docType]: prev[docType].filter((f) => f.name !== file.name),
-      }));
-
-      // Xóa progress của file
-      setProgressByType((prev) => {
-        const newProgress = { ...prev };
-        delete newProgress[docType][file.name];
-        return newProgress;
-      });
 
       toast({
         title: "Xóa tệp thành công",
@@ -258,6 +288,7 @@ export default function UploadFileForExpert() {
       handleErrorApi({ error });
     }
   };
+
   return (
     <div className="w-full bg-background h-auto p-4 max-w-7xl overflow-hidden mx-auto rounded-lg shadow-lg border">
       <div className="flex items-center justify-between">
@@ -360,81 +391,164 @@ export default function UploadFileForExpert() {
         <h3 className="text-lg font-semibold mb-2 text-muted-foreground">
           Tệp đã đăng
         </h3>
-        <ul>
-          {Object.entries(filesByType).flatMap(([docType, files]) =>
-            files.map((file) => {
-              const fileProgress = progressByType[docType]?.[file.name];
+
+        {!uploadCompleted && (
+          <ul>
+            {Object.entries(filesByType).flatMap(([docType, files]) =>
+              files
+                .filter((file) => {
+                  const fileProgress = progressByType[docType]?.[file.name];
+                  return !fileProgress?.uploaded; // Chỉ hiển thị các tệp chưa tải lên
+                })
+                .map((file) => {
+                  const fileProgress = progressByType[docType]?.[file.name];
+
+                  return (
+                    <li
+                      key={`${docType}-${file.name}`}
+                      className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
+                    >
+                      <span className="text-muted-foreground mb-1">
+                        {documentTypes.find((type) => type.value === docType)
+                          ?.label || "Chưa chọn"}
+                      </span>
+                      <span className="text-muted-foreground">{file.name}</span>
+                      <div className="flex items-center w-full">
+                        <div className="flex-grow">
+                          <Progress value={fileProgress?.progress || 0} />
+                        </div>
+                        <div className="flex items-center ml-4">
+                          {fileProgress?.uploaded ? (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="destructive" className="ml-2">
+                                  Xóa tệp
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-backgroundChat text-textChat">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Bạn có chắc chắn muốn xóa tệp này?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Thao tác này sẽ xóa vĩnh viễn tệp{" "}
+                                    <span className="font-semibold text-red-500">
+                                      {file.name}
+                                    </span>
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                  <AlertDialogAction
+                                  // onClick={() =>
+                                  //   handleDeleteCertificate(file, docType)
+                                  // }
+                                  >
+                                    Xóa
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          ) : fileProgress?.progress === 100 ? (
+                            <>
+                              <span className="text-green-600 font-semibold mr-2">
+                                Thành công
+                              </span>
+                              <Button
+                                onClick={() => handleDelete(file.name, docType)}
+                                variant="destructive"
+                                size="icon"
+                                className="h-6 w-6"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <div></div>
+                          )}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })
+            )}
+          </ul>
+        )}
+
+        <div className="">
+          {certificates && certificates.length > 0 ? (
+            certificates.map((certificate) => {
+              // Đảm bảo certificateTypeMap không undefined
+              const certificateTypeName =
+                certificateTypeMap?.[certificate.certificateTypeId] ||
+                "Loại không xác định";
 
               return (
-                <li
-                  key={`${docType}-${file.name}`}
-                  className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg"
+                <div
+                  key={certificate.certificateId}
+                  className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg w-full"
                 >
-                  <span className="text-muted-foreground mb-1">
-                    {documentTypes.find((type) => type.value === docType)
-                      ?.label || "Chưa chọn"}
-                  </span>
-                  <span className="text-muted-foreground">{file.name}</span>
+                  <p className="text-muted-foreground mb-1 ">
+                    {certificateTypeName}
+                  </p>
+
                   <div className="flex items-center w-full">
-                    <div className="flex-grow">
-                      <Progress value={fileProgress?.progress || 0} />
-                    </div>
-                    <div className="flex items-center ml-4">
-                      {fileProgress?.uploaded ? (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="destructive" className="ml-2">
-                              Xóa tệp
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-backgroundChat text-textChat">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Bạn có chắc chắn muốn xóa tệp này?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Thao tác này sẽ xóa vĩnh viễn tệp{" "}
-                                <span className="font-semibold text-red-500">
-                                  {file.name}
-                                </span>
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Hủy</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() =>
-                                  handleDeleteCertificate(file, docType)
-                                }
-                              >
-                                Xóa
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      ) : fileProgress?.progress === 100 ? (
-                        <>
-                          <span className="text-green-600 font-semibold mr-2">
-                            Thành công
-                          </span>
+                    <Link
+                      key={certificate.certificateId}
+                      href={certificate.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground flex-grow line-clamp-2"
+                    >
+                      <p className="text-sm text-muted-foreground flex-grow line-clamp-2">
+                        {certificate.fileUrl || "Tên tệp không xác định"}
+                      </p>
+                    </Link>
+                    <div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
                           <Button
-                            onClick={() => handleDelete(file.name, docType)}
                             variant="destructive"
-                            size="icon"
-                            className="h-6 w-6"
+                            className="ml-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
                           >
-                            <X className="h-4 w-4" />
+                            Xóa tệp
                           </Button>
-                        </>
-                      ) : (
-                        <div></div>
-                      )}
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-backgroundChat text-textChat">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Bạn có chắc chắn muốn xóa tệp này?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Thao tác này sẽ xóa vĩnh viễn tệp
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Hủy</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() =>
+                                handleDeleteCertificate(
+                                  certificate.certificateId
+                                )
+                              }
+                            >
+                              Xóa
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
-                </li>
+                </div>
               );
             })
+          ) : (
+            <p className="text-muted-foreground">Chưa có tệp nào được đăng.</p>
           )}
-        </ul>
+        </div>
       </div>
 
       <div className="mt-4 flex justify-end">

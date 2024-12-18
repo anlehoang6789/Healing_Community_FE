@@ -1,5 +1,6 @@
 "use client";
 import DeleteAccountUser from "@/app/moderator/manage-accounts/delete-account-user";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Pagination,
@@ -281,11 +282,15 @@ export default function TableListUser({ filters }: FilterListUser) {
               {getCurrentPageTransactions().map((user) => (
                 <TableRow key={user.id}>
                   <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    <img
-                      src={user.avatar}
-                      alt="avatar"
-                      className="h-5 w-5 md:h-10 md:w-10 rounded-full"
-                    />
+                    <Avatar>
+                      <AvatarImage
+                        src={user.avatar ?? undefined}
+                        alt={user.username}
+                      />
+                      <AvatarFallback>
+                        {user.username.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
                   </TableCell>
                   <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
                     {user.username}

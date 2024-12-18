@@ -1,11 +1,17 @@
 import http from "@/lib/http";
 import {
+  AddBookmarkListDetailsBodyType,
   AddReactionBodyType,
   AddUserReferenceBodyType,
   CategoryListSchemaType,
+  CreateBookmarkListBodyType,
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
+  DeleteBookmarkListDetailsBodyType,
+  GetAllReactionTypeResponseType,
+  GetBookmarkListDetailsResponseType,
+  GetBookmarkListResponseType,
   GetCommentCountResType,
   GetCommentsByPostIdResponseType,
   GetHomePageListLazyLoadType,
@@ -71,6 +77,30 @@ const postApiRequest = {
     http.get<GetUserReactionByPostIdResType>(
       `post/api/reaction/get-user-reaction-by-post-id/${postId}`
     ),
+  getBookmarkList: () =>
+    http.get<GetBookmarkListResponseType>("post/api/bookmark/get-bookmark"),
+  getBookmarkListDetails: (bookmarkId: string) =>
+    http.get<GetBookmarkListDetailsResponseType>(
+      `post/api/bookmark/get-post-bookmark?bookmarkId=${bookmarkId}`
+    ),
+  deleteBookmarkListDetails: (body: DeleteBookmarkListDetailsBodyType) =>
+    http.delete<{ message: string }>("post/api/bookmark/delete-bookmark-post", {
+      body,
+    }),
+  createBookmarkList: (body: CreateBookmarkListBodyType) =>
+    http.post<{ message: string }>("post/api/bookmark/create-bookmark", body),
+  deleteBookmarkList: (bookmarkId: string) =>
+    http.delete<{ message: string }>(`post/api/bookmark/delete-bookmark`, {
+      body: { bookmarkId },
+    }),
+  addBookmarkListDetails: (body: AddBookmarkListDetailsBodyType) =>
+    http.post<{ message: string }>("post/api/bookmark/add-bookmark-post", body),
+  getAllReactionType: () =>
+    http.get<GetAllReactionTypeResponseType>("post/api/reactiontype/get-all"),
+  removeReaction: (postId: string) =>
+    http.delete<{ message: string }>(`post/api/reaction/remove-reaction`, {
+      body: { postId },
+    }),
 };
 
 export default postApiRequest;
