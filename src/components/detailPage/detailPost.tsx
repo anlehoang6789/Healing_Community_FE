@@ -8,7 +8,6 @@ import {
   MessageCircle,
   MoreHorizontal,
   Share2,
-  X,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -22,10 +21,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import {
-  useAddBookmarkListDetailsMutation,
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
-  useGetBookmarkListQuery,
   useGetCommentCountQuery,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
@@ -34,10 +31,7 @@ import {
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
 import CommentSection from "@/components/commentSection/commentSection";
-import {
-  AddBookmarkListDetailsBodyType,
-  CommentType,
-} from "@/schemaValidations/post.schema";
+import { CommentType } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
 import { useParams } from "next/navigation";
 import BookmarkDialog from "@/app/user/bookmark/bookmark-dialog";
