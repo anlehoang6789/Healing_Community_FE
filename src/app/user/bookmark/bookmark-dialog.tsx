@@ -133,14 +133,14 @@ export default function BookmarkDialog({ postId }: { postId: string }) {
                 }`}
                 onClick={() => setSelectedBookmark(bookmarkItem.bookmarkId)}
               >
-                <p className="font-semibold text-textChat">
+                <p className="font-semibold text-gray-600">
                   {bookmarkItem.name}
                 </p>
                 {selectedBookmark === bookmarkItem.bookmarkId &&
                 isPostBookmarked ? (
-                  <BookmarkFilledIcon className="h-5 w-5 text-textChat" />
+                  <BookmarkFilledIcon className="h-5 w-5 text-gray-600" />
                 ) : (
-                  <Bookmark className="h-5 w-5 text-textChat" />
+                  <Bookmark className="h-5 w-5 text-gray-600" />
                 )}
               </div>
             ))

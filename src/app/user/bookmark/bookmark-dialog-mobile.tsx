@@ -144,14 +144,14 @@ export default function BookmarkDialogMobile({
                   e.stopPropagation();
                 }}
               >
-                <p className="font-semibold text-textChat">
+                <p className="font-semibold text-gray-600">
                   {bookmarkItem.name}
                 </p>
                 {selectedBookmark === bookmarkItem.bookmarkId &&
                 isPostBookmarked ? (
-                  <BookmarkFilledIcon className="h-5 w-5 text-textChat" />
+                  <BookmarkFilledIcon className="h-5 w-5 text-gray-600" />
                 ) : (
-                  <Bookmark className="h-5 w-5 text-textChat" />
+                  <Bookmark className="h-5 w-5 text-gray-600" />
                 )}
               </div>
             ))
@@ -164,7 +164,7 @@ export default function BookmarkDialogMobile({
         <DialogFooter>
           <Button
             variant="outline"
-            className="text-muted-foreground mt-2"
+            className="text-muted-foreground mt-2 md:mt-0"
             onClick={() => {
               setSelectedBookmark(null);
               setIsOpen(false);

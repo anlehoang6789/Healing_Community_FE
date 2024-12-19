@@ -4,14 +4,14 @@ import { createContext, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  Bookmark,
   Ellipsis,
   FilePenLine,
+  Flag,
   Globe,
   LockKeyhole,
   MessageSquare,
   Share2,
-  ShieldMinus,
-  ThumbsUp,
   Trash2,
 } from "lucide-react";
 import {
@@ -23,7 +23,6 @@ import {
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
-  useAddReactionMutation,
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
@@ -58,8 +57,8 @@ import postApiRequest from "@/apiRequests/post";
 import EditPersonalPost from "@/components/personalWall/editPersonalPost";
 import Image from "next/image";
 import { useUserIsOwnerStore } from "@/store/userStore";
-import { useReactionStore } from "@/store/reactionStore";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
+import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 
 const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError } = useGetReactionCountQuery(postId);
@@ -111,6 +110,7 @@ const OwnPostContext = createContext<{
 });
 
 export default function OwnPost() {
+  const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
   const { userId } = useParams(); //lấy userId từ url
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
@@ -127,23 +127,6 @@ export default function OwnPost() {
     (post) => isThatOwner || post.status === 0
   );
 
-  //Phần xử lí add reaction
-  const [hoveredPostId, setHoveredPostId] = useState<string | null>(null);
-  const { selectedReactions, setReaction } = useReactionStore();
-  const addReactionMutation = useAddReactionMutation();
-  const handleEmojiSelect = (
-    reactionTypeId: string,
-    emoji: string,
-    postId: string,
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
-    addReactionMutation.mutate({ postId, reactionTypeId });
-    setReaction(postId, emoji);
-    setHoveredPostId(null); // Ẩn menu emoji sau khi chọn
-  };
-
-  const userIdComment = getUserIdFromLocalStorage() ?? "";
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
   }>({});
@@ -389,6 +372,10 @@ export default function OwnPost() {
     }));
   };
 
+  const openBookmarkDialog = () => {
+    setIsBookmarkDialogOpen(true);
+  };
+
   return (
     <OwnPostContext.Provider
       value={{
@@ -467,7 +454,7 @@ export default function OwnPost() {
                   </div>
 
                   {/* Dropdown menu */}
-                  {shouldRenderDropdown && (
+                  {shouldRenderDropdown ? (
                     <DropdownMenu modal={false} aria-hidden={false}>
                       <DropdownMenuTrigger asChild className="ml-auto">
                         <Button variant="iconSend">
@@ -489,12 +476,44 @@ export default function OwnPost() {
                           <Trash2 className="mr-2 h-4 w-4" />
                           <span>Xóa bài viết</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <ShieldMinus className="mr-2 h-4 w-4" />
-                          <span>Chỉnh sửa quyền riêng tư</span>
-                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  ) : (
+                    <>
+                      <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild className="ml-auto">
+                          <Button variant="iconSend" size="icon">
+                            <Ellipsis className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className={`w-56 mt-4 z-50${
+                            theme === "dark"
+                              ? "bg-black text-white"
+                              : "bg-white text-black"
+                          }`}
+                        >
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              openBookmarkDialog();
+                              e.stopPropagation();
+                            }}
+                          >
+                            <Bookmark className="mr-2 h-4 w-4" />
+                            <span>Lưu bài viết</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Flag className="mr-2 h-4 w-4" />
+                            <span>Báo cáo bài viết</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <BookmarkDialogMobile
+                        postId={post.postId}
+                        isOpen={isBookmarkDialogOpen}
+                        setIsOpen={setIsBookmarkDialogOpen}
+                      />
+                    </>
                   )}
                 </div>
                 <EditPersonalPost
@@ -547,44 +566,7 @@ export default function OwnPost() {
                   </div>
 
                   <div className="flex items-center justify-between w-full">
-                    <div className="relative">
-                      <div
-                        className="inline-block"
-                        onMouseEnter={() => setHoveredPostId(post.postId)}
-                        onMouseLeave={() => setHoveredPostId(null)}
-                      >
-                        <Button
-                          variant="iconDarkMod"
-                          className="flex items-center gap-2 p-0"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {selectedReactions[post.postId] ? (
-                            <span className="text-xl">
-                              {selectedReactions[post.postId]}
-                            </span>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              <ThumbsUp className="w-4 h-4" />
-                              Thích
-                            </div>
-                          )}
-                        </Button>
-
-                        {/* Hiển thị ReactionEmoji khi hover */}
-                        {hoveredPostId === post.postId && (
-                          <ReactionEmoji
-                            onSelect={(reactionId, emoji, e) =>
-                              handleEmojiSelect(
-                                reactionId,
-                                emoji,
-                                post.postId,
-                                e
-                              )
-                            }
-                          />
-                        )}
-                      </div>
-                    </div>
+                    <ReactionEmoji postId={post.postId} />
                     <Button
                       variant="iconDarkMod"
                       className="flex items-center gap-2 p-0"
@@ -612,7 +594,7 @@ export default function OwnPost() {
                       transition={{ duration: 0.3 }}
                       className="w-full mt-4 overflow-hidden"
                     >
-                      <div className="px-5">
+                      <div className="px-4 pb-4">
                         <CommentSection
                           comments={commentsByPostId[post.postId] || []}
                           onAddComment={(comment) =>

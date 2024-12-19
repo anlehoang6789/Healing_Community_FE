@@ -193,14 +193,16 @@ export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
   });
 };
 
-export const useAddReactionMutation = () => {
+export const useAddReactionMutation = (postId: string) => {
   const queryClient = useQueryClient();
-
   return useMutation({
-    mutationFn: (body: AddReactionBodyType) => postApiRequest.addReaction(body),
-    onSuccess: (_, { postId }) => {
+    mutationFn: postApiRequest.addReaction,
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["reaction-count", postId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", postId],
       });
     },
   });
@@ -277,6 +279,28 @@ export const useAddBookmarkListDetailsMutation = (bookmarkId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["bookmark-list-details", bookmarkId],
+      });
+    },
+  });
+};
+
+export const useGetAllReactionTypeQuery = () => {
+  return useQuery({
+    queryKey: ["reaction-type"],
+    queryFn: postApiRequest.getAllReactionType,
+  });
+};
+
+export const useRemoveReactionMutation = (postId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.removeReaction,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-count", postId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", postId],
       });
     },
   });

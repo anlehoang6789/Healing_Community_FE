@@ -238,6 +238,7 @@ export const GetUserReactionByPostIdSchema = z.object({
   reactionType: z.object({
     reactionTypeId: z.string(),
     name: z.string(),
+    icon: z.string(),
   }),
 });
 
@@ -324,4 +325,23 @@ export const AddBookmarkListDetailsBody = z.object({
 
 export type AddBookmarkListDetailsBodyType = z.TypeOf<
   typeof AddBookmarkListDetailsBody
+>;
+
+export const GetAllReactionTypeSchema = z.object({
+  reactionTypeId: z.string(),
+  name: z.string(),
+  icon: z.string(),
+});
+
+export type GetAllReactionTypeSchemaType = z.TypeOf<
+  typeof GetAllReactionTypeSchema
+>;
+
+export const GetAllReactionTypeResponse = z.object({
+  data: z.array(GetAllReactionTypeSchema),
+  message: z.string(),
+});
+
+export type GetAllReactionTypeResponseType = z.TypeOf<
+  typeof GetAllReactionTypeResponse
 >;
