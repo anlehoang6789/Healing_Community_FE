@@ -28,13 +28,13 @@ export default function QuickViewNews({
         <div className="absolute left-[-2px] top-0 bottom-0 w-0.5 bg-yellow-700"></div>
         {quickPostList.map((item) => (
           <li key={item.postId} className="flex items-start space-x-4 relative">
-            <div className="absolute left-[-6px] top-2 w-[20px] h-[20px]">
+            <div className="absolute left-[-6px] top-2 w-[15px] h-[15px]">
               <Image
                 src={"/leaf.png"}
                 alt="leaf"
                 className="w-full h-full object-contain"
-                width={20}
-                height={20}
+                width={15}
+                height={15}
               />
             </div>
             <Card className="w-full transition-all duration-300">

@@ -59,23 +59,7 @@ import Image from "next/image";
 import { useUserIsOwnerStore } from "@/store/userStore";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
-
-const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
-  const { data, isLoading, isError } = useGetReactionCountQuery(postId);
-
-  if (isLoading)
-    return (
-      <span className="text-sm text-gray-500 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-      </span>
-    );
-  if (isError || !data)
-    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
-
-  const reactionCount = data.payload.data.total;
-
-  return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
-};
+import ReactionCount from "@/components/homePage/reactionCount";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);

@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
+import ReactionCount from "@/components/homePage/reactionCount";
 
 type UserProfileProps = {
   userId: string;
@@ -124,29 +125,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       )}
     </div>
   );
-};
-
-const ReactionCount: React.FC<{
-  postId: string;
-}> = ({ postId }) => {
-  const { data, isLoading, isError } = useGetReactionCountQuery(postId);
-
-  if (isLoading)
-    return (
-      <span className="text-sm text-gray-500 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-      </span>
-    );
-  if (isError || !data)
-    return (
-      <div className="text-textChat">
-        Hiện tại chức năng đang bảo trì bạn chờ chút nhé
-      </div>
-    );
-
-  const reactionCount = data.payload.data.total;
-
-  return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
 };
 
 export default function Posts() {
