@@ -198,3 +198,19 @@ export const useUpdateExpertExperienceMutation = () => {
     },
   });
 };
+
+export const useCancelAppointmentMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.cancelAppointment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["appointments-for-user"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["appointments-for-expert"],
+      });
+    },
+  });
+};

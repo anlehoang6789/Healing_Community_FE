@@ -37,7 +37,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { useGetAppointmentForUser } from "@/queries/useExpert";
+import {
+  useCancelAppointmentMutation,
+  useGetAppointmentForUser,
+} from "@/queries/useExpert";
 import { AppointmentUserType } from "@/schemaValidations/expert.schema";
 import {
   AlertDialog,
@@ -55,6 +58,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { formatCurrency, handleErrorApi } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
 
 export default function ConsultationSchedule() {
   const { data } = useGetAppointmentForUser();
@@ -97,9 +102,23 @@ export default function ConsultationSchedule() {
   }, [filteredAndSortedConsultations]);
   console.log(consultationsByStatus);
 
+  const { mutate: cancelAppointment } = useCancelAppointmentMutation();
+
   const handleCancelAppointment = (appointmentId: string) => {
-    // Gọi API để hủy lịch (chưa triển khai)
-    console.log("Hủy lịch với ID:", appointmentId);
+    cancelAppointment(
+      { appointmentId },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Hủy lịch tư vấn thành công",
+            variant: "success",
+          });
+        },
+        onError: (error) => {
+          handleErrorApi({ error });
+        },
+      }
+    );
   };
 
   const renderConsultationCard = (consultation: AppointmentUserType) => {
@@ -111,10 +130,11 @@ export default function ConsultationSchedule() {
       }`
     );
     const canCancel =
+      consultation.tag !== "Đã hủy" &&
       appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
 
     return (
-      <Card key={consultation.expertId} className="mb-4 relative">
+      <Card key={consultation.appointmentId} className="mb-4 relative">
         {/* Hủy lịch hẹn */}
         {canCancel && (
           <AlertDialog>
@@ -131,16 +151,27 @@ export default function ConsultationSchedule() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Xác nhận hủy lịch</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bạn có chắc chắn muốn hủy lịch tư vấn này không? Nếu hủy lịch
-                  thì chúng tôi sẽ hoàn 10.000VNĐ về tài khoản của bạn trong
-                  vòng 24 giờ.
+                  Bạn có chắc chắn muốn hủy lịch ngày{" "}
+                  <span className="text-red-500">
+                    {consultation.appointmentDate}
+                  </span>{" "}
+                  vào lúc{" "}
+                  <span className="text-red-500">{consultation.timeRange}</span>{" "}
+                  không? Nếu hủy lịch thì chúng tôi sẽ hoàn{" "}
+                  <span className="text-green-500">
+                    {formatCurrency(consultation.amount)}
+                  </span>{" "}
+                  về tài khoản của bạn trong vòng{" "}
+                  <span className="font-bold">24 giờ</span>.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Hủy</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-red-500 text-white"
-                  // onClick={() => handleCancelAppointment(consultation.id)}
+                  onClick={() =>
+                    handleCancelAppointment(consultation.appointmentId)
+                  }
                 >
                   Xác nhận
                 </AlertDialogAction>
