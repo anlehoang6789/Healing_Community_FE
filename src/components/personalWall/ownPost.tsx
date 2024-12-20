@@ -28,7 +28,6 @@ import {
   useDeletePostByPostIdMutation,
   useGetCommentCountQuery,
   useGetPostByUserIdQuery,
-  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import {
   formatDateTime,
@@ -60,6 +59,8 @@ import { useUserIsOwnerStore } from "@/store/userStore";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 import ReactionCount from "@/components/homePage/reactionCount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { Role } from "@/constants/type";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -99,6 +100,8 @@ export default function OwnPost() {
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
   const { isThatOwner } = useUserIsOwnerStore();
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
   const { data } = useGetPostByUserIdQuery(userId as string);
   // const postList = data?.payload.data || [];

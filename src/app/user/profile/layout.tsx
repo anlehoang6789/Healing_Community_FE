@@ -109,7 +109,7 @@ export default function ProfileUserLayout({
       }}
     >
       {/* Profile Section */}
-      <div className="flex justify-center w-full h-auto sm:h-80 bg-gradient-custom-left-to-right overflow-hidden">
+      <div className="flex justify-center w-full h-auto sm:h-80 bg-gradient-custom-left-to-right">
         <div className="flex flex-col items-center justify-center pb-4">
           {/* Avatar */}
           <Avatar className="w-20 h-20 sm:w-28 sm:h-28 border-2 border-rose-300 mb-2">
@@ -196,7 +196,7 @@ export default function ProfileUserLayout({
           </div>
         </div>
       </div>
-      <div className="w-full bg-background h-auto p-2 max-w-7xl overflow-hidden mx-auto">
+      <div className="w-full bg-background h-auto p-2 max-w-7xl mx-auto">
         <ProfileTabs userId={userId} isOwner={isOwner} />
         {children}
       </div>

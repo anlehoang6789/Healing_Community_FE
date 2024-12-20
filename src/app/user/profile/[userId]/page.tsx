@@ -6,12 +6,11 @@ import React from "react";
 
 export default function PersonalWall() {
   return (
-    <div className=" min-h-screen">
+    <div className="min-h-screen">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="md:col-span-1 col-span-3">
-          <FollowedUser />
-
-          <div className="mt-4">
+          <div className="sticky top-4 space-y-4">
+            <FollowedUser />
             <JoinedGroup />
           </div>
         </div>
