@@ -14,17 +14,24 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { toast } from "@/hooks/use-toast";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
+import { useSharePostMutation } from "@/queries/usePost";
+import { handleErrorApi } from "@/lib/utils";
 
 type ShareSectionProps = {
   postId: string | string[];
-  children?: ReactNode; //dùng để nhận css nút tùy chỉnh
+  children?: ReactNode;
 };
 
 export default function ShareSection({ postId, children }: ShareSectionProps) {
+  const [description, setDescription] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const userId = getUserIdFromLocalStorage();
   const { data: userById } = useGetUserProfileQuery(userId as string);
   const userData = userById?.payload.data;
+
+  const sharePostMutation = useSharePostMutation();
 
   const handleShare = (platform: "facebook" | "gmail") => {
     const url = `http://localhost:3000/content/${postId}`;
@@ -32,21 +39,50 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
 
     switch (platform) {
       case "facebook":
+        sharePostMutation.mutate({
+          postId: postId as string,
+          platform: "Facebook",
+        });
         window.open(
           `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
             url
           )}`,
           "_blank"
         );
+        setIsDialogOpen(false);
         break;
       case "gmail":
+        sharePostMutation.mutate({
+          postId: postId as string,
+          platform: "Email",
+        });
         window.open(
           `https://mail.google.com/mail/?view=cm&fs=1&tf=1&to=&su=${encodeURIComponent(
             text
           )}&body=${encodeURIComponent(url)}`,
           "_blank"
         );
+        setIsDialogOpen(false);
         break;
+    }
+  };
+
+  const handleInternalShare = async () => {
+    try {
+      const result = await sharePostMutation.mutateAsync({
+        postId: postId as string,
+        description,
+        platform: "Internal",
+      });
+
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+
+      setIsDialogOpen(false);
+    } catch (error) {
+      handleErrorApi({ error });
     }
   };
 
@@ -69,9 +105,9 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
   };
 
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        {children || ( // Hiển thị children nếu được truyền vào, nếu không hiển thị nút mặc định
+        {children || (
           <Button variant="iconDarkMod">
             <span className="flex items-center gap-2">
               <Share2 className="h-4 w-4" />
@@ -90,7 +126,9 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
               <AvatarImage
                 src={userData?.profilePicture || "/default-avatar.png"}
               />
-              <AvatarFallback>GM</AvatarFallback>
+              <AvatarFallback>
+                {userData?.fullName || userData?.userName}
+              </AvatarFallback>
             </Avatar>
             <div className="flex flex-col pt-2 justify-center gap-1">
               <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
@@ -103,12 +141,17 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
           </div>
 
           <Textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             placeholder="Hãy nói gì đó về nội dung này (không bắt buộc)"
             className="min-h-[100px] resize-none mb-2"
           />
 
           <div className="flex justify-end">
-            <Button className=" bg-gradient-to-r from-rose-400 to-violet-500 text-black">
+            <Button
+              onClick={handleInternalShare}
+              className="bg-gradient-to-r from-rose-400 to-violet-500 text-black"
+            >
               Chia sẻ ngay
             </Button>
           </div>
