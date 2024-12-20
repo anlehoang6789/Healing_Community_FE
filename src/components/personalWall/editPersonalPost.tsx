@@ -1,12 +1,10 @@
 "use client";
 import RichTextEditor from "@/app/user/create-post/rich-text-editor";
-import CategoryCombobox from "@/components/createPost/category-combobox";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -23,6 +21,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
+import { useCheckContentByAIMutation } from "@/queries/useDetector";
 import {
   useGetAllCategoryQuery,
   useGetPostByPostIdQuery,
@@ -115,9 +114,30 @@ export default function EditPersonalPost({
 
   const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
   const updatePersonalPost = useUpdatePersonalPostMutation(userId as string);
+  const checkContentByAIMutation = useCheckContentByAIMutation();
   const onSubmit = async (data: UpdatePersonalPostBodyType) => {
-    if (updatePersonalPost.isPending) return;
+    if (updatePersonalPost.isPending || checkContentByAIMutation.isPending)
+      return;
     try {
+      const checkResult = await checkContentByAIMutation.mutateAsync(
+        data.description
+      );
+      if (!checkResult.payload.is_safe) {
+        toast({
+          title: "Oops! Bài viết của bạn không được chấp nhận.",
+          description: checkResult.payload.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Nội dung bài viết của bạn đã được kiểm duyệt.",
+        description:
+          "Hãy đợi một chút, chúng tôi đang chỉnh sửa bài viết cho bạn.",
+        variant: "success",
+      });
+
       let body: UpdatePersonalPostBodyType & { id: string } = {
         id: postId as string,
         ...data,
@@ -130,6 +150,16 @@ export default function EditPersonalPost({
         );
         const imageUrl = uploadAvatarResult.payload.url;
         body = { ...body, coverImgUrl: imageUrl };
+        const result = await updatePersonalPost.mutateAsync(body);
+        toast({
+          description: result.payload.message,
+          variant: "success",
+        });
+        reset();
+        onSubmitSuccess && onSubmitSuccess();
+      } else {
+        // Giữ nguyên URL của ảnh cũ nếu không có ảnh mới
+        body = { ...body, coverImgUrl: profilePicture };
         const result = await updatePersonalPost.mutateAsync(body);
         toast({
           description: result.payload.message,
