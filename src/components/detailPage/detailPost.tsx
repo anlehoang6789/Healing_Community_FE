@@ -36,6 +36,7 @@ import postApiRequest from "@/apiRequests/post";
 import { useParams } from "next/navigation";
 import BookmarkDialog from "@/app/user/bookmark/bookmark-dialog";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
+import ShareSection from "@/components/shareSection/shareSection";
 
 export default function DetailPost() {
   const { theme } = useTheme();
@@ -197,9 +198,11 @@ export default function DetailPost() {
         <span className="text-xs font-semibold text-muted-foreground">
           {commentCount?.payload.data?.countTotalComment || 0}
         </span>
-        <Button variant="ghost" size="icon" className="rounded-full mt-5">
-          <Share2 className="h-8 w-8 text-green-500" />
-        </Button>
+        <ShareSection postId={postIdFromUrl}>
+          <Button variant="ghost" size="icon" className="rounded-full mt-5">
+            <Share2 className="h-8 w-8 text-green-500" />
+          </Button>
+        </ShareSection>
         <BookmarkDialog postId={postIdFromUrl as string} />
         <Button variant="ghost" size="icon" className="rounded-full mt-7">
           <Flag className="h-8 w-8 text-red-500" />
@@ -306,13 +309,15 @@ export default function DetailPost() {
             <MessageCircle className="h-5 w-5 text-blue-500" />
             Bình luận
           </Button>
-          <Button
-            variant="ghost"
-            className="flex items-center gap-2 text-muted-foreground"
-          >
-            <Share2 className="h-5 w-5 text-green-500" />
-            Chia sẻ
-          </Button>
+          <ShareSection postId={postIdFromUrl}>
+            <Button
+              variant="ghost"
+              className="flex items-center gap-2 text-muted-foreground"
+            >
+              <Share2 className="h-5 w-5 text-green-500" />
+              Chia sẻ
+            </Button>
+          </ShareSection>
         </div>
 
         {/* Comment section */}
