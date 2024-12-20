@@ -28,6 +28,7 @@ import {
 } from "@/queries/usePost";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
+import { useCheckContentByAIMutation } from "@/queries/useDetector";
 
 const RichTextEditor = dynamic(
   () => import("@/app/user/create-post/rich-text-editor"),
@@ -79,14 +80,35 @@ export default function PostStoryForm() {
   const reset = () => {
     form.reset();
     setFile(null);
+    form.setValue("description", "");
   };
 
   // Xử lí việc tạo bài viết
   const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
   const createPostMutation = useCreatePostMutation();
+  const checkContentByAIMutation = useCheckContentByAIMutation();
   const onSubmit = async (data: CreatePostBodyType) => {
-    if (createPostMutation.isPending) return;
+    if (createPostMutation.isPending || checkContentByAIMutation.isPending)
+      return;
     try {
+      const checkResult = await checkContentByAIMutation.mutateAsync(
+        data.description
+      );
+      if (!checkResult.payload.is_safe) {
+        toast({
+          title: "Oops! Bài viết của bạn không được chấp nhận.",
+          description: checkResult.payload.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Nội dung bài viết của bạn đã được kiểm duyệt.",
+        description: "Hãy đợi một chút, chúng tôi đang đăng bài viết của bạn.",
+        variant: "success",
+      });
+
       let body = data;
       if (file) {
         const formData = new FormData();
@@ -99,12 +121,9 @@ export default function PostStoryForm() {
         const result = await createPostMutation.mutateAsync(body);
         toast({
           title: result.payload.message,
-          description:
-            "Bài viết của bạn đang được quản trị viên kiểm duyệt. Hãy chú ý thông báo từ hệ thống nhé!!!",
           variant: "success",
         });
         reset();
-        window.location.reload();
       }
     } catch (error) {
       handleErrorApi({ error, setError: form.setError });
@@ -312,8 +331,16 @@ export default function PostStoryForm() {
               <Button
                 type="submit"
                 className="bg-black hover:bg-gray-800 w-full md:w-auto"
+                disabled={
+                  checkContentByAIMutation.isPending ||
+                  createPostMutation.isPending
+                }
               >
-                Đăng bài
+                {checkContentByAIMutation.isPending
+                  ? "Đang kiểm tra nội dung..."
+                  : createPostMutation.isPending
+                  ? "Đang đăng bài..."
+                  : "Đăng bài"}
               </Button>
             </div>
           </div>
