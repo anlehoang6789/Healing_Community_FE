@@ -37,7 +37,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { useGetAppointmentForExpert } from "@/queries/useExpert";
+import {
+  useCancelAppointmentMutation,
+  useGetAppointmentForExpert,
+} from "@/queries/useExpert";
 import { AppointmentExpertType } from "@/schemaValidations/expert.schema";
 import {
   AlertDialog,
@@ -55,6 +58,8 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
 
 export default function ConsultationScheduleExpert() {
   const { data } = useGetAppointmentForExpert();
@@ -97,9 +102,23 @@ export default function ConsultationScheduleExpert() {
   }, [filteredAndSortedConsultations]);
   console.log(consultationsByStatus);
 
+  const { mutate: cancelAppointment } = useCancelAppointmentMutation();
+
   const handleCancelAppointment = (appointmentId: string) => {
-    // Gọi API để hủy lịch (chưa triển khai)
-    console.log("Hủy lịch với ID:", appointmentId);
+    cancelAppointment(
+      { appointmentId },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Hủy lịch tư vấn thành công",
+            variant: "success",
+          });
+        },
+        onError: (error) => {
+          handleErrorApi({ error });
+        },
+      }
+    );
   };
 
   const renderConsultationCard = (consultation: AppointmentExpertType) => {
@@ -111,10 +130,11 @@ export default function ConsultationScheduleExpert() {
       }`
     );
     const canCancel =
+      consultation.tag !== "Đã hủy" &&
       appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
 
     return (
-      <Card key={consultation.userId} className="mb-4 relative">
+      <Card key={consultation.appointmentId} className="mb-4 relative">
         {/* Hủy lịch hẹn */}
         {canCancel && (
           <AlertDialog>
@@ -131,15 +151,22 @@ export default function ConsultationScheduleExpert() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Xác nhận hủy lịch</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bạn có chắc chắn muốn hủy lịch tư vấn này không? Nếu hủy lịch
-                  thì điểm uy tín của bạn sẽ bị giảm.
+                  Bạn có chắc chắn muốn hủy lịch ngày{" "}
+                  <span className="text-red-500">
+                    {consultation.appointmentDate}
+                  </span>{" "}
+                  vào lúc{" "}
+                  <span className="text-red-500">{consultation.timeRange}</span>{" "}
+                  không? Nếu hủy lịch thì điểm <b>uy tín</b> của bạn sẽ bị giảm.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Hủy</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-red-500 text-white"
-                  // onClick={() => handleCancelAppointment(consultation.id)}
+                  onClick={() =>
+                    handleCancelAppointment(consultation.appointmentId)
+                  }
                 >
                   Xác nhận
                 </AlertDialogAction>

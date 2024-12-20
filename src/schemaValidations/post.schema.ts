@@ -363,3 +363,17 @@ export const GetAllReactionTypeResponse = z.object({
 export type GetAllReactionTypeResponseType = z.TypeOf<
   typeof GetAllReactionTypeResponse
 >;
+
+export const SharePostRequestSchema = z.object({
+  postId: z.string(),
+  description: z.string().optional(),
+  platform: z.string(),
+});
+
+export type SharePostRequestType = z.TypeOf<typeof SharePostRequestSchema>;
+
+export const SharePostResponseSchema = z.object({
+  message: z.string(),
+});
+
+export type SharePostResponseType = z.TypeOf<typeof SharePostResponseSchema>;

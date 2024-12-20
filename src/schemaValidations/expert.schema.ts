@@ -165,6 +165,8 @@ export const AppointmentUserSchema = z.object({
   timeRange: z.string(),
   meetLink: z.string(),
   tag: z.string(),
+  appointmentId: z.string(),
+  amount: z.number(),
 });
 
 export type AppointmentUserType = z.TypeOf<typeof AppointmentUserSchema>;
@@ -185,6 +187,8 @@ export const AppointmentExpertSchema = z.object({
   timeRange: z.string(),
   meetLink: z.string(),
   tag: z.string(),
+  appointmentId: z.string(),
+  amount: z.number(),
 });
 
 export type AppointmentExpertType = z.TypeOf<typeof AppointmentExpertSchema>;
@@ -312,4 +316,12 @@ export const UpdateExpertExperienceBody = z.object({
 
 export type UpdateExpertExperienceBodyType = z.TypeOf<
   typeof UpdateExpertExperienceBody
+>;
+
+export const CancelAppointmentRequest = z.object({
+  appointmentId: z.string(),
+});
+
+export type CancelAppointmentRequestType = z.TypeOf<
+  typeof CancelAppointmentRequest
 >;
