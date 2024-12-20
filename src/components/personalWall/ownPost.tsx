@@ -60,6 +60,7 @@ import { useUserIsOwnerStore } from "@/store/userStore";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 import ReactionCount from "@/components/homePage/reactionCount";
+import ShareSection from "@/components/shareSection/shareSection";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -559,13 +560,15 @@ export default function OwnPost() {
                       <MessageSquare className="w-4 h-4" />
                       Bình luận
                     </Button>
-                    <Button
-                      variant="iconDarkMod"
-                      className="flex items-center gap-2 p-0"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      Chia sẻ
-                    </Button>
+                    <ShareSection postId={post.postId}>
+                      <Button
+                        variant="iconDarkMod"
+                        className="flex items-center gap-2 p-0"
+                      >
+                        <Share2 className="w-4 h-4" />
+                        Chia sẻ
+                      </Button>
+                    </ShareSection>
                   </div>
                 </div>
 

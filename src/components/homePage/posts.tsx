@@ -31,6 +31,7 @@ import {
 import { useTheme } from "next-themes";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 import ReactionCount from "@/components/homePage/reactionCount";
+import ShareSection from "@/components/shareSection/shareSection";
 
 type UserProfileProps = {
   userId: string;
@@ -245,14 +246,15 @@ export default function Posts() {
 
                 <div className="flex items-center justify-between w-full">
                   <ReactionEmoji postId={article.postId} />
-                  <Button
+                  {/* <Button
                     variant="iconDarkMod"
                     className="flex items-center gap-2 p-0"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Share2 className="w-4 h-4" />
                     Chia sẻ
-                  </Button>
+                  </Button> */}
+                  <ShareSection postId={article.postId} />
                 </div>
               </div>
             )}
