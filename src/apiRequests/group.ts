@@ -15,7 +15,7 @@ const groupApiRequest = {
     http.get(`group/api/usergroup/get-by-user-id?userId=${userId}`),
 
   createGroup: (payload: CreateGroupRequestType) =>
-    http.post("group/api/group/create-group", payload),
+    http.post<{ message: string }>("group/api/group/create-group", payload),
 
   deleteGroupByGroupId: (groupId: string) =>
     http.delete<{ message: string }>(`group/api/group/delete-group/${groupId}`),
@@ -27,6 +27,12 @@ const groupApiRequest = {
     http.post<{ message: string }>(
       `group/api/usergroup/leave?groupId=${payload.groupId}`,
       {}
+    ),
+
+  updateGroup: (groupId: string, payload: CreateGroupRequestType) =>
+    http.put<{ message: string }>(
+      `group/api/group/update-group/${groupId}`,
+      payload
     ),
 };
 
