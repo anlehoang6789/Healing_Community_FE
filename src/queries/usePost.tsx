@@ -1,8 +1,5 @@
 import postApiRequest from "@/apiRequests/post";
-import {
-  AddReactionBodyType,
-  UpdatePersonalPostBodyType,
-} from "@/schemaValidations/post.schema";
+import { UpdatePersonalPostBodyType } from "@/schemaValidations/post.schema";
 import {
   useInfiniteQuery,
   useMutation,
@@ -14,6 +11,13 @@ export const useGetAllCategoryQuery = () => {
   return useQuery({
     queryKey: ["category-list"],
     queryFn: () => postApiRequest.getAllCategory(),
+  });
+};
+
+export const useGetDetailsCategoryQuery = (categoryId: string) => {
+  return useQuery({
+    queryKey: ["details-category", categoryId],
+    queryFn: () => postApiRequest.getDetailsCategory(categoryId),
   });
 };
 

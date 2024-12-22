@@ -93,7 +93,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
       </Avatar>
       <div>
         <div className="flex items-center space-x-2">
-          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
             {isExpert
               ? expertProfile?.payload.data.fullname ||
                 expertProfile?.payload.data.email
