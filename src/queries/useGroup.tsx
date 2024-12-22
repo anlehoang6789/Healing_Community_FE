@@ -30,9 +30,6 @@ export const useCreateGroupMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
     },
-    onError: (error) => {
-      console.error("Failed to create group:", error);
-    },
   });
 };
 
@@ -75,6 +72,24 @@ export const useLeaveGroupByGroupIdMutation = () => {
     },
     onError: (error) => {
       console.error("Lỗi khi rời nhóm:", error);
+    },
+  });
+};
+
+export const useUpdateGroupMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      groupId,
+      payload,
+    }: {
+      groupId: string;
+      payload: CreateGroupRequestType;
+    }) => groupApiRequest.updateGroup(groupId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
+      queryClient.invalidateQueries({ queryKey: ["get-groups-by-user-id"] });
     },
   });
 };
