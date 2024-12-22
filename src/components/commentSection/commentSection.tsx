@@ -421,7 +421,7 @@ export default function CommentSection({
 
                 {/* Emoji Picker chỉ hiện cho comment đang được chọn */}
                 {emojiPickerForReply === comment.commentId && (
-                  <div className="absolute bottom-full right-16 z-50">
+                  <div className="absolute bottom-full right-16 z-[9999]">
                     <Picker
                       data={data}
                       onEmojiSelect={(emoji: any) =>

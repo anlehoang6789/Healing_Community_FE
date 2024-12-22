@@ -2,6 +2,7 @@ import http from "@/lib/http";
 import {
   AppointmentExpertListResType,
   AppointmentUserListResType,
+  CancelAppointmentRequestType,
   CreateAvailableTimeSlotBodyType,
   CreateAvailableTimeSlotResponseType,
   CreateExpertExperienceBodyType,
@@ -91,6 +92,9 @@ const expertApiRequest = {
     ),
   updateExpertExperience: (body: UpdateExpertExperienceBodyType) =>
     http.put<{ message: string }>("expert/api/workexperience/update", body),
+
+  cancelAppointment: (body: CancelAppointmentRequestType) =>
+    http.post<{ message: string }>("expert/api/appointment/cancel", body),
 };
 
 export default expertApiRequest;

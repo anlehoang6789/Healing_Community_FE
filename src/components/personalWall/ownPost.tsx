@@ -4,14 +4,14 @@ import { createContext, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  Bookmark,
   Ellipsis,
   FilePenLine,
+  Flag,
   Globe,
   LockKeyhole,
   MessageSquare,
   Share2,
-  ShieldMinus,
-  ThumbsUp,
   Trash2,
 } from "lucide-react";
 import {
@@ -23,13 +23,11 @@ import {
 import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
-  useAddReactionMutation,
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
   useGetCommentCountQuery,
   useGetPostByUserIdQuery,
-  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import {
   formatDateTime,
@@ -58,25 +56,13 @@ import postApiRequest from "@/apiRequests/post";
 import EditPersonalPost from "@/components/personalWall/editPersonalPost";
 import Image from "next/image";
 import { useUserIsOwnerStore } from "@/store/userStore";
-import { useReactionStore } from "@/store/reactionStore";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
-
-const ReactionCount: React.FC<{ postId: string }> = ({ postId }) => {
-  const { data, isLoading, isError } = useGetReactionCountQuery(postId);
-
-  if (isLoading)
-    return (
-      <span className="text-sm text-gray-500 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-      </span>
-    );
-  if (isError || !data)
-    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
-
-  const reactionCount = data.payload.data.total;
-
-  return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
-};
+import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
+import ReactionCount from "@/components/homePage/reactionCount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { Role } from "@/constants/type";
+import ShareSection from "@/components/shareSection/shareSection";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -111,15 +97,25 @@ const OwnPostContext = createContext<{
 });
 
 export default function OwnPost() {
+  const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
   const { userId } = useParams(); //lấy userId từ url
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
   const { isThatOwner } = useUserIsOwnerStore();
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
   const { data } = useGetPostByUserIdQuery(userId as string);
   // const postList = data?.payload.data || [];
   const [postList, setPostList] = useState<GetPostByUserIdResType["data"]>([]);
-  const { data: userById } = useGetUserProfileQuery(userId as string);
+  const { data: userById } = useGetUserProfileQuery(
+    userId as string,
+    !isExpert && !!userId
+  );
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    userId as string,
+    isExpert && !!userId
+  );
   const [postId, setPostId] = useState<string | undefined>(undefined);
   const [postDelete, setPostDelete] = useState<PostItem | null>(null);
   // filter bài viết theo status dựa theo isThatOwner. Nêú nó là isThatOwner thì hiển thị tất cả bài viết, ngược lại thì chỉ hiển thị bài viết public
@@ -372,6 +368,10 @@ export default function OwnPost() {
     }));
   };
 
+  const openBookmarkDialog = () => {
+    setIsBookmarkDialogOpen(true);
+  };
+
   return (
     <OwnPostContext.Provider
       value={{
@@ -418,23 +418,40 @@ export default function OwnPost() {
                     <AvatarImage
                       src={
                         userById?.payload.data.profilePicture ||
+                        expertProfile?.payload.data.profileImageUrl ||
                         "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                       }
                       alt={
                         userById?.payload.data.fullName ||
-                        userById?.payload.data.userName
+                        userById?.payload.data.userName ||
+                        expertProfile?.payload.data.fullname
                       }
                     />
                     <AvatarFallback>
-                      {userById?.payload.data.fullName ||
-                        userById?.payload.data.userName}
+                      {isExpert
+                        ? expertProfile?.payload.data.fullname ||
+                          expertProfile?.payload.data.email
+                        : userById?.payload.data.fullName ||
+                          userById?.payload.data.userName ||
+                          "Anonymous"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                      {userById?.payload.data.fullName ||
-                        userById?.payload.data.userName}
-                    </h2>
+                    <div className="flex items-center space-x-2">
+                      <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                        {isExpert
+                          ? expertProfile?.payload.data.fullname ||
+                            expertProfile?.payload.data.email
+                          : userById?.payload.data.fullName ||
+                            userById?.payload.data.userName ||
+                            "Anonymous"}
+                      </h2>
+                      {isExpert && (
+                        <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+                          Chuyên gia
+                        </div>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm text-gray-500">
                         {formatDateTime(post.createAt)}
@@ -450,7 +467,7 @@ export default function OwnPost() {
                   </div>
 
                   {/* Dropdown menu */}
-                  {shouldRenderDropdown && (
+                  {shouldRenderDropdown ? (
                     <DropdownMenu modal={false} aria-hidden={false}>
                       <DropdownMenuTrigger asChild className="ml-auto">
                         <Button variant="iconSend">
@@ -474,6 +491,42 @@ export default function OwnPost() {
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
+                  ) : (
+                    <>
+                      <DropdownMenu modal={false}>
+                        <DropdownMenuTrigger asChild className="ml-auto">
+                          <Button variant="iconSend" size="icon">
+                            <Ellipsis className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className={`w-56 mt-4 z-50${
+                            theme === "dark"
+                              ? "bg-black text-white"
+                              : "bg-white text-black"
+                          }`}
+                        >
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              openBookmarkDialog();
+                              e.stopPropagation();
+                            }}
+                          >
+                            <Bookmark className="mr-2 h-4 w-4" />
+                            <span>Lưu bài viết</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Flag className="mr-2 h-4 w-4" />
+                            <span>Báo cáo bài viết</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      <BookmarkDialogMobile
+                        postId={post.postId}
+                        isOpen={isBookmarkDialogOpen}
+                        setIsOpen={setIsBookmarkDialogOpen}
+                      />
+                    </>
                   )}
                 </div>
                 <EditPersonalPost
@@ -535,13 +588,15 @@ export default function OwnPost() {
                       <MessageSquare className="w-4 h-4" />
                       Bình luận
                     </Button>
-                    <Button
-                      variant="iconDarkMod"
-                      className="flex items-center gap-2 p-0"
-                    >
-                      <Share2 className="w-4 h-4" />
-                      Chia sẻ
-                    </Button>
+                    <ShareSection postId={post.postId}>
+                      <Button
+                        variant="iconDarkMod"
+                        className="flex items-center gap-2 p-0"
+                      >
+                        <Share2 className="w-4 h-4" />
+                        Chia sẻ
+                      </Button>
+                    </ShareSection>
                   </div>
                 </div>
 
@@ -552,7 +607,7 @@ export default function OwnPost() {
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.3 }}
-                      className="w-full mt-4 overflow-hidden"
+                      className="w-full mt-4 "
                     >
                       <div className="px-4 pb-4">
                         <CommentSection

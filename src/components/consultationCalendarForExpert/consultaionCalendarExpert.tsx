@@ -37,7 +37,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { useGetAppointmentForExpert } from "@/queries/useExpert";
+import {
+  useCancelAppointmentMutation,
+  useGetAppointmentForExpert,
+} from "@/queries/useExpert";
 import { AppointmentExpertType } from "@/schemaValidations/expert.schema";
 import {
   AlertDialog,
@@ -55,10 +58,33 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
+
+const UserAvatar = ({ userId }: { userId: string }) => {
+  const { data } = useGetUserProfileQuery(userId);
+  const userProfile = data?.payload.data;
+  return (
+    <Avatar>
+      <AvatarImage
+        src={
+          userProfile?.profilePicture ||
+          "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+        }
+        alt={userProfile?.fullName}
+      />
+      <AvatarFallback>{userProfile?.fullName.charAt(0)}</AvatarFallback>
+    </Avatar>
+  );
+};
 
 export default function ConsultationScheduleExpert() {
   const { data } = useGetAppointmentForExpert();
-  const appointmentExpertList = data?.payload.data || [];
+  const appointmentExpertList = React.useMemo(
+    () => data?.payload.data || [],
+    [data]
+  );
   const [startDate, setStartDate] = React.useState("");
   const [endDate, setEndDate] = React.useState("");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
@@ -85,7 +111,7 @@ export default function ConsultationScheduleExpert() {
   const consultationsByStatus = React.useMemo(() => {
     return {
       upcoming: filteredAndSortedConsultations.filter((c) =>
-        ["Đã thanh toán", "Sắp diễn ra"].includes(c.tag)
+        ["Đang diễn ra", "Sắp diễn ra"].includes(c.tag)
       ),
       completed: filteredAndSortedConsultations.filter(
         (c) => c.tag === "Đã hoàn thành"
@@ -97,9 +123,23 @@ export default function ConsultationScheduleExpert() {
   }, [filteredAndSortedConsultations]);
   console.log(consultationsByStatus);
 
+  const { mutate: cancelAppointment } = useCancelAppointmentMutation();
+
   const handleCancelAppointment = (appointmentId: string) => {
-    // Gọi API để hủy lịch (chưa triển khai)
-    console.log("Hủy lịch với ID:", appointmentId);
+    cancelAppointment(
+      { appointmentId },
+      {
+        onSuccess: () => {
+          toast({
+            title: "Hủy lịch tư vấn thành công",
+            variant: "success",
+          });
+        },
+        onError: (error) => {
+          handleErrorApi({ error });
+        },
+      }
+    );
   };
 
   const renderConsultationCard = (consultation: AppointmentExpertType) => {
@@ -111,10 +151,11 @@ export default function ConsultationScheduleExpert() {
       }`
     );
     const canCancel =
+      consultation.tag !== "Đã hủy" &&
       appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
 
     return (
-      <Card key={consultation.userId} className="mb-4 relative">
+      <Card key={consultation.appointmentId} className="mb-4 relative">
         {/* Hủy lịch hẹn */}
         {canCancel && (
           <AlertDialog>
@@ -131,15 +172,22 @@ export default function ConsultationScheduleExpert() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Xác nhận hủy lịch</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Bạn có chắc chắn muốn hủy lịch tư vấn này không? Nếu hủy lịch
-                  thì điểm uy tín của bạn sẽ bị giảm.
+                  Bạn có chắc chắn muốn hủy lịch ngày{" "}
+                  <span className="text-red-500">
+                    {consultation.appointmentDate}
+                  </span>{" "}
+                  vào lúc{" "}
+                  <span className="text-red-500">{consultation.timeRange}</span>{" "}
+                  không? Nếu hủy lịch thì điểm <b>uy tín</b> của bạn sẽ bị giảm.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Hủy</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-red-500 text-white"
-                  // onClick={() => handleCancelAppointment(consultation.id)}
+                  onClick={() =>
+                    handleCancelAppointment(consultation.appointmentId)
+                  }
                 >
                   Xác nhận
                 </AlertDialogAction>
@@ -149,15 +197,7 @@ export default function ConsultationScheduleExpert() {
         )}
 
         <CardHeader className="flex flex-row items-center gap-4">
-          <Avatar>
-            <AvatarImage
-              src={
-                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-              }
-              alt={consultation.name}
-            />
-            <AvatarFallback>{consultation.name.charAt(0)}</AvatarFallback>
-          </Avatar>
+          <UserAvatar userId={consultation.userId} />
           <div>
             <CardTitle className="text-lg">{consultation.name}</CardTitle>
             <CardDescription>Khách hàng</CardDescription>

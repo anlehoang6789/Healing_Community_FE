@@ -31,7 +31,11 @@ import {
   useBookExpertScheduleMutation,
   useCreatePaymentMutation,
 } from "@/queries/usePayment";
-import { formatCurrency, getUserIdFromLocalStorage } from "@/lib/utils";
+import {
+  formatCurrency,
+  getRoleFromLocalStorage,
+  getUserIdFromLocalStorage,
+} from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 type TimeSlot = {
@@ -63,14 +67,13 @@ export default function BookExpert() {
   const { mutate: createPayment } = useCreatePaymentMutation();
 
   const userId = getUserIdFromLocalStorage();
+  const role = getRoleFromLocalStorage();
   const { data: userById } = useGetUserProfileQuery(userId as string);
 
   const [fullName, setFullName] = useState(
     userById?.payload.data.fullName || ""
   );
   const [email, setEmail] = useState(userById?.payload.data.email || "");
-
-  const isOwnProfile = expertId === userId;
 
   useEffect(() => {
     if (userById) {
@@ -225,7 +228,7 @@ export default function BookExpert() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-end">
-          {!isOwnProfile && (
+          {role === "User" && (
             <Dialog
               open={isBookingDialogOpen}
               onOpenChange={setIsBookingDialogOpen}

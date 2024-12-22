@@ -305,3 +305,15 @@ export const useRemoveReactionMutation = (postId: string) => {
     },
   });
 };
+
+export const useSharePostMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.sharePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [""],
+      });
+    },
+  });
+};

@@ -20,6 +20,8 @@ import {
   GetReactionCountResType,
   GetUserReactionByPostIdResType,
   PostByIdType,
+  SharePostRequestType,
+  SharePostResponseType,
   UpdatePersonalPostBodyType,
   UploadImageCoverResponseType,
 } from "@/schemaValidations/post.schema";
@@ -101,6 +103,8 @@ const postApiRequest = {
     http.delete<{ message: string }>(`post/api/reaction/remove-reaction`, {
       body: { postId },
     }),
+  sharePost: (body: SharePostRequestType) =>
+    http.post<SharePostResponseType>("post/api/share/share-story", body),
 };
 
 export default postApiRequest;

@@ -30,6 +30,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useTheme } from "next-themes";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
+import ReactionCount from "@/components/homePage/reactionCount";
+import ShareSection from "@/components/shareSection/shareSection";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { Role } from "@/constants/type";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 
 type UserProfileProps = {
   userId: string;
@@ -47,7 +52,16 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const { isAuth } = useAppContext();
   const { theme } = useTheme();
   const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
-  const { data, isLoading, isError } = useGetUserProfileQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
+  const { data, isLoading, isError } = useGetUserProfileQuery(
+    userId,
+    !isExpert && !!userId
+  );
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    userId,
+    isExpert && !!userId
+  );
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !data) return <div>Error fetching user profile</div>;
@@ -63,18 +77,35 @@ const UserProfile: React.FC<UserProfileProps> = ({
         <AvatarImage
           src={
             user.profilePicture ||
+            expertProfile?.payload.data.profileImageUrl ||
             "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
           }
-          alt={user.fullName || "Anonymous"}
+          alt={
+            user.fullName || expertProfile?.payload.data.fullname || "Anonymous"
+          }
         />
         <AvatarFallback>
-          {user.fullName || user.userName || "Anonymous"}
+          {isExpert
+            ? expertProfile?.payload.data.fullname ||
+              expertProfile?.payload.data.email
+            : user.fullName || user.userName || "Anonymous"}
         </AvatarFallback>
       </Avatar>
       <div>
-        <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-          {user.fullName || user.userName || "Anonymous"}
-        </h2>
+        <div className="flex items-center space-x-2">
+          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+            {isExpert
+              ? expertProfile?.payload.data.fullname ||
+                expertProfile?.payload.data.email
+              : user.fullName || user.userName || "Anonymous"}
+          </h2>
+          {isExpert && (
+            <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+              Chuyên gia
+            </div>
+          )}
+        </div>
+
         {/* Ngày tạo acc người dùng */}
         <div className="flex items-center gap-2">
           <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
@@ -89,15 +120,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       </div>
       {isAuth && (
         <div className="ml-auto">
-          {/* <BookmarkDialogHomepage postId={postId} />
-          <Button
-            className=" rounded-full"
-            variant={"ghost"}
-            size={"icon"}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Flag className="w-5 h-5 text-textChat" />
-          </Button> */}
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild className="ml-auto">
               <Button variant="iconSend" size="icon">
@@ -133,29 +155,6 @@ const UserProfile: React.FC<UserProfileProps> = ({
       )}
     </div>
   );
-};
-
-const ReactionCount: React.FC<{
-  postId: string;
-}> = ({ postId }) => {
-  const { data, isLoading, isError } = useGetReactionCountQuery(postId);
-
-  if (isLoading)
-    return (
-      <span className="text-sm text-gray-500 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-      </span>
-    );
-  if (isError || !data)
-    return (
-      <div className="text-textChat">
-        Hiện tại chức năng đang bảo trì bạn chờ chút nhé
-      </div>
-    );
-
-  const reactionCount = data.payload.data.total;
-
-  return <span className="text-sm text-gray-500">{reactionCount} cảm xúc</span>;
 };
 
 export default function Posts() {
@@ -276,14 +275,15 @@ export default function Posts() {
 
                 <div className="flex items-center justify-between w-full">
                   <ReactionEmoji postId={article.postId} />
-                  <Button
+                  {/* <Button
                     variant="iconDarkMod"
                     className="flex items-center gap-2 p-0"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <Share2 className="w-4 h-4" />
                     Chia sẻ
-                  </Button>
+                  </Button> */}
+                  <ShareSection postId={article.postId} />
                 </div>
               </div>
             )}

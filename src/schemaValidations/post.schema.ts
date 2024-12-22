@@ -199,12 +199,30 @@ export type AddReactionBodyType = z.TypeOf<typeof AddReactionBody>;
 
 export const GetReactionCountSchema = z.object({
   postId: z.string(),
-  like: z.number(),
-  love: z.number(),
-  haha: z.number(),
-  wow: z.number(),
-  sad: z.number(),
-  angry: z.number(),
+  like: z.object({
+    likeCount: z.number(),
+    icon: z.string(),
+  }),
+  love: z.object({
+    loveCount: z.number(),
+    icon: z.string(),
+  }),
+  haha: z.object({
+    hahaCount: z.number(),
+    icon: z.string(),
+  }),
+  wow: z.object({
+    wowCount: z.number(),
+    icon: z.string(),
+  }),
+  sad: z.object({
+    sadCount: z.number(),
+    icon: z.string(),
+  }),
+  angry: z.object({
+    angryCount: z.number(),
+    icon: z.string(),
+  }),
   total: z.number(),
 });
 
@@ -345,3 +363,17 @@ export const GetAllReactionTypeResponse = z.object({
 export type GetAllReactionTypeResponseType = z.TypeOf<
   typeof GetAllReactionTypeResponse
 >;
+
+export const SharePostRequestSchema = z.object({
+  postId: z.string(),
+  description: z.string().optional(),
+  platform: z.string(),
+});
+
+export type SharePostRequestType = z.TypeOf<typeof SharePostRequestSchema>;
+
+export const SharePostResponseSchema = z.object({
+  message: z.string(),
+});
+
+export type SharePostResponseType = z.TypeOf<typeof SharePostResponseSchema>;
