@@ -47,6 +47,7 @@ export default function ProfileUserLayout({
     userId as string,
     roleByUserId?.payload.data.roleName === Role.Expert && !!userId
   );
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
   if (!userId) {
     return (
@@ -128,11 +129,18 @@ export default function ProfileUserLayout({
                 expertProfile?.payload.data.email}
             </AvatarFallback>
           </Avatar>
+          {isExpert && (
+            <div className="text-sm text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+              Chuyên gia
+            </div>
+          )}
           <h1 className="text-xl sm:text-3xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
-            {userProfile?.payload.data.fullName ||
-              userProfile?.payload.data.userName ||
-              expertProfile?.payload.data.fullname ||
-              expertProfile?.payload.data.email}
+            {isExpert
+              ? expertProfile?.payload.data.fullname ||
+                expertProfile?.payload.data.email
+              : userProfile?.payload.data.fullName ||
+                userProfile?.payload.data.userName ||
+                "Anonymous"}
           </h1>
           <div className="flex flex-col items-center justify-center">
             {/* First information */}
