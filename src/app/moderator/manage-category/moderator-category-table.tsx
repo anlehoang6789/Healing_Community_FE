@@ -48,8 +48,10 @@ import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
-import { useDeleteExpertExperienceMutation } from "@/queries/useExpert";
-import { useGetAllCategoryQuery } from "@/queries/usePost";
+import {
+  useDeleteCategoryMutation,
+  useGetAllCategoryQuery,
+} from "@/queries/usePost";
 import {
   CategoryListSchemaType,
   CategorySchemaType,
@@ -123,7 +125,7 @@ function AlertDialogDeleteCategory({
   categoryDelete: CategoryItem | null;
   setCategoryDelete: (value: CategoryItem | null) => void;
 }) {
-  const { mutateAsync } = useDeleteExpertExperienceMutation();
+  const { mutateAsync } = useDeleteCategoryMutation();
   const deleteCategory = async () => {
     if (categoryDelete) {
       try {

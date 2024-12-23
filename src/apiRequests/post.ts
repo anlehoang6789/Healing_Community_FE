@@ -116,6 +116,8 @@ const postApiRequest = {
     ),
   addCategory: (body: CreateCategoryBodyType) =>
     http.post<{ message: string }>("post/api/category/create", body),
+  deleteCategory: (categoryId: string) =>
+    http.delete<{ message: string }>(`post/api/category/delete/${categoryId}`),
 };
 
 export default postApiRequest;

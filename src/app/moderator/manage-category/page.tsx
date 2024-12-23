@@ -15,10 +15,10 @@ export default function ManageCategory() {
         <Card x-chunk="dashboard-06-chunk-0 w-full">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">
-              Kinh nghiệm làm việc
+              Danh mục cho bài viết
             </CardTitle>
             <CardDescription className="text-sm sm:text-base">
-              Quản lý kinh nghiệm làm việc của chuyên gia
+              Quản lý các thể loại, danh mục cho các bài viết
             </CardDescription>
           </CardHeader>
           <CardContent className="max-w-full">
