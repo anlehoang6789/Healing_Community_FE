@@ -406,3 +406,9 @@ export const GetDetailsCategoryResponse = z.object({
 export type GetDetailsCategoryResponseType = z.TypeOf<
   typeof GetDetailsCategoryResponse
 >;
+
+export const CreateCategoryBody = z.object({
+  name: z.string(),
+});
+
+export type CreateCategoryBodyType = z.TypeOf<typeof CreateCategoryBody>;

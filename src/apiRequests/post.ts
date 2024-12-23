@@ -5,6 +5,7 @@ import {
   AddUserReferenceBodyType,
   CategoryListSchemaType,
   CreateBookmarkListBodyType,
+  CreateCategoryBodyType,
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
@@ -112,6 +113,15 @@ const postApiRequest = {
   getDetailsCategory: (categoryId: string) =>
     http.get<GetDetailsCategoryResponseType>(
       `post/api/category/get-by-id/${categoryId}`
+    ),
+  addCategory: (body: CreateCategoryBodyType) =>
+    http.post<{ message: string }>("post/api/category/create", body),
+  deleteCategory: (categoryId: string) =>
+    http.delete<{ message: string }>(`post/api/category/delete/${categoryId}`),
+  updateCategory: (categoryId: string, body: CreateCategoryBodyType) =>
+    http.put<{ message: string }>(
+      `post/api/category/update/${categoryId}`,
+      body
     ),
 };
 

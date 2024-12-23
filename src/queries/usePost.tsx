@@ -1,5 +1,8 @@
 import postApiRequest from "@/apiRequests/post";
-import { UpdatePersonalPostBodyType } from "@/schemaValidations/post.schema";
+import {
+  CreateCategoryBodyType,
+  UpdatePersonalPostBodyType,
+} from "@/schemaValidations/post.schema";
 import {
   useInfiniteQuery,
   useMutation,
@@ -14,10 +17,57 @@ export const useGetAllCategoryQuery = () => {
   });
 };
 
-export const useGetDetailsCategoryQuery = (categoryId: string) => {
+export const useGetDetailsCategoryQuery = ({
+  categoryId,
+  enabled,
+}: {
+  categoryId: string;
+  enabled?: boolean;
+}) => {
   return useQuery({
     queryKey: ["details-category", categoryId],
     queryFn: () => postApiRequest.getDetailsCategory(categoryId),
+    enabled,
+  });
+};
+
+export const useAddCategoryMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.addCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["category-list"],
+      });
+    },
+  });
+};
+
+export const useDeleteCategoryMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["category-list"],
+      });
+    },
+  });
+};
+
+export const useUpdateCategoryMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      categoryId,
+      ...body
+    }: CreateCategoryBodyType & { categoryId: string }) =>
+      postApiRequest.updateCategory(categoryId, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["category-list"],
+      });
+    },
   });
 };
 
