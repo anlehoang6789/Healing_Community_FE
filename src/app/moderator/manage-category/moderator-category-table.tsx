@@ -57,6 +57,7 @@ import {
   CategorySchemaType,
 } from "@/schemaValidations/post.schema";
 import ModeratorAddCategory from "@/app/moderator/manage-category/moderator-add-category";
+import ModeratorEditCategory from "@/app/moderator/manage-category/moderator-edit-category";
 
 type CategoryItem = CategoryListSchemaType["data"][0];
 
@@ -236,11 +237,11 @@ export default function ModeratorCategoryTable() {
       }}
     >
       <div className="w-full">
-        {/* <EditExperience
+        <ModeratorEditCategory
           id={categoryIdEdit}
           setId={setCategoryEdit}
           onSubmitSuccess={() => {}}
-        /> */}
+        />
         <AlertDialogDeleteCategory
           categoryDelete={categoryDelete}
           setCategoryDelete={setCategoryDelete}
