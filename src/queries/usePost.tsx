@@ -21,6 +21,18 @@ export const useGetDetailsCategoryQuery = (categoryId: string) => {
   });
 };
 
+export const useAddCategoryMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.addCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["category-list"],
+      });
+    },
+  });
+};
+
 export const useUploadAvatarCoverFromFileMutation = () => {
   return useMutation({
     mutationFn: postApiRequest.uploadAvatarCoverFromFile,

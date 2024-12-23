@@ -54,10 +54,11 @@ import {
   CategoryListSchemaType,
   CategorySchemaType,
 } from "@/schemaValidations/post.schema";
+import ModeratorAddCategory from "@/app/moderator/manage-category/moderator-add-category";
 
 type CategoryItem = CategoryListSchemaType["data"][0];
 
-const AccountTableContext = createContext<{
+const CategoryTableContext = createContext<{
   setCategoryEdit: (value: string) => void;
   categoryIdEdit: string | undefined;
   categoryDelete: CategoryItem | null;
@@ -85,12 +86,12 @@ export const columns: ColumnDef<CategorySchemaType>[] = [
     enableHiding: false,
     cell: function Actions({ row }) {
       const { setCategoryEdit, setCategoryDelete } =
-        useContext(AccountTableContext);
-      const openEditEmployee = () => {
+        useContext(CategoryTableContext);
+      const openEditCategory = () => {
         setCategoryEdit(row.original.categoryId);
       };
 
-      const openDeleteEmployee = () => {
+      const openDeleteCategory = () => {
         setCategoryDelete(row.original);
       };
       return (
@@ -104,8 +105,8 @@ export const columns: ColumnDef<CategorySchemaType>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Hành động</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openEditEmployee}>Sửa</DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteEmployee}>
+            <DropdownMenuItem onClick={openEditCategory}>Sửa</DropdownMenuItem>
+            <DropdownMenuItem onClick={openDeleteCategory}>
               Xóa
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -224,7 +225,7 @@ export default function ModeratorCategoryTable() {
   }, [table, pageIndex]);
 
   return (
-    <AccountTableContext.Provider
+    <CategoryTableContext.Provider
       value={{
         categoryIdEdit,
         setCategoryEdit,
@@ -252,7 +253,7 @@ export default function ModeratorCategoryTable() {
             className="max-w-sm"
           />
           <div className="sm:ml-auto flex items-center gap-2">
-            {/* <AddExperience /> */}
+            <ModeratorAddCategory />
           </div>
         </div>
         <div className="rounded-md border overflow-x-auto max-w-full">
@@ -320,6 +321,6 @@ export default function ModeratorCategoryTable() {
           </div>
         </div>
       </div>
-    </AccountTableContext.Provider>
+    </CategoryTableContext.Provider>
   );
 }

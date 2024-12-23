@@ -5,6 +5,7 @@ import {
   AddUserReferenceBodyType,
   CategoryListSchemaType,
   CreateBookmarkListBodyType,
+  CreateCategoryBodyType,
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
@@ -113,6 +114,8 @@ const postApiRequest = {
     http.get<GetDetailsCategoryResponseType>(
       `post/api/category/get-by-id/${categoryId}`
     ),
+  addCategory: (body: CreateCategoryBodyType) =>
+    http.post<{ message: string }>("post/api/category/create", body),
 };
 
 export default postApiRequest;
