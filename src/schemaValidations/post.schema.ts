@@ -377,3 +377,32 @@ export const SharePostResponseSchema = z.object({
 });
 
 export type SharePostResponseType = z.TypeOf<typeof SharePostResponseSchema>;
+
+export const GetHighlightPostListRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetHighlightPostListResType = z.TypeOf<
+  typeof GetHighlightPostListRes
+>;
+
+export const GetDetailsCategorySchema = z.object({
+  categoryId: z.string(),
+  name: z.string(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type GetDetailsCategorySchemaType = z.TypeOf<
+  typeof GetDetailsCategorySchema
+>;
+
+export const GetDetailsCategoryResponse = z.object({
+  data: GetDetailsCategorySchema,
+  message: z.string(),
+});
+
+export type GetDetailsCategoryResponseType = z.TypeOf<
+  typeof GetDetailsCategoryResponse
+>;

@@ -14,6 +14,8 @@ import {
   GetBookmarkListResponseType,
   GetCommentCountResType,
   GetCommentsByPostIdResponseType,
+  GetDetailsCategoryResponseType,
+  GetHighlightPostListResType,
   GetHomePageListLazyLoadType,
   GetPostByUserIdResType,
   GetQuickPostListType,
@@ -105,6 +107,12 @@ const postApiRequest = {
     }),
   sharePost: (body: SharePostRequestType) =>
     http.post<SharePostResponseType>("post/api/share/share-story", body),
+  getHighlightPost: (top: number) =>
+    http.get<GetHighlightPostListResType>(`post/api/post/get-top-post/${top}`),
+  getDetailsCategory: (categoryId: string) =>
+    http.get<GetDetailsCategoryResponseType>(
+      `post/api/category/get-by-id/${categoryId}`
+    ),
 };
 
 export default postApiRequest;

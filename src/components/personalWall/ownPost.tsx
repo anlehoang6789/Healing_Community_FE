@@ -28,7 +28,6 @@ import {
   useDeletePostByPostIdMutation,
   useGetCommentCountQuery,
   useGetPostByUserIdQuery,
-  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import {
   formatDateTime,
@@ -60,8 +59,13 @@ import { useUserIsOwnerStore } from "@/store/userStore";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 import ReactionCount from "@/components/homePage/reactionCount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { Role } from "@/constants/type";
 import ShareSection from "@/components/shareSection/shareSection";
+
 import { Card } from "@/components/ui/card";
+
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 
 const mockSharedPost = {
   sharedBy: {
@@ -122,11 +126,20 @@ export default function OwnPost() {
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
   const { isThatOwner } = useUserIsOwnerStore();
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
   const { data } = useGetPostByUserIdQuery(userId as string);
   // const postList = data?.payload.data || [];
   const [postList, setPostList] = useState<GetPostByUserIdResType["data"]>([]);
-  const { data: userById } = useGetUserProfileQuery(userId as string);
+  const { data: userById } = useGetUserProfileQuery(
+    userId as string,
+    !isExpert && !!userId
+  );
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    userId as string,
+    isExpert && !!userId
+  );
   const [postId, setPostId] = useState<string | undefined>(undefined);
   const [postDelete, setPostDelete] = useState<PostItem | null>(null);
   // filter bài viết theo status dựa theo isThatOwner. Nêú nó là isThatOwner thì hiển thị tất cả bài viết, ngược lại thì chỉ hiển thị bài viết public
@@ -430,23 +443,40 @@ export default function OwnPost() {
                     <AvatarImage
                       src={
                         userById?.payload.data.profilePicture ||
+                        expertProfile?.payload.data.profileImageUrl ||
                         "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                       }
                       alt={
                         userById?.payload.data.fullName ||
-                        userById?.payload.data.userName
+                        userById?.payload.data.userName ||
+                        expertProfile?.payload.data.fullname
                       }
                     />
                     <AvatarFallback>
-                      {userById?.payload.data.fullName ||
-                        userById?.payload.data.userName}
+                      {isExpert
+                        ? expertProfile?.payload.data.fullname ||
+                          expertProfile?.payload.data.email
+                        : userById?.payload.data.fullName ||
+                          userById?.payload.data.userName ||
+                          "Anonymous"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                      {userById?.payload.data.fullName ||
-                        userById?.payload.data.userName}
-                    </h2>
+                    <div className="flex items-center space-x-2">
+                      <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
+                        {isExpert
+                          ? expertProfile?.payload.data.fullname ||
+                            expertProfile?.payload.data.email
+                          : userById?.payload.data.fullName ||
+                            userById?.payload.data.userName ||
+                            "Anonymous"}
+                      </h2>
+                      {isExpert && (
+                        <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+                          Chuyên gia
+                        </div>
+                      )}
+                    </div>
                     <div className="flex items-center gap-2">
                       <p className="text-sm text-gray-500">
                         {formatDateTime(post.createAt)}

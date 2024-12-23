@@ -40,6 +40,7 @@ import Link from "next/link";
 import {
   useCancelAppointmentMutation,
   useGetAppointmentForUser,
+  useGetExpertProfileQuery,
 } from "@/queries/useExpert";
 import { AppointmentUserType } from "@/schemaValidations/expert.schema";
 import {
@@ -61,9 +62,29 @@ import {
 import { formatCurrency, handleErrorApi } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 
+const ExpertAvatar = ({ expertId }: { expertId: string }) => {
+  const { data } = useGetExpertProfileQuery(expertId);
+  const expertProfile = data?.payload.data;
+  return (
+    <Avatar>
+      <AvatarImage
+        src={
+          expertProfile?.profileImageUrl ||
+          "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+        }
+        alt={expertProfile?.fullname}
+      />
+      <AvatarFallback>{expertProfile?.fullname.charAt(0)}</AvatarFallback>
+    </Avatar>
+  );
+};
+
 export default function ConsultationSchedule() {
   const { data } = useGetAppointmentForUser();
-  const appointmentUserList = data?.payload.data || [];
+  const appointmentUserList = React.useMemo(
+    () => data?.payload.data || [],
+    [data]
+  );
   const [startDate, setStartDate] = React.useState("");
   const [endDate, setEndDate] = React.useState("");
   const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
@@ -90,7 +111,7 @@ export default function ConsultationSchedule() {
   const consultationsByStatus = React.useMemo(() => {
     return {
       upcoming: filteredAndSortedConsultations.filter((c) =>
-        ["Đã thanh toán", "Sắp diễn ra"].includes(c.tag)
+        ["Đang diễn ra", "Sắp diễn ra"].includes(c.tag)
       ),
       completed: filteredAndSortedConsultations.filter(
         (c) => c.tag === "Đã hoàn thành"
@@ -181,13 +202,7 @@ export default function ConsultationSchedule() {
         )}
 
         <CardHeader className="flex flex-row items-center gap-4">
-          <Avatar>
-            <AvatarImage
-              src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-              alt={consultation.name}
-            />
-            <AvatarFallback>{consultation.name.charAt(0)}</AvatarFallback>
-          </Avatar>
+          <ExpertAvatar expertId={consultation.expertId} />
           <div>
             <CardTitle className="text-lg">{consultation.name}</CardTitle>
             <CardDescription>Chuyên gia tư vấn tâm lý</CardDescription>
