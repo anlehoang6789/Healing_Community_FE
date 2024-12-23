@@ -4,7 +4,7 @@ import {
   PiggyBank,
   SquareUserRound,
   NotebookPen,
-  ListMusic,
+  SquareLibrary,
   UsersRound,
 } from "lucide-react";
 
@@ -36,9 +36,9 @@ const moderatorItems = [
     href: "/moderator/manage-blogs",
   },
   {
-    title: "Quản lí âm nhạc",
-    Icon: ListMusic,
-    href: "/moderator/manage-music",
+    title: "Quản lí thể loại",
+    Icon: SquareLibrary,
+    href: "/moderator/manage-category",
   },
   {
     title: "Quản lí nhóm",
