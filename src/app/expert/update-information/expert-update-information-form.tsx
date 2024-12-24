@@ -62,7 +62,7 @@ export default function ExpertUpdateInformationForm() {
       form.setValue("profileImageUrl", profileImageUrl);
       form.setValue("expertiseAreas", expertiseAreas);
     }
-  }, [data, form]);
+  }, [data, form, expertProfile]);
 
   //hàm update thông tin cá nhân
   const onSubmit = async (data: UpdateProfileExpertBodyType) => {

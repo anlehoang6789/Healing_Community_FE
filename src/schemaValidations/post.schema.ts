@@ -412,3 +412,21 @@ export const CreateCategoryBody = z.object({
 });
 
 export type CreateCategoryBodyType = z.TypeOf<typeof CreateCategoryBody>;
+
+export const GetAuthorOtherPostBody = z.object({
+  authorId: z.string(),
+  top: z.number(),
+});
+
+export type GetAuthorOtherPostBodyType = z.TypeOf<
+  typeof GetAuthorOtherPostBody
+>;
+
+export const GetAuthorOtherPostListRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetAuthorOtherPostListResType = z.TypeOf<
+  typeof GetAuthorOtherPostListRes
+>;
