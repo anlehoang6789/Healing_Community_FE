@@ -26,6 +26,7 @@ import {
   GetReactionCountResType,
   GetUserReactionByPostIdResType,
   PostByIdType,
+  SharedPostResponseType,
   SharePostRequestType,
   SharePostResponseType,
   UpdatePersonalPostBodyType,
@@ -116,6 +117,11 @@ const postApiRequest = {
   getDetailsCategory: (categoryId: string) =>
     http.get<GetDetailsCategoryResponseType>(
       `post/api/category/get-by-id/${categoryId}`
+    ),
+
+  getSharedPosts: (userId: string) =>
+    http.get<SharedPostResponseType>(
+      `post/api/share/get-share-posts/${userId}`
     ),
   addCategory: (body: CreateCategoryBodyType) =>
     http.post<{ message: string }>("post/api/category/create", body),
