@@ -744,6 +744,7 @@ export default function OwnPost() {
                 </div>
               );
             } else {
+              // chia sẻ bài viết
               const sharedPost = mergedPost.data as (typeof sharedPosts)[0];
               const truncate = shouldTruncateDescriptionSharedPost(
                 sharedPost.description
@@ -765,7 +766,7 @@ export default function OwnPost() {
                         src={
                           userById?.payload.data.profilePicture ||
                           expertProfile?.payload.data.profileImageUrl ||
-                          "/placeholder-user.jpg"
+                          "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                         }
                         alt={
                           userById?.payload.data.fullName ||
