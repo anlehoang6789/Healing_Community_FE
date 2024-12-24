@@ -37,17 +37,20 @@ export default function GroupLayout({
         </div>
 
         {/* Group Info */}
-        <Card className="rounded-none shadow-none border-x">
+        <div className="rounded-none shadow-none border-b-2">
           <div className="p-4 sm:p-6 space-y-4">
             <div className="flex flex-col sm:flex-none justify-between sm:justify-between items-center sm:items-stretch space-y-2 sm:space-x-6">
               {/* phần tên nhóm */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <h1 className="text-xl sm:text-2xl font-bold text-center sm:text-left">
+                <h1 className="text-textChat text-xl sm:text-2xl font-bold text-center sm:text-left">
                   Cộng đồng Front-end(HTML/CSS/JS) Việt Nam
                 </h1>
                 <div className="flex flex-col sm:flex-row items-center gap-2 mt-2 sm:mt-0">
                   <Button className="w-full sm:w-auto">+ Mời</Button>
-                  <Button variant="outline" className="w-full sm:w-auto">
+                  <Button
+                    variant="outline"
+                    className="w-full sm:w-auto text-textChat"
+                  >
                     Đã tham gia
                   </Button>
                 </div>
@@ -59,7 +62,7 @@ export default function GroupLayout({
               </div>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
       <div className="w-full bg-background h-auto p-2 max-w-7xl mx-auto">
         <GroupTabsUser groupId={groupIdFromPath} />
