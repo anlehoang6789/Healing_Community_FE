@@ -20,6 +20,7 @@ import {
   GetDetailsCategoryResponseType,
   GetHighlightPostListResType,
   GetHomePageListLazyLoadType,
+  GetOtherPostWithSameCategoryBodyType,
   GetPostByUserIdResType,
   GetQuickPostListType,
   GetReactionCountResType,
@@ -128,6 +129,10 @@ const postApiRequest = {
   getAuthorOtherPost: (body: GetAuthorOtherPostBodyType) =>
     http.get<GetAuthorOtherPostListResType>(
       `post/api/post/get-other-authour-post/${body.authorId}/top?top=${body.top}`
+    ),
+  getOtherPostWithSameCategory: (body: GetOtherPostWithSameCategoryBodyType) =>
+    http.get<GetAuthorOtherPostListResType>(
+      `post/api/post/get-other-relative-post/${body.postId}/${body.top}`
     ),
 };
 
