@@ -11,6 +11,8 @@ import {
   CreatePostBodyType,
   DeleteBookmarkListDetailsBodyType,
   GetAllReactionTypeResponseType,
+  GetAuthorOtherPostBodyType,
+  GetAuthorOtherPostListResType,
   GetBookmarkListDetailsResponseType,
   GetBookmarkListResponseType,
   GetCommentCountResType,
@@ -122,6 +124,10 @@ const postApiRequest = {
     http.put<{ message: string }>(
       `post/api/category/update/${categoryId}`,
       body
+    ),
+  getAuthorOtherPost: (body: GetAuthorOtherPostBodyType) =>
+    http.get<GetAuthorOtherPostListResType>(
+      `post/api/post/get-other-authour-post/${body.authorId}/top?top=${body.top}`
     ),
 };
 

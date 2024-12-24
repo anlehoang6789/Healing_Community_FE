@@ -1,6 +1,7 @@
 import postApiRequest from "@/apiRequests/post";
 import {
   CreateCategoryBodyType,
+  GetAuthorOtherPostBodyType,
   UpdatePersonalPostBodyType,
 } from "@/schemaValidations/post.schema";
 import {
@@ -9,6 +10,7 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toNamespacedPath } from "node:path";
 
 export const useGetAllCategoryQuery = () => {
   return useQuery({
@@ -369,5 +371,16 @@ export const useSharePostMutation = () => {
         queryKey: [""],
       });
     },
+  });
+};
+
+export const useGetAuthorOtherPostQuery = ({
+  body,
+}: {
+  body: GetAuthorOtherPostBodyType;
+}) => {
+  return useQuery({
+    queryKey: ["author-other-post", body],
+    queryFn: () => postApiRequest.getAuthorOtherPost(body),
   });
 };
