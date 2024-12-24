@@ -118,7 +118,10 @@ export default function OwnPost() {
     userId as string
   );
 
-  const sharedPosts = sharedPostsData?.payload?.data ?? [];
+  const sharedPosts = useMemo(
+    () => sharedPostsData?.payload?.data ?? [],
+    [sharedPostsData]
+  );
 
   interface MergedPost {
     type: "post" | "sharedPost";

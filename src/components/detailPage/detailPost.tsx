@@ -37,6 +37,9 @@ import { useParams } from "next/navigation";
 import BookmarkDialog from "@/app/user/bookmark/bookmark-dialog";
 import BookmarkDialogMobile from "@/app/user/bookmark/bookmark-dialog-mobile";
 import ShareSection from "@/components/shareSection/shareSection";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { Role } from "@/constants/type";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 
 export default function DetailPost() {
   const { theme } = useTheme();
@@ -62,9 +65,18 @@ export default function DetailPost() {
     postId: postIdFromUrl as string,
     enabled: true,
   });
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    postById?.payload.data.userId as string
+  );
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   //data của user theo userId lấy từ api postById
   const { data: userById } = useGetUserProfileQuery(
-    postById?.payload.data.userId as string
+    postById?.payload.data.userId as string,
+    !isExpert && !!postById?.payload.data.userId
+  );
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    postById?.payload.data.userId as string,
+    isExpert && !!postById?.payload.data.userId
   );
   const imageComment = useGetUserProfileQuery(userIdComment);
   const { data: commentsData } = useGetCommentsByPostIdQuery(
@@ -227,16 +239,19 @@ export default function DetailPost() {
               <AvatarImage
                 src={
                   userById?.payload.data.profilePicture ||
+                  expertProfile?.payload.data.profileImageUrl ||
                   "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                 }
                 alt={
                   userById?.payload.data.fullName ||
-                  userById?.payload.data.userName
+                  userById?.payload.data.userName ||
+                  expertProfile?.payload.data.fullname
                 }
               />
               <AvatarFallback>
                 {userById?.payload.data.fullName ||
-                  userById?.payload.data.userName}
+                  userById?.payload.data.userName ||
+                  expertProfile?.payload.data.fullname}
               </AvatarFallback>
             </Avatar>
           </Link>
@@ -244,7 +259,8 @@ export default function DetailPost() {
             <Link href={`/user/profile/${postById?.payload.data.userId}`}>
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                 {userById?.payload.data.fullName ||
-                  userById?.payload.data.userName}
+                  userById?.payload.data.userName ||
+                  expertProfile?.payload.data.fullname}
               </p>
             </Link>
             <p className="text-sm text-gray-500">
