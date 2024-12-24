@@ -310,13 +310,20 @@ export const useRemoveReactionMutation = (postId: string) => {
   });
 };
 
+export const useGetSharedPostByUserIdQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["shared-post-by-user-id", userId],
+    queryFn: () => postApiRequest.getSharedPosts(userId),
+  });
+};
+
 export const useSharePostMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.sharePost,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: [""],
+        queryKey: ["shared-post-by-user-id"],
       });
     },
   });

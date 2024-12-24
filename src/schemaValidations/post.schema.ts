@@ -406,3 +406,33 @@ export const GetDetailsCategoryResponse = z.object({
 export type GetDetailsCategoryResponseType = z.TypeOf<
   typeof GetDetailsCategoryResponse
 >;
+
+export const SharedPostSchema = z.object({
+  shareId: z.string(),
+  shareAt: z.string(),
+  shareDescription: z.string(),
+  postId: z.string(),
+  userId: z.string(),
+  groupId: z.string().nullable(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type SharedPostType = z.TypeOf<typeof SharedPostSchema>;
+
+export const SharedPostResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(SharedPostSchema),
+  errors: z.array(z.any()).nullable(),
+  timestamp: z.string(),
+});
+
+export type SharedPostResponseType = z.TypeOf<typeof SharedPostResponseSchema>;
