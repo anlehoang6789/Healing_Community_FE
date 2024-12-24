@@ -436,3 +436,36 @@ export const SharedPostResponseSchema = z.object({
 });
 
 export type SharedPostResponseType = z.TypeOf<typeof SharedPostResponseSchema>;
+
+export const CreateCategoryBody = z.object({
+  name: z.string(),
+});
+
+export type CreateCategoryBodyType = z.TypeOf<typeof CreateCategoryBody>;
+
+export const GetAuthorOtherPostBody = z.object({
+  authorId: z.string(),
+  top: z.number(),
+});
+
+export type GetAuthorOtherPostBodyType = z.TypeOf<
+  typeof GetAuthorOtherPostBody
+>;
+
+export const GetAuthorOtherPostListRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetAuthorOtherPostListResType = z.TypeOf<
+  typeof GetAuthorOtherPostListRes
+>;
+
+export const GetOtherPostWithSameCategoryBody = z.object({
+  top: z.number(),
+  postId: z.string(),
+});
+
+export type GetOtherPostWithSameCategoryBodyType = z.TypeOf<
+  typeof GetOtherPostWithSameCategoryBody
+>;

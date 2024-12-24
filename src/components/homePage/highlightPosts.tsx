@@ -39,7 +39,7 @@ const UserProfile = ({ userId }: { userId: string }) => {
 };
 
 const CategoryBadge = ({ categoryId }: { categoryId: string }) => {
-  const { data, isError } = useGetDetailsCategoryQuery(categoryId);
+  const { data, isError } = useGetDetailsCategoryQuery({ categoryId });
   if (isError)
     return (
       <div className="text-textChat font-semibold">
