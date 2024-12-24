@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,6 +28,7 @@ import {
   useDeletePostByPostIdMutation,
   useGetCommentCountQuery,
   useGetPostByUserIdQuery,
+  useGetSharedPostByUserIdQuery,
 } from "@/queries/usePost";
 import {
   formatDateTime,
@@ -66,27 +67,9 @@ import ShareSection from "@/components/shareSection/shareSection";
 import { Card } from "@/components/ui/card";
 
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
-
-const mockSharedPost = {
-  sharedBy: {
-    id: "user123",
-    name: "Nguyễn Văn A",
-    avatar: "/placeholder-user.jpg",
-    createAt: new Date().toISOString(),
-  },
-  originalPost: {
-    id: "post123",
-    userId: "originalUser123",
-    userName: "Trần Văn B",
-    userAvatar: "/placeholder-user.jpg",
-    title: "Tiêu đề bài viết gốc",
-    description: "Nội dung bài viết gốc...",
-    coverImgUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community-4d0b5.appspot.com/o/upload%2F11caed7f-0ee3-43cb-ae30-8e112a87c10e.png?alt=media&token=2b8d56ad-cff5-4f06-9209-278beda7715f",
-    createAt: new Date().toISOString(),
-    status: 0,
-  },
-};
+import { PersonalInformationBodyType } from "@/schemaValidations/account.schema";
+import accountApiRequest from "@/apiRequests/account";
+import { compareDesc, parseISO } from "date-fns";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -130,6 +113,52 @@ export default function OwnPost() {
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
   const { data } = useGetPostByUserIdQuery(userId as string);
+
+  const { data: sharedPostsData } = useGetSharedPostByUserIdQuery(
+    userId as string
+  );
+
+  const sharedPosts = sharedPostsData?.payload?.data ?? [];
+
+  interface MergedPost {
+    type: "post" | "sharedPost";
+    data: PostItem | (typeof sharedPosts)[0];
+    timestamp: string;
+  }
+
+  const [sharedPostUserProfiles, setSharedPostUserProfiles] = useState<{
+    [shareId: string]: PersonalInformationBodyType["data"] | null;
+  }>({});
+
+  useEffect(() => {
+    const fetchSharedPostUserProfiles = async () => {
+      const profiles: {
+        [shareId: string]: PersonalInformationBodyType["data"] | null;
+      } = {};
+
+      for (const sharedPost of sharedPosts) {
+        try {
+          const userProfileResponse = await accountApiRequest.getUserProfile(
+            sharedPost.userId
+          );
+          profiles[sharedPost.shareId] = userProfileResponse.payload.data;
+        } catch (error) {
+          console.error(
+            `Error fetching profile for shared post ${sharedPost.shareId}:`,
+            error
+          );
+          profiles[sharedPost.shareId] = null;
+        }
+      }
+
+      setSharedPostUserProfiles(profiles);
+    };
+
+    if (sharedPosts.length > 0) {
+      fetchSharedPostUserProfiles();
+    }
+  }, [sharedPosts]);
+
   // const postList = data?.payload.data || [];
   const [postList, setPostList] = useState<GetPostByUserIdResType["data"]>([]);
   const { data: userById } = useGetUserProfileQuery(
@@ -146,6 +175,61 @@ export default function OwnPost() {
   const postListByStatus = postList.filter(
     (post) => isThatOwner || post.status === 0
   );
+
+  const mergedAndSortedPosts = useMemo(() => {
+    const mergedPosts: MergedPost[] = [
+      ...postListByStatus.map((post) => ({
+        type: "post" as const,
+        data: post,
+        timestamp: post.createAt,
+      })),
+      ...sharedPosts.map((sharedPost) => ({
+        type: "sharedPost" as const,
+        data: sharedPost,
+        timestamp: sharedPost.shareAt,
+      })),
+    ];
+
+    // Sắp xếp theo thời gian mới nhất
+    return mergedPosts.sort((a, b) =>
+      compareDesc(parseISO(a.timestamp), parseISO(b.timestamp))
+    );
+  }, [postListByStatus, sharedPosts]);
+
+  // Trạng thái lưu thông tin mở rộng của từng bài viết được chia sẻ
+  const [expandedSharedPosts, setExpandedSharedPosts] = useState<{
+    [key: string]: boolean;
+  }>({});
+
+  // Hàm kiểm tra xem một bài viết có cần bị rút gọn không
+  const shouldTruncateDescriptionSharedPost = (
+    description: string
+  ): boolean => {
+    const MAX_LENGTH = 300; // Chiều dài tối đa trước khi rút gọn
+    return description.length > MAX_LENGTH;
+  };
+
+  // Hàm chuyển đổi trạng thái mở rộng cho từng bài viết được chia sẻ
+  const toggleSharedPostExpand = (postId: string, shouldExpand: boolean) => {
+    setExpandedSharedPosts((prev) => ({
+      ...prev,
+      [postId]: shouldExpand,
+    }));
+  };
+
+  // Sắp xếp bài viết đã đăng
+  const sortedPostListByStatus = useMemo(() => {
+    return postListByStatus.sort((a, b) =>
+      compareDesc(parseISO(a.createAt), parseISO(b.createAt))
+    );
+  }, [postListByStatus]);
+
+  // Sắp xếp bài viết được chia sẻ
+  const sortedSharedPosts = useMemo(() => {
+    return sharedPosts.sort((a, b) =>
+      compareDesc(parseISO(a.shareAt), parseISO(b.shareAt))
+    );
+  }, [sharedPosts]);
 
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
@@ -407,96 +491,317 @@ export default function OwnPost() {
     >
       {/* Bài viết đã đăng */}
       <div className="mb-2">
-        {postListByStatus.length === 0 ? (
+        {mergedAndSortedPosts.length === 0 ? (
           <div className="text-textChat text-center p-4 rounded-lg shadow-lg border mb-6">
             Hiện chưa có bài viết nào
           </div>
         ) : (
-          postListByStatus.map((post) => {
-            const isExpanded = expandedPosts[post.postId] || false;
-            const truncate = shouldTruncateDescription(post.description);
-            const openDeletePost = () => {
-              setPostDelete(post);
-            };
-            const openEditPost = () => {
-              setPostId(post.postId);
-              console.log("postId dùng để sửa bài viết", post.postId);
-            };
-            const shouldRenderDropdown = userIdFromLocalStorage === userId;
-            const isPostPublic = post.status === 0;
-            return (
-              <div
-                key={post.postId}
-                className=" rounded-lg shadow-lg border mb-6"
-              >
-                <Image
-                  src={post.coverImgUrl}
-                  alt="Banner"
-                  width={1000}
-                  height={500}
-                  priority={true}
-                  className="w-full h-[250px] object-cover rounded-t-lg"
-                />
-                <div className="flex items-center gap-4 mb-6 p-4">
-                  {/* Avatar, name*/}
-                  <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
-                    <AvatarImage
-                      src={
-                        userById?.payload.data.profilePicture ||
-                        expertProfile?.payload.data.profileImageUrl ||
-                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                      }
-                      alt={
-                        userById?.payload.data.fullName ||
-                        userById?.payload.data.userName ||
-                        expertProfile?.payload.data.fullname
-                      }
-                    />
-                    <AvatarFallback>
-                      {isExpert
-                        ? expertProfile?.payload.data.fullname ||
-                          expertProfile?.payload.data.email
-                        : userById?.payload.data.fullName ||
+          mergedAndSortedPosts.map((mergedPost) => {
+            if (mergedPost.type === "post") {
+              const post = mergedPost.data as PostItem;
+              const isExpanded = expandedPosts[post.postId] || false;
+              const truncate = shouldTruncateDescription(post.description);
+
+              const openDeletePost = () => {
+                setPostDelete(post);
+              };
+
+              const openEditPost = () => {
+                setPostId(post.postId);
+                console.log("postId dùng để sửa bài viết", post.postId);
+              };
+
+              const shouldRenderDropdown = userIdFromLocalStorage === userId;
+              const isPostPublic = post.status === 0;
+
+              return (
+                <div
+                  key={post.postId}
+                  className=" rounded-lg shadow-lg border mb-6"
+                >
+                  <Image
+                    src={post.coverImgUrl}
+                    alt="Banner"
+                    width={1000}
+                    height={500}
+                    priority={true}
+                    className="w-full h-[250px] object-cover rounded-t-lg"
+                  />
+                  <div className="flex items-center gap-4 mb-6 p-4">
+                    {/* Avatar, name*/}
+                    <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
+                      <AvatarImage
+                        src={
+                          userById?.payload.data.profilePicture ||
+                          expertProfile?.payload.data.profileImageUrl ||
+                          "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                        }
+                        alt={
+                          userById?.payload.data.fullName ||
                           userById?.payload.data.userName ||
-                          "Anonymous"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="flex items-center space-x-2">
-                      <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
+                          expertProfile?.payload.data.fullname
+                        }
+                      />
+                      <AvatarFallback>
                         {isExpert
                           ? expertProfile?.payload.data.fullname ||
                             expertProfile?.payload.data.email
                           : userById?.payload.data.fullName ||
                             userById?.payload.data.userName ||
                             "Anonymous"}
-                      </h2>
-                      {isExpert && (
-                        <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
-                          Chuyên gia
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm text-gray-500">
-                        {formatDateTime(post.createAt)}
-                      </p>
-                      <p className="text-gray-500">
-                        {isPostPublic ? (
-                          <Globe className="h-4 w-4" />
-                        ) : (
-                          <LockKeyhole className="h-4 w-4" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="flex items-center space-x-2">
+                        <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
+                          {isExpert
+                            ? expertProfile?.payload.data.fullname ||
+                              expertProfile?.payload.data.email
+                            : userById?.payload.data.fullName ||
+                              userById?.payload.data.userName ||
+                              "Anonymous"}
+                        </h2>
+                        {isExpert && (
+                          <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+                            Chuyên gia
+                          </div>
                         )}
-                      </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-500">
+                          {formatDateTime(post.createAt)}
+                        </p>
+                        <p className="text-gray-500">
+                          {isPostPublic ? (
+                            <Globe className="h-4 w-4" />
+                          ) : (
+                            <LockKeyhole className="h-4 w-4" />
+                          )}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Dropdown menu */}
+                    {shouldRenderDropdown ? (
+                      <DropdownMenu modal={false} aria-hidden={false}>
+                        <DropdownMenuTrigger asChild className="ml-auto">
+                          <Button variant="iconSend">
+                            <Ellipsis />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className={`w-56 mt-4 ${
+                            theme === "dark"
+                              ? "bg-black text-white"
+                              : "bg-white text-black"
+                          }`}
+                        >
+                          <DropdownMenuItem onClick={openEditPost}>
+                            <FilePenLine className="mr-2 h-4 w-4" />
+                            <span>Sửa bài viết</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={openDeletePost}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>Xóa bài viết</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      <>
+                        <DropdownMenu modal={false}>
+                          <DropdownMenuTrigger asChild className="ml-auto">
+                            <Button variant="iconSend" size="icon">
+                              <Ellipsis className="h-5 w-5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            className={`w-56 mt-4 z-50${
+                              theme === "dark"
+                                ? "bg-black text-white"
+                                : "bg-white text-black"
+                            }`}
+                          >
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                openBookmarkDialog();
+                                e.stopPropagation();
+                              }}
+                            >
+                              <Bookmark className="mr-2 h-4 w-4" />
+                              <span>Lưu bài viết</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Flag className="mr-2 h-4 w-4" />
+                              <span>Báo cáo bài viết</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                        <BookmarkDialogMobile
+                          postId={post.postId}
+                          isOpen={isBookmarkDialogOpen}
+                          setIsOpen={setIsBookmarkDialogOpen}
+                        />
+                      </>
+                    )}
+                  </div>
+                  <EditPersonalPost
+                    postId={postId}
+                    setPostId={setPostId}
+                    onSubmitSuccess={() => {}}
+                  />
+                  <AlertDialogDeletePost
+                    postDelete={postDelete}
+                    setPostDelete={setPostDelete}
+                  />
+
+                  {/* Body of story */}
+                  <motion.div
+                    animate={{ height: isExpanded ? "auto" : 300 }} // auto cho phép nội dung mở rộng tự nhiên
+                    initial={{ height: 300 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="whitespace-pre-wrap mb-4 text-textChat p-4">
+                      <div className="font-bold text-lg text-center mb-2">
+                        {post.title}
+                      </div>
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: post.description,
+                        }}
+                      />
+                    </div>
+                  </motion.div>
+
+                  {truncate && (
+                    <div className="flex justify-end p-4">
+                      <button
+                        onClick={() => toggleExpand(post.postId, !isExpanded)}
+                        className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
+                      >
+                        {isExpanded ? "Thu gọn" : "Xem thêm"}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Like, share, comment tabs*/}
+                  <div className="flex flex-col items-start gap-4 p-4">
+                    <div className="flex justify-between w-full">
+                      <ReactionCount postId={post.postId} />
+                      <span className="justify-end text-sm text-gray-500">
+                        <CommentCount postId={post.postId} />
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between w-full">
+                      <ReactionEmoji postId={post.postId} />
+                      <Button
+                        variant="iconDarkMod"
+                        className="flex items-center gap-2 p-0"
+                        onClick={() => toggleCommentVisibility(post.postId)}
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        Bình luận
+                      </Button>
+                      <ShareSection postId={post.postId}>
+                        <Button
+                          variant="iconDarkMod"
+                          className="flex items-center gap-2 p-0"
+                        >
+                          <Share2 className="w-4 h-4" />
+                          Chia sẻ
+                        </Button>
+                      </ShareSection>
                     </div>
                   </div>
 
-                  {/* Dropdown menu */}
-                  {shouldRenderDropdown ? (
-                    <DropdownMenu modal={false} aria-hidden={false}>
+                  <AnimatePresence>
+                    {visibleCommentPosts[post.postId] && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-full mt-4 "
+                      >
+                        <div className="px-4 pb-4">
+                          <CommentSection
+                            comments={commentsByPostId[post.postId] || []}
+                            onAddComment={(comment) =>
+                              handleAddComment(post.postId, comment)
+                            }
+                            onAddReply={(parentId, reply) =>
+                              handleAddReply(post.postId, parentId, reply)
+                            }
+                            deleteComment={(commentId) =>
+                              handleDeleteComment(commentId)
+                            }
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            } else {
+              const sharedPost = mergedPost.data as (typeof sharedPosts)[0];
+              const truncate = shouldTruncateDescriptionSharedPost(
+                sharedPost.description
+              );
+              const isExpanded =
+                expandedSharedPosts[sharedPost.shareId] || false;
+              const originalPostUserProfile =
+                sharedPostUserProfiles[sharedPost.shareId];
+
+              return (
+                <div
+                  key={sharedPost.shareId}
+                  className="mb-6 rounded-lg shadow-lg border"
+                >
+                  {/* Người chia sẻ */}
+                  <div className="flex items-center gap-4 p-4">
+                    <Avatar className="w-10 h-10 border-2 border-rose-300">
+                      <AvatarImage
+                        src={
+                          userById?.payload.data.profilePicture ||
+                          expertProfile?.payload.data.profileImageUrl ||
+                          "/placeholder-user.jpg"
+                        }
+                        alt={
+                          userById?.payload.data.fullName ||
+                          userById?.payload.data.userName ||
+                          expertProfile?.payload.data.fullname ||
+                          "Anonymous"
+                        }
+                      />
+                      <AvatarFallback>
+                        {
+                          (userById?.payload.data.fullName ||
+                            userById?.payload.data.userName ||
+                            expertProfile?.payload.data.fullname ||
+                            "Anonymous")[0]
+                        }
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                        {userById?.payload.data.fullName ||
+                          userById?.payload.data.userName ||
+                          expertProfile?.payload.data.fullname ||
+                          "Anonymous"}
+                      </h2>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-500">
+                          {formatDateTime(sharedPost.shareAt)}
+                        </p>
+                        <Globe className="h-4 w-4 text-gray-500" />
+                      </div>
+                    </div>
+
+                    <DropdownMenu modal={false}>
                       <DropdownMenuTrigger asChild className="ml-auto">
-                        <Button variant="iconSend">
-                          <Ellipsis />
+                        <Button variant="iconSend" size="icon">
+                          <Ellipsis className="h-5 w-5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
@@ -506,276 +811,199 @@ export default function OwnPost() {
                             : "bg-white text-black"
                         }`}
                       >
-                        <DropdownMenuItem onClick={openEditPost}>
-                          <FilePenLine className="mr-2 h-4 w-4" />
-                          <span>Sửa bài viết</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={openDeletePost}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Xóa bài viết</span>
-                        </DropdownMenuItem>
+                        {userIdFromLocalStorage === userId ? (
+                          <>
+                            <DropdownMenuItem
+                            // onClick={() => {
+                            //   setPostId(sharedPost.shareId);
+                            // }}
+                            >
+                              <FilePenLine className="mr-2 h-4 w-4" />
+                              <span>Sửa bài viết</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                            // onClick={() => {
+                            //   setPostDelete(sharedPost.shareId);
+                            // }}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              <span>Xóa bài viết</span>
+                            </DropdownMenuItem>
+                          </>
+                        ) : (
+                          // If the viewer is not the post owner
+                          <>
+                            <DropdownMenuItem
+                              onClick={() => setIsBookmarkDialogOpen(true)}
+                            >
+                              <Bookmark className="mr-2 h-4 w-4" />
+                              <span>Lưu bài viết</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Flag className="mr-2 h-4 w-4" />
+                              <span>Báo cáo bài viết</span>
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-                  ) : (
-                    <>
-                      <DropdownMenu modal={false}>
-                        <DropdownMenuTrigger asChild className="ml-auto">
-                          <Button variant="iconSend" size="icon">
-                            <Ellipsis className="h-5 w-5" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          className={`w-56 mt-4 z-50${
-                            theme === "dark"
-                              ? "bg-black text-white"
-                              : "bg-white text-black"
-                          }`}
-                        >
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              openBookmarkDialog();
-                              e.stopPropagation();
-                            }}
-                          >
-                            <Bookmark className="mr-2 h-4 w-4" />
-                            <span>Lưu bài viết</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Flag className="mr-2 h-4 w-4" />
-                            <span>Báo cáo bài viết</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                      <BookmarkDialogMobile
-                        postId={post.postId}
-                        isOpen={isBookmarkDialogOpen}
-                        setIsOpen={setIsBookmarkDialogOpen}
-                      />
-                    </>
-                  )}
-                </div>
-                <EditPersonalPost
-                  postId={postId}
-                  setPostId={setPostId}
-                  onSubmitSuccess={() => {}}
-                />
-                <AlertDialogDeletePost
-                  postDelete={postDelete}
-                  setPostDelete={setPostDelete}
-                />
+                  </div>
 
-                {/* Body of story */}
-                <motion.div
-                  animate={{ height: isExpanded ? "auto" : 300 }} // auto cho phép nội dung mở rộng tự nhiên
-                  initial={{ height: 300 }}
-                  transition={{ duration: 0.4, ease: "easeInOut" }}
-                  className="overflow-hidden"
-                >
-                  <div className="whitespace-pre-wrap mb-4 text-textChat p-4">
-                    <div className="font-bold text-lg text-center mb-2">
-                      {post.title}
+                  {sharedPost.shareDescription && (
+                    <div className="pl-5 pb-2 text-textChat">
+                      {sharedPost.shareDescription}
                     </div>
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: post.description,
-                      }}
+                  )}
+
+                  {/* Bài viết gốc */}
+                  <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
+                    <div className="flex items-center gap-4 p-4">
+                      <Avatar className="w-10 h-10 border-2 border-rose-300">
+                        <AvatarImage
+                          src={
+                            originalPostUserProfile?.profilePicture ||
+                            "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                          }
+                          alt={sharedPost.title}
+                        />
+                        <AvatarFallback>{sharedPost.title[0]}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                          {originalPostUserProfile?.fullName ||
+                            originalPostUserProfile?.userName ||
+                            "Anonymous"}
+                        </h2>
+                        <p className="text-sm text-gray-500">
+                          {formatDateTime(sharedPost.createAt)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Image
+                      src={sharedPost.coverImgUrl}
+                      alt="Post cover"
+                      width={1000}
+                      height={500}
+                      className="w-full h-[250px] object-cover"
                     />
-                  </div>
-                </motion.div>
 
-                {truncate && (
-                  <div className="flex justify-end p-4">
-                    <button
-                      onClick={() => toggleExpand(post.postId, !isExpanded)}
-                      className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
-                    >
-                      {isExpanded ? "Thu gọn" : "Xem thêm"}
-                    </button>
-                  </div>
-                )}
-
-                {/* Like, share, comment tabs*/}
-                <div className="flex flex-col items-start gap-4 p-4">
-                  <div className="flex justify-between w-full">
-                    <ReactionCount postId={post.postId} />
-                    <span className="justify-end text-sm text-gray-500">
-                      <CommentCount postId={post.postId} />
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between w-full">
-                    <ReactionEmoji postId={post.postId} />
-                    <Button
-                      variant="iconDarkMod"
-                      className="flex items-center gap-2 p-0"
-                      onClick={() => toggleCommentVisibility(post.postId)}
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      Bình luận
-                    </Button>
-                    <ShareSection postId={post.postId}>
-                      <Button
-                        variant="iconDarkMod"
-                        className="flex items-center gap-2 p-0"
-                      >
-                        <Share2 className="w-4 h-4" />
-                        Chia sẻ
-                      </Button>
-                    </ShareSection>
-                  </div>
-                </div>
-
-                <AnimatePresence>
-                  {visibleCommentPosts[post.postId] && (
                     <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="w-full mt-4 "
+                      animate={{ height: isExpanded ? "auto" : 100 }}
+                      initial={{ height: 100 }}
+                      transition={{ duration: 0.4, ease: "easeInOut" }}
+                      className="overflow-hidden"
                     >
-                      <div className="px-4 pb-4">
-                        <CommentSection
-                          comments={commentsByPostId[post.postId] || []}
-                          onAddComment={(comment) =>
-                            handleAddComment(post.postId, comment)
-                          }
-                          onAddReply={(parentId, reply) =>
-                            handleAddReply(post.postId, parentId, reply)
-                          }
-                          deleteComment={(commentId) =>
-                            handleDeleteComment(commentId)
-                          }
+                      <div className="p-4">
+                        <div className="font-bold text-lg text-center mb-2">
+                          {sharedPost.title}
+                        </div>
+                        <div
+                          className="whitespace-pre-wrap text-textChat"
+                          dangerouslySetInnerHTML={{
+                            __html: isExpanded
+                              ? sharedPost.description
+                              : truncate
+                              ? `${sharedPost.description.slice(0, 300)}...`
+                              : sharedPost.description,
+                          }}
                         />
                       </div>
                     </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
+
+                    {truncate && (
+                      <div className="flex justify-end p-4">
+                        <button
+                          onClick={() =>
+                            toggleSharedPostExpand(
+                              sharedPost.shareId,
+                              !isExpanded
+                            )
+                          }
+                          className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
+                        >
+                          {isExpanded ? "Thu gọn" : "Xem thêm"}
+                        </button>
+                      </div>
+                    )}
+                  </Card>
+
+                  {/* Tương tác */}
+                  <div className="flex flex-col items-start gap-4 p-4">
+                    <div className="flex justify-between w-full">
+                      <ReactionCount postId={sharedPost.shareId} />
+                      <span className="text-sm text-gray-500">
+                        <CommentCount postId={sharedPost.shareId} />
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between w-full">
+                      <ReactionEmoji postId={sharedPost.shareId} />
+                      <Button
+                        variant="iconDarkMod"
+                        className="flex items-center gap-2 p-0"
+                        onClick={() =>
+                          toggleCommentVisibility(sharedPost.shareId)
+                        }
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        Bình luận
+                      </Button>
+                      <ShareSection postId={sharedPost.shareId}>
+                        <Button
+                          variant="iconDarkMod"
+                          className="flex items-center gap-2 p-0"
+                        >
+                          <Share2 className="w-4 h-4" />
+                          Chia sẻ
+                        </Button>
+                      </ShareSection>
+                    </div>
+                  </div>
+
+                  <AnimatePresence>
+                    {visibleCommentPosts[sharedPost.shareId] && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-full mt-4 "
+                      >
+                        <div className="px-4 pb-4">
+                          <CommentSection
+                            comments={
+                              commentsByPostId[sharedPost.shareId] || []
+                            }
+                            onAddComment={(comment) =>
+                              handleAddComment(sharedPost.shareId, comment)
+                            }
+                            onAddReply={(parentId, reply) =>
+                              handleAddReply(
+                                sharedPost.shareId,
+                                parentId,
+                                reply
+                              )
+                            }
+                            deleteComment={(commentId) =>
+                              handleDeleteComment(commentId)
+                            }
+                          />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <BookmarkDialogMobile
+                    postId={sharedPost.shareId}
+                    isOpen={isBookmarkDialogOpen}
+                    setIsOpen={setIsBookmarkDialogOpen}
+                  />
+                </div>
+              );
+            }
           })
         )}
-      </div>
-
-      {/* Chia sẻ bài viết */}
-      <div className="mb-6 rounded-lg shadow-lg border">
-        {/* Người chia sẻ */}
-        <div className="flex items-center gap-4 p-4">
-          <Avatar className="w-10 h-10 border-2 border-rose-300">
-            <AvatarImage
-              src={mockSharedPost.sharedBy.avatar}
-              alt={mockSharedPost.sharedBy.name}
-            />
-            <AvatarFallback>{mockSharedPost.sharedBy.name[0]}</AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-              {mockSharedPost.sharedBy.name}
-            </h2>
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-gray-500">
-                {formatDateTime(mockSharedPost.sharedBy.createAt)}
-              </p>
-              <Globe className="h-4 w-4 text-gray-500" />
-            </div>
-          </div>
-
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild className="ml-auto">
-              <Button variant="iconSend" size="icon">
-                <Ellipsis className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              className={`w-56 mt-4 ${
-                theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-              }`}
-            >
-              <DropdownMenuItem onClick={() => setIsBookmarkDialogOpen(true)}>
-                <Bookmark className="mr-2 h-4 w-4" />
-                <span>Lưu bài viết</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Flag className="mr-2 h-4 w-4" />
-                <span>Báo cáo bài viết</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        {/* Bài viết gốc */}
-        <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
-          <div className="flex items-center gap-4 p-4">
-            <Avatar className="w-10 h-10 border-2 border-rose-300">
-              <AvatarImage
-                src={mockSharedPost.originalPost.userAvatar}
-                alt={mockSharedPost.originalPost.userName}
-              />
-              <AvatarFallback>
-                {mockSharedPost.originalPost.userName[0]}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                {mockSharedPost.originalPost.userName}
-              </h2>
-              <p className="text-sm text-gray-500">
-                {formatDateTime(mockSharedPost.originalPost.createAt)}
-              </p>
-            </div>
-          </div>
-
-          <Image
-            src={mockSharedPost.originalPost.coverImgUrl}
-            alt="Post cover"
-            width={1000}
-            height={500}
-            className="w-full h-[250px] object-cover"
-          />
-
-          <div className="p-4">
-            <h3 className="font-bold text-lg text-center mb-2">
-              {mockSharedPost.originalPost.title}
-            </h3>
-            <div className="whitespace-pre-wrap text-textChat">
-              {mockSharedPost.originalPost.description}
-            </div>
-          </div>
-        </Card>
-
-        {/* Tương tác */}
-        <div className="flex flex-col items-start gap-4 p-4">
-          <div className="flex justify-between w-full">
-            <ReactionCount postId={mockSharedPost.originalPost.id} />
-            <span className="text-sm text-gray-500">0 bình luận</span>
-          </div>
-
-          <div className="flex items-center justify-between w-full">
-            <ReactionEmoji postId={mockSharedPost.originalPost.id} />
-            <Button
-              variant="iconDarkMod"
-              className="flex items-center gap-2 p-0"
-            >
-              <MessageSquare className="w-4 h-4" />
-              Bình luận
-            </Button>
-            <ShareSection postId={mockSharedPost.originalPost.id}>
-              <Button
-                variant="iconDarkMod"
-                className="flex items-center gap-2 p-0"
-              >
-                <Share2 className="w-4 h-4" />
-                Chia sẻ
-              </Button>
-            </ShareSection>
-          </div>
-        </div>
-
-        <BookmarkDialogMobile
-          postId={mockSharedPost.originalPost.id}
-          isOpen={isBookmarkDialogOpen}
-          setIsOpen={setIsBookmarkDialogOpen}
-        />
       </div>
     </OwnPostContext.Provider>
   );
