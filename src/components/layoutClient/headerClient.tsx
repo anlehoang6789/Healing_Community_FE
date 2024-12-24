@@ -8,7 +8,6 @@ import {
   Users,
   Bookmark,
   Settings,
-  Music,
   UserRoundPen,
   FlaskConical,
   LogOut,
@@ -19,6 +18,7 @@ import {
   ChevronUp,
   CircleDollarSign,
   Clock,
+  UserSearch,
 } from "lucide-react";
 import {
   Sheet,
@@ -63,7 +63,12 @@ const navItems = [
     href: "/user/list-of-groups",
     authRequired: true,
   },
-  // { icon: Music, label: "Nhạc", href: "/music", authRequired: true },
+  {
+    icon: UserSearch,
+    label: "Chuyên gia",
+    href: "/user/list-of-experts",
+    authRequired: true,
+  },
 ];
 
 export default function Header() {

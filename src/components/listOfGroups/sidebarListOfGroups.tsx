@@ -105,7 +105,7 @@ export default function GroupSidebar() {
         ) : groups?.length > 0 ? (
           groups.map((group: GroupJoinedByUserIdType) => (
             <Link
-              href={`/groups/${group.groupId}`}
+              href={`/user/group/${group.groupId}`}
               key={group.groupId}
               className="flex items-center space-x-4 p-2 rounded-lg hover:bg-hoverCard"
             >
