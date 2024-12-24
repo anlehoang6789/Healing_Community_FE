@@ -2,6 +2,7 @@ import postApiRequest from "@/apiRequests/post";
 import {
   CreateCategoryBodyType,
   GetAuthorOtherPostBodyType,
+  GetOtherPostWithSameCategoryBodyType,
   UpdatePersonalPostBodyType,
 } from "@/schemaValidations/post.schema";
 import {
@@ -382,5 +383,16 @@ export const useGetAuthorOtherPostQuery = ({
   return useQuery({
     queryKey: ["author-other-post", body],
     queryFn: () => postApiRequest.getAuthorOtherPost(body),
+  });
+};
+
+export const useGetOtherPostWithSameCategoryQuery = ({
+  body,
+}: {
+  body: GetOtherPostWithSameCategoryBodyType;
+}) => {
+  return useQuery({
+    queryKey: ["other-post-with-same-category", body],
+    queryFn: () => postApiRequest.getOtherPostWithSameCategory(body),
   });
 };

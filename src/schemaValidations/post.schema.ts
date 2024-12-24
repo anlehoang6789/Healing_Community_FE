@@ -430,3 +430,12 @@ export const GetAuthorOtherPostListRes = z.object({
 export type GetAuthorOtherPostListResType = z.TypeOf<
   typeof GetAuthorOtherPostListRes
 >;
+
+export const GetOtherPostWithSameCategoryBody = z.object({
+  top: z.number(),
+  postId: z.string(),
+});
+
+export type GetOtherPostWithSameCategoryBodyType = z.TypeOf<
+  typeof GetOtherPostWithSameCategoryBody
+>;

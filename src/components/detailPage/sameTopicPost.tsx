@@ -1,48 +1,45 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
+import { formatDateTime } from "@/lib/utils";
+import { useGetOtherPostWithSameCategoryQuery } from "@/queries/usePost";
 import { CalendarIcon } from "lucide-react";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 import React from "react";
 
-interface Post {
-  title: string;
-  description: string;
-  date: string;
-  imageUrl: string;
-  hashtags: string[];
-}
-
-const posts: Post[] = [
-  {
-    title: "4 bước để có cuộc sống khoẻ mạnh",
-    description:
-      "Để có cuộc sống khoẻ mạnh hãy làm việc thật ý nghĩa và lạc quan. Ngoài những tính năng liên quan đến Apple Intelligence, thì nó cũng có những tính năng đúng như tên gọi của nó - Camera Control. Anh em có thể sử dụng Camera Control để zoom in",
-    date: "13/2/2023 1:23",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    hashtags: ["#chualanh", "#cuocsong", "#songtot", "#hoiphuc"],
-  },
-  {
-    title: "4 bước để có cuộc sống khoẻ mạnh",
-    description:
-      "Để có cuộc sống khoẻ mạnh hãy làm việc thật ý nghĩa và lạc quan. Ngoài những tính năng liên quan đến Apple Intelligence, thì nó cũng có những tính năng đúng như tên gọi của nó - Camera Control. Anh em có thể sử dụng Camera Control để zoom in",
-    date: "13/2/2023 1:23",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    hashtags: ["#chualanh", "#cuocsong", "#songtot", "#hoiphuc"],
-  },
-  {
-    title: "4 bước để có cuộc sống khoẻ mạnh",
-    description:
-      "Để có cuộc sống khoẻ mạnh hãy làm việc thật ý nghĩa và lạc quan. Ngoài những tính năng liên quan đến Apple Intelligence, thì nó cũng có những tính năng đúng như tên gọi của nó - Camera Control. Anh em có thể sử dụng Camera Control để zoom in",
-    date: "13/2/2023 1:23",
-    imageUrl:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    hashtags: ["#chualanh", "#cuocsong", "#songtot", "#hoiphuc"],
-  },
-];
 export default function SameTopicPost() {
+  const param = useParams();
+  const postIdFromUrl = param?.postId;
+  const { data, isLoading, isError } = useGetOtherPostWithSameCategoryQuery({
+    body: { postId: postIdFromUrl as string, top: 6 },
+  });
+  const otherPostWithSameCategory = data?.payload.data || [];
+
+  if (isLoading)
+    return (
+      <div className="overflow-hidden animate-pulse">
+        <div className="flex flex-col py-2 px-2">
+          <div className="w-full h-60 md:h-72 bg-gray-200 rounded-lg"></div>
+          <div className="ml-4 flex flex-col justify-between">
+            <div>
+              <div className="h-5 mt-2 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-full mt-1"></div>
+              <div className="h-4 bg-gray-200 rounded w-2/3 mt-1"></div>
+            </div>
+            <div className="flex items-center h-4 mt-2 bg-gray-200 rounded w-1/3"></div>
+          </div>
+        </div>
+      </div>
+    );
+
+  if (isError)
+    return (
+      <div className="text-textChat font-bold">
+        Chức năng này đang bảo trì, bạn đợi chút nhé
+      </div>
+    );
+
   return (
     <Card className="py-4 px-10">
       <h2 className="text-xl font-semibold text-center mb-4">
@@ -50,11 +47,11 @@ export default function SameTopicPost() {
       </h2>
 
       <div className="space-y-4">
-        {posts.map((post, index) => (
-          <Card key={index} className="overflow-hidden">
+        {otherPostWithSameCategory.map((post) => (
+          <Card key={post.postId} className="overflow-hidden">
             <CardContent className="flex flex-col py-2 px-2">
               <Image
-                src={post.imageUrl}
+                src={post.coverImgUrl}
                 alt={post.title}
                 width={4000}
                 height={120}
@@ -66,16 +63,17 @@ export default function SameTopicPost() {
                   <h3 className="lg:text-lg md:text-2xl sm:text-2xl text-lg mt-2 font-medium text-textChat">
                     {post.title}
                   </h3>
-                  <p className="lg:text-sm md:text-xl sm:text-xl text-sm text-muted-foreground line-clamp-2">
-                    {post.description}
-                  </p>
+                  <div className="lg:text-sm md:text-xl sm:text-xl text-sm text-muted-foreground line-clamp-2">
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: post.description,
+                      }}
+                    />
+                  </div>
                 </div>
                 <div className="flex items-center text-gray-500 text-xs mt-2">
                   <CalendarIcon className="mr-1 h-4 w-4" />
-                  <span>{post.date}</span>
-                </div>
-                <div className="text-xs mt-2 text-gray-500">
-                  {post.hashtags.join(" ")}
+                  <span>{formatDateTime(post.createAt)}</span>
                 </div>
               </div>
             </CardContent>
