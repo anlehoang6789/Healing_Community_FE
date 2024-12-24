@@ -2,7 +2,6 @@
 
 import GroupTabsUser from "@/app/user/group/group-tabs-user";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Globe } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
