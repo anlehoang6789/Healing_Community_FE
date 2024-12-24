@@ -116,7 +116,12 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-textChat">Chia sẻ</DialogTitle>
         </DialogHeader>
@@ -143,6 +148,9 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
           <Textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
             placeholder="Hãy nói gì đó về nội dung này (không bắt buộc)"
             className="min-h-[100px] resize-none mb-2"
           />

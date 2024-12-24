@@ -5,16 +5,22 @@ import {
   AddUserReferenceBodyType,
   CategoryListSchemaType,
   CreateBookmarkListBodyType,
+  CreateCategoryBodyType,
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
   DeleteBookmarkListDetailsBodyType,
   GetAllReactionTypeResponseType,
+  GetAuthorOtherPostBodyType,
+  GetAuthorOtherPostListResType,
   GetBookmarkListDetailsResponseType,
   GetBookmarkListResponseType,
   GetCommentCountResType,
   GetCommentsByPostIdResponseType,
+  GetDetailsCategoryResponseType,
+  GetHighlightPostListResType,
   GetHomePageListLazyLoadType,
+  GetOtherPostWithSameCategoryBodyType,
   GetPostByUserIdResType,
   GetQuickPostListType,
   GetReactionCountResType,
@@ -105,6 +111,29 @@ const postApiRequest = {
     }),
   sharePost: (body: SharePostRequestType) =>
     http.post<SharePostResponseType>("post/api/share/share-story", body),
+  getHighlightPost: (top: number) =>
+    http.get<GetHighlightPostListResType>(`post/api/post/get-top-post/${top}`),
+  getDetailsCategory: (categoryId: string) =>
+    http.get<GetDetailsCategoryResponseType>(
+      `post/api/category/get-by-id/${categoryId}`
+    ),
+  addCategory: (body: CreateCategoryBodyType) =>
+    http.post<{ message: string }>("post/api/category/create", body),
+  deleteCategory: (categoryId: string) =>
+    http.delete<{ message: string }>(`post/api/category/delete/${categoryId}`),
+  updateCategory: (categoryId: string, body: CreateCategoryBodyType) =>
+    http.put<{ message: string }>(
+      `post/api/category/update/${categoryId}`,
+      body
+    ),
+  getAuthorOtherPost: (body: GetAuthorOtherPostBodyType) =>
+    http.get<GetAuthorOtherPostListResType>(
+      `post/api/post/get-other-authour-post/${body.authorId}/top?top=${body.top}`
+    ),
+  getOtherPostWithSameCategory: (body: GetOtherPostWithSameCategoryBodyType) =>
+    http.get<GetAuthorOtherPostListResType>(
+      `post/api/post/get-other-relative-post/${body.postId}/${body.top}`
+    ),
 };
 
 export default postApiRequest;

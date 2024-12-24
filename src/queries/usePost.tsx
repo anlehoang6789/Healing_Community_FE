@@ -1,6 +1,8 @@
 import postApiRequest from "@/apiRequests/post";
 import {
-  AddReactionBodyType,
+  CreateCategoryBodyType,
+  GetAuthorOtherPostBodyType,
+  GetOtherPostWithSameCategoryBodyType,
   UpdatePersonalPostBodyType,
 } from "@/schemaValidations/post.schema";
 import {
@@ -9,11 +11,66 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { toNamespacedPath } from "node:path";
 
 export const useGetAllCategoryQuery = () => {
   return useQuery({
     queryKey: ["category-list"],
     queryFn: () => postApiRequest.getAllCategory(),
+  });
+};
+
+export const useGetDetailsCategoryQuery = ({
+  categoryId,
+  enabled,
+}: {
+  categoryId: string;
+  enabled?: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["details-category", categoryId],
+    queryFn: () => postApiRequest.getDetailsCategory(categoryId),
+    enabled,
+  });
+};
+
+export const useAddCategoryMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.addCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["category-list"],
+      });
+    },
+  });
+};
+
+export const useDeleteCategoryMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteCategory,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["category-list"],
+      });
+    },
+  });
+};
+
+export const useUpdateCategoryMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      categoryId,
+      ...body
+    }: CreateCategoryBodyType & { categoryId: string }) =>
+      postApiRequest.updateCategory(categoryId, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["category-list"],
+      });
+    },
   });
 };
 
@@ -315,5 +372,27 @@ export const useSharePostMutation = () => {
         queryKey: [""],
       });
     },
+  });
+};
+
+export const useGetAuthorOtherPostQuery = ({
+  body,
+}: {
+  body: GetAuthorOtherPostBodyType;
+}) => {
+  return useQuery({
+    queryKey: ["author-other-post", body],
+    queryFn: () => postApiRequest.getAuthorOtherPost(body),
+  });
+};
+
+export const useGetOtherPostWithSameCategoryQuery = ({
+  body,
+}: {
+  body: GetOtherPostWithSameCategoryBodyType;
+}) => {
+  return useQuery({
+    queryKey: ["other-post-with-same-category", body],
+    queryFn: () => postApiRequest.getOtherPostWithSameCategory(body),
   });
 };

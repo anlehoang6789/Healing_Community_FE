@@ -62,7 +62,31 @@ import ReactionCount from "@/components/homePage/reactionCount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { Role } from "@/constants/type";
 import ShareSection from "@/components/shareSection/shareSection";
+
+import { Card } from "@/components/ui/card";
+
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
+
+const mockSharedPost = {
+  sharedBy: {
+    id: "user123",
+    name: "Nguyễn Văn A",
+    avatar: "/placeholder-user.jpg",
+    createAt: new Date().toISOString(),
+  },
+  originalPost: {
+    id: "post123",
+    userId: "originalUser123",
+    userName: "Trần Văn B",
+    userAvatar: "/placeholder-user.jpg",
+    title: "Tiêu đề bài viết gốc",
+    description: "Nội dung bài viết gốc...",
+    coverImgUrl:
+      "https://firebasestorage.googleapis.com/v0/b/healing-community-4d0b5.appspot.com/o/upload%2F11caed7f-0ee3-43cb-ae30-8e112a87c10e.png?alt=media&token=2b8d56ad-cff5-4f06-9209-278beda7715f",
+    createAt: new Date().toISOString(),
+    status: 0,
+  },
+};
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -381,6 +405,7 @@ export default function OwnPost() {
         setPostDelete,
       }}
     >
+      {/* Bài viết đã đăng */}
       <div className="mb-2">
         {postListByStatus.length === 0 ? (
           <div className="text-textChat text-center p-4 rounded-lg shadow-lg border mb-6">
@@ -438,7 +463,7 @@ export default function OwnPost() {
                   </Avatar>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                      <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-2">
                         {isExpert
                           ? expertProfile?.payload.data.fullname ||
                             expertProfile?.payload.data.email
@@ -630,6 +655,127 @@ export default function OwnPost() {
             );
           })
         )}
+      </div>
+
+      {/* Chia sẻ bài viết */}
+      <div className="mb-6 rounded-lg shadow-lg border">
+        {/* Người chia sẻ */}
+        <div className="flex items-center gap-4 p-4">
+          <Avatar className="w-10 h-10 border-2 border-rose-300">
+            <AvatarImage
+              src={mockSharedPost.sharedBy.avatar}
+              alt={mockSharedPost.sharedBy.name}
+            />
+            <AvatarFallback>{mockSharedPost.sharedBy.name[0]}</AvatarFallback>
+          </Avatar>
+          <div>
+            <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+              {mockSharedPost.sharedBy.name}
+            </h2>
+            <div className="flex items-center gap-2">
+              <p className="text-sm text-gray-500">
+                {formatDateTime(mockSharedPost.sharedBy.createAt)}
+              </p>
+              <Globe className="h-4 w-4 text-gray-500" />
+            </div>
+          </div>
+
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild className="ml-auto">
+              <Button variant="iconSend" size="icon">
+                <Ellipsis className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className={`w-56 mt-4 ${
+                theme === "dark" ? "bg-black text-white" : "bg-white text-black"
+              }`}
+            >
+              <DropdownMenuItem onClick={() => setIsBookmarkDialogOpen(true)}>
+                <Bookmark className="mr-2 h-4 w-4" />
+                <span>Lưu bài viết</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Flag className="mr-2 h-4 w-4" />
+                <span>Báo cáo bài viết</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Bài viết gốc */}
+        <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
+          <div className="flex items-center gap-4 p-4">
+            <Avatar className="w-10 h-10 border-2 border-rose-300">
+              <AvatarImage
+                src={mockSharedPost.originalPost.userAvatar}
+                alt={mockSharedPost.originalPost.userName}
+              />
+              <AvatarFallback>
+                {mockSharedPost.originalPost.userName[0]}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                {mockSharedPost.originalPost.userName}
+              </h2>
+              <p className="text-sm text-gray-500">
+                {formatDateTime(mockSharedPost.originalPost.createAt)}
+              </p>
+            </div>
+          </div>
+
+          <Image
+            src={mockSharedPost.originalPost.coverImgUrl}
+            alt="Post cover"
+            width={1000}
+            height={500}
+            className="w-full h-[250px] object-cover"
+          />
+
+          <div className="p-4">
+            <h3 className="font-bold text-lg text-center mb-2">
+              {mockSharedPost.originalPost.title}
+            </h3>
+            <div className="whitespace-pre-wrap text-textChat">
+              {mockSharedPost.originalPost.description}
+            </div>
+          </div>
+        </Card>
+
+        {/* Tương tác */}
+        <div className="flex flex-col items-start gap-4 p-4">
+          <div className="flex justify-between w-full">
+            <ReactionCount postId={mockSharedPost.originalPost.id} />
+            <span className="text-sm text-gray-500">0 bình luận</span>
+          </div>
+
+          <div className="flex items-center justify-between w-full">
+            <ReactionEmoji postId={mockSharedPost.originalPost.id} />
+            <Button
+              variant="iconDarkMod"
+              className="flex items-center gap-2 p-0"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Bình luận
+            </Button>
+            <ShareSection postId={mockSharedPost.originalPost.id}>
+              <Button
+                variant="iconDarkMod"
+                className="flex items-center gap-2 p-0"
+              >
+                <Share2 className="w-4 h-4" />
+                Chia sẻ
+              </Button>
+            </ShareSection>
+          </div>
+        </div>
+
+        <BookmarkDialogMobile
+          postId={mockSharedPost.originalPost.id}
+          isOpen={isBookmarkDialogOpen}
+          setIsOpen={setIsBookmarkDialogOpen}
+        />
       </div>
     </OwnPostContext.Provider>
   );

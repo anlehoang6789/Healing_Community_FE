@@ -377,3 +377,65 @@ export const SharePostResponseSchema = z.object({
 });
 
 export type SharePostResponseType = z.TypeOf<typeof SharePostResponseSchema>;
+
+export const GetHighlightPostListRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetHighlightPostListResType = z.TypeOf<
+  typeof GetHighlightPostListRes
+>;
+
+export const GetDetailsCategorySchema = z.object({
+  categoryId: z.string(),
+  name: z.string(),
+  createAt: z.string(),
+  updateAt: z.string(),
+});
+
+export type GetDetailsCategorySchemaType = z.TypeOf<
+  typeof GetDetailsCategorySchema
+>;
+
+export const GetDetailsCategoryResponse = z.object({
+  data: GetDetailsCategorySchema,
+  message: z.string(),
+});
+
+export type GetDetailsCategoryResponseType = z.TypeOf<
+  typeof GetDetailsCategoryResponse
+>;
+
+export const CreateCategoryBody = z.object({
+  name: z.string(),
+});
+
+export type CreateCategoryBodyType = z.TypeOf<typeof CreateCategoryBody>;
+
+export const GetAuthorOtherPostBody = z.object({
+  authorId: z.string(),
+  top: z.number(),
+});
+
+export type GetAuthorOtherPostBodyType = z.TypeOf<
+  typeof GetAuthorOtherPostBody
+>;
+
+export const GetAuthorOtherPostListRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetAuthorOtherPostListResType = z.TypeOf<
+  typeof GetAuthorOtherPostListRes
+>;
+
+export const GetOtherPostWithSameCategoryBody = z.object({
+  top: z.number(),
+  postId: z.string(),
+});
+
+export type GetOtherPostWithSameCategoryBodyType = z.TypeOf<
+  typeof GetOtherPostWithSameCategoryBody
+>;

@@ -1,45 +1,63 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Role } from "@/constants/type";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import { useGetDetailsCategoryQuery } from "@/queries/usePost";
+import { QuickPostType } from "@/schemaValidations/post.schema";
 import Link from "next/link";
 import React from "react";
 
-interface HighlightPost {
-  id: number;
-  title: string;
-  author: string;
-  category: string;
-}
+const UserProfile = ({ userId }: { userId: string }) => {
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
+  const { data: userProfile } = useGetUserProfileQuery(
+    userId,
+    !isExpert && !!userId
+  );
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    userId,
+    isExpert && !!userId
+  );
+  return (
+    <Link href={`/user/profile/${userId}`}>
+      <p className="text-sm text-muted-foreground">
+        Tác giả:{" "}
+        <span className="text-textChat hover:bg-clip-text hover:text-transparent hover:bg-gradient-to-r from-pink-500 to-violet-500">
+          {isExpert
+            ? expertProfile?.payload.data.fullname ||
+              expertProfile?.payload.data.email
+            : userProfile?.payload.data.fullName ||
+              userProfile?.payload.data.userName ||
+              "Anonymous"}
+        </span>
+      </p>
+    </Link>
+  );
+};
 
-const highlightPosts: HighlightPost[] = [
-  {
-    id: 1,
-    title:
-      "Top những điểm ấn tượng Apple Watch Series 10: Bản titan RẤT đẹp, mua",
-    author: "Anh Tú",
-    category: "Âm nhạc trị liệu",
-  },
-  {
-    id: 2,
-    title:
-      "Trên tay Apple Watch Series 10 Natural Titanium: máy đẹp, mỏng và nhẹ, hoàn thiện đẳng bóng",
-    author: "Pnghuy",
-    category: "Review phim chữa lành",
-  },
-  {
-    id: 3,
-    title:
-      "LG nộp bằng sáng chế mới về smartphone màn hình cuộn, dấu hiệu cho sự quay trở lại của LG?",
-    author: "Cao - Foxtek",
-    category: "Âm nhạc trị liệu",
-  },
-  {
-    id: 4,
-    title: "7 yếu tố mà Samsung cần nâng cấp trên Galaxy S25 Series",
-    author: "Cao - Foxtek",
-    category: "Sức khỏe tinh thần",
-  },
-];
-export default function HighlightPosts() {
+const CategoryBadge = ({ categoryId }: { categoryId: string }) => {
+  const { data, isError } = useGetDetailsCategoryQuery({ categoryId });
+  if (isError)
+    return (
+      <div className="text-textChat font-semibold">
+        Chức năng hiện đang bảo trì, bạn chờ xíu nhé
+      </div>
+    );
+  return (
+    <Badge className="text-textChat bg-muted" variant={"outline"}>
+      {data?.payload.data.name}
+    </Badge>
+  );
+};
+
+export default function HighlightPosts({
+  highlightPostList,
+}: {
+  highlightPostList: QuickPostType[];
+}) {
   return (
     <div className="w-full mx-auto">
       <div>
@@ -47,33 +65,32 @@ export default function HighlightPosts() {
           Bài nổi bật
         </h2>
         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-x-8 gap-y-4">
-          {highlightPosts.map((post) => (
-            <Card key={post.id} className="flex flex-col items-start space-x-3">
+          {highlightPostList.map((post, index) => (
+            <Card
+              key={post.postId}
+              className="flex flex-col items-start space-x-3 w-80 relative"
+            >
               <CardContent className="p-3">
-                {/* <div className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] w-10 flex-shrink-0 -mt-1">
-                  #{post.id}
-                </div> */}
-                <div className="flex items-center justify-between mb-4">
+                <div className=" mb-4">
                   <Badge
                     variant="outline"
                     className="bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black text-sm"
                   >
-                    #{post.id}
+                    #{index + 1}
                   </Badge>
-                  <Badge>{post.category}</Badge>
+                  <div className="absolute top-3 right-3">
+                    <CategoryBadge categoryId={post.categoryId} />
+                  </div>
                 </div>
                 <div>
-                  <Link href="#">
-                    <h3 className="font-bold text-base mb-1 text-textChat ">
-                      {post.title}
+                  <Link href={`/content/${post.postId}`}>
+                    <h3 className="font-bold text-base mb-1 text-textChat hover:underline">
+                      {post.title.length > 100
+                        ? `${post.title.slice(0, 100)}...`
+                        : post.title}
                     </h3>
                   </Link>
-                  <Link href="#">
-                    <p className="text-sm text-muted-foreground">
-                      Tác giả:{" "}
-                      <span className="text-textChat">{post.author}</span>
-                    </p>
-                  </Link>
+                  <UserProfile userId={post.userId} />
                 </div>
               </CardContent>
             </Card>
