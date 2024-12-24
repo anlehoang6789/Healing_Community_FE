@@ -1,5 +1,9 @@
-import React from "react";
+import GroupMembersClient from "@/app/user/group/[groupId]/members/group-members-client";
 
 export default function GroupMembers() {
-  return <div>Trang hien thi thanh vien co trong nhoms</div>;
+  return (
+    <>
+      <GroupMembersClient />
+    </>
+  );
 }
