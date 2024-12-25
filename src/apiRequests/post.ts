@@ -144,6 +144,9 @@ const postApiRequest = {
 
   updateSharedPost: (body: UpdateSharedPostBodyType) =>
     http.put<{ message: string }>("post/api/share/update-share", body),
+
+  deleteSharedPost: (shareId: string) =>
+    http.delete<{ message: string }>(`post/api/share/delete-share/${shareId}`),
 };
 
 export default postApiRequest;
