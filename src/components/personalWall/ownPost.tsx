@@ -70,6 +70,7 @@ import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { PersonalInformationBodyType } from "@/schemaValidations/account.schema";
 import accountApiRequest from "@/apiRequests/account";
 import { compareDesc, parseISO } from "date-fns";
+import EditSharedPost from "@/components/personalWall/editSharedPost";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -219,20 +220,6 @@ export default function OwnPost() {
       [postId]: shouldExpand,
     }));
   };
-
-  // Sắp xếp bài viết đã đăng
-  const sortedPostListByStatus = useMemo(() => {
-    return postListByStatus.sort((a, b) =>
-      compareDesc(parseISO(a.createAt), parseISO(b.createAt))
-    );
-  }, [postListByStatus]);
-
-  // Sắp xếp bài viết được chia sẻ
-  const sortedSharedPosts = useMemo(() => {
-    return sharedPosts.sort((a, b) =>
-      compareDesc(parseISO(a.shareAt), parseISO(b.shareAt))
-    );
-  }, [sharedPosts]);
 
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
@@ -817,14 +804,19 @@ export default function OwnPost() {
                       >
                         {userIdFromLocalStorage === userId ? (
                           <>
-                            <DropdownMenuItem
-                            // onClick={() => {
-                            //   setPostId(sharedPost.shareId);
-                            // }}
-                            >
-                              <FilePenLine className="mr-2 h-4 w-4" />
-                              <span>Sửa bài viết</span>
-                            </DropdownMenuItem>
+                            <EditSharedPost sharedPost={sharedPost}>
+                              <div
+                                className={`flex items-center w-full p-2 text-sm rounded-md select-none ${
+                                  theme === "light"
+                                    ? "hover:bg-gray-300"
+                                    : "hover:bg-[#516A81]"
+                                }`}
+                              >
+                                <FilePenLine className="mr-2 h-4 w-4" />
+                                <span>Sửa bài viết</span>
+                              </div>
+                            </EditSharedPost>
+
                             <DropdownMenuItem
                             // onClick={() => {
                             //   setPostDelete(sharedPost.shareId);
@@ -936,9 +928,9 @@ export default function OwnPost() {
                   <div className="flex flex-col items-start gap-4 p-4">
                     <div className="flex justify-between w-full">
                       <ReactionCount postId={sharedPost.shareId} />
-                      <span className="text-sm text-gray-500">
+                      {/* <span className="text-sm text-gray-500">
                         <CommentCount postId={sharedPost.shareId} />
-                      </span>
+                      </span> */}
                     </div>
 
                     <div className="flex items-center justify-between w-full">
