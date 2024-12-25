@@ -71,6 +71,7 @@ import { PersonalInformationBodyType } from "@/schemaValidations/account.schema"
 import accountApiRequest from "@/apiRequests/account";
 import { compareDesc, parseISO } from "date-fns";
 import EditSharedPost from "@/components/personalWall/editSharedPost";
+import AlertDialogDeleteSharedPost from "@/components/personalWall/deleteSharedPost";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -817,14 +818,20 @@ export default function OwnPost() {
                               </div>
                             </EditSharedPost>
 
-                            <DropdownMenuItem
-                            // onClick={() => {
-                            //   setPostDelete(sharedPost.shareId);
-                            // }}
+                            <AlertDialogDeleteSharedPost
+                              sharedPost={sharedPost}
                             >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              <span>Xóa bài viết</span>
-                            </DropdownMenuItem>
+                              <div
+                                className={`flex items-center w-full p-2 text-sm rounded-md select-none ${
+                                  theme === "light"
+                                    ? "hover:bg-gray-300"
+                                    : "hover:bg-[#516A81]"
+                                }`}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Xóa bài viết</span>
+                              </div>
+                            </AlertDialogDeleteSharedPost>
                           </>
                         ) : (
                           // If the viewer is not the post owner

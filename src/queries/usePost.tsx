@@ -385,6 +385,18 @@ export const useUpdateSharedPostMutation = () => {
   });
 };
 
+export const useDeleteSharedPostMutation = (userId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteSharedPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["shared-post-by-user-id", userId],
+      });
+    },
+  });
+};
+
 export const useSharePostMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
