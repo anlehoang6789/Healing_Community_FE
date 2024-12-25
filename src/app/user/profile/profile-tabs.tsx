@@ -16,6 +16,7 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useUserIsOwnerStore } from "@/store/userStore";
 import { Pencil } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function ProfileTabs({
@@ -25,6 +26,7 @@ export default function ProfileTabs({
   userId: string | null;
   isOwner: boolean;
 }) {
+  const pathname = usePathname();
   const role = getRoleFromLocalStorage();
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
@@ -80,6 +82,16 @@ export default function ProfileTabs({
     if (!isOwner) fetchFollowStatus();
   }, [isOwner, setIsThatOwner, getFollowingList, userId]);
 
+  const activeTab = pathname.startsWith(`/user/profile/change-password`)
+    ? "change-password"
+    : pathname.startsWith(`/user/profile/expert-info/${userId}`)
+    ? "expert-info"
+    : pathname.startsWith(`/user/profile/information`)
+    ? "user-info"
+    : pathname.startsWith(`/user/profile/${userId}`)
+    ? "personal-wall"
+    : "personal-wall";
+
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center py-4 border-b">
@@ -105,42 +117,62 @@ export default function ProfileTabs({
         )}
 
         <div className="flex justify-between sm:justify-start items-center space-x-2 sm:space-x-4 w-full sm:w-auto sm:order-1">
-          <Button
-            variant={"gradientHoverUnderline"}
-            className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-          >
-            <Link href={`/user/profile/${userId}`}>Tường nhà</Link>
-          </Button>
-
-          {(isOwner && role === Role.Expert) || (!isOwner && isExpert) ? (
+          <Link href={`/user/profile/${userId}`} passHref>
             <Button
-              variant={"gradientHoverUnderline"}
+              variant={
+                activeTab === "personal-wall"
+                  ? "gradientUnderline"
+                  : "gradientHoverUnderline"
+              }
               className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
             >
-              <Link href={`/user/profile/expert-info/${userId}`}>
-                Thông tin chuyên gia
-              </Link>
+              Tường nhà
             </Button>
+          </Link>
+
+          {(isOwner && role === Role.Expert) || (!isOwner && isExpert) ? (
+            <Link href={`/user/profile/expert-info/${userId}`} passHref>
+              <Button
+                variant={
+                  activeTab === "expert-info"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                Thông tin chuyên gia
+              </Button>
+            </Link>
           ) : null}
 
           {isOwner && role !== Role.Expert && (
-            <Button
-              variant={"gradientHoverUnderline"}
-              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-            >
-              <Link href={"/user/profile/information"}>Thông tin cá nhân</Link>
-            </Button>
+            <Link href={"/user/profile/information"} passHref>
+              <Button
+                variant={
+                  activeTab === "user-info"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                Thông tin cá nhân
+              </Button>
+            </Link>
           )}
 
           {isOwner && (
-            <>
+            <Link href={"/user/profile/change-password"}>
               <Button
-                variant={"gradientHoverUnderline"}
+                variant={
+                  activeTab === "change-password"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
                 className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
               >
-                <Link href={"/user/profile/change-password"}>Đổi mật khẩu</Link>
+                Đổi mật khẩu
               </Button>
-            </>
+            </Link>
           )}
         </div>
       </div>
