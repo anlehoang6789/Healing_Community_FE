@@ -30,6 +30,7 @@ import {
   SharePostRequestType,
   SharePostResponseType,
   UpdatePersonalPostBodyType,
+  UpdateSharedPostBodyType,
   UploadImageCoverResponseType,
 } from "@/schemaValidations/post.schema";
 
@@ -140,6 +141,9 @@ const postApiRequest = {
     http.get<GetAuthorOtherPostListResType>(
       `post/api/post/get-other-relative-post/${body.postId}/${body.top}`
     ),
+
+  updateSharedPost: (body: UpdateSharedPostBodyType) =>
+    http.put<{ message: string }>("post/api/share/update-share", body),
 };
 
 export default postApiRequest;

@@ -469,3 +469,10 @@ export const GetOtherPostWithSameCategoryBody = z.object({
 export type GetOtherPostWithSameCategoryBodyType = z.TypeOf<
   typeof GetOtherPostWithSameCategoryBody
 >;
+
+export const UpdateSharedPostBody = z.object({
+  shareId: z.string(),
+  description: z.string(),
+});
+
+export type UpdateSharedPostBodyType = z.TypeOf<typeof UpdateSharedPostBody>;
