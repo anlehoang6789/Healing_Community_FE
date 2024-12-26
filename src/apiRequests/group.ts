@@ -3,6 +3,9 @@ import {
   CreateGroupRequestType,
   GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
+  GetGroupDetailsByGroupIdResType,
+  GetGroupMembersByGroupIdListResType,
+  GetRoleCountByGroupIdResType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
 } from "@/schemaValidations/group.schema";
@@ -33,6 +36,18 @@ const groupApiRequest = {
     http.put<{ message: string }>(
       `group/api/group/update-group/${groupId}`,
       payload
+    ),
+  getGroupDetailsByGroupId: (groupId: string) =>
+    http.get<GetGroupDetailsByGroupIdResType>(
+      `group/api/group/get-by-group-id/${groupId}`
+    ),
+  getGroupMemberByGroupId: (groupId: string) =>
+    http.get<GetGroupMembersByGroupIdListResType>(
+      `group/api/usergroup/get-by-group-id?groupId=${groupId}`
+    ),
+  getRoleCountByGroupId: (groupId: string) =>
+    http.get<GetRoleCountByGroupIdResType>(
+      `group/api/usergroup/get-role-count-by-group-id/${groupId}`
     ),
 };
 

@@ -70,6 +70,11 @@ import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { PersonalInformationBodyType } from "@/schemaValidations/account.schema";
 import accountApiRequest from "@/apiRequests/account";
 import { compareDesc, parseISO } from "date-fns";
+import EditSharedPost from "@/components/personalWall/editSharedPost";
+import AlertDialogDeleteSharedPost from "@/components/personalWall/deleteSharedPost";
+import authApiRequest from "@/apiRequests/auth";
+import expertApiRequest from "@/apiRequests/expert";
+import { GetExpertProfileSchemaType } from "@/schemaValidations/expert.schema";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -129,22 +134,57 @@ export default function OwnPost() {
     timestamp: string;
   }
 
+  type ExtendedProfileType = PersonalInformationBodyType["data"] & {
+    isExpert?: boolean;
+    expertProfile?: GetExpertProfileSchemaType;
+  };
+
   const [sharedPostUserProfiles, setSharedPostUserProfiles] = useState<{
-    [shareId: string]: PersonalInformationBodyType["data"] | null;
+    [shareId: string]: ExtendedProfileType | null;
   }>({});
 
   useEffect(() => {
     const fetchSharedPostUserProfiles = async () => {
       const profiles: {
-        [shareId: string]: PersonalInformationBodyType["data"] | null;
+        [shareId: string]: ExtendedProfileType | null;
       } = {};
 
       for (const sharedPost of sharedPosts) {
         try {
-          const userProfileResponse = await accountApiRequest.getUserProfile(
+          // Kiểm tra role của người dùng
+          const roleResponse = await authApiRequest.getRoleByUserId(
             sharedPost.userId
           );
-          profiles[sharedPost.shareId] = userProfileResponse.payload.data;
+          const isExpert = roleResponse.payload.data.roleName === Role.Expert;
+
+          if (isExpert) {
+            // Nếu là chuyên gia, lấy cả thông tin user và expert profile
+            const [userProfileResponse, expertProfileResponse] =
+              await Promise.all([
+                accountApiRequest.getUserProfile(sharedPost.userId),
+                expertApiRequest.getExpertProfile(sharedPost.userId),
+              ]);
+
+            profiles[sharedPost.shareId] = {
+              ...userProfileResponse.payload.data,
+              expertProfile: expertProfileResponse.payload.data,
+              isExpert: true,
+              fullName: expertProfileResponse.payload.data.fullname,
+              profilePicture:
+                expertProfileResponse.payload.data.profileImageUrl ||
+                userProfileResponse.payload.data.profilePicture,
+            };
+          } else {
+            // Nếu không phải chuyên gia, lấy thông tin user profile
+            const userProfileResponse = await accountApiRequest.getUserProfile(
+              sharedPost.userId
+            );
+
+            profiles[sharedPost.shareId] = {
+              ...userProfileResponse.payload.data,
+              isExpert: false,
+            };
+          }
         } catch (error) {
           console.error(
             `Error fetching profile for shared post ${sharedPost.shareId}:`,
@@ -219,20 +259,6 @@ export default function OwnPost() {
       [postId]: shouldExpand,
     }));
   };
-
-  // Sắp xếp bài viết đã đăng
-  const sortedPostListByStatus = useMemo(() => {
-    return postListByStatus.sort((a, b) =>
-      compareDesc(parseISO(a.createAt), parseISO(b.createAt))
-    );
-  }, [postListByStatus]);
-
-  // Sắp xếp bài viết được chia sẻ
-  const sortedSharedPosts = useMemo(() => {
-    return sharedPosts.sort((a, b) =>
-      compareDesc(parseISO(a.shareAt), parseISO(b.shareAt))
-    );
-  }, [sharedPosts]);
 
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
@@ -817,22 +843,33 @@ export default function OwnPost() {
                       >
                         {userIdFromLocalStorage === userId ? (
                           <>
-                            <DropdownMenuItem
-                            // onClick={() => {
-                            //   setPostId(sharedPost.shareId);
-                            // }}
+                            <EditSharedPost sharedPost={sharedPost}>
+                              <div
+                                className={`flex items-center w-full p-2 text-sm rounded-md select-none ${
+                                  theme === "light"
+                                    ? "hover:bg-gray-300"
+                                    : "hover:bg-[#516A81]"
+                                }`}
+                              >
+                                <FilePenLine className="mr-2 h-4 w-4" />
+                                <span>Sửa bài viết</span>
+                              </div>
+                            </EditSharedPost>
+
+                            <AlertDialogDeleteSharedPost
+                              sharedPost={sharedPost}
                             >
-                              <FilePenLine className="mr-2 h-4 w-4" />
-                              <span>Sửa bài viết</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                            // onClick={() => {
-                            //   setPostDelete(sharedPost.shareId);
-                            // }}
-                            >
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              <span>Xóa bài viết</span>
-                            </DropdownMenuItem>
+                              <div
+                                className={`flex items-center w-full p-2 text-sm rounded-md select-none ${
+                                  theme === "light"
+                                    ? "hover:bg-gray-300"
+                                    : "hover:bg-[#516A81]"
+                                }`}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Xóa bài viết</span>
+                              </div>
+                            </AlertDialogDeleteSharedPost>
                           </>
                         ) : (
                           // If the viewer is not the post owner
@@ -873,11 +910,23 @@ export default function OwnPost() {
                         <AvatarFallback>{sharedPost.title[0]}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                          {originalPostUserProfile?.fullName ||
-                            originalPostUserProfile?.userName ||
-                            "Anonymous"}
-                        </h2>
+                        <div className="flex items-center space-x-2">
+                          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                            {originalPostUserProfile?.isExpert
+                              ? originalPostUserProfile.expertProfile
+                                  ?.fullname ||
+                                originalPostUserProfile.email ||
+                                "Anonymous"
+                              : originalPostUserProfile?.fullName ||
+                                originalPostUserProfile?.userName ||
+                                "Anonymous"}
+                          </h2>
+                          {originalPostUserProfile?.isExpert && (
+                            <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+                              Chuyên gia
+                            </div>
+                          )}
+                        </div>
                         <p className="text-sm text-gray-500">
                           {formatDateTime(sharedPost.createAt)}
                         </p>
@@ -936,9 +985,9 @@ export default function OwnPost() {
                   <div className="flex flex-col items-start gap-4 p-4">
                     <div className="flex justify-between w-full">
                       <ReactionCount postId={sharedPost.shareId} />
-                      <span className="text-sm text-gray-500">
+                      {/* <span className="text-sm text-gray-500">
                         <CommentCount postId={sharedPost.shareId} />
-                      </span>
+                      </span> */}
                     </div>
 
                     <div className="flex items-center justify-between w-full">

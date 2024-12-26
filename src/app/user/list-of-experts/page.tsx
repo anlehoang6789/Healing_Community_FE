@@ -3,7 +3,7 @@ import React from "react";
 
 export default function ListOfExpert() {
   return (
-    <div>
+    <div className="px-28">
       <ListOfExperts />
     </div>
   );
