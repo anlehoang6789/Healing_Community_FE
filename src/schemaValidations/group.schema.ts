@@ -105,3 +105,43 @@ export const GetGroupDetailsByGroupIdRes = z.object({
 export type GetGroupDetailsByGroupIdResType = z.infer<
   typeof GetGroupDetailsByGroupIdRes
 >;
+
+export const GetGroupMembersByGroupIdSchema = z.object({
+  userId: z.string(),
+  groupName: z.string(),
+  groupAvatar: z.string(),
+  roleInGroup: z.enum(["User", "Owner", "Moderator"]),
+  joinedAt: z.string(),
+});
+
+export type GetGroupMembersByGroupIdType = z.infer<
+  typeof GetGroupMembersByGroupIdSchema
+>;
+
+export const GetGroupMembersByGroupIdListRes = z.object({
+  data: z.array(GetGroupMembersByGroupIdSchema),
+  message: z.string(),
+});
+
+export type GetGroupMembersByGroupIdListResType = z.infer<
+  typeof GetGroupMembersByGroupIdListRes
+>;
+
+export const GetRoleCountByGroupIdSchema = z.object({
+  totalUsers: z.number(),
+  totalOwnersAndModerators: z.number(),
+  totalMembers: z.number(),
+});
+
+export type GetRoleCountByGroupIdType = z.infer<
+  typeof GetRoleCountByGroupIdSchema
+>;
+
+export const GetRoleCountByGroupIdRes = z.object({
+  data: GetRoleCountByGroupIdSchema,
+  message: z.string(),
+});
+
+export type GetRoleCountByGroupIdResType = z.infer<
+  typeof GetRoleCountByGroupIdRes
+>;

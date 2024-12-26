@@ -100,3 +100,17 @@ export const useGetGroupDetailsByGroupIdQuery = (groupId: string) => {
     queryFn: () => groupApiRequest.getGroupDetailsByGroupId(groupId),
   });
 };
+
+export const useGetGroupMembersByGroupIdQuery = (groupId: string) => {
+  return useQuery({
+    queryKey: ["get-group-members-by-group-id", groupId],
+    queryFn: () => groupApiRequest.getGroupMemberByGroupId(groupId),
+  });
+};
+
+export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
+  return useQuery({
+    queryKey: ["get-role-count-by-group-id", groupId],
+    queryFn: () => groupApiRequest.getRoleCountByGroupId(groupId),
+  });
+};
