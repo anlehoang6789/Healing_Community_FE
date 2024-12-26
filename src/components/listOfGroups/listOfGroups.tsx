@@ -151,7 +151,7 @@ export default function ListOfGroups() {
                 </Badge>
               )}
               <CardContent className="p-4 flex items-start space-x-4 relative">
-                <Link href="#">
+                <Link href={`/user/group/${group.groupId}`}>
                   <Image
                     src={
                       group.avatarGroup ||
@@ -166,7 +166,7 @@ export default function ListOfGroups() {
 
                 <div className="flex-1">
                   <HoverCardTrigger asChild>
-                    <Link href="#">
+                    <Link href={`/user/group/${group.groupId}`}>
                       <h2 className="font-semibold hover:underline">
                         {group.groupName}
                       </h2>
@@ -241,7 +241,7 @@ export default function ListOfGroups() {
               }`}
             >
               <div className="flex items-start gap-4">
-                <Link href="#">
+                <Link href={`/user/group/${group.groupId}`}>
                   <Avatar className="h-16 w-16">
                     <AvatarImage
                       src={
@@ -254,7 +254,7 @@ export default function ListOfGroups() {
                   </Avatar>
                 </Link>
                 <div className="flex-col">
-                  <Link href="#">
+                  <Link href={`/user/group/${group.groupId}`}>
                     <h3 className="font-semibold hover:underline">
                       {group.groupName}
                     </h3>
@@ -277,7 +277,9 @@ export default function ListOfGroups() {
                 </p>
               </div>
               <div className="flex gap-4">
-                <Button className="w-full mt-4">Truy cập vào nhóm</Button>
+                <Link href={`/user/group/${group.groupId}`} className="w-full">
+                  <Button className="w-full mt-4">Truy cập vào nhóm</Button>
+                </Link>
               </div>
             </HoverCardContent>
           </HoverCard>
