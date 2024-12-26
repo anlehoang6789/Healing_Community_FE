@@ -93,3 +93,10 @@ export const useUpdateGroupMutation = () => {
     },
   });
 };
+
+export const useGetGroupDetailsByGroupIdQuery = (groupId: string) => {
+  return useQuery({
+    queryKey: ["get-group-details-by-group-id", groupId],
+    queryFn: () => groupApiRequest.getGroupDetailsByGroupId(groupId),
+  });
+};
