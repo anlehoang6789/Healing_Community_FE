@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Star, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
@@ -13,145 +13,120 @@ import {
 } from "@/components/ui/select";
 import Image from "next/image";
 import { useTheme } from "next-themes";
-
-// Types
-type Specialty =
-  | "Tâm lý"
-  | "Thư giãn"
-  | "Tâm thần học"
-  | "Dinh dưỡng"
-  | "Vật lý trị liệu";
-
-interface Expert {
-  id: string;
-  name: string;
-  image: string;
-  specialty: Specialty[];
-
-  rating: number;
-  bookings: number;
-  reviewCount: number;
-}
-
-const experts: Expert[] = [
-  {
-    id: "1",
-    name: "TS. Nguyễn Văn A",
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    specialty: ["Tâm lý", "Tâm thần học"],
-
-    rating: 5,
-    bookings: 128,
-    reviewCount: 256,
-  },
-  {
-    id: "2",
-    name: "ThS. Trần Thị B",
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    specialty: ["Thư giãn"],
-
-    rating: 4,
-    bookings: 96,
-    reviewCount: 256,
-  },
-  {
-    id: "3",
-    name: "PGS. Lê Văn C",
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    specialty: ["Tâm thần học"],
-
-    rating: 3,
-    bookings: 256,
-    reviewCount: 256,
-  },
-  {
-    id: "4",
-    name: "TS. Phạm Thị D",
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    specialty: ["Dinh dưỡng", "Tâm lý", "Tâm thần học", "Thư giãn"],
-
-    rating: 4,
-    bookings: 64,
-    reviewCount: 256,
-  },
-  {
-    id: "5",
-    name: "ThS. Hoàng Văn E",
-    image:
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
-    specialty: ["Vật lý trị liệu"],
-
-    rating: 1,
-    bookings: 192,
-    reviewCount: 256,
-  },
-];
-
-// Specialties array
-const specialties: Specialty[] = [
-  "Tâm lý",
-  "Thư giãn",
-  "Tâm thần học",
-  "Dinh dưỡng",
-  "Vật lý trị liệu",
-];
+import { useGetExpertListInfiniteQuery } from "@/queries/useExpert";
+import { ExpertType } from "@/schemaValidations/expert.schema";
 
 export default function ExpertsPage() {
   const { theme } = useTheme();
   const [ratingFilter, setRatingFilter] = useState<number | null>(null);
-  const [specialtyFilter, setSpecialtyFilter] = useState<Specialty | null>(
-    null
-  );
+  const [specialtyFilter, setSpecialtyFilter] = useState<string | null>(null);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-  const filteredExperts = experts.filter((expert) => {
-    if (
-      ratingFilter !== null &&
-      ratingFilter !== 0 &&
-      expert.rating !== ratingFilter
-    )
-      return false;
+  const pageSize = 10;
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetExpertListInfiniteQuery(pageSize);
 
-    if (specialtyFilter && !expert.specialty.includes(specialtyFilter))
-      return false;
+  const specialties = React.useMemo(() => {
+    if (!data) return [];
 
-    return true;
-  });
+    const allExperts = data.pages.flatMap((page) => page.payload.data);
 
-  function ExpertCard({ expert }: { expert: Expert }) {
+    const allSpecialties = allExperts.flatMap((expert) =>
+      expert.specialization.split(",").map((spec) => spec.trim())
+    );
+
+    return Array.from(new Set(allSpecialties)).sort();
+  }, [data]);
+
+  // Xử lý lazy load
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >=
+          document.body.scrollHeight * 0.8 &&
+        hasNextPage &&
+        !isFetchingNextPage
+      ) {
+        fetchNextPage()
+          .catch((error) => {
+            console.error("Error while fetching next page:", error);
+          })
+          .finally(() => setIsLoadingMore(false));
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Lọc chuyên gia
+  const filteredExperts = React.useMemo(() => {
+    if (!data) return [];
+
+    const allExperts = data.pages.flatMap((page) => page.payload.data);
+
+    return allExperts.filter((expert) => {
+      // Lọc theo rating
+      if (
+        ratingFilter !== null &&
+        ratingFilter !== 0 &&
+        Math.floor(expert.averageRating) !== ratingFilter
+      )
+        return false;
+
+      // Lọc theo chuyên môn
+      if (
+        specialtyFilter &&
+        !expert.specialization
+          .toLowerCase()
+          .includes(specialtyFilter.toLowerCase())
+      )
+        return false;
+
+      return true;
+    });
+  }, [data, ratingFilter, specialtyFilter]);
+
+  function ExpertCard({ expert }: { expert: ExpertType }) {
+    const specialties = expert.specialization
+      .split(",")
+      .map((spec) => spec.trim());
+
     return (
-      <Card className="overflow-hidden relative">
+      <Card className="overflow-hidden relative md:w-[260px]">
         <CardContent className="p-4">
           <div className="absolute top-2 right-2 z-10">
             <span className="font-semibold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full flex items-center gap-1">
-              {expert.rating}/5
+              {expert.averageRating.toFixed(1)}/5
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
             </span>
           </div>
           <div className="flex items-center justify-center pb-4">
             <Image
-              src={expert.image}
-              alt={expert.name}
+              src={
+                expert.profileImageUrl ||
+                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+              }
+              alt={expert.fullname}
               width={100}
               height={100}
               className="object-cover w-[100px] h-[100px] rounded-md"
             />
           </div>
           <div className="text-center">
-            <h3 className="font-semibold text-lg">{expert.name}</h3>
+            <h3 className="font-semibold text-lg ">{expert.fullname}</h3>
 
             <div className="flex items-center justify-center gap-2 mt-2 flex-wrap h-[64px]">
-              {expert.specialty.map((spec, index) => (
+              {specialties.map((specialty, index) => (
                 <span
                   key={index}
                   className={`text-muted-foreground text-sm px-2 py-1 rounded-full ${
                     theme === "dark" ? "bg-gray-700" : "bg-gray-200"
                   }`}
                 >
-                  {spec}
+                  {specialty}
                 </span>
               ))}
               <span
@@ -159,7 +134,7 @@ export default function ExpertsPage() {
                   theme === "dark" ? "bg-gray-700" : "bg-gray-200"
                 }`}
               >
-                {expert.reviewCount} đánh giá
+                {expert.totalRatings} đánh giá
               </span>
             </div>
           </div>
@@ -172,7 +147,9 @@ export default function ExpertsPage() {
           <span>Lượt đặt lịch</span>
           <div className="flex items-center gap-1">
             <div className="w-4 h-4 bg-green-400 rounded-full"></div>
-            <span className="text-muted-foreground">{expert.bookings}</span>
+            <span className="text-muted-foreground">
+              {expert.totalAppointments}
+            </span>
           </div>
         </CardFooter>
       </Card>
@@ -180,10 +157,7 @@ export default function ExpertsPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-4 text-textChat">
-        Danh sách chuyên gia
-      </h1>
+    <div className="container mx-auto pb-8">
       <div className="flex flex-col gap-6">
         <div className="flex justify-between flex-col gap-4 lg:flex-row">
           <div className="flex items-center gap-4">
@@ -240,17 +214,31 @@ export default function ExpertsPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredExperts.length > 0 ? (
-            filteredExperts.map((expert) => (
-              <ExpertCard key={expert.id} expert={expert} />
-            ))
-          ) : (
-            <div className="col-span-full text-center text-red-500">
-              Không có dữ liệu trùng khớp
+        <div className="grid grid-cols-1 gap-4 md:flex md:gap-4 ">
+          {filteredExperts.length === 0 ? (
+            <div className="text-center text-red-500 col-span-4">
+              Không có chuyên gia nào phù hợp
             </div>
+          ) : (
+            filteredExperts.map((expert) => (
+              <ExpertCard key={expert.fullname} expert={expert} />
+            ))
           )}
         </div>
+
+        {hasNextPage && (
+          <Button
+            onClick={() => fetchNextPage()}
+            disabled={isFetchingNextPage}
+            className="mt-4"
+          >
+            {isFetchingNextPage ? "Đang tải thêm..." : "Tải thêm"}
+          </Button>
+        )}
+
+        {isLoadingMore && (
+          <div className="text-center">Đang tải thêm chuyên gia...</div>
+        )}
       </div>
     </div>
   );
