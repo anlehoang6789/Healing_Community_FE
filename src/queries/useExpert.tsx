@@ -2,7 +2,12 @@ import expertApiRequest from "@/apiRequests/expert";
 
 import { CreateAvailableTimeSlotBodyType } from "@/schemaValidations/expert.schema";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 export const useGetCertificateTypesQuery = () => {
   return useQuery({
@@ -212,5 +217,19 @@ export const useCancelAppointmentMutation = () => {
         queryKey: ["appointments-for-expert"],
       });
     },
+  });
+};
+
+export const useGetExpertListInfiniteQuery = (pageSize: number) => {
+  return useInfiniteQuery({
+    queryKey: ["expert-list-infinite"],
+    queryFn: ({ pageParam = 1 }) =>
+      expertApiRequest.getExpertList(pageParam, pageSize),
+    getNextPageParam: (lastPage, allPages) => {
+      // Kiểm tra nếu còn dữ liệu thì trả về số trang tiếp theo
+      const hasNextPage = lastPage.payload.data.length === pageSize;
+      return hasNextPage ? allPages.length + 1 : undefined;
+    },
+    initialPageParam: 1, // Giá trị khởi tạo của pageParam
   });
 };

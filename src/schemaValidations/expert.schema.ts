@@ -325,3 +325,27 @@ export const CancelAppointmentRequest = z.object({
 export type CancelAppointmentRequestType = z.TypeOf<
   typeof CancelAppointmentRequest
 >;
+
+export const ExpertSchema = z.object({
+  fullname: z.string(),
+  profileImageUrl: z.string().url(),
+  specialization: z.string(),
+  averageRating: z.number(),
+  totalAppointments: z.number(),
+  totalRatings: z.number(),
+});
+export type ExpertType = z.TypeOf<typeof ExpertSchema>;
+
+export const GetExpertListResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(ExpertSchema),
+  errors: z.array(z.any()).optional(),
+  timestamp: z.string(),
+});
+
+export type GetExpertListResponseType = z.TypeOf<
+  typeof GetExpertListResponseSchema
+>;
