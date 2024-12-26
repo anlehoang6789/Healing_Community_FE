@@ -4,6 +4,7 @@ import {
   GetAuthorOtherPostBodyType,
   GetOtherPostWithSameCategoryBodyType,
   UpdatePersonalPostBodyType,
+  UpdateSharedPostBodyType,
 } from "@/schemaValidations/post.schema";
 import {
   useInfiniteQuery,
@@ -367,6 +368,32 @@ export const useGetSharedPostByUserIdQuery = (userId: string) => {
   return useQuery({
     queryKey: ["shared-post-by-user-id", userId],
     queryFn: () => postApiRequest.getSharedPosts(userId),
+  });
+};
+
+export const useUpdateSharedPostMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: UpdateSharedPostBodyType) =>
+      postApiRequest.updateSharedPost(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["shared-post-by-user-id"],
+      });
+    },
+  });
+};
+
+export const useDeleteSharedPostMutation = (userId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deleteSharedPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["shared-post-by-user-id", userId],
+      });
+    },
   });
 };
 
