@@ -79,6 +79,29 @@ const LeaveGroupRequestSchema = z.object({
 
 export type LeaveGroupRequestType = z.infer<typeof LeaveGroupRequestSchema>;
 
+export const GetGroupDetailsByGroupIdSchema = z.object({
+  groupId: z.string(),
+  groupName: z.string(),
+  description: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  createdByUserId: z.string(),
+  avatarGroup: z.string(),
+  isAutoApprove: z.boolean(),
+  groupVisibility: z.number(),
+  memberLimit: z.number(),
+  currentMemberCount: z.number(),
+});
 
+export type GetGroupDetailsByGroupIdType = z.infer<
+  typeof GetGroupDetailsByGroupIdSchema
+>;
 
+export const GetGroupDetailsByGroupIdRes = z.object({
+  data: GetGroupDetailsByGroupIdSchema,
+  message: z.string(),
+});
 
+export type GetGroupDetailsByGroupIdResType = z.infer<
+  typeof GetGroupDetailsByGroupIdRes
+>;

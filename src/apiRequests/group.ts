@@ -3,6 +3,7 @@ import {
   CreateGroupRequestType,
   GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
+  GetGroupDetailsByGroupIdResType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
 } from "@/schemaValidations/group.schema";
@@ -33,6 +34,10 @@ const groupApiRequest = {
     http.put<{ message: string }>(
       `group/api/group/update-group/${groupId}`,
       payload
+    ),
+  getGroupDetailsByGroupId: (groupId: string) =>
+    http.get<GetGroupDetailsByGroupIdResType>(
+      `group/api/group/get-by-group-id/${groupId}`
     ),
 };
 

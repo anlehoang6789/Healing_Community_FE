@@ -2,7 +2,8 @@
 
 import GroupTabsUser from "@/app/user/group/group-tabs-user";
 import { Button } from "@/components/ui/button";
-import { Globe } from "lucide-react";
+import { useGetGroupDetailsByGroupIdQuery } from "@/queries/useGroup";
+import { Globe, LockKeyhole } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { createContext } from "react";
@@ -20,6 +21,9 @@ export default function GroupLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   const params = useParams();
   const groupIdFromPath = params.groupId as string;
+  //data group detail
+  const { data: groupDetails } =
+    useGetGroupDetailsByGroupIdQuery(groupIdFromPath);
 
   return (
     <GroupContext.Provider
@@ -28,7 +32,10 @@ export default function GroupLayout({
       <div className="w-full bg-background">
         <div className="relative h-[200px] sm:h-[400px] w-full rounded-b-lg overflow-hidden">
           <Image
-            src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            src={
+              groupDetails?.payload.data.avatarGroup ||
+              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            }
             alt="Group detail banner"
             className="absolute inset-0 w-full h-full object-cover"
             fill
@@ -42,7 +49,7 @@ export default function GroupLayout({
               {/* phần tên nhóm */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-textChat text-xl sm:text-2xl font-bold text-center sm:text-left">
-                  Cộng đồng Front-end(HTML/CSS/JS) Việt Nam
+                  {groupDetails?.payload.data.groupName}
                 </h1>
                 <div className="flex flex-col sm:flex-row items-center gap-2 mt-2 sm:mt-0">
                   <Button className="w-full sm:w-auto">+ Mời</Button>
@@ -56,8 +63,17 @@ export default function GroupLayout({
               </div>
               {/* phần số lượng thành viên nhóm */}
               <div className="flex items-center text-muted-foreground text-sm text-center">
-                <Globe className="w-4 h-4 mr-2 sm:mr-2 mx-auto sm:mx-0" />
-                <span>Nhóm Công khai • 196,7K thành viên</span>
+                {groupDetails?.payload.data.groupVisibility === 0 ? (
+                  <Globe className="w-4 h-4 mr-2 sm:mr-2 mx-auto sm:mx-0" />
+                ) : (
+                  <LockKeyhole className="w-4 h-4 mr-2 sm:mr-2 mx-auto sm:mx-0" />
+                )}
+                <span>
+                  {groupDetails?.payload.data.groupVisibility === 0
+                    ? "Nhóm Công khai"
+                    : "Nhóm Riêng tư"}{" "}
+                  • {groupDetails?.payload.data.currentMemberCount} thành viên
+                </span>
               </div>
             </div>
           </div>
