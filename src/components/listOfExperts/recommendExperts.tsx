@@ -15,6 +15,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useGetExpertListInfiniteQuery } from "@/queries/useExpert";
 import { ExpertType } from "@/schemaValidations/expert.schema";
+import Link from "next/link";
 
 export default function RecommendExperts() {
   const { theme } = useTheme();
@@ -115,59 +116,61 @@ export default function RecommendExperts() {
       .split(",")
       .map((spec) => spec.trim());
     return (
-      <Card className="overflow-hidden relative w-full">
-        <CardContent className="p-4 flex items-center">
-          <div className="mr-6">
-            <Image
-              src={
-                expert.profileImageUrl ||
-                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-              }
-              alt={expert.fullname}
-              width={150}
-              height={150}
-              className="object-cover w-[100px] h-[100px] rounded-md"
-            />
-          </div>
-          <div className="flex-grow">
-            <div className="absolute top-2 right-2 z-10">
-              <span className="font-semibold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full flex items-center gap-1">
-                {expert.averageRating.toFixed(1)}/5
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              </span>
+      <Link href={`/user/profile/expert-info/${expert.expertId}`}>
+        <Card className="overflow-hidden relative w-full">
+          <CardContent className="p-4 flex items-center">
+            <div className="mr-6">
+              <Image
+                src={
+                  expert.profileImageUrl ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt={expert.fullname}
+                width={150}
+                height={150}
+                className="object-cover w-[100px] h-[100px] rounded-md"
+              />
             </div>
-            <h3 className="font-semibold text-xl mb-2">{expert.fullname}</h3>
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span className="font-semibold text-lg">Chuyên môn:</span>
-
-              {specialties.map((spec, index) => (
-                <span
-                  key={index}
-                  className={`text-muted-foreground text-base px-2 py-1 rounded-full ${
-                    theme === "dark" ? "bg-gray-700" : "bg-gray-200"
-                  }`}
-                >
-                  {spec}
+            <div className="flex-grow">
+              <div className="absolute top-2 right-2 z-10">
+                <span className="font-semibold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full flex items-center gap-1">
+                  {expert.averageRating.toFixed(1)}/5
+                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 </span>
-              ))}
-            </div>
+              </div>
+              <h3 className="font-semibold text-xl mb-2">{expert.fullname}</h3>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <span className="font-semibold text-lg">Chuyên môn:</span>
 
-            <div>
-              <span className="font-semibold text-lg">Lượt đánh giá:</span>
-              <span className="text-muted-foreground text-base px-2 py-1 rounded-full ">
-                {expert.totalRatings} lượt
-              </span>
-            </div>
+                {specialties.map((spec, index) => (
+                  <span
+                    key={index}
+                    className={`text-muted-foreground text-base px-2 py-1 rounded-full ${
+                      theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  >
+                    {spec}
+                  </span>
+                ))}
+              </div>
 
-            <div>
-              <span className="font-semibold text-lg">Lượt đặt lịch:</span>
-              <span className="text-muted-foreground text-base px-2 py-1 rounded-full ">
-                {expert.totalAppointments} lượt
-              </span>
+              <div>
+                <span className="font-semibold text-lg">Lượt đánh giá:</span>
+                <span className="text-muted-foreground text-base px-2 py-1 rounded-full ">
+                  {expert.totalRatings} lượt
+                </span>
+              </div>
+
+              <div>
+                <span className="font-semibold text-lg">Lượt đặt lịch:</span>
+                <span className="text-muted-foreground text-base px-2 py-1 rounded-full ">
+                  {expert.totalAppointments} lượt
+                </span>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </Link>
     );
   }
 
@@ -241,7 +244,7 @@ export default function RecommendExperts() {
           <div className="flex flex-col gap-6">
             {filteredExperts.length > 0 ? (
               filteredExperts.map((expert) => (
-                <ExpertCard key={expert.fullname} expert={expert} />
+                <ExpertCard key={expert.expertId} expert={expert} />
               ))
             ) : (
               <div className="text-center text-red-500">

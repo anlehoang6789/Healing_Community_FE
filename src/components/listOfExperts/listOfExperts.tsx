@@ -15,6 +15,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useGetExpertListInfiniteQuery } from "@/queries/useExpert";
 import { ExpertType } from "@/schemaValidations/expert.schema";
+import Link from "next/link";
 
 export default function ExpertsPage() {
   const { theme } = useTheme();
@@ -95,64 +96,66 @@ export default function ExpertsPage() {
       .map((spec) => spec.trim());
 
     return (
-      <Card className="overflow-hidden relative md:w-[260px]">
-        <CardContent className="p-4">
-          <div className="absolute top-2 right-2 z-10">
-            <span className="font-semibold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full flex items-center gap-1">
-              {expert.averageRating.toFixed(1)}/5
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-            </span>
-          </div>
-          <div className="flex items-center justify-center pb-4">
-            <Image
-              src={
-                expert.profileImageUrl ||
-                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-              }
-              alt={expert.fullname}
-              width={100}
-              height={100}
-              className="object-cover w-[100px] h-[100px] rounded-md"
-            />
-          </div>
-          <div className="text-center">
-            <h3 className="font-semibold text-lg ">{expert.fullname}</h3>
+      <Link href={`/user/profile/expert-info/${expert.expertId}`}>
+        <Card className="overflow-hidden relative md:w-[260px]">
+          <CardContent className="p-4">
+            <div className="absolute top-2 right-2 z-10">
+              <span className="font-semibold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full flex items-center gap-1">
+                {expert.averageRating.toFixed(1)}/5
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+              </span>
+            </div>
+            <div className="flex items-center justify-center pb-4">
+              <Image
+                src={
+                  expert.profileImageUrl ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt={expert.fullname}
+                width={100}
+                height={100}
+                className="object-cover w-[100px] h-[100px] rounded-md"
+              />
+            </div>
+            <div className="text-center">
+              <h3 className="font-semibold text-lg ">{expert.fullname}</h3>
 
-            <div className="flex items-center justify-center gap-2 mt-2 flex-wrap h-[64px]">
-              {specialties.map((specialty, index) => (
+              <div className="flex items-center justify-center gap-2 mt-2 flex-wrap h-[64px]">
+                {specialties.map((specialty, index) => (
+                  <span
+                    key={index}
+                    className={`text-muted-foreground text-sm px-2 py-1 rounded-full ${
+                      theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                    }`}
+                  >
+                    {specialty}
+                  </span>
+                ))}
                 <span
-                  key={index}
                   className={`text-muted-foreground text-sm px-2 py-1 rounded-full ${
                     theme === "dark" ? "bg-gray-700" : "bg-gray-200"
                   }`}
                 >
-                  {specialty}
+                  {expert.totalRatings} đánh giá
                 </span>
-              ))}
-              <span
-                className={`text-muted-foreground text-sm px-2 py-1 rounded-full ${
-                  theme === "dark" ? "bg-gray-700" : "bg-gray-200"
-                }`}
-              >
-                {expert.totalRatings} đánh giá
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter
+            className={`p-4 flex justify-between items-center ${
+              theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+            }`}
+          >
+            <span>Lượt đặt lịch</span>
+            <div className="flex items-center gap-1">
+              <div className="w-4 h-4 bg-green-400 rounded-full"></div>
+              <span className="text-muted-foreground">
+                {expert.totalAppointments}
               </span>
             </div>
-          </div>
-        </CardContent>
-        <CardFooter
-          className={`p-4 flex justify-between items-center ${
-            theme === "dark" ? "bg-gray-700" : "bg-gray-200"
-          }`}
-        >
-          <span>Lượt đặt lịch</span>
-          <div className="flex items-center gap-1">
-            <div className="w-4 h-4 bg-green-400 rounded-full"></div>
-            <span className="text-muted-foreground">
-              {expert.totalAppointments}
-            </span>
-          </div>
-        </CardFooter>
-      </Card>
+          </CardFooter>
+        </Card>
+      </Link>
     );
   }
 
@@ -221,7 +224,7 @@ export default function ExpertsPage() {
             </div>
           ) : (
             filteredExperts.map((expert) => (
-              <ExpertCard key={expert.fullname} expert={expert} />
+              <ExpertCard key={expert.expertId} expert={expert} />
             ))
           )}
         </div>
