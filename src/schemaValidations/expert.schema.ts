@@ -327,6 +327,7 @@ export type CancelAppointmentRequestType = z.TypeOf<
 >;
 
 export const ExpertSchema = z.object({
+  expertId: z.string(),
   fullname: z.string(),
   profileImageUrl: z.string().url(),
   specialization: z.string(),
