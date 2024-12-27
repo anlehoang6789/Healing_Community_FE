@@ -108,7 +108,7 @@ export default function CreatePostInGroup({ groupId }: { groupId: string }) {
 
   // Xử lí việc tạo bài viết
   const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
-  const createPostMutation = useCreatePostInGroupMutation();
+  const createPostMutation = useCreatePostInGroupMutation(groupId);
   const checkContentByAIMutation = useCheckContentByAIMutation();
   const onSubmit = async (data: CreatePostInGroupBodyType) => {
     if (createPostMutation.isPending || checkContentByAIMutation.isPending)
@@ -155,7 +155,7 @@ export default function CreatePostInGroup({ groupId }: { groupId: string }) {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <button className="w-full flex items-center gap-2 bg-secondary rounded-full p-2 px-4">
@@ -342,7 +342,7 @@ export default function CreatePostInGroup({ groupId }: { groupId: string }) {
                                     : selectedValue
                                 ); // Đặt lại thành chuỗi rỗng nếu chọn giá trị mặc định
                               }}
-                              className="w-[20%] p-2 border border-gray-300 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-700"
+                              className="w-full md:w-[20%] p-2 border border-gray-300 rounded-lg bg-white text-black focus:outline-none focus:ring-2 focus:ring-gray-700"
                             >
                               <option value="default" disabled>
                                 Chọn thể loại

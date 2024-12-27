@@ -22,6 +22,7 @@ import {
   GetHighlightPostListResType,
   GetHomePageListLazyLoadType,
   GetOtherPostWithSameCategoryBodyType,
+  GetPostByGroupIdListResType,
   GetPostByUserIdResType,
   GetQuickPostListType,
   GetReactionCountResType,
@@ -150,6 +151,10 @@ const postApiRequest = {
     http.delete<{ message: string }>(`post/api/share/delete-share/${shareId}`),
   createPostInGroup: (body: CreatePostInGroupBodyType) =>
     http.post<{ message: string }>("post/api/post/create-post-group", body),
+  viewPostInGroupByGroupId: (groupId: string) =>
+    http.get<GetPostByGroupIdListResType>(
+      `post/api/post/get-posts-in-group-by-id/${groupId}`
+    ),
 };
 
 export default postApiRequest;
