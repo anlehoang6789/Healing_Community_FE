@@ -12,6 +12,7 @@ import {
   GetCertificateTypeResponseType,
   GetDetailExpertExperienceResType,
   GetExpertAvailabilityExpertProfileIdResponseType,
+  GetExpertListResponseType,
   GetExpertProfileResType,
   UpdateExpertExperienceBodyType,
   UpdateProfileExpertBodyType,
@@ -95,6 +96,11 @@ const expertApiRequest = {
 
   cancelAppointment: (body: CancelAppointmentRequestType) =>
     http.post<{ message: string }>("expert/api/appointment/cancel", body),
+
+  getExpertList: (pageNumber: number, pageSize: number) =>
+    http.get<GetExpertListResponseType>(
+      `expert/api/expertprofile/expert-list?pageNumber=${pageNumber}&pageSize=${pageSize}`
+    ),
 };
 
 export default expertApiRequest;
