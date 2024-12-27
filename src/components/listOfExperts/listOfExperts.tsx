@@ -181,7 +181,7 @@ export default function ExpertsPage() {
             </Select>
           </div>
 
-          <div className="flex items-center gap-4 overflow-x-auto">
+          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
             <Button
               variant={specialtyFilter === null ? "default" : "outline"}
               onClick={() => setSpecialtyFilter(null)}
