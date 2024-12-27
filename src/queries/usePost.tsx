@@ -430,3 +430,9 @@ export const useGetOtherPostWithSameCategoryQuery = ({
     queryFn: () => postApiRequest.getOtherPostWithSameCategory(body),
   });
 };
+
+export const useCreatePostInGroupMutation = () => {
+  return useMutation({
+    mutationFn: postApiRequest.createPostInGroup,
+  });
+};
