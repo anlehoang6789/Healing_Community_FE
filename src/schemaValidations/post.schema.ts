@@ -487,3 +487,26 @@ export const CreatePostInGroupBody = z.object({
 });
 
 export type CreatePostInGroupBodyType = z.TypeOf<typeof CreatePostInGroupBody>;
+
+export const ViewPostInGroupSchema = z.object({
+  postId: z.string(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+  userId: z.string(),
+});
+
+export type ViewPostInGroupType = z.TypeOf<typeof ViewPostInGroupSchema>;
+
+export const GetPostByGroupIdListRes = z.object({
+  data: z.array(ViewPostInGroupSchema),
+  message: z.string(),
+});
+
+export type GetPostByGroupIdListResType = z.TypeOf<
+  typeof GetPostByGroupIdListRes
+>;
