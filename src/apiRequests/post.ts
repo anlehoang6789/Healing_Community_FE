@@ -9,6 +9,7 @@ import {
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
+  CreatePostInGroupBodyType,
   DeleteBookmarkListDetailsBodyType,
   GetAllReactionTypeResponseType,
   GetAuthorOtherPostBodyType,
@@ -147,6 +148,8 @@ const postApiRequest = {
 
   deleteSharedPost: (shareId: string) =>
     http.delete<{ message: string }>(`post/api/share/delete-share/${shareId}`),
+  createPostInGroup: (body: CreatePostInGroupBodyType) =>
+    http.post<{ message: string }>("post/api/post/create-post-group", body),
 };
 
 export default postApiRequest;

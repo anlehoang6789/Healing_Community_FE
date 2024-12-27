@@ -476,3 +476,14 @@ export const UpdateSharedPostBody = z.object({
 });
 
 export type UpdateSharedPostBodyType = z.TypeOf<typeof UpdateSharedPostBody>;
+
+export const CreatePostInGroupBody = z.object({
+  groupId: z.string(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+});
+
+export type CreatePostInGroupBodyType = z.TypeOf<typeof CreatePostInGroupBody>;
