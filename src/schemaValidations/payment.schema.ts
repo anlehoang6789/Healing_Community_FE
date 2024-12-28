@@ -22,10 +22,7 @@ export type PaymentHistoryListResType = z.infer<typeof PaymentHistoryListRes>;
 
 export const CreatePaymentRequestSchema = z.object({
   appointmentId: z.string(),
-  amount: z.number().min(1),
-  description: z.string().nonempty(),
-  returnUrl: z.string().url(),
-  cancelUrl: z.string().url(),
+  redirectUrl: z.string().url(),
 });
 
 export type CreatePaymentRequestType = z.infer<
