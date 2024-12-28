@@ -430,3 +430,23 @@ export const useGetOtherPostWithSameCategoryQuery = ({
     queryFn: () => postApiRequest.getOtherPostWithSameCategory(body),
   });
 };
+
+export const useGetCommentsByShareIdQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["shared-comments", shareId],
+    queryFn: () => postApiRequest.getCommentsByShareId(shareId),
+    enabled: !!shareId,
+  });
+};
+
+export const useCreateSharedCommentMutation = (shareId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.createSharedComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["shared-comments", shareId],
+      });
+    },
+  });
+};

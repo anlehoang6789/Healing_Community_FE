@@ -9,6 +9,8 @@ import {
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
+  CreateSharedCommentBodyType,
+  CreateSharedCommentResponseType,
   DeleteBookmarkListDetailsBodyType,
   GetAllReactionTypeResponseType,
   GetAuthorOtherPostBodyType,
@@ -17,6 +19,7 @@ import {
   GetBookmarkListResponseType,
   GetCommentCountResType,
   GetCommentsByPostIdResponseType,
+  GetCommentsByShareIdResponseType,
   GetDetailsCategoryResponseType,
   GetHighlightPostListResType,
   GetHomePageListLazyLoadType,
@@ -147,6 +150,17 @@ const postApiRequest = {
 
   deleteSharedPost: (shareId: string) =>
     http.delete<{ message: string }>(`post/api/share/delete-share/${shareId}`),
+
+  getCommentsByShareId: (shareId: string) =>
+    http.get<GetCommentsByShareIdResponseType>(
+      `post/api/comment/get-by-share-id/${shareId}`
+    ),
+
+  createSharedComment: (body: CreateSharedCommentBodyType) =>
+    http.post<CreateSharedCommentResponseType>(
+      "post/api/comment/create-for-share",
+      body
+    ),
 };
 
 export default postApiRequest;

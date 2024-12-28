@@ -50,7 +50,7 @@ export default function JoinedGroup() {
                     alt={`${group.groupName}'s avatar`}
                     width={100}
                     height={100}
-                    className="w-full h-auto rounded-lg  h-[70px] object-cover"
+                    className="w-full rounded-lg h-[70px] object-cover"
                     priority
                   />
 

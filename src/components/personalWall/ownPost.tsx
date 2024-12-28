@@ -24,6 +24,7 @@ import { useTheme } from "next-themes";
 import { useParams } from "next/navigation";
 import {
   useCreateCommentMutation,
+  useCreateSharedCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
   useGetCommentCountQuery,
@@ -52,6 +53,7 @@ import CommentSection from "@/components/commentSection/commentSection";
 import {
   CommentType,
   GetPostByUserIdResType,
+  SharedCommentType,
 } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
 import EditPersonalPost from "@/components/personalWall/editPersonalPost";
@@ -75,6 +77,7 @@ import AlertDialogDeleteSharedPost from "@/components/personalWall/deleteSharedP
 import authApiRequest from "@/apiRequests/auth";
 import expertApiRequest from "@/apiRequests/expert";
 import { GetExpertProfileSchemaType } from "@/schemaValidations/expert.schema";
+import CommentSharedSection from "@/components/commentSection/commentSharedSection";
 
 const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
   const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
@@ -271,6 +274,163 @@ export default function OwnPost() {
   const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation(
     postId as string
   );
+
+  const [sharedPostCommentsByShareId, setSharedPostCommentsByShareId] =
+    useState<{
+      [shareId: string]: SharedCommentType[];
+    }>({});
+
+  const { mutate: createSharedComment } = useCreateSharedCommentMutation(
+    postId as string
+  );
+
+  useEffect(() => {
+    const fetchSharedPostComments = async () => {
+      try {
+        const commentsPromises = sharedPosts.map((sharedPost) =>
+          postApiRequest.getCommentsByShareId(sharedPost.shareId)
+        );
+
+        const commentsResults = await Promise.all(commentsPromises);
+
+        const updatedCommentsByShareId: {
+          [shareId: string]: SharedCommentType[];
+        } = {};
+
+        sharedPosts.forEach((sharedPost, index) => {
+          updatedCommentsByShareId[sharedPost.shareId] =
+            commentsResults[index].payload.data;
+        });
+
+        setSharedPostCommentsByShareId(updatedCommentsByShareId);
+      } catch (error) {
+        console.error("Error fetching shared post comments:", error);
+      }
+    };
+
+    if (sharedPosts.length > 0) {
+      fetchSharedPostComments();
+    }
+  }, [sharedPosts]);
+
+  const handleAddSharedPostComment = (
+    shareId: string,
+    comment: { content: string; coverImgUrl?: string | null }
+  ) => {
+    createSharedComment(
+      {
+        shareId: shareId,
+        parentId: null,
+        content: comment.content,
+        coverImgUrl: comment.coverImgUrl,
+      },
+      {
+        onSuccess: async () => {
+          try {
+            // Fetch lại toàn bộ comments của shared post
+            const commentsResponse = await postApiRequest.getCommentsByShareId(
+              shareId
+            );
+
+            // Cập nhật lại comments cho shared post
+            setSharedPostCommentsByShareId((prev) => ({
+              ...prev,
+              [shareId]: commentsResponse.payload.data,
+            }));
+          } catch (error) {
+            console.error("Error fetching shared post comments:", error);
+          }
+        },
+        onError: (error) => {
+          console.error("Error creating shared post comment:", error);
+        },
+      }
+    );
+  };
+
+  // Hàm xử lý thêm reply cho shared post
+  const handleAddSharedPostReply = (
+    shareId: string,
+    parentId: string,
+    reply: { content: string; coverImgUrl?: string | null }
+  ) => {
+    createSharedComment(
+      {
+        shareId: shareId,
+        parentId: parentId,
+        content: reply.content,
+        coverImgUrl: reply.coverImgUrl,
+      },
+      {
+        onSuccess: async () => {
+          try {
+            // Fetch lại toàn bộ comments của shared post
+            const commentsResponse = await postApiRequest.getCommentsByShareId(
+              shareId
+            );
+
+            // Cập nhật lại comments cho shared post
+            setSharedPostCommentsByShareId((prev) => ({
+              ...prev,
+              [shareId]: commentsResponse.payload.data,
+            }));
+          } catch (error) {
+            console.error("Error fetching shared post comments:", error);
+          }
+        },
+        onError: (error) => {
+          console.error("Error creating shared post reply:", error);
+        },
+      }
+    );
+  };
+
+  // Hàm xóa comment cho shared post
+  const handleDeleteSharedPostComment = (commentId: string) => {
+    deleteComment(commentId, {
+      onSuccess: async () => {
+        // Lặp qua từng shared post để tìm và cập nhật comments
+        const updatedCommentsByShareId = { ...sharedPostCommentsByShareId };
+
+        Object.keys(updatedCommentsByShareId).forEach((shareId) => {
+          updatedCommentsByShareId[shareId] = updatedCommentsByShareId[
+            shareId
+          ].filter(
+            (comment) =>
+              comment.commentId !== commentId && comment.parentId !== commentId
+          );
+        });
+
+        // Cập nhật state comments
+        setSharedPostCommentsByShareId(updatedCommentsByShareId);
+
+        // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng shared post
+        try {
+          const shareIds = Object.keys(sharedPostCommentsByShareId);
+          const commentsPromises = shareIds.map((shareId) =>
+            postApiRequest.getCommentsByShareId(shareId)
+          );
+
+          const commentsResults = await Promise.all(commentsPromises);
+
+          const refreshedCommentsByShareId: {
+            [shareId: string]: SharedCommentType[];
+          } = {};
+          shareIds.forEach((shareId, index) => {
+            refreshedCommentsByShareId[shareId] =
+              commentsResults[index].payload.data;
+          });
+
+          setSharedPostCommentsByShareId(refreshedCommentsByShareId);
+        } catch (error) {
+          console.error("Error refetching shared post comments:", error);
+        }
+      },
+      onError: (error) => {
+        console.error("Error deleting shared post comment:", error);
+      },
+    });
+  };
 
   const handleDeleteComment = (commentId: string) => {
     deleteComment(commentId, {
@@ -1024,22 +1184,26 @@ export default function OwnPost() {
                         className="w-full mt-4 "
                       >
                         <div className="px-4 pb-4">
-                          <CommentSection
+                          <CommentSharedSection
                             comments={
-                              commentsByPostId[sharedPost.shareId] || []
+                              sharedPostCommentsByShareId[sharedPost.shareId] ||
+                              []
                             }
                             onAddComment={(comment) =>
-                              handleAddComment(sharedPost.shareId, comment)
+                              handleAddSharedPostComment(
+                                sharedPost.shareId,
+                                comment
+                              )
                             }
                             onAddReply={(parentId, reply) =>
-                              handleAddReply(
+                              handleAddSharedPostReply(
                                 sharedPost.shareId,
                                 parentId,
                                 reply
                               )
                             }
                             deleteComment={(commentId) =>
-                              handleDeleteComment(commentId)
+                              handleDeleteSharedPostComment(commentId)
                             }
                           />
                         </div>
