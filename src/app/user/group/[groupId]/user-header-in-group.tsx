@@ -5,15 +5,19 @@ import { formatDateTime } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 export default function UserHeaderInGroup({
   userId,
   createPost,
+  groupId,
 }: {
   userId: string;
   createPost: string;
+  groupId: string;
 }) {
+  const router = useRouter();
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const {
@@ -50,37 +54,46 @@ export default function UserHeaderInGroup({
       </div>
     );
 
+  const handleNavigation = () => {
+    router.push(`/user/group-user/${groupId}/user/${userId}`);
+  };
+
   return (
     <>
-      <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
-        <AvatarImage
-          src={
-            isExpert
-              ? expertProfile?.payload.data.profileImageUrl
-              : userProfile?.payload.data.profilePicture ||
-                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-          }
-          alt={
-            isExpert
+      <div onClick={handleNavigation}>
+        <Avatar className="w-10 h-10 sm:w-10 sm:h-10 border-2 border-rose-300 mb-2">
+          <AvatarImage
+            src={
+              isExpert
+                ? expertProfile?.payload.data.profileImageUrl
+                : userProfile?.payload.data.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            }
+            alt={
+              isExpert
+                ? expertProfile?.payload.data.fullname ||
+                  expertProfile?.payload.data.email
+                : userProfile?.payload.data.fullName ||
+                  userProfile?.payload.data.userName ||
+                  "Anonymous"
+            }
+          />
+          <AvatarFallback>
+            {isExpert
               ? expertProfile?.payload.data.fullname ||
                 expertProfile?.payload.data.email
               : userProfile?.payload.data.fullName ||
                 userProfile?.payload.data.userName ||
-                "Anonymous"
-          }
-        />
-        <AvatarFallback>
-          {isExpert
-            ? expertProfile?.payload.data.fullname ||
-              expertProfile?.payload.data.email
-            : userProfile?.payload.data.fullName ||
-              userProfile?.payload.data.userName ||
-              "Anonymous"}
-        </AvatarFallback>
-      </Avatar>
+                "Anonymous"}
+          </AvatarFallback>
+        </Avatar>
+      </div>
       <div>
         <div className="flex items-center space-x-2">
-          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-1">
+          <h2
+            className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 mb-1 hover:cursor-pointer"
+            onClick={handleNavigation}
+          >
             {isExpert
               ? expertProfile?.payload.data.fullname ||
                 expertProfile?.payload.data.email

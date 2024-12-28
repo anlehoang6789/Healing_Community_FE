@@ -59,7 +59,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { toast } from "@/hooks/use-toast";
-import { handleErrorApi } from "@/lib/utils";
+import { formatDate, handleErrorApi } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 const UserAvatar = ({ userId }: { userId: string }) => {
@@ -207,7 +207,9 @@ export default function ConsultationScheduleExpert() {
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{consultation.appointmentDate}</span>
+              <span className="text-sm">
+                {formatDate(consultation.appointmentDate)}
+              </span>
             </div>
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
