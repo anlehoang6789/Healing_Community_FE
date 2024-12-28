@@ -15,7 +15,7 @@ const groupApiRequest = {
     http.get<GetAllGroupsResponseType>("group/api/group/get-all"),
 
   getGroupsJoinedByUserId: (userId: string) =>
-    http.get(`group/api/usergroup/get-by-user-id?userId=${userId}`),
+    http.get(`group/api/usergroup/get-by-user-id/${userId}`),
 
   createGroup: (payload: CreateGroupRequestType) =>
     http.post<{ message: string }>("group/api/group/create-group", payload),

@@ -11,6 +11,7 @@ import {
   CreatePostBodyType,
   CreateSharedCommentBodyType,
   CreateSharedCommentResponseType,
+  CreatePostInGroupBodyType,
   DeleteBookmarkListDetailsBodyType,
   GetAllReactionTypeResponseType,
   GetAuthorOtherPostBodyType,
@@ -24,6 +25,7 @@ import {
   GetHighlightPostListResType,
   GetHomePageListLazyLoadType,
   GetOtherPostWithSameCategoryBodyType,
+  GetPostByGroupIdListResType,
   GetPostByUserIdResType,
   GetQuickPostListType,
   GetReactionCountResType,
@@ -160,6 +162,12 @@ const postApiRequest = {
     http.post<CreateSharedCommentResponseType>(
       "post/api/comment/create-for-share",
       body
+    ),
+  createPostInGroup: (body: CreatePostInGroupBodyType) =>
+    http.post<{ message: string }>("post/api/post/create-post-group", body),
+  viewPostInGroupByGroupId: (groupId: string) =>
+    http.get<GetPostByGroupIdListResType>(
+      `post/api/post/get-posts-in-group-by-id/${groupId}`
     ),
 };
 

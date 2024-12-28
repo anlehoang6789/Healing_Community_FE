@@ -450,3 +450,21 @@ export const useCreateSharedCommentMutation = (shareId: string) => {
     },
   });
 };
+export const useViewPostInGroupByGroupIdQuery = (groupId: string) => {
+  return useQuery({
+    queryKey: ["post-in-group", groupId],
+    queryFn: () => postApiRequest.viewPostInGroupByGroupId(groupId),
+  });
+};
+
+export const useCreatePostInGroupMutation = (groupId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.createPostInGroup,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["post-in-group", groupId],
+      });
+    },
+  });
+};
