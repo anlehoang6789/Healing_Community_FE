@@ -2,6 +2,7 @@
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -38,6 +39,9 @@ export default function PaymentHistoryDetails({
       <DialogContent className="sm:max-w-[600px] max-h-screen overflow-auto text-textChat">
         <DialogHeader>
           <DialogTitle className="text-center">Chi tiết đơn hàng</DialogTitle>
+          <DialogDescription className="sr-only">
+            Make changes to your profile here. Click save when you done.
+          </DialogDescription>
         </DialogHeader>
         <div className="mt-4 space-y-4">
           <div className="flex justify-between">

@@ -2,6 +2,7 @@
 
 import GroupTabsUser from "@/app/user/group/group-tabs-user";
 import { Button } from "@/components/ui/button";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useGetGroupDetailsByGroupIdQuery } from "@/queries/useGroup";
 import { Globe, LockKeyhole } from "lucide-react";
 import Image from "next/image";
@@ -20,6 +21,7 @@ export default function GroupLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const params = useParams();
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const groupIdFromPath = params.groupId as string;
   //data group detail
   const { data: groupDetails } =
@@ -29,7 +31,7 @@ export default function GroupLayout({
     <GroupContext.Provider
       value={{ groupId: groupIdFromPath, setGroupId: () => {} }}
     >
-      <div className="w-full bg-background">
+      <div className="w-full max-w-7xl mx-auto bg-background">
         <div className="relative h-[200px] sm:h-[400px] w-full rounded-b-lg overflow-hidden">
           <Image
             src={
@@ -80,7 +82,10 @@ export default function GroupLayout({
         </div>
       </div>
       <div className="w-full bg-background h-auto p-2 max-w-7xl mx-auto">
-        <GroupTabsUser groupId={groupIdFromPath} />
+        <GroupTabsUser
+          groupId={groupIdFromPath}
+          userId={userIdFromLocalStorage as string}
+        />
         {children}
       </div>
     </GroupContext.Provider>
