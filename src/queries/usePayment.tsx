@@ -22,3 +22,17 @@ export const useCreatePaymentMutation = () => {
       paymentApiRequest.createPayment(payload),
   });
 };
+
+export const usePaymentHistoryDetailsQuery = ({
+  paymentId,
+  enabled,
+}: {
+  paymentId: string;
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["payment-history-details", paymentId],
+    queryFn: () => paymentApiRequest.getPaymentHistoryDetails(paymentId),
+    enabled,
+  });
+};
