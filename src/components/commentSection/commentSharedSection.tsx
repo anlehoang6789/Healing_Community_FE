@@ -16,7 +16,10 @@ import {
 } from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import { CommentType } from "@/schemaValidations/post.schema";
+import {
+  CommentType,
+  SharedCommentType,
+} from "@/schemaValidations/post.schema";
 import { useGetAllUsers } from "@/queries/useUser";
 import { UserType } from "@/schemaValidations/user.schema";
 import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
@@ -35,7 +38,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
 
 interface CommentSectionProps {
-  comments: CommentType[];
+  comments: SharedCommentType[];
   onAddComment: (comment: {
     content: string;
     coverImgUrl?: string | null;
@@ -50,7 +53,7 @@ interface CommentSectionProps {
   deleteComment: (commentId: string, options?: any) => void; // Thêm prop này
 }
 
-export default function CommentSection({
+export default function CommentSharedSection({
   comments: initialComments,
   onAddComment,
   onAddReply,
@@ -58,7 +61,7 @@ export default function CommentSection({
 }: CommentSectionProps) {
   const { theme } = useTheme();
   const { data: users } = useGetAllUsers();
-  const [comments, setComments] = useState<CommentType[]>([]);
+  const [comments, setComments] = useState<SharedCommentType[]>([]);
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState("");
@@ -208,7 +211,7 @@ export default function CommentSection({
   const findUserById = (userId: string): UserType | undefined => {
     return users?.find((user) => user.userId === userId);
   };
-  const renderComments = (comments: CommentType[], depth = 0) => {
+  const renderComments = (comments: SharedCommentType[], depth = 0) => {
     return comments.map((comment) => {
       // Tìm thông tin người dùng dựa trên userId
       const user = findUserById(comment.userId);

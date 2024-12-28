@@ -475,6 +475,78 @@ export const UpdateSharedPostBody = z.object({
   description: z.string(),
 });
 
+// Schema cho reply comment của shared post
+export const ReplySharedCommentSchema = z.object({
+  commentId: z.string(),
+  shareId: z.string(),
+  parentId: z.string(),
+  userId: z.string(),
+  content: z.string(),
+  coverImgUrl: z.string().url().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+  replies: z.array(z.any()).nullable().optional(),
+});
+
+export type ReplySharedCommentType = z.TypeOf<typeof ReplySharedCommentSchema>;
+
+// Schema cho comment của shared post
+export const SharedCommentSchema = z.object({
+  commentId: z.string(),
+  shareId: z.string(),
+  parentId: z.string().nullable(),
+  userId: z.string(),
+  content: z.string(),
+  coverImgUrl: z.string().url().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+  replies: z.array(ReplySharedCommentSchema).nullable().optional(),
+});
+
+export type SharedCommentType = z.TypeOf<typeof SharedCommentSchema>;
+
+// Schema response get comments của shared post
+export const GetCommentsByShareIdResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(SharedCommentSchema),
+  errors: z.array(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetCommentsByShareIdResponseType = z.TypeOf<
+  typeof GetCommentsByShareIdResponseSchema
+>;
+
+// Body tạo comment cho shared post
+export const CreateSharedCommentBody = z.object({
+  shareId: z.string(),
+  parentId: z.string().nullable(),
+  content: z.string(),
+  coverImgUrl: z.string().url().nullable().optional(),
+});
+
+export type CreateSharedCommentBodyType = z.TypeOf<
+  typeof CreateSharedCommentBody
+>;
+
+// Response tạo comment cho shared post
+export const CreateSharedCommentResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.string(),
+  errors: z.array(z.any()),
+  timestamp: z.string(),
+});
+
+export type CreateSharedCommentResponseType = z.TypeOf<
+  typeof CreateSharedCommentResponseSchema
+>;
+
 export type UpdateSharedPostBodyType = z.TypeOf<typeof UpdateSharedPostBody>;
 
 export const CreatePostInGroupBody = z.object({
