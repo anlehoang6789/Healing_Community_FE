@@ -8,6 +8,17 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { createContext, useState } from "react";
 import { GetPersonalPostGroupListResType } from "@/schemaValidations/post.schema";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Ellipsis, FilePenLine, Trash2 } from "lucide-react";
+import { useTheme } from "next-themes";
+import AlertDialogDeletePersonalPostInGroup from "@/app/user/group-user/[groupId]/user/[userId]/delete-personal-post-in-group";
 
 type PersonalPostInGroupItem = GetPersonalPostGroupListResType["data"][0];
 const PersonalPostInGroupContext = createContext<{
@@ -29,6 +40,8 @@ export default function ViewPersonalPostInGroup({
   groupId: string;
   userId: string;
 }) {
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
+  const { theme } = useTheme();
   const [postId, setPostId] = useState<string | undefined>(undefined);
   const [postDelete, setPostDelete] = useState<PersonalPostInGroupItem | null>(
     null
@@ -73,6 +86,15 @@ export default function ViewPersonalPostInGroup({
           personalPostListInGroup.map((post) => {
             const isExpanded = expandedPosts[post.postId] || false;
             const truncate = shouldTruncateDescription(post.description);
+            const openDeletePost = () => {
+              setPostDelete(post);
+            };
+            const openEditPost = () => {
+              setPostId(post.postId);
+            };
+
+            const shouldRenderDropdown = userIdFromLocalStorage === userId;
+
             return (
               <div
                 key={post.postId}
@@ -94,7 +116,38 @@ export default function ViewPersonalPostInGroup({
                     groupId={groupId}
                   />
                   {/* Chỗ này có thể là dropdown nếu cần */}
+                  {shouldRenderDropdown ? (
+                    <DropdownMenu modal={false} aria-hidden={false}>
+                      <DropdownMenuTrigger asChild className="ml-auto">
+                        <Button variant="iconSend">
+                          <Ellipsis />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        className={`w-56 mt-4 ${
+                          theme === "dark"
+                            ? "bg-black text-white"
+                            : "bg-white text-black"
+                        }`}
+                      >
+                        <DropdownMenuItem onClick={openEditPost}>
+                          <FilePenLine className="mr-2 h-4 w-4" />
+                          <span>Sửa bài viết</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={openDeletePost}>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Xóa bài viết</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  ) : null}
                 </div>
+                <AlertDialogDeletePersonalPostInGroup
+                  postDelete={postDelete}
+                  setPostDelete={setPostDelete}
+                  userId={userId}
+                  groupId={groupId}
+                />
                 {/* Title and content */}
                 <motion.div
                   animate={{ height: isExpanded ? "auto" : 300 }} // auto cho phép nội dung mở rộng tự nhiên
