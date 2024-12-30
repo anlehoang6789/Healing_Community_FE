@@ -1162,7 +1162,7 @@ export default function OwnPost() {
                         <MessageSquare className="w-4 h-4" />
                         Bình luận
                       </Button>
-                      <ShareSection postId={sharedPost.shareId}>
+                      {/* <ShareSection postId={sharedPost.shareId}>
                         <Button
                           variant="iconDarkMod"
                           className="flex items-center gap-2 p-0"
@@ -1170,7 +1170,7 @@ export default function OwnPost() {
                           <Share2 className="w-4 h-4" />
                           Chia sẻ
                         </Button>
-                      </ShareSection>
+                      </ShareSection> */}
                     </div>
                   </div>
 

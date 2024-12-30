@@ -43,7 +43,7 @@ const groupApiRequest = {
     ),
   getGroupMemberByGroupId: (groupId: string) =>
     http.get<GetGroupMembersByGroupIdListResType>(
-      `group/api/usergroup/get-by-group-id?groupId=${groupId}`
+      `group/api/usergroup/get-by-group-id/${groupId}`
     ),
   getRoleCountByGroupId: (groupId: string) =>
     http.get<GetRoleCountByGroupIdResType>(
