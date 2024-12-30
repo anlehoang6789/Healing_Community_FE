@@ -532,3 +532,21 @@ export const useGetPersonalPostGroupQuery = ({
     queryFn: () => postApiRequest.getPersonalPostGroup(userId, groupId),
   });
 };
+
+export const useDeletePersonalPostInGroupMutation = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deletePostByPostId,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["personal-post-group", userId, groupId],
+      });
+    },
+  });
+};
