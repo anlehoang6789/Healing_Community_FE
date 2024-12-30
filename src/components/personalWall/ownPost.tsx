@@ -80,6 +80,7 @@ import { GetExpertProfileSchemaType } from "@/schemaValidations/expert.schema";
 import CommentSharedSection from "@/components/commentSection/commentSharedSection";
 import SharedCommentCount from "@/components/commentSection/sharedCommentCount";
 import CommentCount from "@/components/commentSection/commentCount";
+import Link from "next/link";
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -1058,89 +1059,91 @@ export default function OwnPost() {
                   )}
 
                   {/* Bài viết gốc */}
-                  <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
-                    <div className="flex items-center gap-4 p-4">
-                      <Avatar className="w-10 h-10 border-2 border-rose-300">
-                        <AvatarImage
-                          src={
-                            originalPostUserProfile?.profilePicture ||
-                            "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                          }
-                          alt={sharedPost.title}
-                        />
-                        <AvatarFallback>{sharedPost.title[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                            {originalPostUserProfile?.isExpert
-                              ? originalPostUserProfile.expertProfile
-                                  ?.fullname ||
-                                originalPostUserProfile.email ||
-                                "Anonymous"
-                              : originalPostUserProfile?.fullName ||
-                                originalPostUserProfile?.userName ||
-                                "Anonymous"}
-                          </h2>
-                          {originalPostUserProfile?.isExpert && (
-                            <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
-                              Chuyên gia
-                            </div>
-                          )}
+                  <Link href={`/content/${sharedPost.postId}`}>
+                    <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
+                      <div className="flex items-center gap-4 p-4">
+                        <Avatar className="w-10 h-10 border-2 border-rose-300">
+                          <AvatarImage
+                            src={
+                              originalPostUserProfile?.profilePicture ||
+                              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                            }
+                            alt={sharedPost.title}
+                          />
+                          <AvatarFallback>{sharedPost.title[0]}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                              {originalPostUserProfile?.isExpert
+                                ? originalPostUserProfile.expertProfile
+                                    ?.fullname ||
+                                  originalPostUserProfile.email ||
+                                  "Anonymous"
+                                : originalPostUserProfile?.fullName ||
+                                  originalPostUserProfile?.userName ||
+                                  "Anonymous"}
+                            </h2>
+                            {originalPostUserProfile?.isExpert && (
+                              <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+                                Chuyên gia
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {formatDateTime(sharedPost.createAt)}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {formatDateTime(sharedPost.createAt)}
-                        </p>
                       </div>
-                    </div>
 
-                    <Image
-                      src={sharedPost.coverImgUrl}
-                      alt="Post cover"
-                      width={1000}
-                      height={500}
-                      className="w-full h-[250px] object-cover"
-                    />
+                      <Image
+                        src={sharedPost.coverImgUrl}
+                        alt="Post cover"
+                        width={1000}
+                        height={500}
+                        className="w-full h-[250px] object-cover"
+                      />
 
-                    <motion.div
-                      animate={{ height: isExpanded ? "auto" : 100 }}
-                      initial={{ height: 100 }}
-                      transition={{ duration: 0.4, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="p-4">
-                        <div className="font-bold text-lg text-center mb-2">
-                          {sharedPost.title}
+                      <motion.div
+                        animate={{ height: isExpanded ? "auto" : 100 }}
+                        initial={{ height: 100 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4">
+                          <div className="font-bold text-lg text-center mb-2">
+                            {sharedPost.title}
+                          </div>
+                          <div
+                            className="whitespace-pre-wrap text-textChat"
+                            dangerouslySetInnerHTML={{
+                              __html: isExpanded
+                                ? sharedPost.description
+                                : truncate
+                                ? `${sharedPost.description.slice(0, 300)}...`
+                                : sharedPost.description,
+                            }}
+                          />
                         </div>
-                        <div
-                          className="whitespace-pre-wrap text-textChat"
-                          dangerouslySetInnerHTML={{
-                            __html: isExpanded
-                              ? sharedPost.description
-                              : truncate
-                              ? `${sharedPost.description.slice(0, 300)}...`
-                              : sharedPost.description,
-                          }}
-                        />
-                      </div>
-                    </motion.div>
+                      </motion.div>
 
-                    {truncate && (
-                      <div className="flex justify-end p-4">
-                        <button
-                          onClick={() =>
-                            toggleSharedPostExpand(
-                              sharedPost.shareId,
-                              !isExpanded
-                            )
-                          }
-                          className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
-                        >
-                          {isExpanded ? "Thu gọn" : "Xem thêm"}
-                        </button>
-                      </div>
-                    )}
-                  </Card>
+                      {truncate && (
+                        <div className="flex justify-end p-4">
+                          <button
+                            onClick={() =>
+                              toggleSharedPostExpand(
+                                sharedPost.shareId,
+                                !isExpanded
+                              )
+                            }
+                            className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
+                          >
+                            {isExpanded ? "Thu gọn" : "Xem thêm"}
+                          </button>
+                        </div>
+                      )}
+                    </Card>
+                  </Link>
 
                   {/* Tương tác */}
                   <div className="flex flex-col items-start gap-4 p-4">
