@@ -24,18 +24,20 @@ export default function ProfileUserLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const params = useParams();
-  const userIdFromPath = params.userId as string;
+  const userIdFromPath = params.userId as string | undefined;
+  const expertIdFromPath = params.expertId as string | undefined;
   const currentUserId = getUserIdFromLocalStorage();
   const [userId, setUserId] = useState<string | null>(null);
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
 
-  const isOwner = currentUserId === userId;
+  const isOwner = userIdFromPath === currentUserId;
   useEffect(() => {
-    if (!userId) {
-      const idToSet = userIdFromPath || currentUserId;
-      if (idToSet) setUserId(idToSet);
+    if (userIdFromPath) {
+      setUserId(userIdFromPath);
+    } else if (expertIdFromPath) {
+      setUserId(expertIdFromPath);
     }
-  }, [userIdFromPath, currentUserId, userId]);
+  }, [userIdFromPath, expertIdFromPath]);
 
   // Fetch user profile data
   const { data: userProfile } = useGetUserProfileQuery(
