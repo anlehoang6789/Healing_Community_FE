@@ -19,8 +19,8 @@ export default function GroupPersonalTabs({
     : "group-user";
 
   return (
-    <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-4">
-      <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center py-4 gap-4">
+    <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
+      <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center py-4 gap-4 border-b">
         {/* Buttons Section */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
           <Link href={`/user/group-user/${groupId}/user/${userId}`} passHref>

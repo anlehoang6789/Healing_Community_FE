@@ -14,7 +14,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { toNamespacedPath } from "node:path";
 
 export const useGetAllCategoryQuery = () => {
   return useQuery({
@@ -83,9 +82,15 @@ export const useUploadAvatarCoverFromFileMutation = () => {
   });
 };
 
-export const useCreatePostMutation = () => {
+export const useCreatePostMutation = (userId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.createPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["post-by-user-id", userId],
+      });
+    },
   });
 };
 
@@ -494,7 +499,13 @@ export const useViewPostInGroupByGroupIdQuery = (groupId: string) => {
   });
 };
 
-export const useCreatePostInGroupMutation = (groupId: string) => {
+export const useCreatePostInGroupMutation = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.createPostInGroup,
@@ -502,6 +513,22 @@ export const useCreatePostInGroupMutation = (groupId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["post-in-group", groupId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["personal-post-group", userId, groupId],
+      });
     },
+  });
+};
+
+export const useGetPersonalPostGroupQuery = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
+  return useQuery({
+    queryKey: ["personal-post-group", userId, groupId],
+    queryFn: () => postApiRequest.getPersonalPostGroup(userId, groupId),
   });
 };

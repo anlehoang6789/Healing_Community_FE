@@ -38,6 +38,7 @@ import {
   UpdateSharedPostBodyType,
   UploadImageCoverResponseType,
   GetSharedCommentCountResType,
+  GetPersonalPostGroupListResType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -172,6 +173,10 @@ const postApiRequest = {
   getSharedCommentCount: (shareId: string) =>
     http.get<GetSharedCommentCountResType>(
       `post/api/comment/count-total-comment-by-share-id/${shareId}`
+    ),
+  getPersonalPostGroup: (userId: string, groupId: string) =>
+    http.get<GetPersonalPostGroupListResType>(
+      `post/api/post/get-posts-in-group-by-user-and-group?groupId=${groupId}&userId=${userId}`
     ),
 };
 
