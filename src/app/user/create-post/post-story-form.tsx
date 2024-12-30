@@ -27,7 +27,7 @@ import {
   useUploadAvatarCoverFromFileMutation,
 } from "@/queries/usePost";
 import { toast } from "@/hooks/use-toast";
-import { handleErrorApi } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useCheckContentByAIMutation } from "@/queries/useDetector";
 
 const RichTextEditor = dynamic(
@@ -38,6 +38,7 @@ const RichTextEditor = dynamic(
 );
 
 export default function PostStoryForm() {
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const [file, setFile] = useState<File | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [wordCount, setWordCount] = useState(0);
@@ -85,7 +86,9 @@ export default function PostStoryForm() {
 
   // Xử lí việc tạo bài viết
   const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
-  const createPostMutation = useCreatePostMutation();
+  const createPostMutation = useCreatePostMutation(
+    userIdFromLocalStorage as string
+  );
   const checkContentByAIMutation = useCheckContentByAIMutation();
   const onSubmit = async (data: CreatePostBodyType) => {
     if (createPostMutation.isPending || checkContentByAIMutation.isPending)

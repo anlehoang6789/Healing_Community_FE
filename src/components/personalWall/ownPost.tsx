@@ -633,7 +633,7 @@ export default function OwnPost() {
             </AlertDialogTitle>
             <AlertDialogDescription>
               Bài viết có tiêu đề{" "}
-              <span className="bg-muted text-primary-foreground rounded px-1">
+              <span className="bg-muted text-textChat rounded px-1">
                 {postDelete?.title}
               </span>{" "}
               sẽ bị xóa vĩnh viễn

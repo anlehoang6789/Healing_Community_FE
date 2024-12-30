@@ -108,7 +108,10 @@ export default function CreatePostInGroup({ groupId }: { groupId: string }) {
 
   // Xử lí việc tạo bài viết
   const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
-  const createPostMutation = useCreatePostInGroupMutation(groupId);
+  const createPostMutation = useCreatePostInGroupMutation({
+    groupId,
+    userId: userIdFromLocalStorage as string,
+  });
   const checkContentByAIMutation = useCheckContentByAIMutation();
   const onSubmit = async (data: CreatePostInGroupBodyType) => {
     if (createPostMutation.isPending || checkContentByAIMutation.isPending)

@@ -9,7 +9,7 @@ const quizApiRequest = {
   getDass21Quiz: async () => {
     try {
       const response = await http.get<QuizResponseType>(
-        "quizz/api/quiz/get_dass21_quizz"
+        "quiz/api/quiz/get_dass21_quizz"
       );
 
       if (response.status === 200) {
@@ -27,7 +27,7 @@ const quizApiRequest = {
   submitAndGetDass21QuizResult: async (body: SubmitQuizScoreType) => {
     try {
       const response = await http.post<Dass21ScoreResponseType>(
-        "quizz/api/quiz/submit_dass21_quizz",
+        "quiz/api/quiz/submit_dass21_quizz",
         body
       );
 
