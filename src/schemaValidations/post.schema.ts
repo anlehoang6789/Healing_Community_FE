@@ -582,3 +582,20 @@ export const GetPostByGroupIdListRes = z.object({
 export type GetPostByGroupIdListResType = z.TypeOf<
   typeof GetPostByGroupIdListRes
 >;
+
+export const GetSharedCommentCountSchema = z.object({
+  countTotalComment: z.number(),
+});
+
+export type GetSharedCommentCountSchema = z.TypeOf<
+  typeof GetSharedCommentCountSchema
+>;
+
+export const GetSharedCommentCountRes = z.object({
+  data: GetSharedCommentCountSchema,
+  message: z.string(),
+});
+
+export type GetSharedCommentCountResType = z.TypeOf<
+  typeof GetSharedCommentCountRes
+>;

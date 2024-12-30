@@ -7,7 +7,7 @@ import React from "react";
 
 export default function ListOfExpertsTab() {
   return (
-    <Tabs defaultValue="listGroup" className="space-y-4">
+    <Tabs defaultValue="listExpert" className="space-y-4">
       <div className="flex items-center justify-between">
         <TabsList>
           <TabsTrigger value="listExpert">Tất cả chuyên gia</TabsTrigger>

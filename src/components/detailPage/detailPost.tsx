@@ -57,9 +57,7 @@ export default function DetailPost() {
     postIdFromUrl as string
   );
 
-  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation(
-    postIdFromUrl as string
-  );
+  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation();
 
   const { data: postById } = useGetPostByPostIdQuery({
     postId: postIdFromUrl as string,
@@ -83,9 +81,7 @@ export default function DetailPost() {
     postIdFromUrl as string
   );
 
-  const { mutate: createComment } = useCreateCommentMutation(
-    postIdFromUrl as string
-  );
+  const { mutate: createComment } = useCreateCommentMutation();
 
   // Sử dụng kiểu CommentType từ schema
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -98,21 +94,27 @@ export default function DetailPost() {
   }, [commentsData]);
 
   const handleDeleteComment = (commentId: string) => {
-    deleteComment(commentId, {
-      onSuccess: async () => {
-        // Refetch toàn bộ comments của post
-        try {
-          const commentsResponse = await postApiRequest.getCommentsByPostId(
-            postIdFromUrl as string
-          );
-
-          // Cập nhật lại toàn bộ comments
-          setComments(commentsResponse.payload.data);
-        } catch (error) {
-          console.error("Error refetching comments:", error);
-        }
+    deleteComment(
+      {
+        commentId,
+        postId: postIdFromUrl as string,
       },
-    });
+      {
+        onSuccess: async () => {
+          // Refetch toàn bộ comments của post
+          try {
+            const commentsResponse = await postApiRequest.getCommentsByPostId(
+              postIdFromUrl as string
+            );
+
+            // Cập nhật lại toàn bộ comments
+            setComments(commentsResponse.payload.data);
+          } catch (error) {
+            console.error("Error refetching comments:", error);
+          }
+        },
+      }
+    );
   };
 
   const handleAddComment = (comment: {
