@@ -1,6 +1,8 @@
 import postApiRequest from "@/apiRequests/post";
 import {
   CreateCategoryBodyType,
+  CreateCommentBodyType,
+  CreateSharedCommentBodyType,
   GetAuthorOtherPostBodyType,
   GetOtherPostWithSameCategoryBodyType,
   UpdatePersonalPostBodyType,
@@ -218,35 +220,54 @@ export const useGetCommentCountQuery = (postId: string) => {
   });
 };
 
-export const useCreateCommentMutation = (postId: string) => {
+export const useCreateCommentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postApiRequest.createComment,
-    onSuccess: () => {
+    mutationFn: (body: CreateCommentBodyType & { postId: string }) =>
+      postApiRequest.createComment(body),
+    onSuccess: (response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["comments", postId],
+        queryKey: ["comments", variables.postId],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["comment-count", postId],
+        queryKey: ["comment-count", variables.postId],
       });
     },
   });
 };
 
-export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
+export const useDeleteCommentByCommnetIdMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: postApiRequest.deleteCommentByCommentId,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", postId],
-      });
+    mutationFn: (body: {
+      commentId: string;
+      postId?: string;
+      shareId?: string;
+    }) => postApiRequest.deleteCommentByCommentId(body.commentId),
+    onSuccess: (response, variables) => {
+      // Nếu là comment của post
+      if (variables.postId) {
+        queryClient.invalidateQueries({
+          queryKey: ["comments", variables.postId],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["comment-count", postId],
-      });
+        queryClient.invalidateQueries({
+          queryKey: ["comment-count", variables.postId],
+        });
+      }
+
+      // Nếu là comment của shared post
+      if (variables.shareId) {
+        queryClient.invalidateQueries({
+          queryKey: ["shared-comments", variables.shareId],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["shared-comment-count", variables.shareId],
+        });
+      }
     },
   });
 };
@@ -439,17 +460,33 @@ export const useGetCommentsByShareIdQuery = (shareId: string) => {
   });
 };
 
-export const useCreateSharedCommentMutation = (shareId: string) => {
+export const useGetSharedCommentCountQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["shared-comment-count", shareId],
+    queryFn: async () => {
+      console.log("Fetching shared comment count...");
+      return await postApiRequest.getSharedCommentCount(shareId);
+    },
+  });
+};
+
+export const useCreateSharedCommentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postApiRequest.createSharedComment,
-    onSuccess: () => {
+    mutationFn: (body: CreateSharedCommentBodyType & { shareId: string }) =>
+      postApiRequest.createSharedComment(body),
+    onSuccess: (response, variables) => {
+      // Sử dụng variables.shareId để invalidate
       queryClient.invalidateQueries({
-        queryKey: ["shared-comments", shareId],
+        queryKey: ["shared-comment-count", variables.shareId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["shared-comments", variables.shareId],
       });
     },
   });
 };
+
 export const useViewPostInGroupByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["post-in-group", groupId],

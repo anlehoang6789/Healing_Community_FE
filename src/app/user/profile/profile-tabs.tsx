@@ -146,7 +146,7 @@ export default function ProfileTabs({
           ) : null}
 
           {isOwner && role !== Role.Expert && (
-            <Link href={"/user/profile/information"} passHref>
+            <Link href={`/user/profile/${userId}/information`} passHref>
               <Button
                 variant={
                   activeTab === "user-info"
@@ -161,7 +161,7 @@ export default function ProfileTabs({
           )}
 
           {isOwner && (
-            <Link href={"/user/profile/change-password"}>
+            <Link href={`/user/profile/${userId}/change-password`}>
               <Button
                 variant={
                   activeTab === "change-password"

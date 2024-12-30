@@ -78,25 +78,9 @@ import authApiRequest from "@/apiRequests/auth";
 import expertApiRequest from "@/apiRequests/expert";
 import { GetExpertProfileSchemaType } from "@/schemaValidations/expert.schema";
 import CommentSharedSection from "@/components/commentSection/commentSharedSection";
-
-const CommentCount: React.FC<{ postId: string }> = ({ postId }) => {
-  const { data, isLoading, isError, refetch } = useGetCommentCountQuery(postId);
-
-  if (isLoading)
-    return (
-      <span className="text-sm text-gray-500 animate-pulse">
-        <div className="h-4 bg-gray-200 rounded w-1/4"></div>
-      </span>
-    );
-  if (isError || !data)
-    return <div>Hiện tại chức năng đang bảo trì bạn chờ chút nhé</div>;
-
-  const commentCount = data.payload.data.countTotalComment;
-
-  return (
-    <span className="text-sm text-gray-500">{commentCount} bình luận</span>
-  );
-};
+import SharedCommentCount from "@/components/commentSection/sharedCommentCount";
+import CommentCount from "@/components/commentSection/commentCount";
+import Link from "next/link";
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -266,23 +250,19 @@ export default function OwnPost() {
   const [commentsByPostId, setCommentsByPostId] = useState<{
     [key: string]: CommentType[];
   }>({});
-  const { mutate: createComment } = useCreateCommentMutation(postId as string);
+  const { mutate: createComment } = useCreateCommentMutation();
   const [visibleCommentPosts, setVisibleCommentPosts] = useState<{
     [postId: string]: boolean;
   }>({});
 
-  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation(
-    postId as string
-  );
+  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation();
 
   const [sharedPostCommentsByShareId, setSharedPostCommentsByShareId] =
     useState<{
       [shareId: string]: SharedCommentType[];
     }>({});
 
-  const { mutate: createSharedComment } = useCreateSharedCommentMutation(
-    postId as string
-  );
+  const { mutate: createSharedComment } = useCreateSharedCommentMutation();
 
   useEffect(() => {
     const fetchSharedPostComments = async () => {
@@ -387,95 +367,117 @@ export default function OwnPost() {
 
   // Hàm xóa comment cho shared post
   const handleDeleteSharedPostComment = (commentId: string) => {
-    deleteComment(commentId, {
-      onSuccess: async () => {
-        // Lặp qua từng shared post để tìm và cập nhật comments
-        const updatedCommentsByShareId = { ...sharedPostCommentsByShareId };
-
-        Object.keys(updatedCommentsByShareId).forEach((shareId) => {
-          updatedCommentsByShareId[shareId] = updatedCommentsByShareId[
-            shareId
-          ].filter(
+    deleteComment(
+      {
+        commentId,
+        shareId: Object.keys(sharedPostCommentsByShareId).find((shareId) =>
+          sharedPostCommentsByShareId[shareId].some(
             (comment) =>
-              comment.commentId !== commentId && comment.parentId !== commentId
-          );
-        });
+              comment.commentId === commentId || comment.parentId === commentId
+          )
+        ),
+      },
+      {
+        onSuccess: async () => {
+          // Lặp qua từng shared post để tìm và cập nhật comments
+          const updatedCommentsByShareId = { ...sharedPostCommentsByShareId };
 
-        // Cập nhật state comments
-        setSharedPostCommentsByShareId(updatedCommentsByShareId);
-
-        // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng shared post
-        try {
-          const shareIds = Object.keys(sharedPostCommentsByShareId);
-          const commentsPromises = shareIds.map((shareId) =>
-            postApiRequest.getCommentsByShareId(shareId)
-          );
-
-          const commentsResults = await Promise.all(commentsPromises);
-
-          const refreshedCommentsByShareId: {
-            [shareId: string]: SharedCommentType[];
-          } = {};
-          shareIds.forEach((shareId, index) => {
-            refreshedCommentsByShareId[shareId] =
-              commentsResults[index].payload.data;
+          Object.keys(updatedCommentsByShareId).forEach((shareId) => {
+            updatedCommentsByShareId[shareId] = updatedCommentsByShareId[
+              shareId
+            ].filter(
+              (comment) =>
+                comment.commentId !== commentId &&
+                comment.parentId !== commentId
+            );
           });
 
-          setSharedPostCommentsByShareId(refreshedCommentsByShareId);
-        } catch (error) {
-          console.error("Error refetching shared post comments:", error);
-        }
-      },
-      onError: (error) => {
-        console.error("Error deleting shared post comment:", error);
-      },
-    });
+          // Cập nhật state comments
+          setSharedPostCommentsByShareId(updatedCommentsByShareId);
+
+          // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng shared post
+          try {
+            const shareIds = Object.keys(sharedPostCommentsByShareId);
+            const commentsPromises = shareIds.map((shareId) =>
+              postApiRequest.getCommentsByShareId(shareId)
+            );
+
+            const commentsResults = await Promise.all(commentsPromises);
+
+            const refreshedCommentsByShareId: {
+              [shareId: string]: SharedCommentType[];
+            } = {};
+            shareIds.forEach((shareId, index) => {
+              refreshedCommentsByShareId[shareId] =
+                commentsResults[index].payload.data;
+            });
+
+            setSharedPostCommentsByShareId(refreshedCommentsByShareId);
+          } catch (error) {
+            console.error("Error refetching shared post comments:", error);
+          }
+        },
+      }
+    );
   };
 
   const handleDeleteComment = (commentId: string) => {
-    deleteComment(commentId, {
-      onSuccess: async () => {
-        // Lặp qua từng post để tìm và cập nhật comments
-        const updatedCommentsByPostId = { ...commentsByPostId };
-
-        Object.keys(updatedCommentsByPostId).forEach((postId) => {
-          updatedCommentsByPostId[postId] = updatedCommentsByPostId[
-            postId
-          ].filter(
+    deleteComment(
+      {
+        commentId,
+        postId: Object.keys(commentsByPostId).find((postId) =>
+          commentsByPostId[postId].some(
             (comment) =>
-              comment.commentId !== commentId && comment.parentId !== commentId
-          );
-        });
+              comment.commentId === commentId || comment.parentId === commentId
+          )
+        ),
+      },
+      {
+        onSuccess: async () => {
+          // Lặp qua từng post để tìm và cập nhật comments
+          const updatedCommentsByPostId = { ...commentsByPostId };
 
-        // Cập nhật state comments
-        setCommentsByPostId(updatedCommentsByPostId);
-
-        // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng post
-        try {
-          const postIds = Object.keys(commentsByPostId);
-          const commentsPromises = postIds.map((postId) =>
-            postApiRequest.getCommentsByPostId(postId)
-          );
-
-          const commentsResults = await Promise.all(commentsPromises);
-
-          const refreshedCommentsByPostId: { [key: string]: CommentType[] } =
-            {};
-          postIds.forEach((postId, index) => {
-            refreshedCommentsByPostId[postId] =
-              commentsResults[index].payload.data;
+          Object.keys(updatedCommentsByPostId).forEach((postId) => {
+            updatedCommentsByPostId[postId] = updatedCommentsByPostId[
+              postId
+            ].filter(
+              (comment) =>
+                comment.commentId !== commentId &&
+                comment.parentId !== commentId
+            );
           });
 
-          setCommentsByPostId(refreshedCommentsByPostId);
-        } catch (error) {
-          console.error("Error refetching comments:", error);
-        }
-      },
-      onError: (error) => {
-        console.error("Error deleting comment:", error);
-      },
-    });
+          // Cập nhật state comments
+          setCommentsByPostId(updatedCommentsByPostId);
+
+          // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng post
+          try {
+            const postIds = Object.keys(commentsByPostId);
+            const commentsPromises = postIds.map((postId) =>
+              postApiRequest.getCommentsByPostId(postId)
+            );
+
+            const commentsResults = await Promise.all(commentsPromises);
+
+            const refreshedCommentsByPostId: { [key: string]: CommentType[] } =
+              {};
+            postIds.forEach((postId, index) => {
+              refreshedCommentsByPostId[postId] =
+                commentsResults[index].payload.data;
+            });
+
+            setCommentsByPostId(refreshedCommentsByPostId);
+          } catch (error) {
+            console.error("Error refetching comments:", error);
+          }
+        },
+        onError: (error) => {
+          console.error("Error deleting comment:", error);
+        },
+      }
+    );
   };
+
   useEffect(() => {
     if (data) {
       setPostList(data.payload.data);
@@ -1057,97 +1059,99 @@ export default function OwnPost() {
                   )}
 
                   {/* Bài viết gốc */}
-                  <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
-                    <div className="flex items-center gap-4 p-4">
-                      <Avatar className="w-10 h-10 border-2 border-rose-300">
-                        <AvatarImage
-                          src={
-                            originalPostUserProfile?.profilePicture ||
-                            "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                          }
-                          alt={sharedPost.title}
-                        />
-                        <AvatarFallback>{sharedPost.title[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                            {originalPostUserProfile?.isExpert
-                              ? originalPostUserProfile.expertProfile
-                                  ?.fullname ||
-                                originalPostUserProfile.email ||
-                                "Anonymous"
-                              : originalPostUserProfile?.fullName ||
-                                originalPostUserProfile?.userName ||
-                                "Anonymous"}
-                          </h2>
-                          {originalPostUserProfile?.isExpert && (
-                            <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
-                              Chuyên gia
-                            </div>
-                          )}
+                  <Link href={`/content/${sharedPost.postId}`}>
+                    <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
+                      <div className="flex items-center gap-4 p-4">
+                        <Avatar className="w-10 h-10 border-2 border-rose-300">
+                          <AvatarImage
+                            src={
+                              originalPostUserProfile?.profilePicture ||
+                              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                            }
+                            alt={sharedPost.title}
+                          />
+                          <AvatarFallback>{sharedPost.title[0]}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center space-x-2">
+                            <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                              {originalPostUserProfile?.isExpert
+                                ? originalPostUserProfile.expertProfile
+                                    ?.fullname ||
+                                  originalPostUserProfile.email ||
+                                  "Anonymous"
+                                : originalPostUserProfile?.fullName ||
+                                  originalPostUserProfile?.userName ||
+                                  "Anonymous"}
+                            </h2>
+                            {originalPostUserProfile?.isExpert && (
+                              <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+                                Chuyên gia
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">
+                            {formatDateTime(sharedPost.createAt)}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-500">
-                          {formatDateTime(sharedPost.createAt)}
-                        </p>
                       </div>
-                    </div>
 
-                    <Image
-                      src={sharedPost.coverImgUrl}
-                      alt="Post cover"
-                      width={1000}
-                      height={500}
-                      className="w-full h-[250px] object-cover"
-                    />
+                      <Image
+                        src={sharedPost.coverImgUrl}
+                        alt="Post cover"
+                        width={1000}
+                        height={500}
+                        className="w-full h-[250px] object-cover"
+                      />
 
-                    <motion.div
-                      animate={{ height: isExpanded ? "auto" : 100 }}
-                      initial={{ height: 100 }}
-                      transition={{ duration: 0.4, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="p-4">
-                        <div className="font-bold text-lg text-center mb-2">
-                          {sharedPost.title}
+                      <motion.div
+                        animate={{ height: isExpanded ? "auto" : 100 }}
+                        initial={{ height: 100 }}
+                        transition={{ duration: 0.4, ease: "easeInOut" }}
+                        className="overflow-hidden"
+                      >
+                        <div className="p-4">
+                          <div className="font-bold text-lg text-center mb-2">
+                            {sharedPost.title}
+                          </div>
+                          <div
+                            className="whitespace-pre-wrap text-textChat"
+                            dangerouslySetInnerHTML={{
+                              __html: isExpanded
+                                ? sharedPost.description
+                                : truncate
+                                ? `${sharedPost.description.slice(0, 300)}...`
+                                : sharedPost.description,
+                            }}
+                          />
                         </div>
-                        <div
-                          className="whitespace-pre-wrap text-textChat"
-                          dangerouslySetInnerHTML={{
-                            __html: isExpanded
-                              ? sharedPost.description
-                              : truncate
-                              ? `${sharedPost.description.slice(0, 300)}...`
-                              : sharedPost.description,
-                          }}
-                        />
-                      </div>
-                    </motion.div>
+                      </motion.div>
 
-                    {truncate && (
-                      <div className="flex justify-end p-4">
-                        <button
-                          onClick={() =>
-                            toggleSharedPostExpand(
-                              sharedPost.shareId,
-                              !isExpanded
-                            )
-                          }
-                          className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
-                        >
-                          {isExpanded ? "Thu gọn" : "Xem thêm"}
-                        </button>
-                      </div>
-                    )}
-                  </Card>
+                      {truncate && (
+                        <div className="flex justify-end p-4">
+                          <button
+                            onClick={() =>
+                              toggleSharedPostExpand(
+                                sharedPost.shareId,
+                                !isExpanded
+                              )
+                            }
+                            className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
+                          >
+                            {isExpanded ? "Thu gọn" : "Xem thêm"}
+                          </button>
+                        </div>
+                      )}
+                    </Card>
+                  </Link>
 
                   {/* Tương tác */}
                   <div className="flex flex-col items-start gap-4 p-4">
                     <div className="flex justify-between w-full">
                       <ReactionCount postId={sharedPost.shareId} />
-                      {/* <span className="text-sm text-gray-500">
-                        <CommentCount postId={sharedPost.shareId} />
-                      </span> */}
+                      <span className="text-sm text-gray-500">
+                        <SharedCommentCount shareId={sharedPost.shareId} />
+                      </span>
                     </div>
 
                     <div className="flex items-center justify-between w-full">
