@@ -25,7 +25,7 @@ import { useCheckContentByAIMutation } from "@/queries/useDetector";
 import {
   useGetAllCategoryQuery,
   useGetPostByPostIdQuery,
-  useUpdatePersonalPostMutation,
+  useUpdatePersonalPostInGroupMutation,
   useUploadAvatarCoverFromFileMutation,
 } from "@/queries/usePost";
 import {
@@ -39,7 +39,7 @@ import { useParams } from "next/navigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-export default function EditPersonalPost({
+export default function EditPersonalPostInGroup({
   postId,
   setPostId,
   onSubmitSuccess,
@@ -48,7 +48,9 @@ export default function EditPersonalPost({
   setPostId: (value: string | undefined) => void;
   onSubmitSuccess?: () => void;
 }) {
-  const { userId } = useParams();
+  const param = useParams();
+  const userId = param.userId;
+  const groupId = param.groupId;
   const [file, setFile] = useState<File | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
   const [wordCount, setWordCount] = useState(0);
@@ -61,7 +63,7 @@ export default function EditPersonalPost({
       title: "",
       description: "",
       coverImgUrl: "",
-      status: 0,
+      status: 2,
     },
   });
   const { data } = useGetPostByPostIdQuery({
@@ -71,13 +73,11 @@ export default function EditPersonalPost({
 
   useEffect(() => {
     if (data) {
-      const { title, categoryId, coverImgUrl, description, status } =
-        data.payload.data;
+      const { title, categoryId, coverImgUrl, description } = data.payload.data;
       form.setValue("title", title);
       form.setValue("description", description);
       form.setValue("coverImgUrl", coverImgUrl);
       form.setValue("categoryId", categoryId);
-      form.setValue("status", status);
     }
   }, [data, form]);
 
@@ -113,7 +113,10 @@ export default function EditPersonalPost({
   };
 
   const uploadAvatarCover = useUploadAvatarCoverFromFileMutation();
-  const updatePersonalPost = useUpdatePersonalPostMutation(userId as string);
+  const updatePersonalPost = useUpdatePersonalPostInGroupMutation({
+    userId: userId as string,
+    groupId: groupId as string,
+  });
   const checkContentByAIMutation = useCheckContentByAIMutation();
   const onSubmit = async (data: UpdatePersonalPostBodyType) => {
     if (updatePersonalPost.isPending || checkContentByAIMutation.isPending)
@@ -273,10 +276,7 @@ export default function EditPersonalPost({
                               if (file) {
                                 setFile(file);
                                 const localImageUrl = URL.createObjectURL(file);
-                                field.onChange(
-                                  //   "http://localhost:3000/" + file.name
-                                  localImageUrl
-                                );
+                                field.onChange(localImageUrl);
                               }
                             }}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
@@ -323,47 +323,6 @@ export default function EditPersonalPost({
 
                 <FormField
                   control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="grid gap-2">
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={(value) => {
-                              const numericValue = value === "public" ? 0 : 1;
-                              field.onChange(numericValue); // Cập nhật giá trị status
-                            }}
-                            value={field.value === 0 ? "public" : "private"} // Xử lý giá trị mặc định
-                            className="flex flex-col space-y-1"
-                            id="status"
-                          >
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="public" />
-                              </FormControl>
-                              <FormLabel className="font-normal text-black">
-                                Công khai
-                              </FormLabel>
-                            </FormItem>
-                            <FormItem className="flex items-center space-x-3 space-y-0">
-                              <FormControl>
-                                <RadioGroupItem value="private" />
-                              </FormControl>
-                              <FormLabel className="font-normal text-black">
-                                Chỉ mình tôi
-                              </FormLabel>
-                            </FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-                <Separator />
-
-                <FormField
-                  control={form.control}
                   name="categoryId"
                   render={({ field }) => (
                     <FormItem>
@@ -377,12 +336,6 @@ export default function EditPersonalPost({
                             Chọn thể loại bài viết của bạn
                           </Label>
                         </div>
-                        {/* <CategoryCombobox
-                          id="categoryId"
-                          aria-labelledby="category-label"
-                          value={field.value}
-                          onChange={field.onChange}
-                        /> */}
                         <div className="relative">
                           <select
                             id="categoryId"
@@ -425,11 +378,6 @@ export default function EditPersonalPost({
             </form>
           </Form>
         </div>
-        {/* <DialogFooter>
-          <Button type="submit" form="edit-post-form">
-            Lưu
-          </Button>
-        </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );

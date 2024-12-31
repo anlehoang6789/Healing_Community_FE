@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Ellipsis, FilePenLine, Trash2 } from "lucide-react";
 import { useTheme } from "next-themes";
 import AlertDialogDeletePersonalPostInGroup from "@/app/user/group-user/[groupId]/user/[userId]/delete-personal-post-in-group";
+import EditPersonalPostInGroup from "@/app/user/group-user/[groupId]/user/[userId]/edit-personal-post-in-group";
 
 type PersonalPostInGroupItem = GetPersonalPostGroupListResType["data"][0];
 const PersonalPostInGroupContext = createContext<{
@@ -147,6 +148,11 @@ export default function ViewPersonalPostInGroup({
                   setPostDelete={setPostDelete}
                   userId={userId}
                   groupId={groupId}
+                />
+                <EditPersonalPostInGroup
+                  postId={postId}
+                  setPostId={setPostId}
+                  onSubmitSuccess={() => {}}
                 />
                 {/* Title and content */}
                 <motion.div
