@@ -178,6 +178,14 @@ const postApiRequest = {
     http.get<GetPersonalPostGroupListResType>(
       `post/api/post/get-posts-in-group-by-user-and-group?groupId=${groupId}&userId=${userId}`
     ),
+  updatePersonalPostInGroup: (
+    postId: string,
+    body: UpdatePersonalPostBodyType
+  ) =>
+    http.put<{ message: string }>(
+      `post/api/post/update-post-in-group/${postId}`,
+      body
+    ),
 };
 
 export default postApiRequest;

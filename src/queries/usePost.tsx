@@ -550,3 +550,26 @@ export const useDeletePersonalPostInGroupMutation = ({
     },
   });
 };
+
+export const useUpdatePersonalPostInGroupMutation = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...body
+    }: UpdatePersonalPostBodyType & { id: string }) =>
+      postApiRequest.updatePersonalPostInGroup(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["personal-post-group", userId, groupId],
+        exact: true,
+      });
+    },
+  });
+};
