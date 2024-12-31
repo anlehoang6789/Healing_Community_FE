@@ -599,3 +599,12 @@ export const GetSharedCommentCountRes = z.object({
 export type GetSharedCommentCountResType = z.TypeOf<
   typeof GetSharedCommentCountRes
 >;
+
+export const GetPersonalPostGroupListRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetPersonalPostGroupListResType = z.TypeOf<
+  typeof GetPersonalPostGroupListRes
+>;

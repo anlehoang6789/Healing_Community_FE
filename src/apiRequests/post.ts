@@ -38,6 +38,7 @@ import {
   UpdateSharedPostBodyType,
   UploadImageCoverResponseType,
   GetSharedCommentCountResType,
+  GetPersonalPostGroupListResType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -61,9 +62,7 @@ const postApiRequest = {
     http.post<CreateCommentResponseType>("post/api/comment/create", body),
 
   getPostByUserId: (userId: string) =>
-    http.get<GetPostByUserIdResType>(
-      `post/api/post/get-user-post?userId=${userId}`
-    ),
+    http.get<GetPostByUserIdResType>(`post/api/post/get-user-post/${userId}`),
   deletePostByPostId: (postId: string) =>
     http.delete<{ message: string }>(`post/api/post/delete/${postId}`),
   addUserReference: (body: AddUserReferenceBodyType) =>
@@ -174,6 +173,18 @@ const postApiRequest = {
   getSharedCommentCount: (shareId: string) =>
     http.get<GetSharedCommentCountResType>(
       `post/api/comment/count-total-comment-by-share-id/${shareId}`
+    ),
+  getPersonalPostGroup: (userId: string, groupId: string) =>
+    http.get<GetPersonalPostGroupListResType>(
+      `post/api/post/get-posts-in-group-by-user-and-group?groupId=${groupId}&userId=${userId}`
+    ),
+  updatePersonalPostInGroup: (
+    postId: string,
+    body: UpdatePersonalPostBodyType
+  ) =>
+    http.put<{ message: string }>(
+      `post/api/post/update-post-in-group/${postId}`,
+      body
     ),
 };
 
