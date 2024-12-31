@@ -573,3 +573,40 @@ export const useUpdatePersonalPostInGroupMutation = ({
     },
   });
 };
+
+export const useGetReactionSharedCountQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["reaction-shared-count", shareId],
+    queryFn: () => postApiRequest.getReactionSharedCount(shareId),
+  });
+};
+
+export const useAddReactionSharedMutation = (shareId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.addReactionShared,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-shared-count", shareId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", shareId],
+      });
+    },
+  });
+};
+
+export const useRemoveReactionSharedMutation = (shareId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.removeReactionShared,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-count", shareId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", shareId],
+      });
+    },
+  });
+};
