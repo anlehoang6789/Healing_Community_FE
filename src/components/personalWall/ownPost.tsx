@@ -81,6 +81,8 @@ import CommentSharedSection from "@/components/commentSection/commentSharedSecti
 import SharedCommentCount from "@/components/commentSection/sharedCommentCount";
 import CommentCount from "@/components/commentSection/commentCount";
 import Link from "next/link";
+import ReactionSharedCount from "@/components/homePage/reactionSharedCount";
+import ReactionSharedEmoji from "@/components/homePage/reactionSharedEmoji";
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -1148,14 +1150,14 @@ export default function OwnPost() {
                   {/* Tương tác */}
                   <div className="flex flex-col items-start gap-4 p-4">
                     <div className="flex justify-between w-full">
-                      <ReactionCount postId={sharedPost.shareId} />
+                      <ReactionSharedCount shareId={sharedPost.shareId} />
                       <span className="text-sm text-gray-500">
                         <SharedCommentCount shareId={sharedPost.shareId} />
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between w-full">
-                      <ReactionEmoji postId={sharedPost.shareId} />
+                      <ReactionSharedEmoji shareId={sharedPost.shareId} />
                       <Button
                         variant="iconDarkMod"
                         className="flex items-center gap-2 p-0"
