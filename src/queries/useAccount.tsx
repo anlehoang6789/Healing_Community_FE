@@ -83,3 +83,22 @@ export const useUnfollowUserMutation = (userId: string) => {
     },
   });
 };
+
+export const useGetPaymentInfoQuery = () => {
+  return useQuery({
+    queryKey: ["paymentInfo"],
+    queryFn: accountApiRequest.getPaymentInfo,
+  });
+};
+
+export const useUpdatePaymentInfoMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: accountApiRequest.updatePaymentInfo,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["paymentInfo"],
+      });
+    },
+  });
+};

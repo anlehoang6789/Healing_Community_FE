@@ -12,11 +12,18 @@ import {
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
+import {
+  useGetPaymentInfoQuery,
+  useUpdatePaymentInfoMutation,
+} from "@/queries/useAccount";
 import {
   BankInformationBody,
   BankInformationBodyType,
 } from "@/schemaValidations/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 export default function BankInformationForm() {
@@ -40,6 +47,38 @@ export default function BankInformationForm() {
     return formatted;
   };
 
+  const { data } = useGetPaymentInfoQuery();
+  useEffect(() => {
+    if (data) {
+      const { bankName, bankAccountName, bankAccountNumber } =
+        data.payload.data;
+      form.setValue("bankName", bankName);
+      form.setValue("bankAccountName", bankAccountName);
+      form.setValue(
+        "bankAccountNumber",
+        handleAccountNumberChange(bankAccountNumber)
+      );
+    }
+  }, [data, form]);
+
+  const updatePaymentInfoMutation = useUpdatePaymentInfoMutation();
+  const onSubmit = async (data: BankInformationBodyType) => {
+    if (updatePaymentInfoMutation.isPending) return;
+    try {
+      const formattedData = {
+        ...data,
+        bankAccountNumber: data.bankAccountNumber.replace(/\s/g, ""),
+      };
+      const res = await updatePaymentInfoMutation.mutateAsync(formattedData);
+      toast({
+        title: res.payload.message,
+        variant: "success",
+      });
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -52,10 +91,9 @@ export default function BankInformationForm() {
         <form
           noValidate
           className="space-y-4"
-          //   onSubmit={form.handleSubmit(onSubmit, (error) => {
-          //     console.warn(error);
-          //   })}
-          //   onReset={reset}
+          onSubmit={form.handleSubmit(onSubmit, (error) => {
+            console.warn(error);
+          })}
         >
           <CardContent className="space-y-4">
             <div className="space-y-2">

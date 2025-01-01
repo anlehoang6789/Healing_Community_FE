@@ -9,3 +9,10 @@ export const useGetAllUsers = () => {
     select: (response) => response.payload.data,
   });
 };
+
+export const useGetToManageUser = () => {
+  return useQuery({
+    queryKey: ["manage-users"],
+    queryFn: userApiRequest.getToManageUser,
+  });
+};
