@@ -1,15 +1,30 @@
 "use client";
-import DeleteAccountUser from "@/app/moderator/manage-accounts/delete-account-user";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+
+import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -18,342 +33,385 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React, { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useSearchParams } from "next/navigation";
+import AutoPagination from "@/components/auto-pagination";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
+import AddExperience from "@/app/expert/experience/add-experience";
+import { useDeleteExpertExperienceMutation } from "@/queries/useExpert";
+import {
+  GetToManageUserListResType,
+  GetToManageUserType,
+} from "@/schemaValidations/user.schema";
+import { useGetToManageUser } from "@/queries/useUser";
 
-type FilterListUser = {
-  filters: { role: string; status: string };
-};
+type AccountItem = GetToManageUserListResType["data"][0];
 
-type UserList = {
-  id: string;
-  date: Date;
-  username: string;
-  email: string;
-  avatar: string;
-  role: "user" | "expert";
-  status: "active" | "inactive" | "banned";
-};
+const AccountTableContext = createContext<{
+  experienceDelete: AccountItem | null;
+  setExperienceDelete: (value: AccountItem | null) => void;
+}>({
+  experienceDelete: null,
+  setExperienceDelete: (value: AccountItem | null) => {},
+});
 
-const userList: UserList[] = [
+export const columns: ColumnDef<GetToManageUserType>[] = [
   {
-    id: "1",
-    date: new Date("2023-09-01"),
-    username: "johnDoe",
-    email: "john.doe@example.com",
-    avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    role: "user",
-    status: "active",
+    id: "userId",
+    header: "STT",
+    cell: ({ row }) => <div className="text-textChat">{row.index + 1}</div>,
   },
   {
-    id: "2",
-    date: new Date("2023-08-15"),
-    username: "janeSmith",
-    email: "jane.smith@example.com",
-    avatar: "https://randomuser.me/api/portraits/women/2.jpg",
-    role: "expert",
-    status: "banned",
+    accessorKey: "fullName",
+    header: "Tên hiển thị",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("fullName")}</div>
+    ),
   },
   {
-    id: "3",
-    date: new Date("2023-10-05"),
-    username: "mikeBrown",
-    email: "mike.brown@example.com",
-    avatar: "https://randomuser.me/api/portraits/men/3.jpg",
-    role: "user",
-    status: "inactive",
+    accessorKey: "userName",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tên đăng ký
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="text-textChat font-semibold">
+        {row.getValue("userName")}
+      </div>
+    ),
   },
   {
-    id: "4",
-    date: new Date("2023-07-20"),
-    username: "lindaWhite",
-    email: "linda.white@example.com",
-    avatar: "https://randomuser.me/api/portraits/women/4.jpg",
-    role: "expert",
-    status: "active",
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("email")}</div>
+    ),
   },
   {
-    id: "5",
-    date: new Date("2023-06-10"),
-    username: "alexTaylor",
-    email: "alex.taylor@example.com",
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-    role: "user",
-    status: "active",
+    accessorKey: "phoneNumber",
+    header: "Số điện thoại",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("phoneNumber")}</div>
+    ),
   },
   {
-    id: "6",
-    date: new Date("2023-09-12"),
-    username: "sophiaGreen",
-    email: "sophia.green@example.com",
-    avatar: "https://randomuser.me/api/portraits/women/6.jpg",
-    role: "expert",
-    status: "banned",
+    accessorKey: "role",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Vai trò
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const role: string = row.original.role;
+      const roleMapping: Record<string, string> = {
+        User: "Người dùng",
+        Expert: "Chuyên gia",
+      };
+      const roleLabel = roleMapping[role] || "Không xác định";
+
+      const roleColors: Record<string, string> = {
+        User: "bg-blue-100 text-blue-800",
+        Expert: "bg-green-100 text-green-800",
+      };
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium ${
+            roleColors[role] || "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {roleLabel}
+        </span>
+      );
+    },
   },
   {
-    id: "7",
-    date: new Date("2023-05-18"),
-    username: "chrisJohnson",
-    email: "chris.johnson@example.com",
-    avatar: "https://randomuser.me/api/portraits/men/7.jpg",
-    role: "user",
-    status: "inactive",
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Trạng thái
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const status: number = row.original.status;
+      const statusMapping: Record<number, string> = {
+        0: "Chưa kích hoạt",
+        1: "Đã kích hoạt",
+      };
+      const statusLabel = statusMapping[status] || "Không xác định";
+
+      const statusColors: Record<number, string> = {
+        0: "border-red-500 text-rose-500",
+        1: "border-green-500 text-lime-400",
+      };
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium border ${
+            statusColors[status] || "border-gray-500 text-gray-500"
+          }`}
+        >
+          {statusLabel}
+        </span>
+      );
+    },
   },
   {
-    id: "8",
-    date: new Date("2023-04-25"),
-    username: "emmaBrown",
-    email: "emma.brown@example.com",
-    avatar: "https://randomuser.me/api/portraits/women/8.jpg",
-    role: "expert",
-    status: "active",
-  },
-  {
-    id: "9",
-    date: new Date("2023-11-02"),
-    username: "liamDavis",
-    email: "liam.davis@example.com",
-    avatar: "https://randomuser.me/api/portraits/men/9.jpg",
-    role: "user",
-    status: "banned",
-  },
-  {
-    id: "10",
-    date: new Date("2023-03-30"),
-    username: "oliviaMiller",
-    email: "olivia.miller@example.com",
-    avatar: "https://randomuser.me/api/portraits/women/10.jpg",
-    role: "expert",
-    status: "inactive",
+    id: "actions",
+    enableHiding: false,
+    cell: function Actions({ row }) {
+      const { setExperienceDelete } = useContext(AccountTableContext);
+
+      const openDeleteEmployee = () => {
+        setExperienceDelete(row.original);
+      };
+      return (
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={openDeleteEmployee}>
+              Vô hiệu hóa
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
 
-export default function TableListUser({ filters }: FilterListUser) {
-  // Đổi màu tự động cho badge "Người dùng"
-  const [hue, setHue] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHue((prevHue) => (prevHue + 1) % 360);
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const gradientColorBadgeUser = (h: number) => {
-    const hueShift = Math.sin((h * Math.PI) / 180) * 20;
-    return `hsl(${84 + hueShift}, 90%, 70%)`;
-  };
-
-  //   Đổi màu tự động cho badge "Chuyên gia"
-  const gradientColorBadgeExpert = (h: number) => {
-    const hueShift = Math.sin((h * Math.PI) / 180) * 20; // Điều chỉnh độ chuyển
-    return `hsl(${217 + hueShift}, 100%, 60%)`; // Hue 217 cho màu #3a86ff
-  };
-
-  const [currentPage, setCurrentPage] = useState(1);
-  const transactionsPerPage = 8;
-
-  //   filter
-  const filteredUsers = userList.filter((user) => {
-    const matchesRole =
-      filters.role && filters.role !== "all"
-        ? user.role === filters.role
-        : true;
-    const matchesStatus =
-      filters.status && filters.status !== "all"
-        ? user.status === filters.status
-        : true;
-    return matchesRole && matchesStatus;
-  });
-
-  const totalPages = Math.ceil(filteredUsers.length / transactionsPerPage);
-
-  const getCurrentPageTransactions = () => {
-    const startIndex = (currentPage - 1) * transactionsPerPage;
-    const endIndex = startIndex + transactionsPerPage;
-    return filteredUsers.slice(startIndex, endIndex);
-  };
-
-  const getStatusBadge = (status: UserList["status"]) => {
-    switch (status) {
-      case "active":
-        return (
-          <Badge
-            variant={"outline"}
-            className="bg-green-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-1 md:py-0.5"
-          >
-            Đã kích hoạt
-          </Badge>
-        );
-      case "inactive":
-        return (
-          <Badge
-            variant={"outline"}
-            className="bg-yellow-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-1 md:py-0.5"
-          >
-            Chưa kích hoạt
-          </Badge>
-        );
-      case "banned":
-        return (
-          <Badge
-            variant={"outline"}
-            className="bg-red-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-1 md:py-0.5"
-          >
-            Bị vô hiệu hóa
-          </Badge>
-        );
-    }
-  };
-
-  const getRoleBadge = (role: UserList["role"]) => {
-    switch (role) {
-      case "user":
-        return (
-          <div className="relative group">
-            <Badge
-              className="
-            relative text-gray-600 dark:text-black text-[10px] md:text-xs px-1.5 md:px-2  md:py-0.5 py-1 rounded-full transition-all duration-300 ease-in-out
-            hover:scale-105 hover:shadow-lg
-          "
-              style={{
-                background: `linear-gradient(45deg, 
-              ${gradientColorBadgeUser(hue)}, 
-              ${gradientColorBadgeUser((hue + 60) % 360)}
-            )`,
-              }}
-            >
-              Người dùng
-            </Badge>
-          </div>
-        );
-      case "expert":
-        return (
-          <div className="relative group">
-            <Badge
-              className="
-            relative text-white dark:text-[#fbfcfc] text-[10px] md:text-xs px-1.5 md:px-2  md:py-0.5 py-1 rounded-full transition-all duration-300 ease-in-out
-            hover:scale-105 hover:shadow-lg
-          "
-              style={{
-                background: `linear-gradient(45deg, 
-              ${gradientColorBadgeExpert(hue)}, 
-              ${gradientColorBadgeExpert((hue + 60) % 360)}
-            )`,
-              }}
-            >
-              Chuyên gia
-            </Badge>
-          </div>
-        );
+function AlertDialogDeleteAccount({
+  experienceDelete,
+  setExperienceDelete,
+}: {
+  experienceDelete: AccountItem | null;
+  setExperienceDelete: (value: AccountItem | null) => void;
+}) {
+  const { mutateAsync } = useDeleteExpertExperienceMutation();
+  const deleteExperience = async () => {
+    if (experienceDelete) {
+      try {
+        const result = await mutateAsync(experienceDelete.userId);
+        setExperienceDelete(null);
+        toast({
+          description: result.payload.message,
+          variant: "success",
+        });
+      } catch (error) {
+        handleErrorApi({ error });
+      }
     }
   };
 
   return (
-    <div>
-      <div className="overflow-x-auto">
-        <div className="max-w-6xl mx-auto">
-          <Table>
+    <AlertDialog
+      open={Boolean(experienceDelete)}
+      onOpenChange={(value) => {
+        if (!value) {
+          setExperienceDelete(null);
+        }
+      }}
+    >
+      <AlertDialogContent className="bg-card">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-textChat font-semibold">
+            Vô hiệu hóa người dùng?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Người dùng được đăng ký với tên{" "}
+            <span className="bg-muted text-textChat rounded px-1 font-semibold">
+              {experienceDelete?.userName}
+            </span>{" "}
+            sẽ bị xóa vĩnh viễn
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteExperience}>
+            Tiếp tục
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+// Số lượng item trên 1 trang
+const PAGE_SIZE = 10;
+export default function TableListUser() {
+  const searchParam = useSearchParams();
+  const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
+  const pageIndex = page - 1;
+  // const params = Object.fromEntries(searchParam.entries())
+  const [experienceDelete, setExperienceDelete] = useState<AccountItem | null>(
+    null
+  );
+  //tao bien lay data tu api
+  const listToManageUser = useGetToManageUser();
+  const data = listToManageUser.data?.payload.data ?? [];
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [pagination, setPagination] = useState({
+    pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
+    pageSize: PAGE_SIZE, //default page size
+  });
+
+  const table = useReactTable({
+    data,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    autoResetPageIndex: false,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      pagination,
+    },
+  });
+
+  useEffect(() => {
+    table.setPagination({
+      pageIndex,
+      pageSize: PAGE_SIZE,
+    });
+  }, [table, pageIndex]);
+
+  return (
+    <AccountTableContext.Provider
+      value={{
+        experienceDelete,
+        setExperienceDelete,
+      }}
+    >
+      <div className="w-full">
+        <AlertDialogDeleteAccount
+          experienceDelete={experienceDelete}
+          setExperienceDelete={setExperienceDelete}
+        />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center py-4 gap-4 sm:gap-2">
+          <Input
+            placeholder="Tìm kiếm tên đăng ký ..."
+            value={
+              (table.getColumn("userName")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("userName")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+        <div className="rounded-md border overflow-x-auto max-w-full">
+          <Table className="max-w-full">
             <TableHeader>
-              <TableRow>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Ảnh đại diện
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Tên tài khoản
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Email
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Ngày tạo
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Vai trò
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Trạng thái
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Hành động
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {getCurrentPageTransactions().map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    <Avatar>
-                      <AvatarImage
-                        src={user.avatar ?? undefined}
-                        alt={user.username}
-                      />
-                      <AvatarFallback>
-                        {user.username.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    {user.username}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    {user.email}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    {user.date.toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>{getRoleBadge(user.role)}</TableCell>
-                  <TableCell>{getStatusBadge(user.status)}</TableCell>
-                  <TableCell>
-                    {/* delete account */}
-                    <DeleteAccountUser />
-                  </TableCell>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center text-textChat"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 py-4">
+          <div className="text-xs text-muted-foreground text-center flex-1 sm:text-left">
+            Hiển thị{" "}
+            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
+            <strong>{data.length}</strong> kết quả
+          </div>
+          <div>
+            <AutoPagination
+              page={table.getState().pagination.pageIndex + 1}
+              pageSize={table.getPageCount()}
+              pathname="/moderator/manage-accounts"
+            />
+          </div>
+        </div>
       </div>
-      <div className="mt-4">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.max(prev - 1, 1));
-                }}
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  className="text-muted-foreground"
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(index + 1);
-                  }}
-                  isActive={currentPage === index + 1}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    </div>
+    </AccountTableContext.Provider>
   );
 }
