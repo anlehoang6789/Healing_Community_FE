@@ -1,5 +1,4 @@
 "use client";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import React, { useState } from "react";
@@ -9,7 +8,6 @@ import ReactionCount from "@/components/homePage/reactionCount";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 
 export default function ViewPostInGroup({ groupId }: { groupId: string }) {
-  const { theme } = useTheme();
   // Trạng thái lưu thông tin mở rộng của từng bài viết
   const [expandedPosts, setExpandedPosts] = useState<{
     [key: string]: boolean;
@@ -61,6 +59,7 @@ export default function ViewPostInGroup({ groupId }: { groupId: string }) {
                 <UserHeaderInGroup
                   userId={post.userId}
                   createPost={post.createAt}
+                  groupId={groupId}
                 />
                 {/* Chỗ này có thể là dropdown nếu cần */}
               </div>

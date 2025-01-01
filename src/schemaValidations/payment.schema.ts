@@ -22,10 +22,7 @@ export type PaymentHistoryListResType = z.infer<typeof PaymentHistoryListRes>;
 
 export const CreatePaymentRequestSchema = z.object({
   appointmentId: z.string(),
-  amount: z.number().min(1),
-  description: z.string().nonempty(),
-  returnUrl: z.string().url(),
-  cancelUrl: z.string().url(),
+  redirectUrl: z.string().url(),
 });
 
 export type CreatePaymentRequestType = z.infer<
@@ -63,3 +60,27 @@ export const BookExpertScheduleRes = z.object({
 });
 
 export type BookExpertScheduleResType = z.infer<typeof BookExpertScheduleRes>;
+
+export const PaymentHistoryDetailsSchema = z.object({
+  paymentId: z.string(),
+  appointmentId: z.string(),
+  amount: z.number(),
+  expertName: z.string(),
+  expertEmail: z.string(),
+  appointmentDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+});
+
+export type PaymentHistoryDetailsType = z.infer<
+  typeof PaymentHistoryDetailsSchema
+>;
+
+export const PaymentHistoryDetailsRes = z.object({
+  data: PaymentHistoryDetailsSchema,
+  message: z.string(),
+});
+
+export type PaymentHistoryDetailsResType = z.infer<
+  typeof PaymentHistoryDetailsRes
+>;

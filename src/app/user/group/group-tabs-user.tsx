@@ -10,11 +10,18 @@ import {
 import { Ellipsis, MessageSquareWarning, MessagesSquare } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-export default function GroupTabsUser({ groupId }: { groupId: string }) {
+export default function GroupTabsUser({
+  groupId,
+  userId,
+}: {
+  groupId: string;
+  userId: string;
+}) {
   const { theme } = useTheme();
   const pathname = usePathname();
+  const router = useRouter();
   const activeTab = pathname.startsWith(`/user/group/${groupId}/about`)
     ? "about"
     : pathname.startsWith(`/user/group/${groupId}/announcement`)
@@ -24,6 +31,10 @@ export default function GroupTabsUser({ groupId }: { groupId: string }) {
     : pathname.startsWith(`/user/group/${groupId}`)
     ? "discussion"
     : "discussion";
+
+  const handleNavigation = () => {
+    router.push(`/user/group-user/${groupId}/user/${userId}`);
+  };
 
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-4">
@@ -92,7 +103,7 @@ export default function GroupTabsUser({ groupId }: { groupId: string }) {
               theme === "dark" ? "bg-black text-white" : "bg-white text-black"
             }`}
           >
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleNavigation}>
               <MessagesSquare className="mr-2 h-4 w-4" />
               <span>Nội dung của bạn</span>
             </DropdownMenuItem>

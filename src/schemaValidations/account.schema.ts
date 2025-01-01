@@ -107,8 +107,8 @@ export type ResetPasswordWithOtpBodyType = z.TypeOf<
 >;
 
 export const UpdateProfileUserBody = z.object({
-  fullName: z.string().min(3).max(15),
-  phoneNumber: z.string().min(10).max(10),
+  fullName: z.string().max(15),
+  phoneNumber: z.string().max(10),
   profilePictureUrl: z.string().optional(),
   descrtiption: z.string().max(1000),
   socialLink: z.object({
@@ -167,3 +167,52 @@ export const FollowUserRes = z.object({
 });
 
 export type FollowUserResType = z.TypeOf<typeof FollowUserRes>;
+
+export const BankInformationBody = z.object({
+  bankName: z.string(),
+  bankAccountNumber: z.string(),
+  bankAccountName: z.string(),
+});
+
+export type BankInformationBodyType = z.TypeOf<typeof BankInformationBody>;
+
+export const GetBankNameSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  shortName: z.string(),
+  logo: z.string(),
+  isTransfer: z.number(),
+  bin: z.string(),
+});
+
+export type GetBankNameSchemaType = z.TypeOf<typeof GetBankNameSchema>;
+
+export const GetBankNameListRes = z.object({
+  data: z.array(GetBankNameSchema),
+  desc: z.string(),
+});
+
+export type GetBankNameListResType = z.TypeOf<typeof GetBankNameListRes>;
+
+export const GetPaymentInformationSchema = z.object({
+  paymentInfoId: z.string(),
+  userId: z.string(),
+  bankName: z.string(),
+  bankAccountNumber: z.string(),
+  bankAccountName: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetPaymentInformationSchemaType = z.TypeOf<
+  typeof GetPaymentInformationSchema
+>;
+
+export const GetPaymentInformationRes = z.object({
+  data: GetPaymentInformationSchema,
+  message: z.string(),
+});
+
+export type GetPaymentInformationResType = z.TypeOf<
+  typeof GetPaymentInformationRes
+>;

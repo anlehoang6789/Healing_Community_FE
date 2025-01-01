@@ -100,9 +100,9 @@ export default function ExpertsPage() {
         <Card className="overflow-hidden relative md:w-[260px]">
           <CardContent className="p-4">
             <div className="absolute top-2 right-2 z-10">
-              <span className="font-semibold text-yellow-600 bg-yellow-100 px-2 py-1 rounded-full flex items-center gap-1">
+              <span className="font-semibold text-yellow-600 bg-yellow-100 px-1 py-1 rounded-full flex items-center gap-1 text-sm">
                 {expert.averageRating.toFixed(1)}/5
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
               </span>
             </div>
             <div className="flex items-center justify-center pb-4">
@@ -120,7 +120,7 @@ export default function ExpertsPage() {
             <div className="text-center">
               <h3 className="font-semibold text-lg ">{expert.fullname}</h3>
 
-              <div className="flex items-center justify-center gap-2 mt-2 flex-wrap h-[64px]">
+              <div className="flex items-center justify-center gap-2 mt-2 flex-wrap h-[64px] overflow-x-auto">
                 {specialties.map((specialty, index) => (
                   <span
                     key={index}
@@ -184,7 +184,7 @@ export default function ExpertsPage() {
             </Select>
           </div>
 
-          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-4 w-[500px] overflow-x-auto pb-2 ">
             <Button
               variant={specialtyFilter === null ? "default" : "outline"}
               onClick={() => setSpecialtyFilter(null)}

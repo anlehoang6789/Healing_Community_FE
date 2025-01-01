@@ -26,13 +26,15 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Clock } from "lucide-react";
 import { useGetExpertAvailability } from "@/queries/useExpert";
-import { useParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import {
   useBookExpertScheduleMutation,
   useCreatePaymentMutation,
 } from "@/queries/usePayment";
 import {
   formatCurrency,
+  formatDate,
+  formatDateTime,
   getRoleFromLocalStorage,
   getUserIdFromLocalStorage,
 } from "@/lib/utils";
@@ -49,6 +51,20 @@ type TimeSlot = {
 
 export default function BookExpert() {
   const { expertId } = useParams() ?? "";
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Lấy giá trị status từ query parameters
+    const status = searchParams.get("status");
+
+    if (status === "cancelled") {
+      router.push(`/user/profile/expert-info/${expertId}`);
+    } else if (status === "paid") {
+      router.push("/consultation-calendar");
+    }
+  }, [searchParams, expertId, router]);
+
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
   );
@@ -130,15 +146,14 @@ export default function BookExpert() {
             createPayment(
               {
                 appointmentId,
-                amount: selectedSlot.amount,
-                description: "Đặt lịch tư vấn",
-                returnUrl: "http://localhost:3000/consultation-calendar",
-                cancelUrl: `http://localhost:3000/user/profile/expert-info/${expertId}`,
+                redirectUrl: `http://localhost:3000/user/profile/expert-info/${expertId}`,
               },
               {
                 onSuccess: (paymentResponse) => {
-                  console.log("Payment URL:", paymentResponse.payload.data); // Thay vì paymentResponse.data
-                  window.location.href = paymentResponse.payload.data; // Chuyển hướng đến URL trả về
+                  const paymentUrl = paymentResponse.payload.data;
+
+                  // Chuyển hướng đến URL thanh toán của PayOs
+                  window.location.href = paymentUrl;
                 },
                 onError: (error) => {
                   console.error("Error creating payment:", error);
@@ -248,8 +263,13 @@ export default function BookExpert() {
                     Xác nhận đặt lịch
                   </DialogTitle>
                   <DialogDescription>
-                    Bạn có chắc chắn muốn đặt lịch cho {selectedSlot?.startTime}{" "}
-                    - {selectedSlot?.endTime}?
+                    Bạn có chắc chắn muốn đặt lịch cho{" "}
+                    {selectedSlot?.startTime.slice(0, 5)} -{" "}
+                    {selectedSlot?.endTime.slice(0, 5)} ngày{" "}
+                    {selectedSlot?.availableDate
+                      ? formatDate(selectedSlot.availableDate)
+                      : "No date available"}
+                    ?
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleBooking}>

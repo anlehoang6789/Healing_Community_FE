@@ -1,4 +1,4 @@
-import PersonalInformationForm from "@/app/user/profile/information/personal-information-form";
+import PersonalInformationForm from "@/app/user/profile/[userId]/information/personal-information-form";
 import React from "react";
 
 export default function PersonalInformation() {

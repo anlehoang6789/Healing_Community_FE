@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Album, BookOpenCheck, Briefcase, ClipboardList } from "lucide-react";
-import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import {
   useGetCertificateTypesQuery,
   useGetExpertProfileQuery,
@@ -67,17 +67,16 @@ export default function ExpertProfile() {
   }
 
   if (error) {
-    return <div>Có lỗi xảy ra khi tải thông tin chuyên gia</div>;
+    handleErrorApi({ error });
   }
 
-  // Kiểm tra nếu không có dữ liệu
   if (
     !expertProfileResponse ||
     !expertProfileResponse.payload ||
     !certificateTypesResponse ||
     !certificateTypesResponse.payload
   ) {
-    return <div>Không tìm thấy thông tin</div>;
+    return <div>Chưa có thông tin chuyên gia</div>;
   }
 
   // Lấy dữ liệu từ response
@@ -97,18 +96,32 @@ export default function ExpertProfile() {
     <div className="container mx-auto ">
       <Card>
         <CardContent className="mt-4">
-          <h3 className="text-lg font-semibold mb-2">Giới thiệu</h3>
-          <p className="mb-4">{expertProfile.bio}</p>
+          {expertProfile.bio && expertProfile.bio.length > 0 && (
+            <>
+              <h3 className="text-lg font-semibold mb-2">Giới thiệu</h3>
+              <p className="mb-4">{expertProfile.bio}</p>
+            </>
+          )}
 
-          <h3 className="text-lg font-semibold mb-2 flex items-center">
-            <ClipboardList className="mr-2" /> Chuyên môn
-          </h3>
-          <p className="mb-4">{expertProfile.specialization}</p>
+          {expertProfile.specialization &&
+            expertProfile.specialization.length > 0 && (
+              <>
+                <h3 className="text-lg font-semibold mb-2 flex items-center">
+                  <ClipboardList className="mr-2" /> Chuyên môn
+                </h3>
+                <p className="mb-4">{expertProfile.specialization}</p>
+              </>
+            )}
 
-          <h3 className="text-lg font-semibold mb-2 flex items-center">
-            <BookOpenCheck className="mr-2" /> Lĩnh vực chuyên nghiệp
-          </h3>
-          <p className="mb-4">{expertProfile.expertiseAreas}</p>
+          {expertProfile.expertiseAreas &&
+            expertProfile.expertiseAreas.length > 0 && (
+              <>
+                <h3 className="text-lg font-semibold mb-2 flex items-center">
+                  <BookOpenCheck className="mr-2" /> Lĩnh vực chuyên nghiệp
+                </h3>
+                <p className="mb-4">{expertProfile.expertiseAreas}</p>
+              </>
+            )}
 
           {expertProfile.workExperiences &&
             expertProfile.workExperiences.length > 0 && (

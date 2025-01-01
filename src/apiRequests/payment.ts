@@ -4,6 +4,7 @@ import {
   BookExpertScheduleResType,
   CreatePaymentRequestType,
   CreatePaymentResponseType,
+  PaymentHistoryDetailsResType,
   PaymentHistoryListResType,
 } from "@/schemaValidations/payment.schema";
 
@@ -19,5 +20,9 @@ const paymentApiRequest = {
 
   createPayment: (payload: CreatePaymentRequestType) =>
     http.post<CreatePaymentResponseType>("payment/api/payment/create", payload),
+  getPaymentHistoryDetails: (paymentId: string) =>
+    http.get<PaymentHistoryDetailsResType>(
+      `payment//api/payment/details/${paymentId}`
+    ),
 };
 export default paymentApiRequest;

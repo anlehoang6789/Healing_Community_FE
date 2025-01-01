@@ -57,9 +57,7 @@ export default function DetailPost() {
     postIdFromUrl as string
   );
 
-  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation(
-    postIdFromUrl as string
-  );
+  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation();
 
   const { data: postById } = useGetPostByPostIdQuery({
     postId: postIdFromUrl as string,
@@ -83,9 +81,7 @@ export default function DetailPost() {
     postIdFromUrl as string
   );
 
-  const { mutate: createComment } = useCreateCommentMutation(
-    postIdFromUrl as string
-  );
+  const { mutate: createComment } = useCreateCommentMutation();
 
   // Sử dụng kiểu CommentType từ schema
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -98,21 +94,27 @@ export default function DetailPost() {
   }, [commentsData]);
 
   const handleDeleteComment = (commentId: string) => {
-    deleteComment(commentId, {
-      onSuccess: async () => {
-        // Refetch toàn bộ comments của post
-        try {
-          const commentsResponse = await postApiRequest.getCommentsByPostId(
-            postIdFromUrl as string
-          );
-
-          // Cập nhật lại toàn bộ comments
-          setComments(commentsResponse.payload.data);
-        } catch (error) {
-          console.error("Error refetching comments:", error);
-        }
+    deleteComment(
+      {
+        commentId,
+        postId: postIdFromUrl as string,
       },
-    });
+      {
+        onSuccess: async () => {
+          // Refetch toàn bộ comments của post
+          try {
+            const commentsResponse = await postApiRequest.getCommentsByPostId(
+              postIdFromUrl as string
+            );
+
+            // Cập nhật lại toàn bộ comments
+            setComments(commentsResponse.payload.data);
+          } catch (error) {
+            console.error("Error refetching comments:", error);
+          }
+        },
+      }
+    );
   };
 
   const handleAddComment = (comment: {
@@ -225,7 +227,10 @@ export default function DetailPost() {
       <div className="lg:ml-16 w-auto mx-auto border shadow-md rounded-md overflow-hidden">
         {postById?.payload.data && (
           <Image
-            src={postById?.payload.data.coverImgUrl}
+            src={
+              postById?.payload.data.coverImgUrl ||
+              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            }
             alt="Banner"
             width={1000}
             height={500}
@@ -243,24 +248,27 @@ export default function DetailPost() {
                   "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                 }
                 alt={
-                  userById?.payload.data.fullName ||
-                  userById?.payload.data.userName ||
-                  expertProfile?.payload.data.fullname
+                  isExpert
+                    ? expertProfile?.payload.data.fullname
+                    : userById?.payload.data.fullName ||
+                      userById?.payload.data.userName
                 }
               />
               <AvatarFallback>
-                {userById?.payload.data.fullName ||
-                  userById?.payload.data.userName ||
-                  expertProfile?.payload.data.fullname}
+                {isExpert
+                  ? expertProfile?.payload.data.fullname
+                  : userById?.payload.data.fullName ||
+                    userById?.payload.data.userName}
               </AvatarFallback>
             </Avatar>
           </Link>
           <div>
             <Link href={`/user/profile/${postById?.payload.data.userId}`}>
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                {userById?.payload.data.fullName ||
-                  userById?.payload.data.userName ||
-                  expertProfile?.payload.data.fullname}
+                {isExpert
+                  ? expertProfile?.payload.data.fullname
+                  : userById?.payload.data.fullName ||
+                    userById?.payload.data.userName}
               </p>
             </Link>
             <p className="text-sm text-gray-500">

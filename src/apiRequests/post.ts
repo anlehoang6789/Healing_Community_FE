@@ -9,6 +9,8 @@ import {
   CreateCommentBodyType,
   CreateCommentResponseType,
   CreatePostBodyType,
+  CreateSharedCommentBodyType,
+  CreateSharedCommentResponseType,
   CreatePostInGroupBodyType,
   DeleteBookmarkListDetailsBodyType,
   GetAllReactionTypeResponseType,
@@ -18,6 +20,7 @@ import {
   GetBookmarkListResponseType,
   GetCommentCountResType,
   GetCommentsByPostIdResponseType,
+  GetCommentsByShareIdResponseType,
   GetDetailsCategoryResponseType,
   GetHighlightPostListResType,
   GetHomePageListLazyLoadType,
@@ -34,6 +37,10 @@ import {
   UpdatePersonalPostBodyType,
   UpdateSharedPostBodyType,
   UploadImageCoverResponseType,
+  GetSharedCommentCountResType,
+  GetPersonalPostGroupListResType,
+  AddReactionSharedBodyType,
+  GetReactionSharedCountResType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -57,9 +64,7 @@ const postApiRequest = {
     http.post<CreateCommentResponseType>("post/api/comment/create", body),
 
   getPostByUserId: (userId: string) =>
-    http.get<GetPostByUserIdResType>(
-      `post/api/post/get-user-post?userId=${userId}`
-    ),
+    http.get<GetPostByUserIdResType>(`post/api/post/get-user-post/${userId}`),
   deletePostByPostId: (postId: string) =>
     http.delete<{ message: string }>(`post/api/post/delete/${postId}`),
   addUserReference: (body: AddUserReferenceBodyType) =>
@@ -81,9 +86,10 @@ const postApiRequest = {
     http.get<GetReactionCountResType>(
       `post/api/reaction/get-reaction-count/${postId}`
     ),
+
   getCommentCount: (postId: string) =>
     http.get<GetCommentCountResType>(
-      `post/api/comment/count-by-post-id/${postId}`
+      `post/api/comment/count-total-comment-by-post-id/${postId}`
     ),
   getUserReactionByPostId: (postId: string) =>
     http.get<GetUserReactionByPostIdResType>(
@@ -149,11 +155,57 @@ const postApiRequest = {
 
   deleteSharedPost: (shareId: string) =>
     http.delete<{ message: string }>(`post/api/share/delete-share/${shareId}`),
+
+  getCommentsByShareId: (shareId: string) =>
+    http.get<GetCommentsByShareIdResponseType>(
+      `post/api/comment/get-by-share-id/${shareId}`
+    ),
+
+  createSharedComment: (body: CreateSharedCommentBodyType) =>
+    http.post<CreateSharedCommentResponseType>(
+      "post/api/comment/create-for-share",
+      body
+    ),
   createPostInGroup: (body: CreatePostInGroupBodyType) =>
     http.post<{ message: string }>("post/api/post/create-post-group", body),
   viewPostInGroupByGroupId: (groupId: string) =>
     http.get<GetPostByGroupIdListResType>(
       `post/api/post/get-posts-in-group-by-id/${groupId}`
+    ),
+
+  getSharedCommentCount: (shareId: string) =>
+    http.get<GetSharedCommentCountResType>(
+      `post/api/comment/count-total-comment-by-share-id/${shareId}`
+    ),
+  getPersonalPostGroup: (userId: string, groupId: string) =>
+    http.get<GetPersonalPostGroupListResType>(
+      `post/api/post/get-posts-in-group-by-user-and-group?groupId=${groupId}&userId=${userId}`
+    ),
+  updatePersonalPostInGroup: (
+    postId: string,
+    body: UpdatePersonalPostBodyType
+  ) =>
+    http.put<{ message: string }>(
+      `post/api/post/update-post-in-group/${postId}`,
+      body
+    ),
+
+  addReactionShared: (body: AddReactionSharedBodyType) =>
+    http.post<{ message: string }>(
+      "post/api/reaction/add-reaction-share",
+      body
+    ),
+  getReactionSharedCount: (shareId: string) =>
+    http.get<GetReactionSharedCountResType>(
+      `post/api/reaction/get-reaction-count-by-share/${shareId}`
+    ),
+
+  removeReactionShared: (shareId: string) =>
+    http.delete<{ message: string }>(
+      `post/api/reaction/remove-reaction-by-share`,
+      {
+        body: { shareId },
+      }
     ),
 };
 

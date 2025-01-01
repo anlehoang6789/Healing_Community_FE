@@ -1,6 +1,8 @@
 import postApiRequest from "@/apiRequests/post";
 import {
   CreateCategoryBodyType,
+  CreateCommentBodyType,
+  CreateSharedCommentBodyType,
   GetAuthorOtherPostBodyType,
   GetOtherPostWithSameCategoryBodyType,
   UpdatePersonalPostBodyType,
@@ -12,7 +14,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { toNamespacedPath } from "node:path";
 
 export const useGetAllCategoryQuery = () => {
   return useQuery({
@@ -81,9 +82,15 @@ export const useUploadAvatarCoverFromFileMutation = () => {
   });
 };
 
-export const useCreatePostMutation = () => {
+export const useCreatePostMutation = (userId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.createPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["post-by-user-id", userId],
+      });
+    },
   });
 };
 
@@ -218,35 +225,54 @@ export const useGetCommentCountQuery = (postId: string) => {
   });
 };
 
-export const useCreateCommentMutation = (postId: string) => {
+export const useCreateCommentMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: postApiRequest.createComment,
-    onSuccess: () => {
+    mutationFn: (body: CreateCommentBodyType & { postId: string }) =>
+      postApiRequest.createComment(body),
+    onSuccess: (response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: ["comments", postId],
+        queryKey: ["comments", variables.postId],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["comment-count", postId],
+        queryKey: ["comment-count", variables.postId],
       });
     },
   });
 };
 
-export const useDeleteCommentByCommnetIdMutation = (postId: string) => {
+export const useDeleteCommentByCommnetIdMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: postApiRequest.deleteCommentByCommentId,
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["comments", postId],
-      });
+    mutationFn: (body: {
+      commentId: string;
+      postId?: string;
+      shareId?: string;
+    }) => postApiRequest.deleteCommentByCommentId(body.commentId),
+    onSuccess: (response, variables) => {
+      // Nếu là comment của post
+      if (variables.postId) {
+        queryClient.invalidateQueries({
+          queryKey: ["comments", variables.postId],
+        });
 
-      queryClient.invalidateQueries({
-        queryKey: ["comment-count", postId],
-      });
+        queryClient.invalidateQueries({
+          queryKey: ["comment-count", variables.postId],
+        });
+      }
+
+      // Nếu là comment của shared post
+      if (variables.shareId) {
+        queryClient.invalidateQueries({
+          queryKey: ["shared-comments", variables.shareId],
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ["shared-comment-count", variables.shareId],
+        });
+      }
     },
   });
 };
@@ -431,6 +457,41 @@ export const useGetOtherPostWithSameCategoryQuery = ({
   });
 };
 
+export const useGetCommentsByShareIdQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["shared-comments", shareId],
+    queryFn: () => postApiRequest.getCommentsByShareId(shareId),
+    enabled: !!shareId,
+  });
+};
+
+export const useGetSharedCommentCountQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["shared-comment-count", shareId],
+    queryFn: async () => {
+      console.log("Fetching shared comment count...");
+      return await postApiRequest.getSharedCommentCount(shareId);
+    },
+  });
+};
+
+export const useCreateSharedCommentMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: CreateSharedCommentBodyType & { shareId: string }) =>
+      postApiRequest.createSharedComment(body),
+    onSuccess: (response, variables) => {
+      // Sử dụng variables.shareId để invalidate
+      queryClient.invalidateQueries({
+        queryKey: ["shared-comment-count", variables.shareId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["shared-comments", variables.shareId],
+      });
+    },
+  });
+};
+
 export const useViewPostInGroupByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["post-in-group", groupId],
@@ -438,13 +499,113 @@ export const useViewPostInGroupByGroupIdQuery = (groupId: string) => {
   });
 };
 
-export const useCreatePostInGroupMutation = (groupId: string) => {
+export const useCreatePostInGroupMutation = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.createPostInGroup,
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post-in-group", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["personal-post-group", userId, groupId],
+      });
+    },
+  });
+};
+
+export const useGetPersonalPostGroupQuery = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
+  return useQuery({
+    queryKey: ["personal-post-group", userId, groupId],
+    queryFn: () => postApiRequest.getPersonalPostGroup(userId, groupId),
+  });
+};
+
+export const useDeletePersonalPostInGroupMutation = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.deletePostByPostId,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["personal-post-group", userId, groupId],
+      });
+    },
+  });
+};
+
+export const useUpdatePersonalPostInGroupMutation = ({
+  userId,
+  groupId,
+}: {
+  userId: string;
+  groupId: string;
+}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...body
+    }: UpdatePersonalPostBodyType & { id: string }) =>
+      postApiRequest.updatePersonalPostInGroup(id, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["personal-post-group", userId, groupId],
+        exact: true,
+      });
+    },
+  });
+};
+
+export const useGetReactionSharedCountQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["reaction-shared-count", shareId],
+    queryFn: () => postApiRequest.getReactionSharedCount(shareId),
+  });
+};
+
+export const useAddReactionSharedMutation = (shareId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.addReactionShared,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-shared-count", shareId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", shareId],
+      });
+    },
+  });
+};
+
+export const useRemoveReactionSharedMutation = (shareId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.removeReactionShared,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reaction-count", shareId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["user-reaction-by-post-id", shareId],
       });
     },
   });

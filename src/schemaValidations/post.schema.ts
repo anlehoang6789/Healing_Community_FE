@@ -475,6 +475,78 @@ export const UpdateSharedPostBody = z.object({
   description: z.string(),
 });
 
+// Schema cho reply comment của shared post
+export const ReplySharedCommentSchema = z.object({
+  commentId: z.string(),
+  shareId: z.string(),
+  parentId: z.string(),
+  userId: z.string(),
+  content: z.string(),
+  coverImgUrl: z.string().url().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+  replies: z.array(z.any()).nullable().optional(),
+});
+
+export type ReplySharedCommentType = z.TypeOf<typeof ReplySharedCommentSchema>;
+
+// Schema cho comment của shared post
+export const SharedCommentSchema = z.object({
+  commentId: z.string(),
+  shareId: z.string(),
+  parentId: z.string().nullable(),
+  userId: z.string(),
+  content: z.string(),
+  coverImgUrl: z.string().url().nullable().optional(),
+  createdAt: z.string(),
+  updatedAt: z.string().nullable(),
+  replies: z.array(ReplySharedCommentSchema).nullable().optional(),
+});
+
+export type SharedCommentType = z.TypeOf<typeof SharedCommentSchema>;
+
+// Schema response get comments của shared post
+export const GetCommentsByShareIdResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(SharedCommentSchema),
+  errors: z.array(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetCommentsByShareIdResponseType = z.TypeOf<
+  typeof GetCommentsByShareIdResponseSchema
+>;
+
+// Body tạo comment cho shared post
+export const CreateSharedCommentBody = z.object({
+  shareId: z.string(),
+  parentId: z.string().nullable(),
+  content: z.string(),
+  coverImgUrl: z.string().url().nullable().optional(),
+});
+
+export type CreateSharedCommentBodyType = z.TypeOf<
+  typeof CreateSharedCommentBody
+>;
+
+// Response tạo comment cho shared post
+export const CreateSharedCommentResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.string(),
+  errors: z.array(z.any()),
+  timestamp: z.string(),
+});
+
+export type CreateSharedCommentResponseType = z.TypeOf<
+  typeof CreateSharedCommentResponseSchema
+>;
+
 export type UpdateSharedPostBodyType = z.TypeOf<typeof UpdateSharedPostBody>;
 
 export const CreatePostInGroupBody = z.object({
@@ -509,4 +581,79 @@ export const GetPostByGroupIdListRes = z.object({
 
 export type GetPostByGroupIdListResType = z.TypeOf<
   typeof GetPostByGroupIdListRes
+>;
+
+export const GetSharedCommentCountSchema = z.object({
+  countTotalComment: z.number(),
+});
+
+export type GetSharedCommentCountSchema = z.TypeOf<
+  typeof GetSharedCommentCountSchema
+>;
+
+export const GetSharedCommentCountRes = z.object({
+  data: GetSharedCommentCountSchema,
+  message: z.string(),
+});
+
+export type GetSharedCommentCountResType = z.TypeOf<
+  typeof GetSharedCommentCountRes
+>;
+
+export const GetPersonalPostGroupListRes = z.object({
+  data: z.array(PostByIdSchema),
+  message: z.string(),
+});
+
+export type GetPersonalPostGroupListResType = z.TypeOf<
+  typeof GetPersonalPostGroupListRes
+>;
+
+export const AddReactionSharedBody = z.object({
+  shareId: z.string(),
+  reactionTypeId: z.string(),
+});
+
+export type AddReactionSharedBodyType = z.TypeOf<typeof AddReactionSharedBody>;
+
+export const GetReactionSharedCountSchema = z.object({
+  shareId: z.string(),
+  like: z.object({
+    likeCount: z.number(),
+    icon: z.string(),
+  }),
+  love: z.object({
+    loveCount: z.number(),
+    icon: z.string(),
+  }),
+  haha: z.object({
+    hahaCount: z.number(),
+    icon: z.string(),
+  }),
+  wow: z.object({
+    wowCount: z.number(),
+    icon: z.string(),
+  }),
+  sad: z.object({
+    sadCount: z.number(),
+    icon: z.string(),
+  }),
+  angry: z.object({
+    angryCount: z.number(),
+    icon: z.string(),
+  }),
+  total: z.number(),
+});
+
+export type GetReactionSharedCountSchema = z.TypeOf<
+  typeof GetReactionSharedCountSchema
+>;
+
+export const GetReactionSharedCountRes = z.object({
+  data: GetReactionSharedCountSchema,
+  message: z.string(),
+});
+
+export type GetReactionSharedCountResType = z.TypeOf<
+  typeof GetReactionSharedCountRes
 >;

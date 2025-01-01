@@ -111,7 +111,10 @@ export const useCreateAvailableTimeSlot = (expertProfileId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateAvailableTimeSlotBodyType) =>
-      expertApiRequest.createAvailableTimeSlot(data),
+      expertApiRequest.createAvailableTimeSlot({
+        ...data,
+        expertProfileId, // Thêm vào trong hàm mutation
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["expert-availability", expertProfileId],
