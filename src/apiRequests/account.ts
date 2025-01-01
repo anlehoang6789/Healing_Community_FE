@@ -1,10 +1,12 @@
 import http from "@/lib/http";
 import {
+  BankInformationBodyType,
   ChangePasswordBodyType,
   FollowUserBodyType,
   FollowUserResType,
   ForgotPasswordBodyType,
   GetFollowingResType,
+  GetPaymentInformationResType,
   PersonalInformationBodyType,
   ResetPasswordWithOtpBodyType,
   UpdateAvatarProfileBodyType,
@@ -44,6 +46,15 @@ const accountApiRequest = {
   unFollowUser: (userId: string) =>
     http.delete<{ message: string }>(
       `user/api/follower/unfollow-user?userId=${userId}`
+    ),
+  getPaymentInfo: () =>
+    http.get<GetPaymentInformationResType>(
+      "user/api/paymentinfo/get-payment-info"
+    ),
+  updatePaymentInfo: (body: BankInformationBodyType) =>
+    http.put<{ message: string }>(
+      "user/api/paymentinfo/update-payment-info",
+      body
     ),
 };
 
