@@ -24,9 +24,9 @@ export type GetCertificateTypeResponseType = z.TypeOf<
 >;
 
 export const UpdateProfileExpertBody = z.object({
-  specialization: z.string().min(5),
-  expertiseAreas: z.string().min(5),
-  bio: z.string().min(10),
+  specialization: z.string(),
+  expertiseAreas: z.string(),
+  bio: z.string(),
   fullname: z.string(),
   profileImageUrl: z.string().url().optional(),
 });
@@ -211,6 +211,7 @@ export const CreateAvailableTimeSlotBody = z.object({
     .string()
     .regex(/^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/, "Invalid time format"),
   amount: z.number().min(1),
+  expertProfileId: z.string().optional(),
 });
 
 export type CreateAvailableTimeSlotBodyType = z.TypeOf<

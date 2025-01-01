@@ -608,3 +608,52 @@ export const GetPersonalPostGroupListRes = z.object({
 export type GetPersonalPostGroupListResType = z.TypeOf<
   typeof GetPersonalPostGroupListRes
 >;
+
+export const AddReactionSharedBody = z.object({
+  shareId: z.string(),
+  reactionTypeId: z.string(),
+});
+
+export type AddReactionSharedBodyType = z.TypeOf<typeof AddReactionSharedBody>;
+
+export const GetReactionSharedCountSchema = z.object({
+  shareId: z.string(),
+  like: z.object({
+    likeCount: z.number(),
+    icon: z.string(),
+  }),
+  love: z.object({
+    loveCount: z.number(),
+    icon: z.string(),
+  }),
+  haha: z.object({
+    hahaCount: z.number(),
+    icon: z.string(),
+  }),
+  wow: z.object({
+    wowCount: z.number(),
+    icon: z.string(),
+  }),
+  sad: z.object({
+    sadCount: z.number(),
+    icon: z.string(),
+  }),
+  angry: z.object({
+    angryCount: z.number(),
+    icon: z.string(),
+  }),
+  total: z.number(),
+});
+
+export type GetReactionSharedCountSchema = z.TypeOf<
+  typeof GetReactionSharedCountSchema
+>;
+
+export const GetReactionSharedCountRes = z.object({
+  data: GetReactionSharedCountSchema,
+  message: z.string(),
+});
+
+export type GetReactionSharedCountResType = z.TypeOf<
+  typeof GetReactionSharedCountRes
+>;

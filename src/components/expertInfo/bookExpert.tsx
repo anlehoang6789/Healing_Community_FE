@@ -33,6 +33,8 @@ import {
 } from "@/queries/usePayment";
 import {
   formatCurrency,
+  formatDate,
+  formatDateTime,
   getRoleFromLocalStorage,
   getUserIdFromLocalStorage,
 } from "@/lib/utils";
@@ -261,8 +263,13 @@ export default function BookExpert() {
                     Xác nhận đặt lịch
                   </DialogTitle>
                   <DialogDescription>
-                    Bạn có chắc chắn muốn đặt lịch cho {selectedSlot?.startTime}{" "}
-                    - {selectedSlot?.endTime}?
+                    Bạn có chắc chắn muốn đặt lịch cho{" "}
+                    {selectedSlot?.startTime.slice(0, 5)} -{" "}
+                    {selectedSlot?.endTime.slice(0, 5)} ngày{" "}
+                    {selectedSlot?.availableDate
+                      ? formatDate(selectedSlot.availableDate)
+                      : "No date available"}
+                    ?
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleBooking}>

@@ -107,8 +107,8 @@ export type ResetPasswordWithOtpBodyType = z.TypeOf<
 >;
 
 export const UpdateProfileUserBody = z.object({
-  fullName: z.string().min(3).max(15),
-  phoneNumber: z.string().min(10).max(10),
+  fullName: z.string().max(15),
+  phoneNumber: z.string().max(10),
   profilePictureUrl: z.string().optional(),
   descrtiption: z.string().max(1000),
   socialLink: z.object({
