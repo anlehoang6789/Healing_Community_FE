@@ -1,12 +1,21 @@
 "use client";
 
-import { UserPlus } from "lucide-react";
+import { UserCheck, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
-import { useGetUserProfileQuery } from "@/queries/useAccount";
+import {
+  useFollowUserMutation,
+  useGetFollowingQuery,
+  useGetUserProfileQuery,
+  useUnfollowUserMutation,
+} from "@/queries/useAccount";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { Role } from "@/constants/type";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+import { useEffect, useState } from "react";
+import { useUserIsOwnerStore } from "@/store/userStore";
 
 export default function GroupMemberDetails({
   userId,
@@ -27,6 +36,61 @@ export default function GroupMemberDetails({
     isLoading: expertProfileLoading,
     isError: expertProfileError,
   } = useGetExpertProfileQuery(userId, isExpert && !!userId);
+
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
+  const isOwner = userIdFromLocalStorage === userId;
+
+  //logic follow and unfollow
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const followUser = useFollowUserMutation(userId as string);
+  const unFollowUser = useUnfollowUserMutation(userId as string);
+  const { setIsThatOwner } = useUserIsOwnerStore();
+  const { data } = useGetFollowingQuery(userIdFromLocalStorage as string);
+  const getFollowingList = data?.payload.data;
+
+  const handleFollowUser = () => {
+    if (followUser.isPending) return;
+    try {
+      followUser.mutateAsync({ followerId: userId as string });
+      setIsFollowing(true);
+      toast({
+        description: "Đã theo dõi người dùng",
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  const handleUnfollow = (userId: string) => {
+    if (unFollowUser.isPending) return;
+    try {
+      unFollowUser.mutateAsync(userId);
+      setIsFollowing(false);
+      toast({
+        description: "Đã bỏ theo dõi người dùng",
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  useEffect(() => {
+    setIsThatOwner(isOwner);
+    const fetchFollowStatus = () => {
+      if (!getFollowingList || !userId) return;
+
+      // Kiểm tra xem userId mục tiêu có trong danh sách theo dõi không
+      const isUserFollowing = getFollowingList.some(
+        (followedUser) => followedUser.userId === userId
+      );
+
+      setIsFollowing(isUserFollowing);
+    };
+
+    if (!isOwner) fetchFollowStatus();
+  }, [isOwner, setIsThatOwner, getFollowingList, userId]);
 
   const getRoleLabel = (role: string) => {
     switch (role) {
@@ -110,13 +174,28 @@ export default function GroupMemberDetails({
           </div>
         </div>
       </div>
-      <Button variant="outline" asChild>
-        <div className="flex items-center space-x-2 hover:cursor-pointer">
-          <UserPlus className="h-3 w-3 sm:w-4 sm:h-4" />
-          <span className="text-xs sm:text-base hidden sm:block">
-            Theo dõi người dùng
-          </span>
-        </div>
+      <Button
+        variant="outline"
+        asChild
+        onClick={() =>
+          isFollowing ? handleUnfollow(userId!) : handleFollowUser()
+        }
+      >
+        {!isFollowing ? (
+          <div className="flex items-center space-x-2 hover:cursor-pointer">
+            <UserPlus className="h-3 w-3 sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-base hidden sm:block">
+              Theo dõi người dùng
+            </span>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2 hover:cursor-pointer">
+            <UserCheck className="h-3 w-3 sm:w-4 sm:h-4" />
+            <span className="text-xs sm:text-base hidden sm:block">
+              Theo dõi người dùng
+            </span>
+          </div>
+        )}
       </Button>
     </>
   );
