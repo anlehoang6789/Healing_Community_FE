@@ -31,3 +31,26 @@ export const GetUsersResponseSchema = z.object({
 });
 
 export type GetUsersResponseType = z.TypeOf<typeof GetUsersResponseSchema>;
+
+export const GetToManageUserSchema = z.object({
+  userId: z.string(),
+  fullName: z.string(),
+  userName: z.string(),
+  email: z.string().email(),
+  phoneNumber: z.string(),
+  status: z.number(),
+  role: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetToManageUserType = z.TypeOf<typeof GetToManageUserSchema>;
+
+export const GetToManageUserListRes = z.object({
+  data: z.array(GetToManageUserSchema),
+  message: z.string(),
+});
+
+export type GetToManageUserListResType = z.TypeOf<
+  typeof GetToManageUserListRes
+>;
