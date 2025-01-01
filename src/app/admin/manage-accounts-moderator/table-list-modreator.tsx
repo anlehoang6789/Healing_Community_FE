@@ -1,15 +1,30 @@
 "use client";
-import DeleteAccountModerator from "@/app/admin/manage-accounts-moderator/delete-account-moderator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+
+import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+  ColumnDef,
+  ColumnFiltersState,
+  SortingState,
+  VisibilityState,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -18,249 +33,386 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { format } from "date-fns";
-import React from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useSearchParams } from "next/navigation";
+import AutoPagination from "@/components/auto-pagination";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
+import { useDeleteExpertExperienceMutation } from "@/queries/useExpert";
+import {
+  GetToManageUserListResType,
+  GetToManageUserType,
+} from "@/schemaValidations/user.schema";
+import { useGetToManageUser } from "@/queries/useUser";
 
-type ModeratorList = {
-  id: string;
-  date: Date;
-  moderatorName: string;
-  email: string;
-  avatar: string;
-  status: "active" | "inactive";
-};
+type AccountItem = GetToManageUserListResType["data"][0];
 
-const data: ModeratorList[] = [
+const AccountTableContext = createContext<{
+  experienceDelete: AccountItem | null;
+  setExperienceDelete: (value: AccountItem | null) => void;
+}>({
+  experienceDelete: null,
+  setExperienceDelete: (value: AccountItem | null) => {},
+});
+
+export const columns: ColumnDef<GetToManageUserType>[] = [
   {
-    id: "1",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=1",
-    status: "active",
+    id: "userId",
+    header: "STT",
+    cell: ({ row }) => <div className="text-textChat">{row.index + 1}</div>,
   },
   {
-    id: "2",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=2",
-    status: "active",
+    accessorKey: "fullName",
+    header: "Tên hiển thị",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("fullName")}</div>
+    ),
   },
   {
-    id: "3",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=3",
-    status: "active",
+    accessorKey: "userName",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tên đăng ký
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="text-textChat font-semibold">
+        {row.getValue("userName")}
+      </div>
+    ),
   },
   {
-    id: "4",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=4",
-    status: "active",
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("email")}</div>
+    ),
   },
   {
-    id: "5",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=5",
-    status: "active",
+    accessorKey: "phoneNumber",
+    header: "Số điện thoại",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("phoneNumber")}</div>
+    ),
   },
   {
-    id: "6",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=6",
-    status: "active",
+    accessorKey: "role",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Vai trò
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const role: string = row.original.role;
+      const roleMapping: Record<string, string> = {
+        User: "Người dùng",
+        Expert: "Chuyên gia",
+        Moderator: "Kiểm duyệt viên",
+      };
+      const roleLabel = roleMapping[role] || "Không xác định";
+
+      const roleColors: Record<string, string> = {
+        User: "bg-blue-100 text-blue-800",
+        Expert: "bg-green-100 text-green-800",
+        Moderator: "bg-rose-100 text-rose-800",
+      };
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium ${
+            roleColors[role] || "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {roleLabel}
+        </span>
+      );
+    },
   },
   {
-    id: "7",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=7",
-    status: "active",
+    accessorKey: "status",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Trạng thái
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const status: number = row.original.status;
+      const statusMapping: Record<number, string> = {
+        0: "Chưa kích hoạt",
+        1: "Đã kích hoạt",
+      };
+      const statusLabel = statusMapping[status] || "Không xác định";
+
+      const statusColors: Record<number, string> = {
+        0: "border-red-500 text-rose-500",
+        1: "border-green-500 text-lime-400",
+      };
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium border ${
+            statusColors[status] || "border-gray-500 text-gray-500"
+          }`}
+        >
+          {statusLabel}
+        </span>
+      );
+    },
   },
   {
-    id: "8",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=8",
-    status: "inactive",
-  },
-  {
-    id: "9",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=9",
-    status: "inactive",
-  },
-  {
-    id: "10",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=10",
-    status: "inactive",
-  },
-  {
-    id: "11",
-    date: new Date("2023-05-01T10:00:00"),
-    moderatorName: "Nguyễn Văn A",
-    email: "abc@gmail.com",
-    avatar: "https://i.pravatar.cc/150?img=11",
-    status: "active",
+    id: "actions",
+    enableHiding: false,
+    cell: function Actions({ row }) {
+      const { setExperienceDelete } = useContext(AccountTableContext);
+
+      const openDeleteEmployee = () => {
+        setExperienceDelete(row.original);
+      };
+      return (
+        <DropdownMenu modal={false}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={openDeleteEmployee}>
+              Vô hiệu hóa
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
   },
 ];
 
-export default function TableListModreator() {
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const transactionsPerPage = 8;
-  const totalPages = Math.ceil(data.length / transactionsPerPage);
-
-  // Sort transactions by date (most recent first)
-  const sortedTransactions = [...data].sort(
-    (a, b) => b.date.getTime() - a.date.getTime()
-  );
-
-  const getCurrentPageTransactions = () => {
-    const startIndex = (currentPage - 1) * transactionsPerPage;
-    const endIndex = startIndex + transactionsPerPage;
-    return sortedTransactions.slice(startIndex, endIndex);
-  };
-
-  const getStatusBadge = (status: ModeratorList["status"]) => {
-    switch (status) {
-      case "active":
-        return (
-          <Badge
-            variant={"outline"}
-            className="bg-green-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-1 md:py-0.5"
-          >
-            Đã kích hoạt
-          </Badge>
-        );
-      case "inactive":
-        return (
-          <Badge
-            variant={"outline"}
-            className="bg-yellow-500 text-white text-[10px] md:text-xs px-1.5 md:px-2 py-1 md:py-0.5"
-          >
-            Chưa kích hoạt
-          </Badge>
-        );
+function AlertDialogDeleteAccount({
+  experienceDelete,
+  setExperienceDelete,
+}: {
+  experienceDelete: AccountItem | null;
+  setExperienceDelete: (value: AccountItem | null) => void;
+}) {
+  const { mutateAsync } = useDeleteExpertExperienceMutation();
+  const deleteExperience = async () => {
+    if (experienceDelete) {
+      try {
+        const result = await mutateAsync(experienceDelete.userId);
+        setExperienceDelete(null);
+        toast({
+          description: result.payload.message,
+          variant: "success",
+        });
+      } catch (error) {
+        handleErrorApi({ error });
+      }
     }
   };
 
   return (
-    <div>
-      <div className="overflow-x-auto">
-        <div className="max-w-6xl mx-auto">
-          <Table>
+    <AlertDialog
+      open={Boolean(experienceDelete)}
+      onOpenChange={(value) => {
+        if (!value) {
+          setExperienceDelete(null);
+        }
+      }}
+    >
+      <AlertDialogContent className="bg-card">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-textChat font-semibold">
+            Vô hiệu hóa người dùng?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Người dùng được đăng ký với tên{" "}
+            <span className="bg-muted text-textChat rounded px-1 font-semibold">
+              {experienceDelete?.userName}
+            </span>{" "}
+            sẽ bị xóa vĩnh viễn
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
+          <AlertDialogAction onClick={deleteExperience}>
+            Tiếp tục
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+// Số lượng item trên 1 trang
+const PAGE_SIZE = 10;
+export default function TableListModerator() {
+  const searchParam = useSearchParams();
+  const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
+  const pageIndex = page - 1;
+  // const params = Object.fromEntries(searchParam.entries())
+  const [experienceDelete, setExperienceDelete] = useState<AccountItem | null>(
+    null
+  );
+  //tao bien lay data tu api
+  const listToManageUser = useGetToManageUser();
+  const data = listToManageUser.data?.payload.data ?? [];
+
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [pagination, setPagination] = useState({
+    pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
+    pageSize: PAGE_SIZE, //default page size
+  });
+
+  const table = useReactTable({
+    data,
+    columns,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    onPaginationChange: setPagination,
+    autoResetPageIndex: false,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+      pagination,
+    },
+  });
+
+  useEffect(() => {
+    table.setPagination({
+      pageIndex,
+      pageSize: PAGE_SIZE,
+    });
+  }, [table, pageIndex]);
+
+  return (
+    <AccountTableContext.Provider
+      value={{
+        experienceDelete,
+        setExperienceDelete,
+      }}
+    >
+      <div className="w-full">
+        <AlertDialogDeleteAccount
+          experienceDelete={experienceDelete}
+          setExperienceDelete={setExperienceDelete}
+        />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center py-4 gap-4 sm:gap-2">
+          <Input
+            placeholder="Tìm kiếm tên đăng ký ..."
+            value={
+              (table.getColumn("userName")?.getFilterValue() as string) ?? ""
+            }
+            onChange={(event) =>
+              table.getColumn("userName")?.setFilterValue(event.target.value)
+            }
+            className="max-w-sm"
+          />
+        </div>
+        <div className="rounded-md border overflow-x-auto max-w-full">
+          <Table className="max-w-full">
             <TableHeader>
-              <TableRow>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Ảnh đại diện
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Tên tài khoản
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Email
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Ngày tạo
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Trạng thái
-                </TableHead>
-                <TableHead className="lg:text-sm md:tex-sm text-[10px]">
-                  Hành động
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {getCurrentPageTransactions().map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    <Avatar>
-                      <AvatarImage
-                        src={transaction.avatar ?? undefined}
-                        alt={transaction.moderatorName}
-                      />
-                      <AvatarFallback>
-                        {transaction.moderatorName.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    {transaction.moderatorName}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    {transaction.email}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground lg:text-sm md:tex-sm text-[10px]">
-                    {format(transaction.date, "dd/MM/yyyy HH:mm")}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(transaction.status)}</TableCell>
-                  <TableCell>
-                    <DeleteAccountModerator />
-                  </TableCell>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center text-textChat"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 py-4">
+          <div className="text-xs text-muted-foreground text-center flex-1 sm:text-left">
+            Hiển thị{" "}
+            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
+            <strong>{data.length}</strong> kết quả
+          </div>
+          <div>
+            <AutoPagination
+              page={table.getState().pagination.pageIndex + 1}
+              pageSize={table.getPageCount()}
+              pathname="/admin/manage-accounts-moderator"
+            />
+          </div>
+        </div>
       </div>
-      <div className="mt-4">
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.max(prev - 1, 1));
-                }}
-              />
-            </PaginationItem>
-            {[...Array(totalPages)].map((_, index) => (
-              <PaginationItem key={index}>
-                <PaginationLink
-                  className="text-muted-foreground"
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(index + 1);
-                  }}
-                  isActive={currentPage === index + 1}
-                >
-                  {index + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                className="text-muted-foreground"
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-                }}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
-    </div>
+    </AccountTableContext.Provider>
   );
 }

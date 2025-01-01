@@ -1,4 +1,10 @@
-import { LayoutDashboard, MonitorCog, ScanEye, UserCog } from "lucide-react";
+import {
+  Banknote,
+  LayoutDashboard,
+  MonitorCog,
+  ScanEye,
+  UserCog,
+} from "lucide-react";
 
 const adminItems = [
   {
@@ -20,6 +26,11 @@ const adminItems = [
     title: "Quản lí tài khoản",
     Icon: UserCog,
     href: "/admin/manage-accounts-moderator",
+  },
+  {
+    title: "Quản lí phí dịch vụ",
+    Icon: Banknote,
+    href: "/admin/manage-fee-service",
   },
 ];
 
