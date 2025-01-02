@@ -26,7 +26,7 @@ export type GetCertificateTypeResponseType = z.TypeOf<
 export const UpdateProfileExpertBody = z.object({
   specialization: z.string(),
   expertiseAreas: z.string(),
-  bio: z.string(),
+  bio: z.string().optional(),
   fullname: z.string(),
   profileImageUrl: z.string().url().optional(),
 });

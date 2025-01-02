@@ -84,3 +84,26 @@ export const PaymentHistoryDetailsRes = z.object({
 export type PaymentHistoryDetailsResType = z.infer<
   typeof PaymentHistoryDetailsRes
 >;
+
+export const GetFeeServiceSchema = z.object({
+  platformFeeId: z.string(),
+  platformFeeName: z.string(),
+  platformFeeDescription: z.string(),
+  platformFeeValue: z.number(),
+});
+
+export type GetFeeServiceType = z.infer<typeof GetFeeServiceSchema>;
+
+export const GetFeeServiceRes = z.object({
+  data: z.array(GetFeeServiceSchema),
+  message: z.string(),
+});
+
+export type GetFeeServiceResType = z.infer<typeof GetFeeServiceRes>;
+
+export const UpdateFeeServiceSchema = z.object({
+  platformFeeId: z.string(),
+  percent: z.number(),
+});
+
+export type UpdateFeeServiceType = z.infer<typeof UpdateFeeServiceSchema>;

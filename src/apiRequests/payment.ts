@@ -4,8 +4,10 @@ import {
   BookExpertScheduleResType,
   CreatePaymentRequestType,
   CreatePaymentResponseType,
+  GetFeeServiceResType,
   PaymentHistoryDetailsResType,
   PaymentHistoryListResType,
+  UpdateFeeServiceType,
 } from "@/schemaValidations/payment.schema";
 
 const paymentApiRequest = {
@@ -24,5 +26,9 @@ const paymentApiRequest = {
     http.get<PaymentHistoryDetailsResType>(
       `payment//api/payment/details/${paymentId}`
     ),
+  getFeeService: () =>
+    http.get<GetFeeServiceResType>("payment/api/platformfee/get-fees"),
+  updateFeeService: (body: UpdateFeeServiceType) =>
+    http.put<{ message: string }>("payment/api/platformfee/update-fee", body),
 };
 export default paymentApiRequest;
