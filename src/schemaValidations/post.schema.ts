@@ -657,3 +657,28 @@ export const GetReactionSharedCountRes = z.object({
 export type GetReactionSharedCountResType = z.TypeOf<
   typeof GetReactionSharedCountRes
 >;
+
+export const GetUserReactionByShareIdSchema = z.object({
+  reactionId: z.string(),
+  userId: z.string(),
+  shareId: z.string(),
+  reactionTypeId: z.string(),
+  reactionType: z.object({
+    reactionTypeId: z.string(),
+    name: z.string(),
+    icon: z.string(),
+  }),
+});
+
+export type GetUserReactionByShareIdSchemaType = z.TypeOf<
+  typeof GetUserReactionByShareIdSchema
+>;
+
+export const GetUserReactionByShareIdRes = z.object({
+  data: GetUserReactionByShareIdSchema,
+  message: z.string(),
+});
+
+export type GetUserReactionByShareIdResType = z.TypeOf<
+  typeof GetUserReactionByShareIdRes
+>;

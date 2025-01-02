@@ -7,6 +7,8 @@ import {
   useGetAllReactionTypeQuery,
   useGetUserReactionByPostIdQuery,
   
+  useGetUserReactionByShareIdQuery,
+  
   useRemoveReactionSharedMutation,
 } from "@/queries/usePost";
 import {  AddReactionSharedBodyType } from "@/schemaValidations/post.schema";
@@ -19,7 +21,7 @@ export default function ReactionSharedEmoji({ shareId }: { shareId: string }) {
   const reactionTypeList = reactionType?.payload.data || [];
 
   //show reaction when user choose
-  const { data: emojiSelected } = useGetUserReactionByPostIdQuery(shareId);
+  const { data: emojiSelected } = useGetUserReactionByShareIdQuery(shareId);
   const emojiSelectedItem = emojiSelected?.payload.data;
 
   //add reaction
