@@ -1,11 +1,13 @@
 import http from "@/lib/http";
 import {
+  ApproveOrRejectRequestGroupResType,
   CreateGroupRequestType,
   CrequestGroupRequestType,
   GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
   GetGroupDetailsByGroupIdResType,
   GetGroupMembersByGroupIdListResType,
+  GetListRequestGroupResponseType,
   GetRoleCountByGroupIdResType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
@@ -55,6 +57,16 @@ const groupApiRequest = {
     http.post<{ data: string }>(
       "group/api/group/create-request-group",
       payload
+    ),
+  getApprovalRequestsCreateGroup: () =>
+    http.get<GetListRequestGroupResponseType>(
+      "group/api/group/get-approval-requests-create-group"
+    ),
+
+  approveOrRejectRequestGroup: (payload: ApproveOrRejectRequestGroupResType) =>
+    http.put<{ data: string }>(
+      `group/api/managegroup/approve-request-create-group/${payload.groupRequestId}?isApproved=${payload.isApproved}`,
+      {}
     ),
 };
 

@@ -1,5 +1,6 @@
 import groupApiRequest from "@/apiRequests/group";
 import {
+  ApproveOrRejectRequestGroupResType,
   CreateGroupRequestType,
   CrequestGroupRequestType,
   JoinGroupRequestType,
@@ -116,6 +117,13 @@ export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
   });
 };
 
+export const useGetListRequestGroupQuery = () => {
+  return useQuery({
+    queryKey: ["get-list-request-group"],
+    queryFn: groupApiRequest.getApprovalRequestsCreateGroup,
+  });
+};
+
 export const useCrequestGroupMutation = () => {
   const queryClient = useQueryClient();
 
@@ -123,7 +131,20 @@ export const useCrequestGroupMutation = () => {
     mutationFn: (payload: CrequestGroupRequestType) =>
       groupApiRequest.crequestGroup(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get-all-request"] });
+      queryClient.invalidateQueries({ queryKey: ["get-list-request-group"] });
+    },
+  });
+};
+
+export const useApproveOrRejectRequestGroupMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: ApproveOrRejectRequestGroupResType) =>
+      groupApiRequest.approveOrRejectRequestGroup(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-list-request-group"] });
+      queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
     },
   });
 };
