@@ -103,7 +103,9 @@ export default function BankInformationForm() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="flex flex-col space-y-2">
-                      <Label htmlFor="bankName">Tên ngân hàng</Label>
+                      <Label htmlFor="bankName">
+                        Tên ngân hàng <span className="text-red-500">*</span>
+                      </Label>
                       <BankCombobox
                         id="bankName"
                         aria-labelledby="bank-label"
@@ -120,7 +122,9 @@ export default function BankInformationForm() {
                 name="bankAccountName"
                 render={({ field }) => (
                   <FormItem>
-                    <Label htmlFor="bankAccountName">Tên tài khoản</Label>
+                    <Label htmlFor="bankAccountName">
+                      Tên tài khoản <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       id="bankAccountName"
                       {...field}
@@ -136,7 +140,9 @@ export default function BankInformationForm() {
                 name="bankAccountNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <Label htmlFor="bankAccountNumber">Số tài khoản</Label>
+                    <Label htmlFor="bankAccountNumber">
+                      Số tài khoản <span className="text-red-500">*</span>
+                    </Label>
                     <Input
                       id="bankAccountNumber"
                       value={field.value}

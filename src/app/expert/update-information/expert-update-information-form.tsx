@@ -124,7 +124,10 @@ export default function ExpertUpdateInformationForm() {
                         alt={"fullname"}
                       />
 
-                      <AvatarFallback>Hoàng An</AvatarFallback>
+                      <AvatarFallback>
+                        {data?.payload.data.fullName ||
+                          data?.payload.data.userName}
+                      </AvatarFallback>
                     </Avatar>
                     <Label
                       htmlFor="profilePictureUrl"
@@ -185,9 +188,10 @@ export default function ExpertUpdateInformationForm() {
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label
                         htmlFor="fullName"
-                        className="text-right text-muted-foreground"
+                        className="text-muted-foreground flex items-center justify-end"
                       >
-                        Tên hiển thị
+                        Tên hiển thị{" "}
+                        <span className="text-red-500 ml-2">*</span>
                       </Label>
                       <Input
                         id="fullName"
@@ -232,9 +236,9 @@ export default function ExpertUpdateInformationForm() {
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label
                         htmlFor="specialization"
-                        className="text-right text-muted-foreground"
+                        className="flex items-center justify-end text-muted-foreground"
                       >
-                        Chuyên môn
+                        Chuyên môn <span className="text-red-500 ml-2">*</span>
                       </Label>
                       <Input
                         id="specialization"
@@ -257,9 +261,10 @@ export default function ExpertUpdateInformationForm() {
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label
                         htmlFor="expertiseAreas"
-                        className="text-right text-muted-foreground"
+                        className="flex items-center text-muted-foreground"
                       >
-                        Lĩnh vực chuyên môn
+                        Lĩnh vực chuyên môn{" "}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="expertiseAreas"
