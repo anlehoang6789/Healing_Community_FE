@@ -581,6 +581,13 @@ export const useGetReactionSharedCountQuery = (shareId: string) => {
   });
 };
 
+export const useGetUserReactionByShareIdQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["user-reaction-by-share-id", shareId],
+    queryFn: () => postApiRequest.getUserReactionByShareId(shareId),
+  });
+};
+
 export const useAddReactionSharedMutation = (shareId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -590,7 +597,7 @@ export const useAddReactionSharedMutation = (shareId: string) => {
         queryKey: ["reaction-shared-count", shareId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["user-reaction-by-post-id", shareId],
+        queryKey: ["user-reaction-by-share-id", shareId],
       });
     },
   });
@@ -602,10 +609,10 @@ export const useRemoveReactionSharedMutation = (shareId: string) => {
     mutationFn: postApiRequest.removeReactionShared,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["reaction-count", shareId],
+        queryKey: ["reaction-shared-count", shareId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["user-reaction-by-post-id", shareId],
+        queryKey: ["user-reaction-by-share-id", shareId],
       });
     },
   });
