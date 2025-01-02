@@ -99,9 +99,7 @@ const CrequestGroupDialog = () => {
 
           <div className="flex justify-end">
             <Button type="submit" disabled={crequestGroupMutation.isPending}>
-              {crequestGroupMutation.isPending
-                ? "Đang tạo nhóm..."
-                : "Tạo nhóm"}
+              {crequestGroupMutation.isPending ? "Đang yêu cầu..." : "Yêu cầu"}
             </Button>
           </div>
         </form>
