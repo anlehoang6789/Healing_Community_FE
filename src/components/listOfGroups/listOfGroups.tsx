@@ -35,6 +35,7 @@ import {
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import CrequestGroupDialog from "@/app/user/list-of-groups/request-group";
 
 export default function ListOfGroups() {
   const { theme } = useTheme();
@@ -98,7 +99,7 @@ export default function ListOfGroups() {
   if (isLoading) {
     return (
       <div className="container mx-auto p-4">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between mb-4">
           <h1 className="text-2xl font-bold text-muted-foreground">
             Các nhóm gợi ý
           </h1>
@@ -130,6 +131,7 @@ export default function ListOfGroups() {
         <h1 className="text-2xl font-bold text-muted-foreground">
           Các nhóm gợi ý
         </h1>
+        <CrequestGroupDialog />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

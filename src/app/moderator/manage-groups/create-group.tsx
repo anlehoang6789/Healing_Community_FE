@@ -92,8 +92,8 @@ const CreateGroupDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <Plus className="mr-2 h-4 w-4" />
-          <span>Tạo nhóm</span>
+          <Plus className="mr-2 h-4 w-4 text-textChat" />
+          <span className="text-textChat">Tạo nhóm</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="p-4 w-[375px] lg:w-[512px] md:w-[512px] sm:w-[512px]">

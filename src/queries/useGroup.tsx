@@ -1,6 +1,7 @@
 import groupApiRequest from "@/apiRequests/group";
 import {
   CreateGroupRequestType,
+  CrequestGroupRequestType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
 } from "@/schemaValidations/group.schema";
@@ -112,5 +113,17 @@ export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["get-role-count-by-group-id", groupId],
     queryFn: () => groupApiRequest.getRoleCountByGroupId(groupId),
+  });
+};
+
+export const useCrequestGroupMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CrequestGroupRequestType) =>
+      groupApiRequest.crequestGroup(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-all-request"] });
+    },
   });
 };

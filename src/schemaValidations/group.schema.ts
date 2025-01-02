@@ -145,3 +145,12 @@ export const GetRoleCountByGroupIdRes = z.object({
 export type GetRoleCountByGroupIdResType = z.infer<
   typeof GetRoleCountByGroupIdRes
 >;
+
+const CrequestGroupRequestSchema = z.object({
+  groupName: z.string(),
+  description: z.string(),
+});
+
+export type CrequestGroupRequestType = z.infer<
+  typeof CrequestGroupRequestSchema
+>;
