@@ -3,14 +3,22 @@
 import GroupPersonalTabs from "@/app/user/group-user/[groupId]/group-personal-tabs";
 import { Button } from "@/components/ui/button";
 import { Role } from "@/constants/type";
-import { useGetUserProfileQuery } from "@/queries/useAccount";
+import {
+  useFollowUserMutation,
+  useGetFollowingQuery,
+  useGetUserProfileQuery,
+  useUnfollowUserMutation,
+} from "@/queries/useAccount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
-import { MessageCircle, User, UserPlus } from "lucide-react";
+import { MessageCircle, User, UserCheck, UserPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useParams } from "next/navigation";
-import { createContext } from "react";
+import { createContext, useEffect, useState } from "react";
 import Link from "next/link";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import { toast } from "@/hooks/use-toast";
+import { useUserIsOwnerStore } from "@/store/userStore";
 
 const GroupUserContext = createContext<{
   groupId: string | null;
@@ -30,6 +38,7 @@ export default function GroupUserLayout({
   const params = useParams();
   const groupIdFromPath = params.groupId as string;
   const userIdFromPath = params.userId as string;
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userIdFromPath);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const {
@@ -42,6 +51,60 @@ export default function GroupUserLayout({
     isLoading: expertLoading,
     isError: expertError,
   } = useGetExpertProfileQuery(userIdFromPath, isExpert && !!userIdFromPath);
+
+  const isOwner = userIdFromLocalStorage === userIdFromPath;
+
+  //logic follow and unfollow
+  const [isFollowing, setIsFollowing] = useState<boolean>(false);
+  const followUser = useFollowUserMutation(userIdFromPath as string);
+  const unFollowUser = useUnfollowUserMutation(userIdFromPath as string);
+  const { setIsThatOwner } = useUserIsOwnerStore();
+  const { data } = useGetFollowingQuery(userIdFromLocalStorage as string);
+  const getFollowingList = data?.payload.data;
+
+  const handleFollowUser = () => {
+    if (followUser.isPending) return;
+    try {
+      followUser.mutateAsync({ followerId: userIdFromPath as string });
+      setIsFollowing(true);
+      toast({
+        description: "Đã theo dõi người dùng",
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  const handleUnfollow = (userId: string) => {
+    if (unFollowUser.isPending) return;
+    try {
+      unFollowUser.mutateAsync(userId);
+      setIsFollowing(false);
+      toast({
+        description: "Đã bỏ theo dõi người dùng",
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  useEffect(() => {
+    setIsThatOwner(isOwner);
+    const fetchFollowStatus = () => {
+      if (!getFollowingList || !userIdFromPath) return;
+
+      // Kiểm tra xem userId mục tiêu có trong danh sách theo dõi không
+      const isUserFollowing = getFollowingList.some(
+        (followedUser) => followedUser.userId === userIdFromPath
+      );
+
+      setIsFollowing(isUserFollowing);
+    };
+
+    if (!isOwner) fetchFollowStatus();
+  }, [isOwner, setIsThatOwner, getFollowingList, userIdFromPath]);
 
   if (userLoading || expertLoading)
     return (
@@ -142,17 +205,35 @@ export default function GroupUserLayout({
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2">
-                <Button className="flex-1 md:flex-none">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Nhắn tin
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1 md:flex-none text-textChat"
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Theo dõi
-                </Button>
+                {!isOwner && (
+                  <>
+                    <Button className="flex-1 md:flex-none">
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Nhắn tin
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 md:flex-none text-textChat"
+                      onClick={() =>
+                        isFollowing
+                          ? handleUnfollow(userIdFromPath!)
+                          : handleFollowUser()
+                      }
+                    >
+                      {!isFollowing ? (
+                        <div className="flex items-center">
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Theo dõi
+                        </div>
+                      ) : (
+                        <div className="flex items-center">
+                          <UserCheck className="w-4 h-4 mr-2" />
+                          Bỏ theo dõi
+                        </div>
+                      )}
+                    </Button>
+                  </>
+                )}
                 <Button
                   variant="outline"
                   className="flex-1 md:flex-none text-textChat"

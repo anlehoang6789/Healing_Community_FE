@@ -90,6 +90,8 @@ export default function ProfileTabs({
     ? "user-info"
     : pathname.startsWith(`/user/profile/${userId}`)
     ? "personal-wall"
+    : pathname.startsWith(`/user/profile/${userId}/bank-information`)
+    ? "bank-information"
     : "personal-wall";
 
   return (
@@ -171,6 +173,21 @@ export default function ProfileTabs({
                 className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
               >
                 Đổi mật khẩu
+              </Button>
+            </Link>
+          )}
+
+          {isOwner && (
+            <Link href={`/user/profile/${userId}/bank-information`}>
+              <Button
+                variant={
+                  activeTab === "bank-information"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                Thông tin ngân hàng
               </Button>
             </Link>
           )}
