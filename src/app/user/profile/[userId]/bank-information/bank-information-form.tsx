@@ -125,6 +125,7 @@ export default function BankInformationForm() {
                       id="bankAccountName"
                       {...field}
                       placeholder="Nhập tên tài khoản"
+                      className="uppercase"
                     />
                     <FormMessage />
                   </FormItem>
