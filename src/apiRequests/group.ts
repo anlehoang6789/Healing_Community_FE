@@ -1,6 +1,7 @@
 import http from "@/lib/http";
 import {
   CreateGroupRequestType,
+  CrequestGroupRequestType,
   GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
   GetGroupDetailsByGroupIdResType,
@@ -48,6 +49,12 @@ const groupApiRequest = {
   getRoleCountByGroupId: (groupId: string) =>
     http.get<GetRoleCountByGroupIdResType>(
       `group/api/usergroup/get-role-count-by-group-id/${groupId}`
+    ),
+
+  crequestGroup: (payload: CrequestGroupRequestType) =>
+    http.post<{ data: string }>(
+      "group/api/group/create-request-group",
+      payload
     ),
 };
 
