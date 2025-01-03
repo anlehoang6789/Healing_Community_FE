@@ -14,6 +14,8 @@ import {
   GetExpertAvailabilityExpertProfileIdResponseType,
   GetExpertListResponseType,
   GetExpertProfileResType,
+  GetExpertRatingResponseType,
+  RateExpertBodyType,
   UpdateExpertExperienceBodyType,
   UpdateProfileExpertBodyType,
   UploadFileForExpertResponseType,
@@ -100,6 +102,16 @@ const expertApiRequest = {
   getExpertList: (pageNumber: number, pageSize: number) =>
     http.get<GetExpertListResponseType>(
       `expert/api/expertprofile/expert-list?pageNumber=${pageNumber}&pageSize=${pageSize}`
+    ),
+  rateExpert: (body: RateExpertBodyType) =>
+    http.post<{ message: string }>("expert/api/appointment/rate-expert", body),
+  getExpertRating: (expertProfileId: string) =>
+    http.get<GetExpertRatingResponseType>(
+      `expert/api/appointment/get-expert-ratings/${expertProfileId}`
+    ),
+  checkExpertRatingStatus: (appointmentId: string) =>
+    http.get<{ data: boolean }>(
+      `expert/api/appointment/rating-status/${appointmentId}`
     ),
 };
 

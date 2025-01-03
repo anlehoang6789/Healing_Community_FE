@@ -351,3 +351,35 @@ export const GetExpertListResponseSchema = z.object({
 export type GetExpertListResponseType = z.TypeOf<
   typeof GetExpertListResponseSchema
 >;
+
+export const RateExpertBody = z.object({
+  appointmentId: z.string(),
+  rating: z.number(),
+  comment: z.string().optional(),
+});
+
+export type RateExpertBodyType = z.TypeOf<typeof RateExpertBody>;
+
+export const GetExpertRatingSchema = z.object({
+  averageRating: z.number(),
+  ratings: z.array(
+    z.object({
+      rating: z.number(),
+      comment: z.string(),
+      time: z.string(),
+      averageRating: z.number(),
+      userId: z.string(),
+    })
+  ),
+});
+
+export type GetExpertRatingSchemaType = z.TypeOf<typeof GetExpertRatingSchema>;
+
+export const GetExpertRatingResponseSchema = z.object({
+  data: GetExpertRatingSchema,
+  message: z.string(),
+});
+
+export type GetExpertRatingResponseType = z.TypeOf<
+  typeof GetExpertRatingResponseSchema
+>;
