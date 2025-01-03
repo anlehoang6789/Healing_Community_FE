@@ -35,6 +35,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCheckContentByAIMutation } from "@/queries/useDetector";
 import { toast } from "@/hooks/use-toast";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { Role } from "@/constants/type";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 
 interface CommentSectionProps {
   comments: CommentType[];
@@ -59,7 +63,7 @@ export default function CommentSection({
   deleteComment,
 }: CommentSectionProps) {
   const { theme } = useTheme();
-  const { data: users } = useGetAllUsers();
+
   const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -194,16 +198,45 @@ export default function CommentSection({
     }
   };
 
-  const handleAddReply = (parentId: string) => {
-    if (replyContent.trim() || replyImages[parentId]) {
-      onAddReply(parentId, {
-        content: replyContent, // Chỉ gửi content
-        coverImgUrl: replyImages[parentId],
-      });
+  const handleAddReply = async (parentId: string) => {
+    // Kiểm tra nếu đang trong quá trình gửi hoặc kiểm tra nội dung
+    if (checkContentByAIMutation.isPending) return;
 
+    // Kiểm tra nếu nội dung reply hoặc hình ảnh không rỗng
+    if (replyContent.trim() || replyImages[parentId]) {
       setReplyContent("");
       setReplyingTo(null);
-      setReplyImages((prev) => ({ ...prev, [parentId]: null })); // Reset hình ảnh reply
+      setReplyImages((prev) => ({ ...prev, [parentId]: null }));
+      try {
+        // Kiểm tra nội dung bằng AI
+        const checkResult = await checkContentByAIMutation.mutateAsync(
+          replyContent
+        );
+
+        // Nếu nội dung không an toàn, hiển thị thông báo và dừng lại
+        if (!checkResult.payload.is_safe) {
+          toast({
+            title: "Oops! Phản hồi của bạn không được chấp nhận.",
+            description: checkResult.payload.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Gửi phản hồi
+        onAddReply(parentId, {
+          content: replyContent,
+          coverImgUrl: replyImages[parentId],
+        });
+
+        // Reset các trường sau khi gửi
+        setReplyContent("");
+        setReplyingTo(null);
+        setReplyImages((prev) => ({ ...prev, [parentId]: null })); // Reset hình ảnh reply
+      } catch (error) {
+        // Xử lý lỗi nếu có
+        handleErrorApi({ error });
+      }
     }
   };
 
@@ -235,14 +268,96 @@ export default function CommentSection({
     }
   };
 
-  const findUserById = (userId: string): UserType | undefined => {
-    return users?.find((user) => user.userId === userId);
+  // Avatar của người comment
+  const AvatarUserCommentProfile = ({ userId }: { userId: string }) => {
+    // Fetch role của người dùng
+    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+
+    // Fetch thông tin người dùng bình thường
+    const { data: userProfile } = useGetUserProfileQuery(
+      userId,
+      roleByUserId?.payload.data.roleName === Role.User && !!userId
+    );
+
+    // Fetch thông tin chuyên gia
+    const { data: expertProfile } = useGetExpertProfileQuery(
+      userId,
+      roleByUserId?.payload.data.roleName === Role.Expert && !!userId
+    );
+
+    // Hiển thị Avatar người comment
+    return (
+      <Link href={`/user/profile/${userId}`}>
+        <Avatar className="w-8 h-8 border-2 border-rose-300">
+          <AvatarImage
+            src={
+              userProfile?.payload.data.profilePicture ||
+              expertProfile?.payload.data.profileImageUrl ||
+              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+            }
+            alt={
+              userProfile?.payload.data.fullName ||
+              userProfile?.payload.data.userName ||
+              expertProfile?.payload.data.fullname ||
+              "User"
+            }
+          />
+          <AvatarFallback>
+            {userProfile?.payload.data.fullName ||
+              userProfile?.payload.data.userName ||
+              expertProfile?.payload.data.fullname ||
+              expertProfile?.payload.data.email}
+          </AvatarFallback>
+        </Avatar>
+      </Link>
+    );
   };
+
+  // Tên của người comment
+  const FullNameUserCommentProfile = ({ userId }: { userId: string }) => {
+    // Fetch role của người dùng
+    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+
+    // Fetch thông tin người dùng bình thường
+    const { data: userProfile } = useGetUserProfileQuery(
+      userId,
+      roleByUserId?.payload.data.roleName === Role.User && !!userId
+    );
+
+    // Fetch thông tin chuyên gia
+    const { data: expertProfile } = useGetExpertProfileQuery(
+      userId,
+      roleByUserId?.payload.data.roleName === Role.Expert && !!userId
+    );
+
+    // Kiểm tra xem người dùng có phải là chuyên gia không
+    const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
+
+    // Hiển thị tên người comment
+    return (
+      <Link href={`/user/profile/${userId}`}>
+        <div className="flex items-center space-x-2">
+          <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+            {isExpert
+              ? expertProfile?.payload.data.fullname ||
+                expertProfile?.payload.data.email
+              : userProfile?.payload.data.fullName ||
+                userProfile?.payload.data.userName ||
+                "Anonymous"}
+          </span>
+
+          {isExpert && (
+            <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+              Chuyên gia
+            </div>
+          )}
+        </div>
+      </Link>
+    );
+  };
+
   const renderComments = (comments: CommentType[], depth = 0) => {
     return comments.map((comment) => {
-      // Tìm thông tin người dùng dựa trên userId
-      const user = findUserById(comment.userId);
-
       // Kiểm tra xem comment có phải của người dùng hiện tại không
       const isCurrentUserComment = comment.userId === userIdComment;
 
@@ -258,15 +373,8 @@ export default function CommentSection({
           onMouseEnter={() => setHoveredCommentId(comment.commentId)} // Set ID khi hover
           onMouseLeave={() => setHoveredCommentId(null)} // Reset ID khi rời khỏi hover
         >
-          <Link href={`/user/profile/${user?.userId}`}>
-            <Avatar className="w-8 h-8 border-2 border-rose-300">
-              <AvatarImage
-                src={user?.profilePicture || "/default-avatar.png"}
-                alt={user?.userName || "User"}
-              />
-              <AvatarFallback>{user?.userName?.[0] || "U"}</AvatarFallback>
-            </Avatar>
-          </Link>
+          {/* Avatar người comment */}
+          <AvatarUserCommentProfile userId={comment.userId} />
 
           <div className="flex-1">
             <div
@@ -318,11 +426,9 @@ export default function CommentSection({
                   </Button>
                 </>
               )}
-              <Link href={`/user/profile/${user?.userId}`}>
-                <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                  {user?.fullName || user?.userName || comment.userId}
-                </span>
-              </Link>
+
+              {/* Tên người comment */}
+              <FullNameUserCommentProfile userId={comment.userId} />
 
               <p className=" whitespace-pre-wrap break-all">
                 {comment.content}
