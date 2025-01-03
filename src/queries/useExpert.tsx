@@ -120,9 +120,6 @@ export const useCreateAvailableTimeSlot = (expertProfileId: string) => {
         queryKey: ["expert-availability", expertProfileId],
       });
     },
-    onError: (error) => {
-      console.error("Mutation Error:", error);
-    },
   });
 };
 
