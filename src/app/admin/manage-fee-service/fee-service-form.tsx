@@ -35,11 +35,10 @@ export default function FeeServiceForm() {
   });
 
   const { data } = useGetFeeServiceQuery();
-  const feeList = data?.payload.data || [];
-  const firstFee = feeList[0];
+
   useEffect(() => {
     if (data) {
-      const { platformFeeId, platformFeeValue } = data.payload.data[0];
+      const { platformFeeId, platformFeeValue } = data.payload.data;
       form.setValue("platformFeeId", platformFeeId);
       form.setValue("percent", platformFeeValue);
     }
@@ -78,7 +77,7 @@ export default function FeeServiceForm() {
             <li>
               Nền tảng sẽ thu{" "}
               <span className="p-1 bg-yellow-300 rounded-lg text-gray-800">
-                {firstFee.platformFeeValue}%
+                {data?.payload.data.platformFeeValue}%
               </span>{" "}
               phí cho mỗi giá tiền khi tư vấn.
             </li>
@@ -91,9 +90,10 @@ export default function FeeServiceForm() {
             trừ phí nền tảng là:
           </p>
           <p className="font-bold">
-            100.000 - 100.000 * {firstFee.platformFeeValue / 100} ={" "}
+            100.000 - 100.000 * {Number(data?.payload.data.platformFeeValue)}% ={" "}
             {formatCurrency(
-              100000 - 100000 * (firstFee.platformFeeValue / 100)
+              100000 -
+                100000 * (Number(data?.payload.data.platformFeeValue) / 100)
             )}
           </p>
         </CardContent>
