@@ -20,7 +20,7 @@ import { CommentType } from "@/schemaValidations/post.schema";
 import { useGetAllUsers } from "@/queries/useUser";
 import { UserType } from "@/schemaValidations/user.schema";
 import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
-import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,6 +33,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { useCheckContentByAIMutation } from "@/queries/useDetector";
+import { toast } from "@/hooks/use-toast";
 
 interface CommentSectionProps {
   comments: CommentType[];
@@ -147,20 +149,48 @@ export default function CommentSection({
     setNewComment(textarea.value);
   };
 
-  const handleAddComment = () => {
+  const checkContentByAIMutation = useCheckContentByAIMutation();
+
+  const handleAddComment = async () => {
+    // Kiểm tra nếu đang trong quá trình gửi hoặc kiểm tra nội dung
+    if (checkContentByAIMutation.isPending) return;
+
+    // Kiểm tra nếu nội dung bình luận hoặc hình ảnh không rỗng
     if (newComment.trim() || commentImage) {
-      onAddComment({
-        content: newComment, // Chỉ gửi content
-        coverImgUrl: commentImage,
-      });
-
-      if (textareaRef.current) {
-        textareaRef.current.style.height = "65.6px";
-      }
-
       setNewComment("");
+      setCommentImage(null);
+      try {
+        // Kiểm tra nội dung bằng AI
+        const checkResult = await checkContentByAIMutation.mutateAsync(
+          newComment
+        );
 
-      setCommentImage(null); // Reset hình ảnh sau khi gửi
+        // Nếu nội dung không an toàn, hiển thị thông báo và dừng lại
+        if (!checkResult.payload.is_safe) {
+          toast({
+            title: "Oops! Bình luận của bạn không được chấp nhận.",
+            description: checkResult.payload.message,
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Gửi bình luận
+        onAddComment({
+          content: newComment,
+          coverImgUrl: commentImage,
+        });
+
+        // Reset các trường sau khi gửi
+        if (textareaRef.current) {
+          textareaRef.current.style.height = "65.6px";
+        }
+        setNewComment("");
+        setCommentImage(null); // Reset hình ảnh sau khi gửi
+      } catch (error) {
+        // Xử lý lỗi nếu có
+        handleErrorApi({ error });
+      }
     }
   };
 
@@ -228,7 +258,7 @@ export default function CommentSection({
           onMouseEnter={() => setHoveredCommentId(comment.commentId)} // Set ID khi hover
           onMouseLeave={() => setHoveredCommentId(null)} // Reset ID khi rời khỏi hover
         >
-          <Link href="#">
+          <Link href={`/user/profile/${user?.userId}`}>
             <Avatar className="w-8 h-8 border-2 border-rose-300">
               <AvatarImage
                 src={user?.profilePicture || "/default-avatar.png"}
@@ -288,7 +318,7 @@ export default function CommentSection({
                   </Button>
                 </>
               )}
-              <Link href="#">
+              <Link href={`/user/profile/${user?.userId}`}>
                 <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                   {user?.fullName || user?.userName || comment.userId}
                 </span>
@@ -453,13 +483,13 @@ export default function CommentSection({
 
             {/* image comment preview */}
             {replyImages[comment.commentId] && (
-              <div className="relative w-24 h-24 mb-4">
+              <div className="relative w-24 h-24 mb-4 ">
                 <Image
                   src={replyImages[comment.commentId] as string}
                   alt="Uploaded image"
                   layout="fill"
                   objectFit="cover"
-                  className="rounded-lg"
+                  className="rounded-lg "
                 />
                 <Button
                   variant="destructive"
@@ -584,7 +614,7 @@ export default function CommentSection({
 
       {/* Comment preview */}
       {commentImage && (
-        <div className="relative w-24 h-24 mb-4">
+        <div className="relative w-24 h-24 mb-4 mt-2">
           <Image
             src={commentImage}
             alt="Uploaded image"
