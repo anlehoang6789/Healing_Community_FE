@@ -95,7 +95,7 @@ export const GetFeeServiceSchema = z.object({
 export type GetFeeServiceType = z.infer<typeof GetFeeServiceSchema>;
 
 export const GetFeeServiceRes = z.object({
-  data: z.array(GetFeeServiceSchema),
+  data: GetFeeServiceSchema,
   message: z.string(),
 });
 
