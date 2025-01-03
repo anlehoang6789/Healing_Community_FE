@@ -12,6 +12,7 @@ import {
 import { GetExpertProfileSchemaType } from "@/schemaValidations/expert.schema";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import ViewRatingExpert from "@/components/expertInfo/view-rating-expert";
 
 export default function ExpertProfile() {
   const { expertId } = useParams();
@@ -93,7 +94,7 @@ export default function ExpertProfile() {
   );
 
   return (
-    <div className="container mx-auto ">
+    <div className="container mx-auto mb-4">
       <Card>
         <CardContent className="mt-4">
           {expertProfile.bio && expertProfile.bio.length > 0 && (
@@ -198,6 +199,7 @@ export default function ExpertProfile() {
                 </div>
               </>
             )}
+          <ViewRatingExpert expertProfileId={expertProfile.expertProfileId} />
         </CardContent>
       </Card>
     </div>
