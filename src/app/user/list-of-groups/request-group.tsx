@@ -7,20 +7,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import {
-  useCreateGroupMutation,
-  useCrequestGroupMutation,
-} from "@/queries/useGroup";
-import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
-import { CircleHelp, Plus } from "lucide-react";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+
+import { useCrequestGroupMutation } from "@/queries/useGroup";
+
+import { Plus } from "lucide-react";
+
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 
