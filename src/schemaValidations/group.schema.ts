@@ -185,3 +185,27 @@ export const ApproveOrRejectRequestGroupRes = z.object({
 export type ApproveOrRejectRequestGroupResType = z.infer<
   typeof ApproveOrRejectRequestGroupRes
 >;
+
+export const GetRequestedGroupByUserIdSchema = z.object({
+  groupRequestId: z.string(),
+  groupName: z.string(),
+  description: z.string(),
+  isApproved: z.boolean().nullable(),
+  approvedAt: z.string().nullable(),
+  approvedById: z.string().nullable(),
+  requestedById: z.string(),
+  requestedAt: z.string(),
+});
+
+export type GetRequestedGroupByUserIdType = z.TypeOf<
+  typeof GetRequestedGroupByUserIdSchema
+>;
+
+export const GetListRequestGroupByUserIdSchema = z.object({
+  data: z.array(GetRequestedGroupByUserIdSchema),
+  message: z.string(),
+});
+
+export type GetListRequestGroupByUserIdResponseType = z.infer<
+  typeof GetListRequestGroupByUserIdSchema
+>;

@@ -7,6 +7,7 @@ import {
   GetAllGroupsResponseType,
   GetGroupDetailsByGroupIdResType,
   GetGroupMembersByGroupIdListResType,
+  GetListRequestGroupByUserIdResponseType,
   GetListRequestGroupResponseType,
   GetRoleCountByGroupIdResType,
   JoinGroupRequestType,
@@ -67,6 +68,11 @@ const groupApiRequest = {
     http.put<{ data: string }>(
       `group/api/managegroup/approve-request-create-group/${payload.groupRequestId}?isApproved=${payload.isApproved}`,
       {}
+    ),
+
+  getRequestsCreateGroupByUserId: (userId: string) =>
+    http.get<GetListRequestGroupByUserIdResponseType>(
+      `group/api/group/get-user-requests-create-group/${userId}`
     ),
 };
 
