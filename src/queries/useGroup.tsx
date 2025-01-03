@@ -124,6 +124,14 @@ export const useGetListRequestGroupQuery = () => {
   });
 };
 
+export const useGetListRequestedGroupByUserIdQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["get-list-request-group-by-user-id", userId],
+    queryFn: () => groupApiRequest.getRequestsCreateGroupByUserId(userId),
+    enabled: !!userId,
+  });
+};
+
 export const useCrequestGroupMutation = () => {
   const queryClient = useQueryClient();
 
@@ -132,6 +140,9 @@ export const useCrequestGroupMutation = () => {
       groupApiRequest.crequestGroup(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["get-list-request-group"] });
+      queryClient.invalidateQueries({
+        queryKey: ["get-list-request-group-by-user-id"],
+      });
     },
   });
 };
@@ -145,6 +156,9 @@ export const useApproveOrRejectRequestGroupMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["get-list-request-group"] });
       queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
+      queryClient.invalidateQueries({
+        queryKey: ["get-list-request-group-by-user-id"],
+      });
     },
   });
 };
