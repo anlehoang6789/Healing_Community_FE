@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardContent,
@@ -18,6 +18,9 @@ import {
   Filter,
   CircleX,
   CircleHelp,
+  Ellipsis,
+  Star,
+  MessageSquareWarning,
 } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -39,6 +42,7 @@ import {
 import Link from "next/link";
 import {
   useCancelAppointmentMutation,
+  useCheckExpertRatingStatusQuery,
   useGetAppointmentForUser,
   useGetExpertProfileQuery,
 } from "@/queries/useExpert";
@@ -59,8 +63,16 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { formatCurrency, formatDate, handleErrorApi } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { useTheme } from "next-themes";
+import DialogRateExpert from "@/components/consultationCalendarForUser/dialogRateExpert";
 
 const ExpertAvatar = ({ expertId }: { expertId: string }) => {
   const { data } = useGetExpertProfileQuery(expertId);
@@ -80,6 +92,11 @@ const ExpertAvatar = ({ expertId }: { expertId: string }) => {
 };
 
 export default function ConsultationSchedule() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = React.useState<
+    string | null
+  >(null);
+  const { theme } = useTheme();
   const { data } = useGetAppointmentForUser();
   const appointmentUserList = React.useMemo(
     () => data?.payload.data || [],
@@ -121,7 +138,6 @@ export default function ConsultationSchedule() {
       ),
     };
   }, [filteredAndSortedConsultations]);
-  console.log(consultationsByStatus);
 
   const { mutate: cancelAppointment } = useCancelAppointmentMutation();
 
@@ -142,6 +158,11 @@ export default function ConsultationSchedule() {
     );
   };
 
+  const checkRatingStatus = useCheckExpertRatingStatusQuery({
+    appointmentId: selectedAppointmentId as string,
+    enabled: !!selectedAppointmentId,
+  });
+
   const renderConsultationCard = (consultation: AppointmentUserType) => {
     // Tính toán thời gian bắt đầu của cuộc hẹn
     const currentTime = new Date();
@@ -152,7 +173,18 @@ export default function ConsultationSchedule() {
     );
     const canCancel =
       consultation.tag !== "Đã hủy" &&
+      consultation.tag !== "Đã hoàn thành" &&
       appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
+
+    const shouldDropdown = consultation.tag === "Đã hoàn thành";
+    const handleOpenDialog = (appointmentId: string) => {
+      setSelectedAppointmentId(appointmentId);
+      setIsDialogOpen(true);
+    };
+
+    const shouldShowRating =
+      checkRatingStatus.data?.payload.data === false &&
+      consultation.tag === "Đã hoàn thành";
 
     return (
       <Card key={consultation.appointmentId} className="mb-4 relative">
@@ -200,6 +232,47 @@ export default function ConsultationSchedule() {
             </AlertDialogContent>
           </AlertDialog>
         )}
+
+        {shouldDropdown && (
+          <DropdownMenu modal={false} aria-hidden={false}>
+            <DropdownMenuTrigger asChild className="ml-auto">
+              <Button
+                variant="iconSend"
+                className="absolute top-2 right-2 z-10"
+              >
+                <Ellipsis />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className={`w-56 mt-4 ${
+                theme === "dark" ? "bg-black text-white" : "bg-white text-black"
+              }`}
+            >
+              {shouldShowRating && (
+                <DropdownMenuItem
+                  onClick={() => handleOpenDialog(consultation.appointmentId)}
+                >
+                  <Star className="mr-2 h-4 w-4" />
+                  <span>Đánh giá</span>
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuItem>
+                <MessageSquareWarning className="mr-2 h-4 w-4" />
+                <span>Báo cáo</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        <DialogRateExpert
+          isOpen={isDialogOpen}
+          setIsOpen={(value) => {
+            if (!value) setSelectedAppointmentId(null); // Reset khi đóng dialog
+            setIsDialogOpen(value);
+          }}
+          appointmentId={selectedAppointmentId}
+          expertProfileId={consultation.expertId}
+        />
 
         <CardHeader className="flex flex-row items-center gap-4">
           <ExpertAvatar expertId={consultation.expertId} />
