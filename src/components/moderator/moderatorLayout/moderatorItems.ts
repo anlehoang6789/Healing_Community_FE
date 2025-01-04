@@ -14,11 +14,11 @@ const moderatorItems = [
     Icon: Cpu,
     href: "/moderator/manage-stories",
   },
-  {
-    title: "Quản lí báo cáo",
-    Icon: MessageSquareWarning,
-    href: "/moderator/manage-reports/user",
-  },
+  // {
+  //   title: "Quản lí báo cáo",
+  //   Icon: MessageSquareWarning,
+  //   href: "/moderator/manage-reports/user",
+  // },
   {
     title: "Lịch sử giao dịch",
     Icon: PiggyBank,
