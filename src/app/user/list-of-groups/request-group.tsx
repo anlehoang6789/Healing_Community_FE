@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -61,6 +62,9 @@ const CrequestGroupDialog = () => {
       <DialogContent className="p-4 w-[375px] lg:w-[512px] md:w-[512px] sm:w-[512px]">
         <DialogHeader>
           <DialogTitle className="text-textChat">Yêu cầu tạo nhóm</DialogTitle>
+          <DialogDescription className="sr-only">
+            Make changes to your profile here. Click save when done.
+          </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={handleSubmit}

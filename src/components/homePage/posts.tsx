@@ -35,6 +35,8 @@ import ShareSection from "@/components/shareSection/shareSection";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import ShareCount from "@/components/shareSection/shareCount";
+
 
 type UserProfileProps = {
   userId: string;
@@ -269,7 +271,7 @@ export default function Posts() {
                 <div className="flex justify-between w-full">
                   <ReactionCount postId={article.postId} />
                   <span className="justify-end text-sm text-gray-500">
-                    10 lượt chia sẻ
+                    <ShareCount postId={article.postId} showText={true} />
                   </span>
                 </div>
 

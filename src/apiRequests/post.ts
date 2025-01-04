@@ -42,6 +42,7 @@ import {
   AddReactionSharedBodyType,
   GetReactionSharedCountResType,
   GetUserReactionByShareIdResType,
+  GetShareCountResponseType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -214,6 +215,9 @@ const postApiRequest = {
     http.get<GetUserReactionByShareIdResType>(
       `post/api/reaction/get-user-reaction-by-share-id/${shareId}`
     ),
+
+  getShareCount: (postId: string) =>
+    http.get<GetShareCountResponseType>(`post/api/share/count-share/${postId}`),
 };
 
 export default postApiRequest;

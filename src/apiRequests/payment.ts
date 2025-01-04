@@ -24,7 +24,7 @@ const paymentApiRequest = {
     http.post<CreatePaymentResponseType>("payment/api/payment/create", payload),
   getPaymentHistoryDetails: (paymentId: string) =>
     http.get<PaymentHistoryDetailsResType>(
-      `payment//api/payment/details/${paymentId}`
+      `payment/api/payment/details/${paymentId}`
     ),
   getFeeService: () =>
     http.get<GetFeeServiceResType>("payment/api/platformfee/get-fees"),

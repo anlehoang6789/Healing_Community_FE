@@ -397,6 +397,14 @@ export const useGetSharedPostByUserIdQuery = (userId: string) => {
   });
 };
 
+export const useGetShareCountQuery = (postId: string) => {
+  return useQuery({
+    queryKey: ["share-count", postId],
+    queryFn: () => postApiRequest.getShareCount(postId),
+    enabled: !!postId,
+  });
+};
+
 export const useUpdateSharedPostMutation = () => {
   const queryClient = useQueryClient();
 
@@ -419,6 +427,9 @@ export const useDeleteSharedPostMutation = (userId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["shared-post-by-user-id", userId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["share-count", userId],
+      });
     },
   });
 };
@@ -430,6 +441,9 @@ export const useSharePostMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["shared-post-by-user-id"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["share-count"],
       });
     },
   });
