@@ -62,7 +62,7 @@ export default function GroupMembersClient() {
         {/* quản trị viên */}
         <div className="space-y-4">
           <h3 className="text-sm font-medium">
-            Quản trị viên & người kiểm duyệt ·{" "}
+            Quản trị nhóm & chủ nhóm ·{" "}
             {roleCount?.payload.data.totalOwnersAndModerators}
           </h3>
           <div className="space-y-4">

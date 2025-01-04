@@ -5,6 +5,7 @@ import {
   CreatePaymentRequestType,
   CreatePaymentResponseType,
   GetFeeServiceResType,
+  GetManagerPaymentForModeratorResType,
   PaymentHistoryDetailsResType,
   PaymentHistoryListResType,
   UpdateFeeServiceType,
@@ -30,5 +31,9 @@ const paymentApiRequest = {
     http.get<GetFeeServiceResType>("payment/api/platformfee/get-fees"),
   updateFeeService: (body: UpdateFeeServiceType) =>
     http.put<{ message: string }>("payment/api/platformfee/update-fee", body),
+  getPaymentHistoryForModerator: () =>
+    http.get<GetManagerPaymentForModeratorResType>(
+      "payment/api/payment/manager-payment"
+    ),
 };
 export default paymentApiRequest;
