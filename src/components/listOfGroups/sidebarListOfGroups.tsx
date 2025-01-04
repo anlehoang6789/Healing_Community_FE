@@ -10,6 +10,19 @@ import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useGetGroupsByUserIdQuery } from "@/queries/useGroup";
 import { GroupJoinedByUserIdType } from "@/schemaValidations/group.schema";
 
+const getRoleLabel = (role: string) => {
+  switch (role) {
+    case "Moderator":
+      return "Quản trị nhóm";
+    case "Owner":
+      return "Chủ nhóm";
+    case "User ":
+      return "Thành viên";
+    default:
+      return role;
+  }
+};
+
 export default function GroupSidebar() {
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -125,7 +138,7 @@ export default function GroupSidebar() {
                   {group.groupName}
                 </p>
                 <p className="text-sm text-muted-foreground truncate">
-                  Vai trò: {group.roleInGroup}
+                  Vai trò: {getRoleLabel(group.roleInGroup)}
                 </p>
                 <p className="text-sm text-muted-foreground truncate">
                   Ngày tham gia:{" "}

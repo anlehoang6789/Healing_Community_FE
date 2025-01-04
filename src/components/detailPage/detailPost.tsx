@@ -40,6 +40,7 @@ import ShareSection from "@/components/shareSection/shareSection";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import ShareCount from "@/components/shareSection/shareCount";
 
 export default function DetailPost() {
   const { theme } = useTheme();
@@ -213,9 +214,12 @@ export default function DetailPost() {
           {commentCount?.payload.data?.countTotalComment || 0}
         </span>
         <ShareSection postId={postIdFromUrl}>
-          <Button variant="ghost" size="icon" className="rounded-full mt-5">
-            <Share2 className="h-8 w-8 text-green-500" />
-          </Button>
+          <div className="flex flex-col items-center">
+            <Button variant="ghost" size="icon" className="rounded-full mt-5">
+              <Share2 className="h-8 w-8 text-green-500" />
+            </Button>
+            <ShareCount postId={postIdFromUrl as string} showText={false} />
+          </div>
         </ShareSection>
         <BookmarkDialog postId={postIdFromUrl as string} />
         <Button variant="ghost" size="icon" className="rounded-full mt-7">

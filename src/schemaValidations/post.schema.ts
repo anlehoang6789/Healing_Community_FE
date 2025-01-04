@@ -682,3 +682,22 @@ export const GetUserReactionByShareIdRes = z.object({
 export type GetUserReactionByShareIdResType = z.TypeOf<
   typeof GetUserReactionByShareIdRes
 >;
+
+export const GetShareCountSchema = z.object({
+  postId: z.string(),
+  shareCount: z.number(),
+});
+
+export type GetShareCountSchemaType = z.TypeOf<typeof GetShareCountSchema>;
+
+export const GetShareCountResponseSchema = z.object({
+  message: z.string(),
+  success: z.boolean(),
+  data: GetShareCountSchema,
+  errors: z.array(z.any()).nullable(),
+  timestamp: z.string(),
+});
+
+export type GetShareCountResponseType = z.TypeOf<
+  typeof GetShareCountResponseSchema
+>;

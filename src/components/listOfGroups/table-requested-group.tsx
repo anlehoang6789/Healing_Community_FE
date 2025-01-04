@@ -68,7 +68,7 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
   {
     id: "index",
     header: "STT",
-    cell: ({ row }) => row.index + 1,
+    cell: ({ row }) => <div className="text-textChat">{row.index + 1}</div>,
   },
 
   {
@@ -117,7 +117,11 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
     header: "Người phê duyệt",
     cell: ({ row }) => {
       const userId = row.original.approvedById as string;
-      return <ApproverNameCell userId={userId} />;
+      return (
+        <div className="text-textChat">
+          <ApproverNameCell userId={userId} />
+        </div>
+      );
     },
   },
   {
