@@ -1,11 +1,21 @@
 "use client";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import React, { useState } from "react";
-import { useViewPostInGroupByGroupIdQuery } from "@/queries/usePost";
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import {
+  useCreateCommentMutation,
+  useDeleteCommentByCommnetIdMutation,
+  useViewPostInGroupByGroupIdQuery,
+} from "@/queries/usePost";
 import UserHeaderInGroup from "@/app/user/group/[groupId]/user-header-in-group";
 import ReactionCount from "@/components/homePage/reactionCount";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
+import CommentCount from "@/components/commentSection/commentCount";
+import { Button } from "@/components/ui/button";
+import { MessageSquare } from "lucide-react";
+import CommentSection from "@/components/commentSection/commentSection";
+import { CommentType } from "@/schemaValidations/post.schema";
+import postApiRequest from "@/apiRequests/post";
 
 export default function ViewPostInGroup({ groupId }: { groupId: string }) {
   // Trạng thái lưu thông tin mở rộng của từng bài viết
@@ -27,9 +37,172 @@ export default function ViewPostInGroup({ groupId }: { groupId: string }) {
     }));
   };
 
+  const [visibleCommentPosts, setVisibleCommentPosts] = useState<{
+    [postId: string]: boolean;
+  }>({});
+
+  const [commentsByPostId, setCommentsByPostId] = useState<{
+    [key: string]: CommentType[];
+  }>({});
+
   //data cua bai viet trong group theo groupId
   const { data } = useViewPostInGroupByGroupIdQuery(groupId);
   const postListInGroup = data?.payload.data || [];
+  const { mutate: createComment } = useCreateCommentMutation();
+  const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation();
+
+  useEffect(() => {
+    // Lặp qua tất cả các bài viết và fetch dữ liệu bình luận nếu cần
+    Object.keys(visibleCommentPosts).forEach((postId) => {
+      if (visibleCommentPosts[postId]) {
+        postApiRequest
+          .getCommentsByPostId(postId)
+          .then((commentsResponse) => {
+            setCommentsByPostId((prev) => ({
+              ...prev,
+              [postId]: commentsResponse.payload.data,
+            }));
+          })
+          .catch((error) => {
+            console.error("Error fetching comments:", error);
+          });
+      }
+    });
+  }, [visibleCommentPosts]); // Theo dõi sự thay đổi của visibleCommentPosts
+
+  // hàm ẩn hiện bình luận
+  const toggleCommentVisibility = (postId: string) => {
+    setVisibleCommentPosts((prev) => ({
+      ...prev,
+      [postId]: !prev[postId],
+    }));
+  };
+
+  const handleAddComment = (
+    postId: string,
+    comment: { content: string; coverImgUrl?: string | null }
+  ) => {
+    createComment(
+      {
+        postId: postId,
+        parentId: null,
+        content: comment.content,
+        coverImgUrl: comment.coverImgUrl,
+      },
+      {
+        onSuccess: (data) => {
+          // Thay vì tạo comment ngay lập tức, hãy refetch toàn bộ comments
+          postApiRequest
+            .getCommentsByPostId(postId)
+            .then((commentsResponse) => {
+              setCommentsByPostId((prev) => ({
+                ...prev,
+                [postId]: commentsResponse.payload.data,
+              }));
+            })
+            .catch((error) => {
+              console.error("Error fetching comments:", error);
+            });
+        },
+        onError: (error) => {
+          console.error("Error creating comment:", error);
+        },
+      }
+    );
+  };
+
+  const handleAddReply = (
+    postId: string,
+    parentId: string,
+    reply: { content: string; coverImgUrl?: string | null }
+  ) => {
+    createComment(
+      {
+        postId: postId,
+        parentId: parentId,
+        content: reply.content,
+        coverImgUrl: reply.coverImgUrl,
+      },
+      {
+        onSuccess: async (data) => {
+          try {
+            // Fetch lại toàn bộ comments của post này
+            const commentsResponse = await postApiRequest.getCommentsByPostId(
+              postId
+            );
+
+            // Cập nhật lại toàn bộ comments cho post
+            setCommentsByPostId((prev) => ({
+              ...prev,
+              [postId]: commentsResponse.payload.data,
+            }));
+          } catch (error) {
+            console.error("Error refetching comments:", error);
+          }
+        },
+        onError: (error) => {
+          console.error("Error creating reply:", error);
+        },
+      }
+    );
+  };
+
+  const handleDeleteComment = (commentId: string) => {
+    deleteComment(
+      {
+        commentId,
+        postId: Object.keys(commentsByPostId).find((postId) =>
+          commentsByPostId[postId].some(
+            (comment) =>
+              comment.commentId === commentId || comment.parentId === commentId
+          )
+        ),
+      },
+      {
+        onSuccess: async () => {
+          // Lặp qua từng post để tìm và cập nhật comments
+          const updatedCommentsByPostId = { ...commentsByPostId };
+
+          Object.keys(updatedCommentsByPostId).forEach((postId) => {
+            updatedCommentsByPostId[postId] = updatedCommentsByPostId[
+              postId
+            ].filter(
+              (comment) =>
+                comment.commentId !== commentId &&
+                comment.parentId !== commentId
+            );
+          });
+
+          // Cập nhật state comments
+          setCommentsByPostId(updatedCommentsByPostId);
+
+          // Nếu muốn đảm bảo đồng bộ, có thể fetch lại comments của từng post
+          try {
+            const postIds = Object.keys(commentsByPostId);
+            const commentsPromises = postIds.map((postId) =>
+              postApiRequest.getCommentsByPostId(postId)
+            );
+
+            const commentsResults = await Promise.all(commentsPromises);
+
+            const refreshedCommentsByPostId: { [key: string]: CommentType[] } =
+              {};
+            postIds.forEach((postId, index) => {
+              refreshedCommentsByPostId[postId] =
+                commentsResults[index].payload.data;
+            });
+
+            setCommentsByPostId(refreshedCommentsByPostId);
+          } catch (error) {
+            console.error("Error refetching comments:", error);
+          }
+        },
+        onError: (error) => {
+          console.error("Error deleting comment:", error);
+        },
+      }
+    );
+  };
 
   return (
     <div className="mb-2">
@@ -41,6 +214,7 @@ export default function ViewPostInGroup({ groupId }: { groupId: string }) {
         postListInGroup.map((post) => {
           const isExpanded = expandedPosts[post.postId] || false;
           const truncate = shouldTruncateDescription(post.description);
+
           return (
             <div
               key={post.postId}
@@ -98,14 +272,49 @@ export default function ViewPostInGroup({ groupId }: { groupId: string }) {
                   <ReactionCount postId={post.postId} />
                   <span className="justify-end text-sm text-gray-500">
                     {/* Comment chỗ này */}
-                    {/* <CommentCount postId={post.postId} /> */}
+                    <CommentCount postId={post.postId} />
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between w-full">
                   <ReactionEmoji postId={post.postId} />
+                  <Button
+                    variant="iconDarkMod"
+                    className="flex items-center gap-2 p-0"
+                    onClick={() => toggleCommentVisibility(post.postId)}
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    Bình luận
+                  </Button>
                 </div>
               </div>
+
+              <AnimatePresence>
+                {visibleCommentPosts[post.postId] && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="w-full mt-4 "
+                  >
+                    <div className="px-4 pb-4">
+                      <CommentSection
+                        comments={commentsByPostId[post.postId] || []}
+                        onAddComment={(comment) =>
+                          handleAddComment(post.postId, comment)
+                        }
+                        onAddReply={(parentId, reply) =>
+                          handleAddReply(post.postId, parentId, reply)
+                        }
+                        deleteComment={(commentId) =>
+                          handleDeleteComment(commentId)
+                        }
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })

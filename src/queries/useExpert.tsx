@@ -120,9 +120,6 @@ export const useCreateAvailableTimeSlot = (expertProfileId: string) => {
         queryKey: ["expert-availability", expertProfileId],
       });
     },
-    onError: (error) => {
-      console.error("Mutation Error:", error);
-    },
   });
 };
 
@@ -234,5 +231,47 @@ export const useGetExpertListInfiniteQuery = (pageSize: number) => {
       return hasNextPage ? allPages.length + 1 : undefined;
     },
     initialPageParam: 1, // Giá trị khởi tạo của pageParam
+  });
+};
+
+export const useGetExpertRatingQuery = (expertProfileId: string) => {
+  return useQuery({
+    queryKey: ["expert-rating", expertProfileId],
+    queryFn: () => expertApiRequest.getExpertRating(expertProfileId),
+  });
+};
+
+export const useRateExpertMutation = ({
+  expertProfileId,
+  appointmentId,
+}: {
+  expertProfileId: string;
+  appointmentId: string;
+}) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.rateExpert,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["expert-rating", expertProfileId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["expert-rating-status", appointmentId],
+      });
+    },
+  });
+};
+
+export const useCheckExpertRatingStatusQuery = ({
+  appointmentId,
+  enabled,
+}: {
+  appointmentId: string;
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["expert-rating-status", appointmentId],
+    queryFn: () => expertApiRequest.checkExpertRatingStatus(appointmentId),
+    enabled,
   });
 };

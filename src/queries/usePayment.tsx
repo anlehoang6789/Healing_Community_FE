@@ -1,7 +1,7 @@
 import paymentApiRequest from "@/apiRequests/payment";
 import { CreatePaymentRequestType } from "@/schemaValidations/payment.schema";
 
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const usePaymentHistoryQuery = () => {
   return useQuery({
@@ -34,5 +34,31 @@ export const usePaymentHistoryDetailsQuery = ({
     queryKey: ["payment-history-details", paymentId],
     queryFn: () => paymentApiRequest.getPaymentHistoryDetails(paymentId),
     enabled,
+  });
+};
+
+export const useGetFeeServiceQuery = () => {
+  return useQuery({
+    queryKey: ["fee-service"],
+    queryFn: paymentApiRequest.getFeeService,
+  });
+};
+
+export const useUpdateFeeServiceMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: paymentApiRequest.updateFeeService,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["fee-service"],
+      });
+    },
+  });
+};
+
+export const usePaymentHistoryForModeratorQuery = () => {
+  return useQuery({
+    queryKey: ["payment-history-moderator"],
+    queryFn: paymentApiRequest.getPaymentHistoryForModerator,
   });
 };

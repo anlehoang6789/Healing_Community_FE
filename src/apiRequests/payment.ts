@@ -4,8 +4,11 @@ import {
   BookExpertScheduleResType,
   CreatePaymentRequestType,
   CreatePaymentResponseType,
+  GetFeeServiceResType,
+  GetManagerPaymentForModeratorResType,
   PaymentHistoryDetailsResType,
   PaymentHistoryListResType,
+  UpdateFeeServiceType,
 } from "@/schemaValidations/payment.schema";
 
 const paymentApiRequest = {
@@ -22,7 +25,15 @@ const paymentApiRequest = {
     http.post<CreatePaymentResponseType>("payment/api/payment/create", payload),
   getPaymentHistoryDetails: (paymentId: string) =>
     http.get<PaymentHistoryDetailsResType>(
-      `payment//api/payment/details/${paymentId}`
+      `payment/api/payment/details/${paymentId}`
+    ),
+  getFeeService: () =>
+    http.get<GetFeeServiceResType>("payment/api/platformfee/get-fees"),
+  updateFeeService: (body: UpdateFeeServiceType) =>
+    http.put<{ message: string }>("payment/api/platformfee/update-fee", body),
+  getPaymentHistoryForModerator: () =>
+    http.get<GetManagerPaymentForModeratorResType>(
+      "payment/api/payment/manager-payment"
     ),
 };
 export default paymentApiRequest;

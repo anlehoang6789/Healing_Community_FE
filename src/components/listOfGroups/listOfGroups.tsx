@@ -35,6 +35,7 @@ import {
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
+import CrequestGroupDialog from "@/app/user/list-of-groups/request-group";
 
 export default function ListOfGroups() {
   const { theme } = useTheme();
@@ -105,7 +106,7 @@ export default function ListOfGroups() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((item) => (
-            <Card key={item} className="animate-pulse">
+            <Card key={item} className="animate-pulse xl:w-[349px]">
               <CardContent className="p-4 flex items-start space-x-4">
                 <div className="bg-gray-200 rounded-lg w-24 h-24"></div>
                 <div className="flex-1">

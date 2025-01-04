@@ -12,6 +12,7 @@ import {
 import { GetExpertProfileSchemaType } from "@/schemaValidations/expert.schema";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import ViewRatingExpert from "@/components/expertInfo/view-rating-expert";
 
 export default function ExpertProfile() {
   const { expertId } = useParams();
@@ -93,7 +94,7 @@ export default function ExpertProfile() {
   );
 
   return (
-    <div className="container mx-auto ">
+    <div className="container mx-auto mb-4">
       <Card>
         <CardContent className="mt-4">
           {expertProfile.bio && expertProfile.bio.length > 0 && (
@@ -151,7 +152,9 @@ export default function ExpertProfile() {
             )}
 
           {expertProfile.certificates &&
-            expertProfile.certificates.length > 0 && (
+            expertProfile.certificates.some(
+              (certificate) => certificate.status === 1
+            ) && (
               <>
                 <h3 className="text-lg font-semibold mb-2 flex items-center">
                   {" "}
@@ -159,45 +162,48 @@ export default function ExpertProfile() {
                   Chứng chỉ
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {expertProfile.certificates.map((certificate) => {
-                    // Lấy tên chứng chỉ
-                    const certificateTypeName =
-                      certificateTypeMap[certificate.certificateTypeId] ||
-                      "Chứng chỉ chưa xác định";
+                  {expertProfile.certificates
+                    .filter((certificate) => certificate.status === 1)
+                    .map((certificate) => {
+                      // Lấy tên chứng chỉ
+                      const certificateTypeName =
+                        certificateTypeMap[certificate.certificateTypeId] ||
+                        "Chứng chỉ chưa xác định";
 
-                    return (
-                      <Card key={certificate.certificateId}>
-                        <CardContent className="flex flex-col items-center pt-4">
-                          <Link
-                            href={certificate.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="mb-2"
-                          >
-                            <Image
-                              src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Fch%E1%BB%A9ngchi3.png?alt=media&token=ba977637-d658-4d41-9eb0-c78bf9397356"
-                              alt={`Chứng chỉ ${certificateTypeName}`}
-                              width={300}
-                              height={300}
-                              className="rounded-lg object-cover"
-                            />
-                          </Link>
-                          <p className="text-sm font-medium mt-2">
-                            {certificateTypeName}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Ngày cấp:{" "}
-                            {new Date(
-                              certificate.issueDate
-                            ).toLocaleDateString()}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+                      return (
+                        <Card key={certificate.certificateId}>
+                          <CardContent className="flex flex-col items-center pt-4">
+                            <Link
+                              href={certificate.fileUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="mb-2"
+                            >
+                              <Image
+                                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Fch%E1%BB%A9ngchi3.png?alt=media&token=ba977637-d658-4d41-9eb0-c78bf9397356"
+                                alt={`Chứng chỉ ${certificateTypeName}`}
+                                width={300}
+                                height={300}
+                                className="rounded-lg object-cover"
+                              />
+                            </Link>
+                            <p className="text-sm font-medium mt-2">
+                              {certificateTypeName}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              Ngày cấp:{" "}
+                              {new Date(
+                                certificate.issueDate
+                              ).toLocaleDateString()}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
                 </div>
               </>
             )}
+          <ViewRatingExpert expertProfileId={expertProfile.expertProfileId} />
         </CardContent>
       </Card>
     </div>

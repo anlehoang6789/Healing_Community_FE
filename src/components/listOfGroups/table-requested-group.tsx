@@ -1,6 +1,6 @@
 "use client";
 
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -16,12 +16,6 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -37,21 +31,16 @@ import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 
 import {
-  GetListRequestGroupResponseType,
+  GetListRequestGroupByUserIdResponseType,
   GetRequestGroupType,
 } from "@/schemaValidations/group.schema";
-import {
-  useApproveOrRejectRequestGroupMutation,
-  useGetListRequestGroupQuery,
-} from "@/queries/useGroup";
-import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
-import { useGetExpertProfileQuery } from "@/queries/useExpert";
-import { Role } from "@/constants/type";
-import { formatDateTime, handleErrorApi } from "@/lib/utils";
-import { toast } from "@/hooks/use-toast";
+import { useGetListRequestedGroupByUserIdQuery } from "@/queries/useGroup";
 
-type RequestGroupItem = GetListRequestGroupResponseType["data"][0];
+import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
+import { useGetAllUsers } from "@/queries/useUser";
+import { UserType } from "@/schemaValidations/user.schema";
+
+type RequestGroupItem = GetListRequestGroupByUserIdResponseType["data"][0];
 
 const RequestGroupTableContext = createContext<{
   experienceDelete: RequestGroupItem | null;
@@ -61,89 +50,37 @@ const RequestGroupTableContext = createContext<{
   setExperienceDelete: (value: RequestGroupItem | null) => {},
 });
 
-const RequesterNameCell = ({ userId }: { userId: string }) => {
-  // Fetch role của người dùng
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+const ApproverNameCell = ({ userId }: { userId: string }) => {
+  const { data: users } = useGetAllUsers();
 
-  // Fetch thông tin người dùng bình thường
-  const { data: userProfile } = useGetUserProfileQuery(
-    userId,
-    roleByUserId?.payload.data.roleName === Role.User && !!userId
-  );
+  const findUserById = (userId: string): UserType | undefined => {
+    return users?.find((user) => user.userId === userId);
+  };
 
-  // Fetch thông tin chuyên gia
-  const { data: expertProfile } = useGetExpertProfileQuery(
-    userId,
-    roleByUserId?.payload.data.roleName === Role.Expert && !!userId
-  );
+  // Tìm thông tin người dùng dựa trên userId
+  const user = findUserById(userId);
 
-  // Kiểm tra xem người dùng có phải là chuyên gia không
-  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
-
-  // Hiển thị tên người yêu cầu
-  return (
-    <div>
-      {isExpert
-        ? expertProfile?.payload.data.fullname || "Không xác định"
-        : userProfile?.payload.data.fullName ||
-          userProfile?.payload.data.userName ||
-          "Không xác định"}
-    </div>
-  );
-};
-
-const RequesterEmailCell = ({ userId }: { userId: string }) => {
-  // Fetch role của người dùng
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
-
-  // Fetch thông tin người dùng bình thường
-  const { data: userProfile } = useGetUserProfileQuery(
-    userId,
-    roleByUserId?.payload.data.roleName === Role.User && !!userId
-  );
-
-  // Fetch thông tin chuyên gia
-  const { data: expertProfile } = useGetExpertProfileQuery(
-    userId,
-    roleByUserId?.payload.data.roleName === Role.Expert && !!userId
-  );
-
-  // Kiểm tra xem người dùng có phải là chuyên gia không
-  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
-
-  // Hiển thị email
-  return (
-    <div>
-      {isExpert
-        ? expertProfile?.payload.data.email || "Không xác định"
-        : userProfile?.payload.data.email || "Không xác định"}
-    </div>
-  );
+  // Hiển thị tên người duyệt
+  return <div>{user?.fullName || user?.userName || ""}</div>;
 };
 
 export const columns: ColumnDef<GetRequestGroupType>[] = [
   {
     id: "index",
     header: "STT",
-    cell: ({ row }) => row.index + 1,
+    cell: ({ row }) => <div className="text-textChat">{row.index + 1}</div>,
   },
 
   {
-    id: "requesterName",
-    header: "Tên người yêu cầu",
+    accessorKey: "requestedAt",
+    header: "Ngày yêu cầu",
     cell: ({ row }) => {
-      const userId = row.original.requestedById;
-      return <RequesterNameCell userId={userId} />;
+      const requestedAt = row.getValue("requestedAt") as string;
+      const formattedDateTime = formatDateTime(requestedAt);
+      return <div className="text-textChat">{formattedDateTime}</div>;
     },
   },
-  {
-    id: "requesterEmail",
-    header: "Email",
-    cell: ({ row }) => {
-      const userId = row.original.requestedById;
-      return <RequesterEmailCell userId={userId} />;
-    },
-  },
+
   {
     accessorKey: "groupName",
     header: "Tên nhóm",
@@ -161,67 +98,73 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
     ),
   },
   {
-    accessorKey: "requestedAt",
-    header: "Ngày yêu cầu",
+    accessorKey: "approvedAt",
+    header: "Ngày phê duyệt",
     cell: ({ row }) => {
-      const requestedAt = row.getValue("requestedAt") as string;
-      const formattedDateTime = formatDateTime(requestedAt);
+      const approvedAt = row.getValue("approvedAt") as string | null;
+
+      if (approvedAt === null) {
+        return null;
+      }
+
+      const formattedDateTime = formatDateTime(approvedAt);
       return <div className="text-textChat">{formattedDateTime}</div>;
     },
   },
 
   {
-    id: "actions",
-    enableHiding: false,
-    cell: function Actions({ row }) {
-      const { mutateAsync: approveOrRejectRequestGroup } =
-        useApproveOrRejectRequestGroupMutation();
-
-      const handleApprove = async () => {
-        try {
-          const payload = {
-            groupRequestId: row.original.groupRequestId,
-            isApproved: true,
-          };
-          const result = await approveOrRejectRequestGroup(payload);
-          toast({
-            description: result.payload.data,
-            variant: "success",
-          });
-        } catch (error) {
-          handleErrorApi({ error });
-        }
+    id: "approvedById",
+    header: "Người phê duyệt",
+    cell: ({ row }) => {
+      const userId = row.original.approvedById as string;
+      return (
+        <div className="text-textChat">
+          <ApproverNameCell userId={userId} />
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "isApproved",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Trạng thái
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const isApproved: boolean | null = row.original.isApproved;
+      const statusMapping: Record<string, string> = {
+        true: "Đã phê duyệt",
+        false: "Từ chối yêu cầu",
+        null: "Đang chờ phê duyệt",
       };
 
-      const handleReject = async () => {
-        try {
-          const payload = {
-            groupRequestId: row.original.groupRequestId,
-            isApproved: false,
-          };
-          const result = await approveOrRejectRequestGroup(payload);
-          toast({
-            description: result.payload.data,
-            variant: "success",
-          });
-        } catch (error) {
-          handleErrorApi({ error });
-        }
+      // Xác định nhãn trạng thái
+      const statusLabel = statusMapping[String(isApproved)] || "Không xác định";
+
+      // Xác định màu sắc dựa trên giá trị isApproved
+      const statusColors: Record<string, string> = {
+        true: "border-green-500 text-green-500", // Màu xanh lá cho true
+        false: "border-red-500 text-red-500", // Màu đỏ cho false
+        null: "border-gray-500 text-gray-500", // Màu xám cho null
       };
+
+      // Lấy màu sắc tương ứng, mặc định là màu xám nếu không khớp
+      const statusColor =
+        statusColors[String(isApproved)] || "border-gray-500 text-gray-500";
 
       return (
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleApprove}>Duyệt</DropdownMenuItem>
-            <DropdownMenuItem onClick={handleReject}>Từ chối</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium border ${statusColor}`}
+        >
+          {statusLabel}
+        </span>
       );
     },
   },
@@ -229,15 +172,18 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
-export default function TableRequestGroup() {
+export default function TableRequestedGroups() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
+  const userId = getUserIdFromLocalStorage();
   // const params = Object.fromEntries(searchParam.entries())
   const [experienceDelete, setExperienceDelete] =
     useState<RequestGroupItem | null>(null);
   //tao bien lay data tu api
-  const listRequestGroup = useGetListRequestGroupQuery();
+  const listRequestGroup = useGetListRequestedGroupByUserIdQuery(
+    userId as string
+  );
   const data = listRequestGroup.data?.payload.data ?? [];
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -286,6 +232,9 @@ export default function TableRequestGroup() {
       }}
     >
       <div className="w-full">
+        <h1 className="text-2xl font-bold text-muted-foreground">
+          Danh sách yêu cầu
+        </h1>
         <div className="flex flex-col sm:flex-row items-start sm:items-center py-4 gap-4 sm:gap-2">
           <Input
             placeholder="Tìm kiếm tên nhóm ..."
@@ -299,7 +248,7 @@ export default function TableRequestGroup() {
           />
         </div>
         <div className="rounded-md border overflow-x-auto max-w-full">
-          <Table className="max-w-full">
+          <Table className="w-full ">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -358,7 +307,7 @@ export default function TableRequestGroup() {
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname="/moderator/manage-groups"
+              pathname="/user/list-of-groups"
             />
           </div>
         </div>

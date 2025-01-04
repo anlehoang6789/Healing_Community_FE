@@ -84,3 +84,60 @@ export const PaymentHistoryDetailsRes = z.object({
 export type PaymentHistoryDetailsResType = z.infer<
   typeof PaymentHistoryDetailsRes
 >;
+
+export const GetFeeServiceSchema = z.object({
+  platformFeeId: z.string(),
+  platformFeeName: z.string(),
+  platformFeeDescription: z.string(),
+  platformFeeValue: z.number(),
+});
+
+export type GetFeeServiceType = z.infer<typeof GetFeeServiceSchema>;
+
+export const GetFeeServiceRes = z.object({
+  data: GetFeeServiceSchema,
+  message: z.string(),
+});
+
+export type GetFeeServiceResType = z.infer<typeof GetFeeServiceRes>;
+
+export const UpdateFeeServiceSchema = z.object({
+  platformFeeId: z.string(),
+  percent: z.number(),
+});
+
+export type UpdateFeeServiceType = z.infer<typeof UpdateFeeServiceSchema>;
+
+export const GetManagerPaymentForModeratorSchema = z.object({
+  paymentId: z.string(),
+  userId: z.string(),
+  expertEmail: z.string(),
+  userEmail: z.string(),
+  userName: z.string(),
+  expertName: z.string(),
+  appointmentId: z.string(),
+  appointmentDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  orderCode: z.number(),
+  amount: z.number(),
+  status: z.number(),
+  userPaymentQrCodeLink: z.string(),
+  expertPaymentQrCodeLink: z.string(),
+  paymentDetail: z.string(),
+  paymentDate: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetManagerPaymentForModeratorType = z.infer<
+  typeof GetManagerPaymentForModeratorSchema
+>;
+
+export const GetManagerPaymentForModeratorRes = z.object({
+  data: z.array(GetManagerPaymentForModeratorSchema),
+  message: z.string(),
+});
+
+export type GetManagerPaymentForModeratorResType = z.infer<
+  typeof GetManagerPaymentForModeratorRes
+>;

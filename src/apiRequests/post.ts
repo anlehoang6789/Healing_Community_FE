@@ -41,6 +41,8 @@ import {
   GetPersonalPostGroupListResType,
   AddReactionSharedBodyType,
   GetReactionSharedCountResType,
+  GetUserReactionByShareIdResType,
+  GetShareCountResponseType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -95,6 +97,7 @@ const postApiRequest = {
     http.get<GetUserReactionByPostIdResType>(
       `post/api/reaction/get-user-reaction-by-post-id/${postId}`
     ),
+
   getBookmarkList: () =>
     http.get<GetBookmarkListResponseType>("post/api/bookmark/get-bookmark"),
   getBookmarkListDetails: (bookmarkId: string) =>
@@ -207,6 +210,14 @@ const postApiRequest = {
         body: { shareId },
       }
     ),
+
+  getUserReactionByShareId: (shareId: string) =>
+    http.get<GetUserReactionByShareIdResType>(
+      `post/api/reaction/get-user-reaction-by-share-id/${shareId}`
+    ),
+
+  getShareCount: (postId: string) =>
+    http.get<GetShareCountResponseType>(`post/api/share/count-share/${postId}`),
 };
 
 export default postApiRequest;

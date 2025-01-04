@@ -1,5 +1,9 @@
-import React from "react";
+import FeeServiceForm from "@/app/admin/manage-fee-service/fee-service-form";
 
-export default function ManageFeeService() {
-  return <div>Trang quan ly phi dich vu nen tang</div>;
+export default function ManageFeeServicePage() {
+  return (
+    <div>
+      <FeeServiceForm />
+    </div>
+  );
 }

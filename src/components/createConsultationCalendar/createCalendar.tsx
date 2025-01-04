@@ -38,6 +38,8 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useTheme } from "next-themes";
+import { useGetFeeServiceQuery } from "@/queries/usePayment";
+import FeeServiceHelp from "@/components/expertInfo/fee-service-help";
 
 export default function CreateCalendar() {
   const { theme } = useTheme();
@@ -300,6 +302,9 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
   const [endTime, setEndTime] = React.useState("");
   const [amount, setAmount] = React.useState<number | "">("");
   const [displayAmount, setDisplayAmount] = React.useState("");
+  const [netAmount, setNetAmount] = React.useState<number | null>(null);
+
+  const { data: realFee } = useGetFeeServiceQuery();
 
   const formatNumber = (value: number | string) => {
     return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
@@ -317,6 +322,7 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
     if (sanitizedValue === "") {
       setAmount("");
       setDisplayAmount("");
+      setNetAmount(null);
       return;
     }
 
@@ -325,14 +331,22 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
     setAmount(numericValue);
 
     setDisplayAmount(formatNumber(numericValue));
+
+    // Tính toán Tiền thực nhận khi amount thay đổi
+    if (realFee?.payload.data.platformFeeValue && numericValue >= 10000) {
+      const calculatedNetAmount =
+        numericValue -
+        numericValue * (realFee.payload.data.platformFeeValue / 100);
+      setNetAmount(calculatedNetAmount);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (amount === "" || amount <= 2000) {
+    if (amount === "" || amount <= 10000) {
       toast({
         title: "Giá tiền không hợp lệ",
-        description: "Giá tiền phải lớn hơn 2.000",
+        description: "Giá tiền tối thiểu là 10.000",
         variant: "destructive",
       });
       return;
@@ -373,7 +387,7 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
         </div>
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="amount" className="text-right text-textChat">
-            GIá tiền
+            Giá tiền
           </Label>
           <Input
             id="amount"
@@ -385,8 +399,15 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
             required
           />
         </div>
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label className="text-right text-textChat">Tiền thật nhận</Label>
+          <p className="text-textChat font-semibold">
+            {netAmount !== null ? formatNumber(netAmount) : "-"}
+          </p>
+          <FeeServiceHelp />
+        </div>
       </div>
-      <DialogFooter>
+      <DialogFooter className="gap-2">
         <Button
           type="button"
           variant="outline"

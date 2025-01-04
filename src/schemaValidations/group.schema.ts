@@ -145,3 +145,67 @@ export const GetRoleCountByGroupIdRes = z.object({
 export type GetRoleCountByGroupIdResType = z.infer<
   typeof GetRoleCountByGroupIdRes
 >;
+
+const CrequestGroupRequestSchema = z.object({
+  groupName: z.string(),
+  description: z.string(),
+});
+
+export type CrequestGroupRequestType = z.infer<
+  typeof CrequestGroupRequestSchema
+>;
+
+export const GetRequestGroupSchema = z.object({
+  groupRequestId: z.string(),
+  groupName: z.string(),
+  description: z.string(),
+  isApproved: z.boolean().nullable(),
+  approvedAt: z.string().nullable(),
+  approvedById: z.string().nullable(),
+  requestedById: z.string(),
+  requestedAt: z.string(),
+});
+
+export type GetRequestGroupType = z.TypeOf<typeof GetRequestGroupSchema>;
+
+export const GetListRequestGroupSchema = z.object({
+  data: z.array(GetRequestGroupSchema),
+  message: z.string(),
+});
+
+export type GetListRequestGroupResponseType = z.infer<
+  typeof GetListRequestGroupSchema
+>;
+
+export const ApproveOrRejectRequestGroupRes = z.object({
+  groupRequestId: z.string(),
+  isApproved: z.boolean(),
+});
+
+export type ApproveOrRejectRequestGroupResType = z.infer<
+  typeof ApproveOrRejectRequestGroupRes
+>;
+
+export const GetRequestedGroupByUserIdSchema = z.object({
+  groupRequestId: z.string(),
+  groupName: z.string(),
+  description: z.string(),
+  isApproved: z.boolean().nullable(),
+  approvedAt: z.string().nullable(),
+  approvedById: z.string().nullable(),
+  requestedById: z.string(),
+  requestedAt: z.string(),
+});
+
+export type GetRequestedGroupByUserIdType = z.TypeOf<
+  typeof GetRequestedGroupByUserIdSchema
+>;
+
+export const GetListRequestGroupByUserIdSchema = z.object({
+  data: z.array(GetRequestedGroupByUserIdSchema),
+  message: z.string(),
+});
+
+export type GetListRequestGroupByUserIdResponseType = z.infer<
+  typeof GetListRequestGroupByUserIdSchema
+>;

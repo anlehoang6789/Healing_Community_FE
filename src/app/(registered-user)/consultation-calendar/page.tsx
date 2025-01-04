@@ -4,7 +4,7 @@ import React from "react";
 
 export default function ConsultationCalenderUser() {
   return (
-    <div>
+    <div className="my-4">
       <ConsultationSchedule />
     </div>
   );

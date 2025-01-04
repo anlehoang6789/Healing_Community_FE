@@ -1,6 +1,8 @@
 import groupApiRequest from "@/apiRequests/group";
 import {
+  ApproveOrRejectRequestGroupResType,
   CreateGroupRequestType,
+  CrequestGroupRequestType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
 } from "@/schemaValidations/group.schema";
@@ -112,5 +114,51 @@ export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["get-role-count-by-group-id", groupId],
     queryFn: () => groupApiRequest.getRoleCountByGroupId(groupId),
+  });
+};
+
+export const useGetListRequestGroupQuery = () => {
+  return useQuery({
+    queryKey: ["get-list-request-group"],
+    queryFn: groupApiRequest.getApprovalRequestsCreateGroup,
+  });
+};
+
+export const useGetListRequestedGroupByUserIdQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["get-list-request-group-by-user-id", userId],
+    queryFn: () => groupApiRequest.getRequestsCreateGroupByUserId(userId),
+    enabled: !!userId,
+  });
+};
+
+export const useCrequestGroupMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CrequestGroupRequestType) =>
+      groupApiRequest.crequestGroup(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-list-request-group"] });
+      queryClient.invalidateQueries({
+        queryKey: ["get-list-request-group-by-user-id"],
+      });
+    },
+  });
+};
+
+export const useApproveOrRejectRequestGroupMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: ApproveOrRejectRequestGroupResType) =>
+      groupApiRequest.approveOrRejectRequestGroup(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get-list-request-group"] });
+      queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
+      queryClient.invalidateQueries({
+        queryKey: ["get-list-request-group-by-user-id"],
+      });
+    },
   });
 };

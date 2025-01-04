@@ -397,6 +397,14 @@ export const useGetSharedPostByUserIdQuery = (userId: string) => {
   });
 };
 
+export const useGetShareCountQuery = (postId: string) => {
+  return useQuery({
+    queryKey: ["share-count", postId],
+    queryFn: () => postApiRequest.getShareCount(postId),
+    enabled: !!postId,
+  });
+};
+
 export const useUpdateSharedPostMutation = () => {
   const queryClient = useQueryClient();
 
@@ -419,6 +427,9 @@ export const useDeleteSharedPostMutation = (userId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["shared-post-by-user-id", userId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["share-count", userId],
+      });
     },
   });
 };
@@ -430,6 +441,9 @@ export const useSharePostMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["shared-post-by-user-id"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["share-count"],
       });
     },
   });
@@ -581,6 +595,13 @@ export const useGetReactionSharedCountQuery = (shareId: string) => {
   });
 };
 
+export const useGetUserReactionByShareIdQuery = (shareId: string) => {
+  return useQuery({
+    queryKey: ["user-reaction-by-share-id", shareId],
+    queryFn: () => postApiRequest.getUserReactionByShareId(shareId),
+  });
+};
+
 export const useAddReactionSharedMutation = (shareId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -590,7 +611,7 @@ export const useAddReactionSharedMutation = (shareId: string) => {
         queryKey: ["reaction-shared-count", shareId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["user-reaction-by-post-id", shareId],
+        queryKey: ["user-reaction-by-share-id", shareId],
       });
     },
   });
@@ -602,10 +623,10 @@ export const useRemoveReactionSharedMutation = (shareId: string) => {
     mutationFn: postApiRequest.removeReactionShared,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["reaction-count", shareId],
+        queryKey: ["reaction-shared-count", shareId],
       });
       queryClient.invalidateQueries({
-        queryKey: ["user-reaction-by-post-id", shareId],
+        queryKey: ["user-reaction-by-share-id", shareId],
       });
     },
   });

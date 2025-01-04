@@ -1,10 +1,14 @@
 import http from "@/lib/http";
 import {
+  ApproveOrRejectRequestGroupResType,
   CreateGroupRequestType,
+  CrequestGroupRequestType,
   GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
   GetGroupDetailsByGroupIdResType,
   GetGroupMembersByGroupIdListResType,
+  GetListRequestGroupByUserIdResponseType,
+  GetListRequestGroupResponseType,
   GetRoleCountByGroupIdResType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
@@ -48,6 +52,27 @@ const groupApiRequest = {
   getRoleCountByGroupId: (groupId: string) =>
     http.get<GetRoleCountByGroupIdResType>(
       `group/api/usergroup/get-role-count-by-group-id/${groupId}`
+    ),
+
+  crequestGroup: (payload: CrequestGroupRequestType) =>
+    http.post<{ data: string }>(
+      "group/api/group/create-request-group",
+      payload
+    ),
+  getApprovalRequestsCreateGroup: () =>
+    http.get<GetListRequestGroupResponseType>(
+      "group/api/group/get-approval-requests-create-group"
+    ),
+
+  approveOrRejectRequestGroup: (payload: ApproveOrRejectRequestGroupResType) =>
+    http.put<{ data: string }>(
+      `group/api/managegroup/approve-request-create-group/${payload.groupRequestId}?isApproved=${payload.isApproved}`,
+      {}
+    ),
+
+  getRequestsCreateGroupByUserId: (userId: string) =>
+    http.get<GetListRequestGroupByUserIdResponseType>(
+      `group/api/group/get-user-requests-create-group/${userId}`
     ),
 };
 
