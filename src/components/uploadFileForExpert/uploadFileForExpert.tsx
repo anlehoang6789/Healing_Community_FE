@@ -211,6 +211,7 @@ export default function UploadFileForExpert() {
     }
 
     try {
+      let finalMessage = "";
       const uploadPromises = Object.entries(filesByType).map(
         async ([docType, files]) => {
           const fileUploadPromises = files.map(async (file) => {
@@ -222,6 +223,8 @@ export default function UploadFileForExpert() {
                 formData,
                 certificationTypeId: docType,
               });
+
+              finalMessage = uploadResult.payload.message;
 
               // Cập nhật progress với trạng thái uploaded
               setProgressByType((prev) => ({
@@ -259,6 +262,7 @@ export default function UploadFileForExpert() {
 
       toast({
         title: "Tải lên tài liệu thành công",
+        description: finalMessage,
         variant: "success",
       });
     } catch (error) {
@@ -477,74 +481,76 @@ export default function UploadFileForExpert() {
 
         <div className="">
           {certificates && certificates.length > 0 ? (
-            certificates.map((certificate) => {
-              // Đảm bảo certificateTypeMap không undefined
-              const certificateTypeName =
-                certificateTypeMap?.[certificate.certificateTypeId] ||
-                "Loại không xác định";
+            certificates
+              .filter((certificate) => certificate.status === 1)
+              .map((certificate) => {
+                // Đảm bảo certificateTypeMap không undefined
+                const certificateTypeName =
+                  certificateTypeMap?.[certificate.certificateTypeId] ||
+                  "Loại không xác định";
 
-              return (
-                <div
-                  key={certificate.certificateId}
-                  className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg w-full"
-                >
-                  <p className="text-muted-foreground mb-1 ">
-                    {certificateTypeName}
-                  </p>
+                return (
+                  <div
+                    key={certificate.certificateId}
+                    className="mb-2 flex flex-col justify-start items-start border-2 p-4 rounded-lg w-full"
+                  >
+                    <p className="text-muted-foreground mb-1 ">
+                      {certificateTypeName}
+                    </p>
 
-                  <div className="flex items-center w-full">
-                    <Link
-                      key={certificate.certificateId}
-                      href={certificate.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-muted-foreground flex-grow line-clamp-2"
-                    >
-                      <p className="text-sm text-muted-foreground flex-grow line-clamp-2">
-                        {certificate.fileUrl || "Tên tệp không xác định"}
-                      </p>
-                    </Link>
-                    <div>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="destructive"
-                            className="ml-2"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                            }}
-                          >
-                            Xóa tệp
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="bg-backgroundChat text-textChat">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Bạn có chắc chắn muốn xóa tệp này?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Thao tác này sẽ xóa vĩnh viễn tệp
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Hủy</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() =>
-                                handleDeleteCertificate(
-                                  certificate.certificateId
-                                )
-                              }
+                    <div className="flex items-center w-full">
+                      <Link
+                        key={certificate.certificateId}
+                        href={certificate.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-muted-foreground flex-grow line-clamp-2"
+                      >
+                        <p className="text-sm text-muted-foreground flex-grow line-clamp-2">
+                          {certificate.fileUrl || "Tên tệp không xác định"}
+                        </p>
+                      </Link>
+                      <div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              className="ml-2"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                              }}
                             >
-                              Xóa
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                              Xóa tệp
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-backgroundChat text-textChat">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Bạn có chắc chắn muốn xóa tệp này?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Thao tác này sẽ xóa vĩnh viễn tệp
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Hủy</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  handleDeleteCertificate(
+                                    certificate.certificateId
+                                  )
+                                }
+                              >
+                                Xóa
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })
           ) : (
             <p className="text-muted-foreground">Chưa có tệp nào được đăng.</p>
           )}
