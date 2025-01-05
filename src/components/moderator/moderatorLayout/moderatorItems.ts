@@ -14,11 +14,11 @@ const moderatorItems = [
     Icon: Cpu,
     href: "/moderator/manage-stories",
   },
-  // {
-  //   title: "Quản lí báo cáo",
-  //   Icon: MessageSquareWarning,
-  //   href: "/moderator/manage-reports/user",
-  // },
+  {
+    title: "Quản lí báo cáo",
+    Icon: MessageSquareWarning,
+    href: "/moderator/manage-reports/user",
+  },
   {
     title: "Lịch sử giao dịch",
     Icon: PiggyBank,
@@ -30,11 +30,11 @@ const moderatorItems = [
     href: "/moderator/manage-accounts",
   },
 
-  {
-    title: "Quản lí blog",
-    Icon: NotebookPen,
-    href: "/moderator/manage-blogs",
-  },
+  // {
+  //   title: "Quản lí blog",
+  //   Icon: NotebookPen,
+  //   href: "/moderator/manage-blogs",
+  // },
   {
     title: "Quản lí thể loại",
     Icon: SquareLibrary,
