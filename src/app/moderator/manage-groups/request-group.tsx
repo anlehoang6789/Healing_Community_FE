@@ -133,7 +133,11 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
     header: "Tên người yêu cầu",
     cell: ({ row }) => {
       const userId = row.original.requestedById;
-      return <RequesterNameCell userId={userId} />;
+      return (
+        <div className="text-textChat">
+          <RequesterNameCell userId={userId} />
+        </div>
+      );
     },
   },
   {
@@ -141,7 +145,11 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
     header: "Email",
     cell: ({ row }) => {
       const userId = row.original.requestedById;
-      return <RequesterEmailCell userId={userId} />;
+      return (
+        <div className="text-textChat">
+          <RequesterEmailCell userId={userId} />
+        </div>
+      );
     },
   },
   {

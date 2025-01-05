@@ -10,9 +10,9 @@ import {
 
 const moderatorItems = [
   {
-    title: "Kiểm duyệt bài đăng",
+    title: "Kiểm duyệt chứng chỉ",
     Icon: Cpu,
-    href: "/moderator/manage-stories",
+    href: "/moderator/manage-certificates",
   },
   {
     title: "Quản lí báo cáo",
