@@ -45,6 +45,9 @@ export const useUploadFileForExpert = (expertId: string) => {
         queryKey: ["certificate-by-expertId", expertId],
         exact: true,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["certificates", expertId],
+      });
     },
   });
 };
