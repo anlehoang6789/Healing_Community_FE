@@ -55,3 +55,10 @@ export const useUpdateFeeServiceMutation = () => {
     },
   });
 };
+
+export const usePaymentHistoryForModeratorQuery = () => {
+  return useQuery({
+    queryKey: ["payment-history-moderator"],
+    queryFn: paymentApiRequest.getPaymentHistoryForModerator,
+  });
+};

@@ -701,3 +701,30 @@ export const GetShareCountResponseSchema = z.object({
 export type GetShareCountResponseType = z.TypeOf<
   typeof GetShareCountResponseSchema
 >;
+
+export const GetTopPostInGroupSchema = z.object({
+  postId: z.string(),
+  userId: z.string(),
+  categoryId: z.string(),
+  title: z.string(),
+  coverImgUrl: z.string().url(),
+  description: z.string(),
+  status: z.number(),
+  createAt: z.string(),
+  updateAt: z.string(),
+  reactionCount: z.number(),
+  roleInGroup: z.string(),
+});
+
+export type GetTopPostInGroupSchemaType = z.TypeOf<
+  typeof GetTopPostInGroupSchema
+>;
+
+export const GetTopPostInGroupListRes = z.object({
+  data: z.array(GetTopPostInGroupSchema),
+  message: z.string(),
+});
+
+export type GetTopPostInGroupListResType = z.TypeOf<
+  typeof GetTopPostInGroupListRes
+>;

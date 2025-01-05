@@ -30,11 +30,11 @@ const moderatorItems = [
     href: "/moderator/manage-accounts",
   },
 
-  {
-    title: "Quản lí blog",
-    Icon: NotebookPen,
-    href: "/moderator/manage-blogs",
-  },
+  // {
+  //   title: "Quản lí blog",
+  //   Icon: NotebookPen,
+  //   href: "/moderator/manage-blogs",
+  // },
   {
     title: "Quản lí thể loại",
     Icon: SquareLibrary,

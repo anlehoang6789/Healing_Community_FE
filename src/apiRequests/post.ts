@@ -43,6 +43,7 @@ import {
   GetReactionSharedCountResType,
   GetUserReactionByShareIdResType,
   GetShareCountResponseType,
+  GetTopPostInGroupListResType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -218,6 +219,10 @@ const postApiRequest = {
 
   getShareCount: (postId: string) =>
     http.get<GetShareCountResponseType>(`post/api/share/count-share/${postId}`),
+  getTopPostInGroup: (groupId: string) =>
+    http.get<GetTopPostInGroupListResType>(
+      `post/api/post/get-posts-by-reaction-in-group/${groupId}`
+    ),
 };
 
 export default postApiRequest;
