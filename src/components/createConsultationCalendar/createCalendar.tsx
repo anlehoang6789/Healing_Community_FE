@@ -2,7 +2,7 @@
 
 import React from "react";
 import { format } from "date-fns";
-import { Edit, Plus, Trash2 } from "lucide-react";
+import { CircleHelp, Edit, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -40,6 +40,11 @@ import {
 import { useTheme } from "next-themes";
 import { useGetFeeServiceQuery } from "@/queries/usePayment";
 import FeeServiceHelp from "@/components/expertInfo/fee-service-help";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 export default function CreateCalendar() {
   const { theme } = useTheme();
@@ -157,9 +162,39 @@ export default function CreateCalendar() {
 
   return (
     <div className="w-full bg-background h-auto p-4 max-w-7xl overflow-hidden mx-auto rounded-lg shadow-lg border">
-      <h1 className="text-2xl font-bold mb-4 text-muted-foreground">
-        Quản lý lịch tư vấn
-      </h1>
+      <div className="flex items-center justify-between">
+        <h1 className="pt-3 text-2xl font-bold mb-4 text-muted-foreground">
+          Quản lý lịch tư vấn
+        </h1>
+        <HoverCard>
+          <HoverCardTrigger asChild>
+            <CircleHelp className="ml-2 h-5 w-5 text-textChat" />
+          </HoverCardTrigger>
+          <HoverCardContent className="w-80">
+            <div className="space-y-1">
+              <h3 className="text-base font-semibold text-red-600">Lưu ý</h3>
+              <p className="mb-4">
+                Bạn phải cập nhật
+                <span className=" text-yellow-500 font-semibold">
+                  {" "}
+                  thông tin cá nhân
+                </span>
+                ,{" "}
+                <span className=" text-yellow-500 font-semibold">
+                  {" "}
+                  tài khoản ngân hàng
+                </span>
+                ,{" "}
+                <span className=" text-yellow-500 font-semibold">
+                  {" "}
+                  chứng chỉ
+                </span>{" "}
+                trước khi tạo lịch tư vấn trống.
+              </p>
+            </div>
+          </HoverCardContent>
+        </HoverCard>
+      </div>
       <div className="flex flex-col md:flex-row md:space-x-4 text-muted-foreground">
         <div className="flex justify-center items-center mb-4 w-full md:w-1/2 ">
           <Calendar
