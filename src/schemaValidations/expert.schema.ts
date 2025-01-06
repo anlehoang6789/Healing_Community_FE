@@ -417,4 +417,22 @@ export const ExpertRecentRatingDashboardListRes = z.object({
 export type ExpertRecentRatingDashboardListResType = z.TypeOf<
   typeof ExpertRecentRatingDashboardListRes
 >;
+
+export const ExpertStaticDashboardSchema = z.object({
+  totalAppointments: z.number(),
+  averageRating: z.number(),
+});
+
+export type ExpertStaticDashboardType = z.TypeOf<
+  typeof ExpertStaticDashboardSchema
+>;
+
+export const ExpertStaticDashboardRes = z.object({
+  data: ExpertStaticDashboardSchema,
+  message: z.string(),
+});
+
+export type ExpertStaticDashboardResType = z.TypeOf<
+  typeof ExpertStaticDashboardRes
+>;
 //=======================================================

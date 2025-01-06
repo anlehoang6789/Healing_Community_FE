@@ -9,7 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { useGetDashboardRecentRatingQuery } from "@/queries/useExpert";
+import {
+  useGetDashboardRecentRatingQuery,
+  useGetDashboardStatisticsQuery,
+} from "@/queries/useExpert";
 import { Star } from "lucide-react";
 import React from "react";
 
@@ -67,6 +70,7 @@ const RecentRatingItem = ({
 export default function ExpertFeedbackDashboard() {
   const { data } = useGetDashboardRecentRatingQuery();
   const recentRatingList = data?.payload.data || [];
+  const { data: expertStatistic } = useGetDashboardStatisticsQuery();
 
   return (
     <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -77,7 +81,9 @@ export default function ExpertFeedbackDashboard() {
           </CardTitle>
           <div className="flex items-center space-x-2">
             <Star className="h-4 w-4 text-yellow-500 fill-current" />
-            <span className="text-yellow-500">4.9</span>
+            <span className="text-yellow-500">
+              {expertStatistic?.payload.data.averageRating}
+            </span>
           </div>
         </div>
       </CardHeader>

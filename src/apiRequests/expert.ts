@@ -10,6 +10,7 @@ import {
   DeleteCertificateResponseType,
   ExpertExperienceListResType,
   ExpertRecentRatingDashboardListResType,
+  ExpertStaticDashboardResType,
   GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
   GetDetailExpertExperienceResType,
@@ -126,6 +127,8 @@ const expertApiRequest = {
     http.get<ExpertRecentRatingDashboardListResType>(
       "expert/api/appointment/recent-ratings"
     ),
+  getDashboardStatistics: () =>
+    http.get<ExpertStaticDashboardResType>("expert/api/appointment/statistics"),
 };
 
 export default expertApiRequest;

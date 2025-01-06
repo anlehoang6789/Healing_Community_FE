@@ -309,3 +309,10 @@ export const useGetDashboardRecentRatingQuery = () => {
     queryFn: expertApiRequest.getDashboardRecentRating,
   });
 };
+
+export const useGetDashboardStatisticsQuery = () => {
+  return useQuery({
+    queryKey: ["dashboard-statistics"],
+    queryFn: expertApiRequest.getDashboardStatistics,
+  });
+};
