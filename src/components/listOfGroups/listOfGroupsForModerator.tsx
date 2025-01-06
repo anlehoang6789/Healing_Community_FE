@@ -72,7 +72,7 @@ export default function ListOfGroupsForModerator() {
         {getCurrentPageGroups().map((group) => (
           <Card key={group.groupId} className="transition-shadow relative">
             <CardContent className="p-4 flex items-center space-x-4 relative">
-              <Link href="#">
+              <Link href={`/moderator/group/${group.groupId}`}>
                 <Image
                   src={
                     group.avatarGroup ||
@@ -86,7 +86,7 @@ export default function ListOfGroupsForModerator() {
               </Link>
 
               <div className="flex-1">
-                <Link href="#">
+                <Link href={`/moderator/group/${group.groupId}`}>
                   <h2 className="font-semibold hover:underline">
                     {group.groupName}
                   </h2>
