@@ -16,7 +16,7 @@ const getRoleLabel = (role: string) => {
       return "Quản trị nhóm";
     case "Owner":
       return "Chủ nhóm";
-    case "User ":
+    case "User":
       return "Thành viên";
     default:
       return role;

@@ -32,7 +32,7 @@ export default function GroupLayoutModerator({
       value={{ groupId: groupIdFromPath, setGroupId: () => {} }}
     >
       <div className="w-full max-w-7xl mx-auto bg-background">
-        <div className="relative h-[200px] sm:h-[400px] w-full rounded-b-lg overflow-hidden">
+        <div className="relative h-[200px] sm:h-[400px] w-full rounded-lg overflow-hidden">
           <Image
             src={
               groupDetails?.payload.data.avatarGroup ||

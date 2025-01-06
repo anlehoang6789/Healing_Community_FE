@@ -190,12 +190,6 @@ export default function ExpertProfile() {
                             <p className="text-sm font-medium mt-2">
                               {certificateTypeName}
                             </p>
-                            <p className="text-xs text-gray-500">
-                              Ngày cấp:{" "}
-                              {new Date(
-                                certificate.issueDate
-                              ).toLocaleDateString()}
-                            </p>
                           </CardContent>
                         </Card>
                       );
