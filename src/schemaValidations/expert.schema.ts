@@ -396,3 +396,25 @@ export const RejectCertificate = z.object({
 });
 
 export type RejectCertificateType = z.TypeOf<typeof RejectCertificate>;
+
+// ================ dashboard cho expert ================
+export const ExpertRecentRatingDashboardSchema = z.object({
+  userId: z.string(),
+  userEmail: z.string().email(),
+  rating: z.number(),
+  comment: z.string(),
+});
+
+export type ExpertRecentRatingDashboardType = z.TypeOf<
+  typeof ExpertRecentRatingDashboardSchema
+>;
+
+export const ExpertRecentRatingDashboardListRes = z.object({
+  data: z.array(ExpertRecentRatingDashboardSchema),
+  message: z.string(),
+});
+
+export type ExpertRecentRatingDashboardListResType = z.TypeOf<
+  typeof ExpertRecentRatingDashboardListRes
+>;
+//=======================================================
