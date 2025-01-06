@@ -50,7 +50,7 @@ type TimeSlot = {
 };
 
 export default function BookExpert() {
-  const { expertId } = useParams() ?? "";
+  const { userId } = useParams() ?? "";
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -59,11 +59,11 @@ export default function BookExpert() {
     const status = searchParams.get("status");
 
     if (status === "cancelled") {
-      router.push(`/user/profile/expert-info/${expertId}`);
+      router.push(`/user/profile/${userId}/expert-info`);
     } else if (status === "paid") {
       router.push("/consultation-calendar");
     }
-  }, [searchParams, expertId, router]);
+  }, [searchParams, userId, router]);
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     new Date()
@@ -74,7 +74,7 @@ export default function BookExpert() {
 
   // Gọi API để lấy lịch trống của chuyên gia dựa trên userId
   const { data: availabilityData, isLoading: isLoadingAvailability } =
-    useGetExpertAvailability(expertId as string);
+    useGetExpertAvailability(userId as string);
 
   // Gọi API đặt lịch hẹn
   const { mutate: bookSchedule } = useBookExpertScheduleMutation();
@@ -82,9 +82,9 @@ export default function BookExpert() {
   // Gọi API tạo thanh toán
   const { mutate: createPayment } = useCreatePaymentMutation();
 
-  const userId = getUserIdFromLocalStorage();
+  const currentUserId = getUserIdFromLocalStorage();
   const role = getRoleFromLocalStorage();
-  const { data: userById } = useGetUserProfileQuery(userId as string);
+  const { data: userById } = useGetUserProfileQuery(currentUserId as string);
 
   const [fullName, setFullName] = useState(
     userById?.payload.data.fullName || ""
@@ -146,7 +146,7 @@ export default function BookExpert() {
             createPayment(
               {
                 appointmentId,
-                redirectUrl: `http://localhost:3000/user/profile/expert-info/${expertId}`,
+                redirectUrl: `http://localhost:3000/user/profile/${userId}/expert-info`,
               },
               {
                 onSuccess: (paymentResponse) => {
