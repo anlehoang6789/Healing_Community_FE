@@ -8,10 +8,66 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
+import { useGetDashboardRecentRatingQuery } from "@/queries/useExpert";
 import { Star } from "lucide-react";
 import React from "react";
 
+const RecentRatingItem = ({
+  userId,
+  rating,
+  comment,
+}: {
+  userId: string;
+  rating: number;
+  comment: string;
+}) => {
+  const { data, isLoading, isError } = useGetUserProfileQuery(userId);
+
+  if (isLoading) {
+    return (
+      <div className="animate-pulse">
+        <div className="h-5 bg-gray-200 rounded mb-2 w-1/2"></div>
+        <div className="flex items-center space-x-1">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="w-4 h-4 bg-gray-200 rounded-full"></div>
+          ))}
+        </div>
+        <div className="h-5 bg-gray-200 rounded w-full mt-2"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <div className="text-red-500">Lỗi tải thông tin người dùng</div>;
+  }
+
+  return (
+    <TableRow className="text-muted-foreground">
+      <TableCell className="font-medium text-textChat">
+        {data?.payload.data.fullName || data?.payload.data.userName}
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className={`h-4 w-4 ${
+                i < rating ? "text-yellow-500 fill-current" : "text-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+      </TableCell>
+      <TableCell className="text-right capitalize">{comment}</TableCell>
+    </TableRow>
+  );
+};
+
 export default function ExpertFeedbackDashboard() {
+  const { data } = useGetDashboardRecentRatingQuery();
+  const recentRatingList = data?.payload.data || [];
+
   return (
     <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
       <CardHeader>
@@ -35,55 +91,14 @@ export default function ExpertFeedbackDashboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow className="text-muted-foreground">
-              <TableCell className="font-medium">Nguyễn Văn A</TableCell>
-              <TableCell>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-4 w-4 text-yellow-500 fill-current"
-                    />
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                Rất hài lòng với dịch vụ
-              </TableCell>
-            </TableRow>
-            <TableRow className="text-muted-foreground">
-              <TableCell className="font-medium">Trần Thị B</TableCell>
-              <TableCell>
-                <div className="flex items-center">
-                  {[...Array(4)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-4 w-4 text-yellow-500 fill-current"
-                    />
-                  ))}
-                  <Star className="h-4 w-4 text-gray-300" />
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                Chuyên gia tư vấn rất nhiệt tình
-              </TableCell>
-            </TableRow>
-            <TableRow className="text-muted-foreground">
-              <TableCell className="font-medium">Lê Văn C</TableCell>
-              <TableCell>
-                <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="h-4 w-4 text-yellow-500 fill-current"
-                    />
-                  ))}
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                Sẽ quay lại sử dụng dịch vụ
-              </TableCell>
-            </TableRow>
+            {recentRatingList.map((item) => (
+              <RecentRatingItem
+                key={item.userId}
+                userId={item.userId}
+                rating={item.rating}
+                comment={item.comment}
+              />
+            ))}
           </TableBody>
         </Table>
       </CardContent>

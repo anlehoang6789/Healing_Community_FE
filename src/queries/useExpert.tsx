@@ -302,3 +302,10 @@ export const useRejectCertificateMutation = () => {
     },
   });
 };
+
+export const useGetDashboardRecentRatingQuery = () => {
+  return useQuery({
+    queryKey: ["dashboard-recent-rating"],
+    queryFn: expertApiRequest.getDashboardRecentRating,
+  });
+};

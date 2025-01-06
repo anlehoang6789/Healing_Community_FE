@@ -9,6 +9,7 @@ import {
   CreateExpertExperienceBodyType,
   DeleteCertificateResponseType,
   ExpertExperienceListResType,
+  ExpertRecentRatingDashboardListResType,
   GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
   GetDetailExpertExperienceResType,
@@ -121,6 +122,10 @@ const expertApiRequest = {
 
   rejectCertificate: (body: RejectCertificateType) =>
     http.post<{ message: string }>("expert/api/certificate/reject", body),
+  getDashboardRecentRating: () =>
+    http.get<ExpertRecentRatingDashboardListResType>(
+      "expert/api/appointment/recent-ratings"
+    ),
 };
 
 export default expertApiRequest;
