@@ -278,3 +278,27 @@ export const useCheckExpertRatingStatusQuery = ({
     enabled,
   });
 };
+
+export const useApproveCertificateMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.approveCertificate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["certificates"],
+      });
+    },
+  });
+};
+
+export const useRejectCertificateMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.rejectCertificate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["certificates"],
+      });
+    },
+  });
+};
