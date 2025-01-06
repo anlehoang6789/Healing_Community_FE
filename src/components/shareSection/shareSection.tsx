@@ -152,7 +152,7 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
               e.stopPropagation();
             }}
             placeholder="Hãy nói gì đó về nội dung này (không bắt buộc)"
-            className="min-h-[100px] resize-none mb-2"
+            className="min-h-[100px] resize-none mb-2 text-textChat"
           />
 
           <div className="flex justify-end">

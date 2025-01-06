@@ -15,13 +15,13 @@ import { useParams } from "next/navigation";
 import ViewRatingExpert from "@/components/expertInfo/view-rating-expert";
 
 export default function ExpertProfile() {
-  const { expertId } = useParams();
+  const { userId } = useParams();
 
   const {
     data: expertProfileResponse,
     isLoading,
     error,
-  } = useGetExpertProfileQuery(expertId as string);
+  } = useGetExpertProfileQuery(userId as string);
 
   const { data: certificateTypesResponse } = useGetCertificateTypesQuery();
 
