@@ -164,7 +164,7 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
     header: "Mô tả",
     cell: ({ row }) => (
       <div className="text-textChat font-semibold">
-        {row.getValue("description")}
+        {row.getValue("description") ?? ""}
       </div>
     ),
   },

@@ -13,10 +13,15 @@ import { Button } from "@/components/ui/button";
 
 import { useCrequestGroupMutation } from "@/queries/useGroup";
 
-import { Plus } from "lucide-react";
+import { CircleHelp, Plus } from "lucide-react";
 
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 const CrequestGroupDialog = () => {
   const [open, setOpen] = useState(false);
@@ -61,7 +66,31 @@ const CrequestGroupDialog = () => {
       </DialogTrigger>
       <DialogContent className="p-4 w-[375px] lg:w-[512px] md:w-[512px] sm:w-[512px]">
         <DialogHeader>
-          <DialogTitle className="text-textChat">Yêu cầu tạo nhóm</DialogTitle>
+          <div className="flex items-center">
+            <DialogTitle className="text-textChat">
+              Yêu cầu tạo nhóm
+            </DialogTitle>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <CircleHelp className="ml-2 h-5 w-5 text-textChat" />
+              </HoverCardTrigger>
+              <HoverCardContent className="w-80">
+                <div className="space-y-1">
+                  <h3 className="text-base font-semibold text-red-600">
+                    Lưu ý
+                  </h3>
+                  <p className="mb-4">
+                    Yêu cầu tạo nhóm mới phải đợi quản trị viên kiểm duyệt. Khi
+                    duyệt tạo nhóm thì nhóm đó mặc định sẽ là{" "}
+                    <span className="p-1 bg-yellow-300 rounded-lg text-gray-800">
+                      nhóm kín
+                    </span>{" "}
+                    và người yêu cầu tạo nhóm sẽ là quản trị viên của nhóm đó.
+                  </p>
+                </div>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
           <DialogDescription className="sr-only">
             Make changes to your profile here. Click save when done.
           </DialogDescription>
