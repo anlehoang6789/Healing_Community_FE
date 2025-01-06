@@ -9,7 +9,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { useGetDashboardRecentRatingQuery } from "@/queries/useExpert";
+import {
+  useGetDashboardRecentRatingQuery,
+  useGetDashboardStatisticsQuery,
+} from "@/queries/useExpert";
 import { Star } from "lucide-react";
 import React from "react";
 
@@ -67,6 +70,7 @@ const RecentRatingItem = ({
 export default function ExpertFeedbackDashboard() {
   const { data } = useGetDashboardRecentRatingQuery();
   const recentRatingList = data?.payload.data || [];
+  const { data: expertStatistic } = useGetDashboardStatisticsQuery();
 
   return (
     <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -77,30 +81,34 @@ export default function ExpertFeedbackDashboard() {
           </CardTitle>
           <div className="flex items-center space-x-2">
             <Star className="h-4 w-4 text-yellow-500 fill-current" />
-            <span className="text-yellow-500">4.9</span>
+            <span className="text-yellow-500">
+              {expertStatistic?.payload.data.averageRating}
+            </span>
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow className="text-muted-foreground">
-              <TableHead className="w-[150px]">Khách Hàng</TableHead>
-              <TableHead>Đánh Giá</TableHead>
-              <TableHead className="text-right">Nhận Xét</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentRatingList.map((item) => (
-              <RecentRatingItem
-                key={item.userId}
-                userId={item.userId}
-                rating={item.rating}
-                comment={item.comment}
-              />
-            ))}
-          </TableBody>
-        </Table>
+        <div className="max-h-80 overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-muted-foreground">
+                <TableHead className="w-[150px]">Khách Hàng</TableHead>
+                <TableHead>Đánh Giá</TableHead>
+                <TableHead className="text-right">Nhận Xét</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentRatingList.map((item) => (
+                <RecentRatingItem
+                  key={item.userId}
+                  userId={item.userId}
+                  rating={item.rating}
+                  comment={item.comment}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );
