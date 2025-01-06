@@ -88,25 +88,27 @@ export default function ExpertFeedbackDashboard() {
         </div>
       </CardHeader>
       <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow className="text-muted-foreground">
-              <TableHead className="w-[150px]">Khách Hàng</TableHead>
-              <TableHead>Đánh Giá</TableHead>
-              <TableHead className="text-right">Nhận Xét</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {recentRatingList.map((item) => (
-              <RecentRatingItem
-                key={item.userId}
-                userId={item.userId}
-                rating={item.rating}
-                comment={item.comment}
-              />
-            ))}
-          </TableBody>
-        </Table>
+        <div className="max-h-80 overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-muted-foreground">
+                <TableHead className="w-[150px]">Khách Hàng</TableHead>
+                <TableHead>Đánh Giá</TableHead>
+                <TableHead className="text-right">Nhận Xét</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentRatingList.map((item) => (
+                <RecentRatingItem
+                  key={item.userId}
+                  userId={item.userId}
+                  rating={item.rating}
+                  comment={item.comment}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

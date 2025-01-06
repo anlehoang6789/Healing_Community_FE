@@ -435,4 +435,25 @@ export const ExpertStaticDashboardRes = z.object({
 export type ExpertStaticDashboardResType = z.TypeOf<
   typeof ExpertStaticDashboardRes
 >;
+
+export const ExpertActivityReportDashboardSchema = z.object({
+  date: z.string(),
+  totalAppointments: z.number(),
+  completedAppointments: z.number(),
+  completionRate: z.number(),
+  status: z.string(),
+});
+
+export type ExpertActivityReportDashboardType = z.TypeOf<
+  typeof ExpertActivityReportDashboardSchema
+>;
+
+export const ExpertActivityReportDashboardListRes = z.object({
+  data: z.array(ExpertActivityReportDashboardSchema),
+  message: z.string(),
+});
+
+export type ExpertActivityReportDashboardListResType = z.TypeOf<
+  typeof ExpertActivityReportDashboardListRes
+>;
 //=======================================================

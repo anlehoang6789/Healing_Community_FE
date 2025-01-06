@@ -316,3 +316,10 @@ export const useGetDashboardStatisticsQuery = () => {
     queryFn: expertApiRequest.getDashboardStatistics,
   });
 };
+
+export const useGetActivityReportDashboardQuery = () => {
+  return useQuery({
+    queryKey: ["activity-report-dashboard"],
+    queryFn: expertApiRequest.getActivityReportDashboard,
+  });
+};

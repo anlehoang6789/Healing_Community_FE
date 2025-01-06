@@ -8,6 +8,7 @@ import {
   CreateAvailableTimeSlotResponseType,
   CreateExpertExperienceBodyType,
   DeleteCertificateResponseType,
+  ExpertActivityReportDashboardListResType,
   ExpertExperienceListResType,
   ExpertRecentRatingDashboardListResType,
   ExpertStaticDashboardResType,
@@ -129,6 +130,10 @@ const expertApiRequest = {
     ),
   getDashboardStatistics: () =>
     http.get<ExpertStaticDashboardResType>("expert/api/appointment/statistics"),
+  getActivityReportDashboard: () =>
+    http.get<ExpertActivityReportDashboardListResType>(
+      "expert/api/appointment/activity-report"
+    ),
 };
 
 export default expertApiRequest;
