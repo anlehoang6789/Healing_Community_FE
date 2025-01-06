@@ -2,6 +2,7 @@ import http from "@/lib/http";
 import {
   AppointmentExpertListResType,
   AppointmentUserListResType,
+  ApproveCertificateType,
   CancelAppointmentRequestType,
   CreateAvailableTimeSlotBodyType,
   CreateAvailableTimeSlotResponseType,
@@ -16,6 +17,7 @@ import {
   GetExpertProfileResType,
   GetExpertRatingResponseType,
   RateExpertBodyType,
+  RejectCertificateType,
   UpdateExpertExperienceBodyType,
   UpdateProfileExpertBodyType,
   UploadFileForExpertResponseType,
@@ -113,6 +115,12 @@ const expertApiRequest = {
     http.get<{ data: boolean }>(
       `expert/api/appointment/rating-status/${appointmentId}`
     ),
+
+  approveCertificate: (body: ApproveCertificateType) =>
+    http.post<{ message: string }>("expert/api/certificate/approve", body),
+
+  rejectCertificate: (body: RejectCertificateType) =>
+    http.post<{ message: string }>("expert/api/certificate/reject", body),
 };
 
 export default expertApiRequest;

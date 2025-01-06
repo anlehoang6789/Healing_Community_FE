@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretSortIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -36,7 +36,11 @@ import {
 } from "@/schemaValidations/group.schema";
 import { useGetListRequestedGroupByUserIdQuery } from "@/queries/useGroup";
 
-import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
+import {
+  formatDateTime,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useGetAllUsers } from "@/queries/useUser";
 import { UserType } from "@/schemaValidations/user.schema";
 import {
@@ -44,11 +48,20 @@ import {
   GetAllCertificatesResponseType,
 } from "@/schemaValidations/expert.schema";
 import {
+  useApproveCertificateMutation,
   useGetAllCertificates,
   useGetCertificateTypesQuery,
   useGetExpertProfileQuery,
+  useRejectCertificateMutation,
 } from "@/queries/useExpert";
 import Link from "next/link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "@/hooks/use-toast";
 
 type ListCertificateItem = GetAllCertificatesResponseType["data"][0];
 
@@ -246,6 +259,64 @@ export default function TableListCertificate() {
           >
             {statusLabel}
           </span>
+        );
+      },
+    },
+
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: function Actions({ row }) {
+        const { mutateAsync: approveCertificate } =
+          useApproveCertificateMutation();
+        const { mutateAsync: rejectCertificate } =
+          useRejectCertificateMutation();
+
+        const handleApprove = async () => {
+          try {
+            const payload = {
+              certificateId: row.original.certificateId,
+            };
+            const result = await approveCertificate(payload);
+            toast({
+              description: result.payload.message,
+              variant: "success",
+            });
+          } catch (error) {
+            handleErrorApi({ error });
+          }
+        };
+
+        const handleReject = async () => {
+          try {
+            const payload = {
+              certificateId: row.original.certificateId,
+            };
+            const result = await rejectCertificate(payload);
+            toast({
+              description: result.payload.message,
+              variant: "success",
+            });
+          } catch (error) {
+            handleErrorApi({ error });
+          }
+        };
+
+        return (
+          <DropdownMenu modal={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={handleApprove}>Duyệt</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleReject}>
+                Từ chối
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         );
       },
     },

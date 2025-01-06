@@ -384,3 +384,15 @@ export const GetExpertRatingResponseSchema = z.object({
 export type GetExpertRatingResponseType = z.TypeOf<
   typeof GetExpertRatingResponseSchema
 >;
+
+export const ApproveCertificate = z.object({
+  certificateId: z.string(),
+});
+
+export type ApproveCertificateType = z.TypeOf<typeof ApproveCertificate>;
+
+export const RejectCertificate = z.object({
+  certificateId: z.string(),
+});
+
+export type RejectCertificateType = z.TypeOf<typeof RejectCertificate>;
