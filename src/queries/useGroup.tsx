@@ -175,3 +175,10 @@ export const useApproveOrRejectRequestJoinGroupMutation = () => {
     mutationFn: groupApiRequest.approveOrRejectRequestJoinGroup,
   });
 };
+
+export const useCheckRoleInGroupQuery = (userId: string, groupId: string) => {
+  return useQuery({
+    queryKey: ["check-role-in-group", userId, groupId],
+    queryFn: () => groupApiRequest.checkRoleInGroup(userId, groupId),
+  });
+};
