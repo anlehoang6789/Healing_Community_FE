@@ -2,12 +2,16 @@ import http from "@/lib/http";
 import {
   AppointmentExpertListResType,
   AppointmentUserListResType,
+  ApproveCertificateType,
   CancelAppointmentRequestType,
   CreateAvailableTimeSlotBodyType,
   CreateAvailableTimeSlotResponseType,
   CreateExpertExperienceBodyType,
   DeleteCertificateResponseType,
+  ExpertActivityReportDashboardListResType,
   ExpertExperienceListResType,
+  ExpertRecentRatingDashboardListResType,
+  ExpertStaticDashboardResType,
   GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
   GetDetailExpertExperienceResType,
@@ -16,6 +20,7 @@ import {
   GetExpertProfileResType,
   GetExpertRatingResponseType,
   RateExpertBodyType,
+  RejectCertificateType,
   UpdateExpertExperienceBodyType,
   UpdateProfileExpertBodyType,
   UploadFileForExpertResponseType,
@@ -112,6 +117,22 @@ const expertApiRequest = {
   checkExpertRatingStatus: (appointmentId: string) =>
     http.get<{ data: boolean }>(
       `expert/api/appointment/rating-status/${appointmentId}`
+    ),
+
+  approveCertificate: (body: ApproveCertificateType) =>
+    http.post<{ message: string }>("expert/api/certificate/approve", body),
+
+  rejectCertificate: (body: RejectCertificateType) =>
+    http.post<{ message: string }>("expert/api/certificate/reject", body),
+  getDashboardRecentRating: () =>
+    http.get<ExpertRecentRatingDashboardListResType>(
+      "expert/api/appointment/recent-ratings"
+    ),
+  getDashboardStatistics: () =>
+    http.get<ExpertStaticDashboardResType>("expert/api/appointment/statistics"),
+  getActivityReportDashboard: () =>
+    http.get<ExpertActivityReportDashboardListResType>(
+      "expert/api/appointment/activity-report"
     ),
 };
 

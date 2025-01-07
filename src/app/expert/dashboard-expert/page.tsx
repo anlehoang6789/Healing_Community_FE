@@ -1,12 +1,16 @@
+"use client";
 import ExpertBookingFilter from "@/app/expert/dashboard-expert/expert-booking-filter";
 import ExpertCalendarDashboard from "@/app/expert/dashboard-expert/expert-calendar-dashboard";
 import ExpertFeedbackDashboard from "@/app/expert/dashboard-expert/expert-feedback-dashboard";
 import ExpertIncomeFilter from "@/app/expert/dashboard-expert/expert-income-filter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useGetDashboardStatisticsQuery } from "@/queries/useExpert";
 import { CalendarDays, Banknote, Star, Users } from "lucide-react";
 import React from "react";
 
 export default function DashboardExpert() {
+  const { data: expertStatistic } = useGetDashboardStatisticsQuery();
+
   return (
     <div className="min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -41,7 +45,9 @@ export default function DashboardExpert() {
               <CalendarDays className="h-4 w-4 text-blue-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-textChat">345</div>
+              <div className="text-2xl font-bold text-textChat">
+                {expertStatistic?.payload.data.totalAppointments}
+              </div>
               <p className="text-xs text-blue-500">
                 +180.1% so với tháng trước
               </p>
@@ -56,7 +62,9 @@ export default function DashboardExpert() {
               <Star className="h-4 w-4 text-yellow-500" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-textChat">4.9</div>
+              <div className="text-2xl font-bold text-textChat">
+                {expertStatistic?.payload.data.averageRating}
+              </div>
               <p className="text-xs text-yellow-500">+201 đánh giá mới</p>
             </CardContent>
           </Card>

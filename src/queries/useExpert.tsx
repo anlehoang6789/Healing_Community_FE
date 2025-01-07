@@ -45,6 +45,9 @@ export const useUploadFileForExpert = (expertId: string) => {
         queryKey: ["certificate-by-expertId", expertId],
         exact: true,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["certificates", expertId],
+      });
     },
   });
 };
@@ -273,5 +276,50 @@ export const useCheckExpertRatingStatusQuery = ({
     queryKey: ["expert-rating-status", appointmentId],
     queryFn: () => expertApiRequest.checkExpertRatingStatus(appointmentId),
     enabled,
+  });
+};
+
+export const useApproveCertificateMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.approveCertificate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["certificates"],
+      });
+    },
+  });
+};
+
+export const useRejectCertificateMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: expertApiRequest.rejectCertificate,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["certificates"],
+      });
+    },
+  });
+};
+
+export const useGetDashboardRecentRatingQuery = () => {
+  return useQuery({
+    queryKey: ["dashboard-recent-rating"],
+    queryFn: expertApiRequest.getDashboardRecentRating,
+  });
+};
+
+export const useGetDashboardStatisticsQuery = () => {
+  return useQuery({
+    queryKey: ["dashboard-statistics"],
+    queryFn: expertApiRequest.getDashboardStatistics,
+  });
+};
+
+export const useGetActivityReportDashboardQuery = () => {
+  return useQuery({
+    queryKey: ["activity-report-dashboard"],
+    queryFn: expertApiRequest.getActivityReportDashboard,
   });
 };

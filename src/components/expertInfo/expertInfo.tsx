@@ -15,13 +15,13 @@ import { useParams } from "next/navigation";
 import ViewRatingExpert from "@/components/expertInfo/view-rating-expert";
 
 export default function ExpertProfile() {
-  const { expertId } = useParams();
+  const { userId } = useParams();
 
   const {
     data: expertProfileResponse,
     isLoading,
     error,
-  } = useGetExpertProfileQuery(expertId as string);
+  } = useGetExpertProfileQuery(userId as string);
 
   const { data: certificateTypesResponse } = useGetCertificateTypesQuery();
 
@@ -189,12 +189,6 @@ export default function ExpertProfile() {
                             </Link>
                             <p className="text-sm font-medium mt-2">
                               {certificateTypeName}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Ngày cấp:{" "}
-                              {new Date(
-                                certificate.issueDate
-                              ).toLocaleDateString()}
                             </p>
                           </CardContent>
                         </Card>

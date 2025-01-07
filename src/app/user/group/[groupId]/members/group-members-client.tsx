@@ -66,6 +66,19 @@ export default function GroupMembersClient() {
             {roleCount?.payload.data.totalOwnersAndModerators}
           </h3>
           <div className="space-y-4">
+            {/* Hiển thị chính bạn nếu bạn là Owner hoặc Moderator */}
+            {currentUser &&
+              (currentUser.roleInGroup === "Owner" ||
+                currentUser.roleInGroup === "Moderator") && (
+                <div className="flex items-center justify-between">
+                  <GroupMemberDetails
+                    userId={currentUser.userId}
+                    roleInGroup={currentUser.roleInGroup}
+                  />
+                </div>
+              )}
+
+            {/* Hiển thị những thành viên khác là Owner hoặc Moderator */}
             {otherMembers
               .filter(
                 (member) =>

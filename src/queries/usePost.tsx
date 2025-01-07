@@ -631,3 +631,10 @@ export const useRemoveReactionSharedMutation = (shareId: string) => {
     },
   });
 };
+
+export const useGetTopPostInGroupQuery = (groupId: string) => {
+  return useQuery({
+    queryKey: ["top-post-in-group", groupId],
+    queryFn: () => postApiRequest.getTopPostInGroup(groupId),
+  });
+};

@@ -85,16 +85,16 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
     accessorKey: "groupName",
     header: "Tên nhóm",
     cell: ({ row }) => (
-      <div className="text-textChat">{row.getValue("groupName")}</div>
+      <div className="text-textChat font-semibold">
+        {row.getValue("groupName")}
+      </div>
     ),
   },
   {
     accessorKey: "description",
     header: "Mô tả",
     cell: ({ row }) => (
-      <div className="text-textChat font-semibold">
-        {row.getValue("description")}
-      </div>
+      <div className="text-textChat ">{row.getValue("description") ?? ""}</div>
     ),
   },
   {

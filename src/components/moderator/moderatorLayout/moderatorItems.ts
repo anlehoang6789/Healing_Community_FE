@@ -10,9 +10,9 @@ import {
 
 const moderatorItems = [
   {
-    title: "Kiểm duyệt bài đăng",
+    title: "Kiểm duyệt chứng chỉ",
     Icon: Cpu,
-    href: "/moderator/manage-stories",
+    href: "/moderator/manage-certificates",
   },
   {
     title: "Quản lí báo cáo",
@@ -30,11 +30,11 @@ const moderatorItems = [
     href: "/moderator/manage-accounts",
   },
 
-  {
-    title: "Quản lí blog",
-    Icon: NotebookPen,
-    href: "/moderator/manage-blogs",
-  },
+  // {
+  //   title: "Quản lí blog",
+  //   Icon: NotebookPen,
+  //   href: "/moderator/manage-blogs",
+  // },
   {
     title: "Quản lí thể loại",
     Icon: SquareLibrary,

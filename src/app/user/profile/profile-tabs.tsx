@@ -84,7 +84,7 @@ export default function ProfileTabs({
 
   const activeTab = pathname.startsWith(`/user/profile/change-password`)
     ? "change-password"
-    : pathname.startsWith(`/user/profile/expert-info/${userId}`)
+    : pathname.startsWith(`/user/profile/${userId}/expert-info`)
     ? "expert-info"
     : pathname.startsWith(`/user/profile/information`)
     ? "user-info"
@@ -133,7 +133,7 @@ export default function ProfileTabs({
           </Link>
 
           {(isOwner && role === Role.Expert) || (!isOwner && isExpert) ? (
-            <Link href={`/user/profile/expert-info/${userId}`} passHref>
+            <Link href={`/user/profile/${userId}/expert-info`} passHref>
               <Button
                 variant={
                   activeTab === "expert-info"

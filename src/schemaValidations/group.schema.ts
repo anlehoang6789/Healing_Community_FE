@@ -209,3 +209,42 @@ export const GetListRequestGroupByUserIdSchema = z.object({
 export type GetListRequestGroupByUserIdResponseType = z.infer<
   typeof GetListRequestGroupByUserIdSchema
 >;
+
+// request join group
+export const RequestJoinGroupSchema = z.object({
+  queueId: z.string(),
+  groupId: z.string(),
+  userId: z.string(),
+  requestedAt: z.string(),
+});
+
+export type RequestJoinGroupType = z.TypeOf<typeof RequestJoinGroupSchema>;
+
+export const GetRequestJoinGroupListRes = z.object({
+  data: z.array(RequestJoinGroupSchema),
+  message: z.string(),
+});
+
+export type GetRequestJoinGroupListResType = z.infer<
+  typeof GetRequestJoinGroupListRes
+>;
+
+// check role in group
+export const CheckRoleInGroupRes = z.object({
+  message: z.string(),
+  data: z.object({
+    roleInGroup: z.string(),
+  }),
+});
+
+export type CheckRoleInGroupResType = z.infer<typeof CheckRoleInGroupRes>;
+
+//approve or reject request group
+export const ApproveOrRejectRequestGroupSchema = z.object({
+  queueId: z.string(),
+  isApproved: z.boolean(),
+});
+
+export type ApproveOrRejectRequestGroupType = z.TypeOf<
+  typeof ApproveOrRejectRequestGroupSchema
+>;
