@@ -1,14 +1,15 @@
 import http from "@/lib/http";
 import {
   ApproveOrRejectRequestGroupResType,
+  ApproveOrRejectRequestGroupType,
   CreateGroupRequestType,
   CrequestGroupRequestType,
-  GetAllGroupsJoinedByUserIdResponseType,
   GetAllGroupsResponseType,
   GetGroupDetailsByGroupIdResType,
   GetGroupMembersByGroupIdListResType,
   GetListRequestGroupByUserIdResponseType,
   GetListRequestGroupResponseType,
+  GetRequestJoinGroupListResType,
   GetRoleCountByGroupIdResType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
@@ -73,6 +74,15 @@ const groupApiRequest = {
   getRequestsCreateGroupByUserId: (userId: string) =>
     http.get<GetListRequestGroupByUserIdResponseType>(
       `group/api/group/get-user-requests-create-group/${userId}`
+    ),
+  getRequestJoinGroup: (groupId: string) =>
+    http.get<GetRequestJoinGroupListResType>(
+      `group/api/group/get-approval-queue/${groupId}`
+    ),
+  approveOrRejectRequestJoinGroup: (body: ApproveOrRejectRequestGroupType) =>
+    http.post<{ message: string }>(
+      `group/api/managegroup/approve-user-join-group?queueId=${body.queueId}&isApproved=${body.isApproved}`,
+      {}
     ),
 };
 

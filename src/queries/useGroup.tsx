@@ -162,3 +162,16 @@ export const useApproveOrRejectRequestGroupMutation = () => {
     },
   });
 };
+
+export const useGetRequestJoinGroupQuery = (groupId: string) => {
+  return useQuery({
+    queryKey: ["get-request-join-group", groupId],
+    queryFn: () => groupApiRequest.getRequestJoinGroup(groupId),
+  });
+};
+
+export const useApproveOrRejectRequestJoinGroupMutation = () => {
+  return useMutation({
+    mutationFn: groupApiRequest.approveOrRejectRequestJoinGroup,
+  });
+};

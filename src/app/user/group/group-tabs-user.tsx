@@ -30,12 +30,14 @@ export default function GroupTabsUser({
     ? "members"
     : pathname.startsWith(`/user/group/${groupId}`)
     ? "discussion"
+    : pathname.startsWith(`/user/group/${groupId}/request-join`)
+    ? "request-join"
     : "discussion";
 
   const handleNavigation = () => {
     router.push(`/user/group-user/${groupId}/user/${userId}`);
   };
-
+  //check role in group
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-4">
       <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center py-4 gap-4">
@@ -87,6 +89,18 @@ export default function GroupTabsUser({
               className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
             >
               Mọi người
+            </Button>
+          </Link>
+          <Link href={`/user/group/${groupId}/request-join`} passHref>
+            <Button
+              variant={
+                activeTab === "request-join"
+                  ? "gradientUnderline"
+                  : "gradientHoverUnderline"
+              }
+              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+            >
+              Duyệt yêu cầu
             </Button>
           </Link>
         </div>

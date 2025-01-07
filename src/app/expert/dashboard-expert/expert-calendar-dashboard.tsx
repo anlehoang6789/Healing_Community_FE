@@ -39,9 +39,9 @@ const ActivityReportItem = ({
       <TableCell className="text-center">{totalAppointments}</TableCell>
       <TableCell className="text-center">{completedAppointments}</TableCell>
       <TableCell className="text-center">{completionRate}%</TableCell>
-      <TableCell className="text-right">
+      <TableCell className="text-xs">
         <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusClasses(
+          className={`inline-flex items-center rounded-full px-0.5 py-0.5 text-xs font-medium ${getStatusClasses(
             status
           )}`}
         >

@@ -2,20 +2,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import {
-  Bookmark,
-  Ellipsis,
-  Flag,
-  Globe,
-  LockKeyhole,
-  Share2,
-  ThumbsUp,
-} from "lucide-react";
+import { Bookmark, Ellipsis, Flag, Globe, LockKeyhole } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   useAddUserReferenceMutation,
   useGetHomePageLazyLoadQuery,
-  useGetReactionCountQuery,
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
@@ -36,7 +27,6 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import ShareCount from "@/components/shareSection/shareCount";
-
 
 type UserProfileProps = {
   userId: string;
