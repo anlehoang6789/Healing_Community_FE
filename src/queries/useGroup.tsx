@@ -170,8 +170,21 @@ export const useGetRequestJoinGroupQuery = (groupId: string) => {
   });
 };
 
-export const useApproveOrRejectRequestJoinGroupMutation = () => {
+export const useApproveOrRejectRequestJoinGroupMutation = (groupId: string) => {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: groupApiRequest.approveOrRejectRequestJoinGroup,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get-request-join-group", groupId],
+      });
+    },
+  });
+};
+
+export const useCheckRoleInGroupQuery = (userId: string, groupId: string) => {
+  return useQuery({
+    queryKey: ["check-role-in-group", userId, groupId],
+    queryFn: () => groupApiRequest.checkRoleInGroup(userId, groupId),
   });
 };

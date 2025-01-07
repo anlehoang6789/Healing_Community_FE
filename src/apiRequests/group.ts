@@ -2,6 +2,7 @@ import http from "@/lib/http";
 import {
   ApproveOrRejectRequestGroupResType,
   ApproveOrRejectRequestGroupType,
+  CheckRoleInGroupResType,
   CreateGroupRequestType,
   CrequestGroupRequestType,
   GetAllGroupsResponseType,
@@ -83,6 +84,10 @@ const groupApiRequest = {
     http.post<{ message: string }>(
       `group/api/managegroup/approve-user-join-group?queueId=${body.queueId}&isApproved=${body.isApproved}`,
       {}
+    ),
+  checkRoleInGroup: (userId: string, groupId: string) =>
+    http.get<CheckRoleInGroupResType>(
+      `group/api/usergroup/get-role-in-group?userId=${userId}&groupId=${groupId}`
     ),
 };
 

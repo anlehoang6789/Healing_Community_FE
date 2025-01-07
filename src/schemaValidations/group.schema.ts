@@ -230,6 +230,14 @@ export type GetRequestJoinGroupListResType = z.infer<
 >;
 
 // check role in group
+export const CheckRoleInGroupRes = z.object({
+  message: z.string(),
+  data: z.object({
+    roleInGroup: z.string(),
+  }),
+});
+
+export type CheckRoleInGroupResType = z.infer<typeof CheckRoleInGroupRes>;
 
 //approve or reject request group
 export const ApproveOrRejectRequestGroupSchema = z.object({
