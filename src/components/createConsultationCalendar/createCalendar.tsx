@@ -368,7 +368,7 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
     setDisplayAmount(formatNumber(numericValue));
 
     // Tính toán Tiền thực nhận khi amount thay đổi
-    if (realFee?.payload.data.platformFeeValue && numericValue >= 10000) {
+    if (realFee?.payload.data.platformFeeValue) {
       const calculatedNetAmount =
         numericValue -
         numericValue * (realFee.payload.data.platformFeeValue / 100);
@@ -378,7 +378,7 @@ function TimeSlotForm({ onSubmit, onCancel, isLoading }: TimeSlotFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (amount === "" || amount <= 10000) {
+    if (amount === "" || amount < 10000) {
       toast({
         title: "Giá tiền không hợp lệ",
         description: "Giá tiền tối thiểu là 10.000",

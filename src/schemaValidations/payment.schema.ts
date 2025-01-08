@@ -141,3 +141,35 @@ export const GetManagerPaymentForModeratorRes = z.object({
 export type GetManagerPaymentForModeratorResType = z.infer<
   typeof GetManagerPaymentForModeratorRes
 >;
+
+export const GetManagerPaymentForUserAndExpertSchema = z.object({
+  paymentId: z.string(),
+  userId: z.string(),
+  expertEmail: z.string(),
+  userEmail: z.string(),
+  userName: z.string(),
+  expertName: z.string(),
+  appointmentId: z.string(),
+  appointmentDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  orderCode: z.number(),
+  amount: z.number(),
+  status: z.number(),
+  paymentDetail: z.string(),
+  paymentDate: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetManagerPaymentForUserAndExpertType = z.infer<
+  typeof GetManagerPaymentForUserAndExpertSchema
+>;
+
+export const GetManagerPaymentForUserAndExpertListRes = z.object({
+  data: z.array(GetManagerPaymentForUserAndExpertSchema),
+  message: z.string(),
+});
+
+export type GetManagerPaymentForUserAndExpertListResType = z.infer<
+  typeof GetManagerPaymentForUserAndExpertListRes
+>;
