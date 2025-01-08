@@ -248,3 +248,39 @@ export const ApproveOrRejectRequestGroupSchema = z.object({
 export type ApproveOrRejectRequestGroupType = z.TypeOf<
   typeof ApproveOrRejectRequestGroupSchema
 >;
+
+export const GetGroupInfoSchema = z.object({
+  groupId: z.string(),
+  groupName: z.string(),
+  groupAvatar: z.string(),
+  joinedAt: z.string(),
+  roleInGroup: z.string(),
+});
+
+export type GetGroupInfoType = z.TypeOf<typeof GetGroupInfoSchema>;
+
+export const GetGroupInfoListSchema = z.object({
+  data: z.array(GetGroupInfoSchema),
+  message: z.string(),
+});
+
+export type GetGroupInfoListType = z.TypeOf<typeof GetGroupInfoListSchema>;
+
+export const GetRecommendedGroupsSchema = z.object({
+  groupId: z.string(),
+  groupName: z.string(),
+  postCount: z.number(),
+});
+
+export type GetRecommendedGroupsType = z.TypeOf<
+  typeof GetRecommendedGroupsSchema
+>;
+
+export const GetRecommendedGroupsListSchema = z.object({
+  data: z.array(GetRecommendedGroupsSchema),
+  message: z.string(),
+});
+
+export type GetRecommendedGroupsListType = z.TypeOf<
+  typeof GetRecommendedGroupsListSchema
+>;

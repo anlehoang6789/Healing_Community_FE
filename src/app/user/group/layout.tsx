@@ -2,34 +2,106 @@
 
 import GroupTabsUser from "@/app/user/group/group-tabs-user";
 import { Button } from "@/components/ui/button";
-import { getUserIdFromLocalStorage } from "@/lib/utils";
-import { useGetGroupDetailsByGroupIdQuery } from "@/queries/useGroup";
+import { toast } from "@/hooks/use-toast";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
+import {
+  useGetGroupDetailsByGroupIdQuery,
+  useGetGroupInfoQuery,
+  useJoinGroupMutation,
+  useLeaveGroupByGroupIdMutation,
+} from "@/queries/useGroup";
 import { Globe, LockKeyhole } from "lucide-react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
-import { createContext } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { createContext, useEffect, useMemo, useState } from "react";
 
 const GroupContext = createContext<{
   groupId: string | null;
   setGroupId: (value: string | null) => void;
+  isMember: boolean | null;
 }>({
   groupId: null,
   setGroupId: () => {},
+  isMember: null,
 });
 
 export default function GroupLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const router = useRouter();
   const params = useParams();
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const groupIdFromPath = params.groupId as string;
   //data group detail
-  const { data: groupDetails } =
-    useGetGroupDetailsByGroupIdQuery(groupIdFromPath);
+  const { data: groupDetails } = useGetGroupDetailsByGroupIdQuery({
+    groupId: groupIdFromPath,
+    enabled: !!groupIdFromPath,
+  });
+
+  const { data: groupJoin } = useGetGroupInfoQuery({
+    userId: userIdFromLocalStorage as string,
+    enabled: !!userIdFromLocalStorage,
+  });
+
+  const groupJoinList = useMemo(
+    () => groupJoin?.payload.data || [],
+    [groupJoin]
+  );
+
+  const [isMemberState, setIsMemberState] = useState<boolean | null>(null);
+
+  //check xem co phai thanh vien cua nhom khong
+  useEffect(() => {
+    if (groupJoinList.length > 0) {
+      const isMember = groupJoinList.some(
+        (group) => group.groupId === groupIdFromPath
+      );
+      setIsMemberState(isMember);
+    } else {
+      setIsMemberState(null); // Reset trạng thái nếu chưa có dữ liệu
+    }
+  }, [groupJoinList, groupIdFromPath]);
+
+  const joinGroupMutation = useJoinGroupMutation(
+    userIdFromLocalStorage as string
+  );
+  const handleJoinGroup = async (groupId: string) => {
+    try {
+      const result = await joinGroupMutation.mutateAsync({ groupId });
+      toast({
+        description: result.payload.message || "Tham gia nhóm thành công!",
+        variant: "success",
+      });
+      setIsMemberState(true);
+    } catch (error) {
+      handleErrorApi({ error });
+    }
+  };
+
+  const leaveGroupMutation = useLeaveGroupByGroupIdMutation(
+    userIdFromLocalStorage as string
+  );
+  const handleLeaveGroup = async (groupId: string) => {
+    try {
+      const result = await leaveGroupMutation.mutateAsync({ groupId });
+      toast({
+        description: result.payload.message || "Rời nhóm thành công!",
+        variant: "success",
+      });
+      setIsMemberState(false);
+      router.push(`/user/group/${groupId}`);
+    } catch (error) {
+      handleErrorApi({ error });
+    }
+  };
 
   return (
     <GroupContext.Provider
-      value={{ groupId: groupIdFromPath, setGroupId: () => {} }}
+      value={{
+        groupId: groupIdFromPath,
+        setGroupId: () => {},
+        isMember: isMemberState,
+      }}
     >
       <div className="w-full max-w-7xl mx-auto bg-background">
         <div className="relative h-[200px] sm:h-[400px] w-full rounded-b-lg overflow-hidden">
@@ -54,13 +126,32 @@ export default function GroupLayout({
                   {groupDetails?.payload.data.groupName}
                 </h1>
                 <div className="flex flex-col sm:flex-row items-center gap-2 mt-2 sm:mt-0">
-                  <Button className="w-full sm:w-auto">+ Mời</Button>
-                  <Button
-                    variant="outline"
-                    className="w-full sm:w-auto text-textChat"
-                  >
-                    Đã tham gia
-                  </Button>
+                  {/* <Button className="w-full sm:w-auto">+ Mời</Button> */}
+                  {isMemberState === null ? (
+                    <Button
+                      variant="outline"
+                      className="w-full sm:w-auto text-textChat"
+                      disabled
+                    >
+                      Đang tải...
+                    </Button>
+                  ) : isMemberState ? (
+                    <Button
+                      variant="outline"
+                      className="w-full sm:w-auto text-textChat hover:text-red-500 hover:bg-red-100"
+                      onClick={() => handleLeaveGroup(groupIdFromPath)}
+                    >
+                      Rời nhóm
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="default"
+                      className="w-full sm:w-auto"
+                      onClick={() => handleJoinGroup(groupIdFromPath)}
+                    >
+                      Tham gia ngay
+                    </Button>
+                  )}
                 </div>
               </div>
               {/* phần số lượng thành viên nhóm */}
@@ -85,6 +176,7 @@ export default function GroupLayout({
         <GroupTabsUser
           groupId={groupIdFromPath}
           userId={userIdFromLocalStorage as string}
+          isMember={isMemberState}
         />
         {children}
       </div>

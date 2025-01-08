@@ -1,5 +1,5 @@
 import CarouselHome from "@/components/homePage/carouselHome";
-import HighlightPosts from "@/components/homePage/highlightPosts";
+// import HighlightPosts from "@/components/homePage/highlightPosts";
 import HighlightPostSEO from "@/components/homePage/highlightPostSEO";
 import Posts from "@/components/homePage/posts";
 // import PostSEO from "@/components/homePage/postSEO";

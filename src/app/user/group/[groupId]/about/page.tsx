@@ -16,8 +16,9 @@ export default function GroupAbout() {
   const params = useParams();
   const groupIdFromPath = params.groupId as string;
   //data group detail
-  const { data: groupDetails } =
-    useGetGroupDetailsByGroupIdQuery(groupIdFromPath);
+  const { data: groupDetails } = useGetGroupDetailsByGroupIdQuery({
+    groupId: groupIdFromPath,
+  });
   return (
     <Card className="bg-background text-textChat p-6 max-w-4xl mx-auto my-6">
       <h2 className="text-xl font-semibold mb-4 pb-4 border-b-2">

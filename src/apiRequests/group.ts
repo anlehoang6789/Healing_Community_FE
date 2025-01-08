@@ -7,9 +7,11 @@ import {
   CrequestGroupRequestType,
   GetAllGroupsResponseType,
   GetGroupDetailsByGroupIdResType,
+  GetGroupInfoListType,
   GetGroupMembersByGroupIdListResType,
   GetListRequestGroupByUserIdResponseType,
   GetListRequestGroupResponseType,
+  GetRecommendedGroupsListType,
   GetRequestJoinGroupListResType,
   GetRoleCountByGroupIdResType,
   JoinGroupRequestType,
@@ -88,6 +90,14 @@ const groupApiRequest = {
   checkRoleInGroup: (userId: string, groupId: string) =>
     http.get<CheckRoleInGroupResType>(
       `group/api/usergroup/get-role-in-group?userId=${userId}&groupId=${groupId}`
+    ),
+  getGroupInfo: (userId: string) =>
+    http.get<GetGroupInfoListType>(
+      `group/api/usergroup/get-by-user-id/${userId}`
+    ),
+  getRecommendGroup: () =>
+    http.get<GetRecommendedGroupsListType>(
+      `post/api/post/get-recommend-groups`
     ),
 };
 
