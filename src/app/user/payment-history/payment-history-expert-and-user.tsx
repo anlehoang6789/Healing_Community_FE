@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -27,17 +27,20 @@ import {
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
-import { GetManagerPaymentForModeratorType } from "@/schemaValidations/payment.schema";
-import { usePaymentHistoryForModeratorQuery } from "@/queries/usePayment";
-import { formatCurrency, formatDate, formatDateTime } from "@/lib/utils";
+import { GetManagerPaymentForUserAndExpertType } from "@/schemaValidations/payment.schema";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  usePaymentHistoryForExpertQuery,
+  usePaymentHistoryForUserQuery,
+} from "@/queries/usePayment";
+import {
+  formatCurrency,
+  formatDate,
+  formatDateTime,
+  getRoleFromLocalStorage,
+} from "@/lib/utils";
+import { Role } from "@/constants/type";
 
-export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
+export const columns: ColumnDef<GetManagerPaymentForUserAndExpertType>[] = [
   {
     id: "paymentId",
     header: "STT",
@@ -162,25 +165,36 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
       );
     },
     cell: ({ row }) => {
+      const role = getRoleFromLocalStorage();
       const status: number = row.original.status;
-      const statusMapping: Record<number, string> = {
-        0: "Chờ thanh toán",
-        1: "Người dùng đã thanh toán",
-        2: "Chuyên gia đã nhận tiền",
-        3: "Người dùng hủy thanh toán",
-        4: "Người dùng được hoàn tiền",
-        5: "Người dùng đã hủy lịch",
-        6: "Chuyên gia đã hủy lịch",
+      const statusMapping: Record<string, Record<number, string>> = {
+        [Role.User]: {
+          0: "Chưa thanh toán",
+          1: "Đã đặt lịch",
+          2: "Đã hủy lịch",
+          3: "Hoàn tất buổi tư vấn",
+          4: "Bạn hủy thanh toán",
+          5: "Đã nhận hoàn tiền",
+        },
+        [Role.Expert]: {
+          0: "Người dùng chưa thanh toán",
+          1: "Người dùng đã đặt lịch",
+          2: "Đã hủy lịch",
+          3: "Đã được thanh toán",
+          4: "Người dùng đã hủy thanh toán",
+          5: "Đã hoàn tiền cho người dùng",
+        },
       };
-      const statusLabel = statusMapping[status] || "Không xác định";
+      const currentMapping = statusMapping[role as string];
+      const statusLabel = currentMapping[status] || "Không xác định";
 
       const statusColor: Record<number, string> = {
         0: "bg-gray-100 text-gray-800 text-xs",
         1: "bg-blue-100 text-blue-800 text-xs",
-        2: "bg-green-100 text-green-800 text-xs",
-        3: "bg-red-100 text-red-800 text-xs",
-        4: "bg-lime-100 text-lime-800 text-xs",
-        5: "bg-pink-100 text-pink-800 text-xs",
+        3: "bg-green-100 text-green-800 text-xs",
+        2: "bg-red-100 text-red-800 text-xs",
+        4: "bg-orange-100 text-orange-800 text-xs",
+        5: "bg-lime-100 text-lime-800 text-xs",
       };
 
       return (
@@ -194,71 +208,27 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
       );
     },
   },
-  {
-    id: "transaction",
-    header: "Giao dịch",
-    cell: ({ row }) => {
-      const status: number = row.original.status;
-      const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
-      const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
-
-      // Status la 0, 2, 3, 4 thi khong hien thi nut
-      if ([0, 2, 3, 4].includes(status)) return null;
-
-      return (
-        <div className="relative">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {status === 1 && expertPaymentQrCodeLink && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
-                      expertPaymentQrCodeLink,
-                      "_blank",
-                      "noopener,noreferrer"
-                    )
-                  }
-                >
-                  Chuyển tiền cho chuyên gia
-                </DropdownMenuItem>
-              )}
-              {[1, 5, 6].includes(status) && userPaymentQrCodeLink && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
-                      userPaymentQrCodeLink,
-                      "_blank",
-                      "noopener,noreferrer"
-                    )
-                  }
-                >
-                  Hoàn tiền cho người dùng
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
-  },
 ];
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
-export default function TransactionHistoryTable() {
+export default function PaymentHistoryForExpertAndUser() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
   // const params = Object.fromEntries(searchParam.entries())
+  const role = getRoleFromLocalStorage();
+  const isExpert = role === Role.Expert;
   //tao bien lay data tu api
-  const listToPaymentHistoryForModerator = usePaymentHistoryForModeratorQuery();
-  const data = listToPaymentHistoryForModerator.data?.payload.data ?? [];
+  const listToPaymentHistoryForExpert = usePaymentHistoryForExpertQuery({
+    enabled: isExpert,
+  });
+  const listToPaymentHistoryForUser = usePaymentHistoryForUserQuery({
+    enabled: !isExpert,
+  });
+  const data = isExpert
+    ? listToPaymentHistoryForExpert.data?.payload.data ?? []
+    : listToPaymentHistoryForUser.data?.payload.data ?? [];
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -355,7 +325,7 @@ export default function TransactionHistoryTable() {
                   colSpan={columns.length}
                   className="h-24 text-center text-textChat"
                 >
-                  No results.
+                  Bạn chưa có giao dịch nào
                 </TableCell>
               </TableRow>
             )}
@@ -371,7 +341,7 @@ export default function TransactionHistoryTable() {
           <AutoPagination
             page={table.getState().pagination.pageIndex + 1}
             pageSize={table.getPageCount()}
-            pathname="/moderator/transaction-history"
+            pathname="/user/payment-history"
           />
         </div>
       </div>

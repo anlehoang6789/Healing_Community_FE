@@ -24,8 +24,9 @@ export default function GroupLayoutModerator({
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const groupIdFromPath = params.groupId as string;
   //data group detail
-  const { data: groupDetails } =
-    useGetGroupDetailsByGroupIdQuery(groupIdFromPath);
+  const { data: groupDetails } = useGetGroupDetailsByGroupIdQuery({
+    groupId: groupIdFromPath,
+  });
 
   return (
     <GroupContext.Provider

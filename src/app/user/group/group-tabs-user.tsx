@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useCheckRoleInGroupQuery } from "@/queries/useGroup";
-import { Ellipsis, MessageSquareWarning, MessagesSquare } from "lucide-react";
+import { Ellipsis, MessagesSquare } from "lucide-react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -17,9 +17,11 @@ import { usePathname, useRouter } from "next/navigation";
 export default function GroupTabsUser({
   groupId,
   userId,
+  isMember,
 }: {
   groupId: string;
   userId: string;
+  isMember: boolean | null;
 }) {
   const { theme } = useTheme();
   const pathname = usePathname();
@@ -51,18 +53,20 @@ export default function GroupTabsUser({
       <div className="flex flex-col sm:flex-row justify-between items-center sm:items-center py-4 gap-4">
         {/* Buttons Section */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-          <Link href={`/user/group/${groupId}/about`} passHref>
-            <Button
-              variant={
-                activeTab === "about"
-                  ? "gradientUnderline"
-                  : "gradientHoverUnderline"
-              }
-              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-            >
-              Giới thiệu
-            </Button>
-          </Link>
+          {isMember && (
+            <Link href={`/user/group/${groupId}/about`} passHref>
+              <Button
+                variant={
+                  activeTab === "about"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                Giới thiệu
+              </Button>
+            </Link>
+          )}
           <Link href={`/user/group/${groupId}`} passHref>
             <Button
               variant={
@@ -75,30 +79,34 @@ export default function GroupTabsUser({
               Thảo luận
             </Button>
           </Link>
-          <Link href={`/user/group/${groupId}/announcement`} passHref>
-            <Button
-              variant={
-                activeTab === "announcement"
-                  ? "gradientUnderline"
-                  : "gradientHoverUnderline"
-              }
-              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-            >
-              Đáng chú ý
-            </Button>
-          </Link>
-          <Link href={`/user/group/${groupId}/members`} passHref>
-            <Button
-              variant={
-                activeTab === "members"
-                  ? "gradientUnderline"
-                  : "gradientHoverUnderline"
-              }
-              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
-            >
-              Mọi người
-            </Button>
-          </Link>
+          {isMember && (
+            <Link href={`/user/group/${groupId}/announcement`} passHref>
+              <Button
+                variant={
+                  activeTab === "announcement"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                Đáng chú ý
+              </Button>
+            </Link>
+          )}
+          {isMember && (
+            <Link href={`/user/group/${groupId}/members`} passHref>
+              <Button
+                variant={
+                  activeTab === "members"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                Mọi người
+              </Button>
+            </Link>
+          )}
           {isModeratorInGroup && (
             <Link href={`/user/group/${groupId}/request-join`} passHref>
               <Button
@@ -116,27 +124,25 @@ export default function GroupTabsUser({
         </div>
 
         {/* Dropdown Section */}
-        <DropdownMenu modal={false} aria-hidden={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="iconSend">
-              <Ellipsis />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className={`w-56 mt-4 ${
-              theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-            }`}
-          >
-            <DropdownMenuItem onClick={handleNavigation}>
-              <MessagesSquare className="mr-2 h-4 w-4" />
-              <span>Nội dung của bạn</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <MessageSquareWarning className="mr-2 h-4 w-4" />
-              <span>Báo cáo nhóm</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {isMember && (
+          <DropdownMenu modal={false} aria-hidden={false}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="iconSend">
+                <Ellipsis />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              className={`w-56 mt-4 ${
+                theme === "dark" ? "bg-black text-white" : "bg-white text-black"
+              }`}
+            >
+              <DropdownMenuItem onClick={handleNavigation}>
+                <MessagesSquare className="mr-2 h-4 w-4" />
+                <span>Nội dung của bạn</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
     </main>
   );

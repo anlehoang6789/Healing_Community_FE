@@ -47,7 +47,7 @@ export const useDeleteGroupByGroupIdMutation = () => {
   });
 };
 
-export const useJoinGroupMutation = () => {
+export const useJoinGroupMutation = (userId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -56,6 +56,7 @@ export const useJoinGroupMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
       queryClient.invalidateQueries({ queryKey: ["get-groups-by-user-id"] });
+      queryClient.invalidateQueries({ queryKey: ["get-group-info", userId] });
     },
     onError: (error) => {
       console.error("Lỗi khi tham gia nhóm:", error);
@@ -63,7 +64,7 @@ export const useJoinGroupMutation = () => {
   });
 };
 
-export const useLeaveGroupByGroupIdMutation = () => {
+export const useLeaveGroupByGroupIdMutation = (userId?: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: LeaveGroupRequestType) =>
@@ -71,6 +72,7 @@ export const useLeaveGroupByGroupIdMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
       queryClient.invalidateQueries({ queryKey: ["get-groups-by-user-id"] });
+      queryClient.invalidateQueries({ queryKey: ["get-group-info", userId] });
     },
     onError: (error) => {
       console.error("Lỗi khi rời nhóm:", error);
@@ -96,10 +98,17 @@ export const useUpdateGroupMutation = () => {
   });
 };
 
-export const useGetGroupDetailsByGroupIdQuery = (groupId: string) => {
+export const useGetGroupDetailsByGroupIdQuery = ({
+  groupId,
+  enabled,
+}: {
+  groupId: string;
+  enabled?: boolean;
+}) => {
   return useQuery({
     queryKey: ["get-group-details-by-group-id", groupId],
     queryFn: () => groupApiRequest.getGroupDetailsByGroupId(groupId),
+    enabled: enabled,
   });
 };
 
@@ -186,5 +195,26 @@ export const useCheckRoleInGroupQuery = (userId: string, groupId: string) => {
   return useQuery({
     queryKey: ["check-role-in-group", userId, groupId],
     queryFn: () => groupApiRequest.checkRoleInGroup(userId, groupId),
+  });
+};
+
+export const useGetGroupInfoQuery = ({
+  userId,
+  enabled,
+}: {
+  userId: string;
+  enabled?: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["get-group-info", userId],
+    queryFn: () => groupApiRequest.getGroupInfo(userId),
+    enabled: enabled,
+  });
+};
+
+export const useGetRecommendGroupQuery = () => {
+  return useQuery({
+    queryKey: ["get-recommend-group"],
+    queryFn: groupApiRequest.getRecommendGroup,
   });
 };
