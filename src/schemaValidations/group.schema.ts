@@ -209,3 +209,78 @@ export const GetListRequestGroupByUserIdSchema = z.object({
 export type GetListRequestGroupByUserIdResponseType = z.infer<
   typeof GetListRequestGroupByUserIdSchema
 >;
+
+// request join group
+export const RequestJoinGroupSchema = z.object({
+  queueId: z.string(),
+  groupId: z.string(),
+  userId: z.string(),
+  requestedAt: z.string(),
+});
+
+export type RequestJoinGroupType = z.TypeOf<typeof RequestJoinGroupSchema>;
+
+export const GetRequestJoinGroupListRes = z.object({
+  data: z.array(RequestJoinGroupSchema),
+  message: z.string(),
+});
+
+export type GetRequestJoinGroupListResType = z.infer<
+  typeof GetRequestJoinGroupListRes
+>;
+
+// check role in group
+export const CheckRoleInGroupRes = z.object({
+  message: z.string(),
+  data: z.object({
+    roleInGroup: z.string(),
+  }),
+});
+
+export type CheckRoleInGroupResType = z.infer<typeof CheckRoleInGroupRes>;
+
+//approve or reject request group
+export const ApproveOrRejectRequestGroupSchema = z.object({
+  queueId: z.string(),
+  isApproved: z.boolean(),
+});
+
+export type ApproveOrRejectRequestGroupType = z.TypeOf<
+  typeof ApproveOrRejectRequestGroupSchema
+>;
+
+export const GetGroupInfoSchema = z.object({
+  groupId: z.string(),
+  groupName: z.string(),
+  groupAvatar: z.string(),
+  joinedAt: z.string(),
+  roleInGroup: z.string(),
+});
+
+export type GetGroupInfoType = z.TypeOf<typeof GetGroupInfoSchema>;
+
+export const GetGroupInfoListSchema = z.object({
+  data: z.array(GetGroupInfoSchema),
+  message: z.string(),
+});
+
+export type GetGroupInfoListType = z.TypeOf<typeof GetGroupInfoListSchema>;
+
+export const GetRecommendedGroupsSchema = z.object({
+  groupId: z.string(),
+  groupName: z.string(),
+  postCount: z.number(),
+});
+
+export type GetRecommendedGroupsType = z.TypeOf<
+  typeof GetRecommendedGroupsSchema
+>;
+
+export const GetRecommendedGroupsListSchema = z.object({
+  data: z.array(GetRecommendedGroupsSchema),
+  message: z.string(),
+});
+
+export type GetRecommendedGroupsListType = z.TypeOf<
+  typeof GetRecommendedGroupsListSchema
+>;

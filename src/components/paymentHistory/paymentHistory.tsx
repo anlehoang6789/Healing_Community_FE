@@ -1,6 +1,6 @@
 "use client";
 
-import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,15 +15,6 @@ import {
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -33,82 +24,104 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
-import { PaymentHistoryType } from "@/schemaValidations/payment.schema";
-import { Badge } from "@/components/ui/badge";
-import PaymentHistoryDetails from "@/app/user/payment-history/payment-history-details";
-import { usePaymentHistoryQuery } from "@/queries/usePayment";
+import { GetManagerPaymentForUserAndExpertType } from "@/schemaValidations/payment.schema";
+import { usePaymentHistoryForUserQuery } from "@/queries/usePayment";
 import { formatCurrency, formatDateTime } from "@/lib/utils";
-import { PaymentHistoryStatus } from "@/constants/type";
 
-type PaymentStatusBadgeVariant =
-  | "success"
-  | "destructive"
-  | "cancel"
-  | "upcoming";
-
-const PaymentHistoryTableContext = createContext<{
-  setPaymentIdDetails: (value: string) => void;
-  paymentIdDetails: string | undefined;
-}>({
-  setPaymentIdDetails: (value: string | undefined) => {},
-  paymentIdDetails: undefined,
-});
-
-//format lại status
-const formatPaymentStatus = (
-  status: keyof typeof PaymentHistoryStatus
-): {
-  text: string;
-  variant: PaymentStatusBadgeVariant;
-} => {
-  const statusMap: Record<
-    keyof typeof PaymentHistoryStatus,
-    { text: string; variant: PaymentStatusBadgeVariant }
-  > = {
-    0: { text: "Chờ thanh toán", variant: "upcoming" },
-    1: { text: "Đã thanh toán", variant: "success" },
-    2: { text: "Lỗi thanh toán", variant: "destructive" },
-    3: { text: "Đã hủy", variant: "cancel" },
-    4: { text: "Không xác định", variant: "destructive" },
-  };
-
-  return statusMap[status] ?? statusMap[4];
-};
-
-export const columns: ColumnDef<PaymentHistoryType>[] = [
+export const columns: ColumnDef<GetManagerPaymentForUserAndExpertType>[] = [
   {
     id: "paymentId",
     header: "STT",
     cell: ({ row }) => <div className="text-textChat">{row.index + 1}</div>,
   },
   {
-    accessorKey: "orderCode",
-    header: "Mã đơn hàng",
-    cell: ({ row }) => (
-      <div className="text-textChat">{row.getValue("orderCode")}</div>
-    ),
-  },
-  {
-    accessorKey: "amount",
+    id: "userInfo",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Giá tiền
+          Thông tin khách hàng
           <CaretSortIcon className="ml-2 h-4 w-4" />
         </Button>
       );
     },
-    cell: ({ row }) => (
-      <div className="text-textChat">
-        {formatCurrency(row.getValue("amount"))}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const userName = row.original.userName;
+      const userEmail = row.original.userEmail;
+      return (
+        <div className="text-textChat flex flex-col">
+          <span className="font-semibold">{userName}</span>
+          <span>{userEmail}</span>
+        </div>
+      );
+    },
+  },
+  {
+    id: "expertInfo",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Thông tin chuyên gia
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const expertName = row.original.expertName;
+      const expertEmail = row.original.expertEmail;
+      return (
+        <div className="text-textChat flex flex-col">
+          <span className="font-semibold">{expertName}</span>
+          <span>{expertEmail}</span>
+        </div>
+      );
+    },
+  },
+  {
+    id: `appointmentDate-startTime-endTime`,
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Lịch tư vấn
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const appointmentDate = row.original.appointmentDate;
+      const startTime = row.original.startTime;
+      const endTime = row.original.endTime;
+      const amount = row.original.amount;
+      return (
+        <div className="text-textChat flex flex-col">
+          <div className="flex">
+            <span className="font-semibold pr-1">Ngày tư vấn: </span>
+            <span>{appointmentDate}</span>
+          </div>
+          <div className="flex">
+            <span className="font-semibold pr-1">Thời gian: </span>
+            <span>
+              {startTime} - {endTime}
+            </span>
+          </div>
+          <div className="flex">
+            <span className="font-semibold pr-1">Giá tiền: </span>
+            <span>{formatCurrency(amount)}</span>{" "}
+          </div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "paymentDate",
@@ -124,51 +137,51 @@ export const columns: ColumnDef<PaymentHistoryType>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="text-textChat">
+      <div className="text-textChat text-sm">
         {formatDateTime(row.getValue("paymentDate"))}
       </div>
     ),
   },
   {
     accessorKey: "status",
-    header: "Trạng thái",
-    cell: ({ row }) => {
-      const status = row.getValue(
-        "status"
-      ) as keyof typeof PaymentHistoryStatus;
-      const { text, variant } = formatPaymentStatus(status);
+    header: ({ column }) => {
       return (
-        <div className="flex items-center">
-          <Badge variant={variant}>{text}</Badge>
-        </div>
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Trạng thái giao dịch
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
       );
     },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: function Actions({ row }) {
-      const { setPaymentIdDetails } = useContext(PaymentHistoryTableContext);
-      const openDeatailsPayment = () => {
-        setPaymentIdDetails(row.original.paymentId);
+    cell: ({ row }) => {
+      const status: number = row.original.status;
+      const statusMapping: Record<number, string> = {
+        0: "Chờ thanh toán",
+        1: "Người dùng đã thanh toán",
+        2: "Chuyên gia đã nhận tiền",
+        3: "Người dùng hủy thanh toán",
+        4: "Người dùng được hoàn tiền",
+      };
+      const statusLabel = statusMapping[status] || "Không xác định";
+
+      const statusColor: Record<number, string> = {
+        0: "bg-gray-100 text-gray-800 text-xs",
+        1: "bg-blue-100 text-blue-800 text-xs",
+        2: "bg-green-100 text-green-800 text-xs",
+        3: "bg-red-100 text-red-800 text-xs",
+        4: "bg-yellow-100 text-yellow-800 text-xs",
       };
 
       return (
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4 text-textChat" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Hành động</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openDeatailsPayment}>
-              Xem chi tiết
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium ${
+            statusColor[status] || "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {statusLabel}
+        </span>
       );
     },
   },
@@ -176,17 +189,15 @@ export const columns: ColumnDef<PaymentHistoryType>[] = [
 
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
-export default function ViewPaymentHistory() {
+export default function ViewPaymentHistoryForUser() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
   // const params = Object.fromEntries(searchParam.entries())
-  const [paymentIdDetails, setPaymentIdDetails] = useState<
-    string | undefined
-  >();
   //tao bien lay data tu api
-  const paymentHistoryListQuery = usePaymentHistoryQuery();
-  const data = paymentHistoryListQuery.data?.payload.data ?? [];
+  // const listToPaymentHistoryForUser = usePaymentHistoryForUserQuery();
+  // const data = listToPaymentHistoryForUser.data?.payload.data ?? [];
+  const data: any = [];
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -227,95 +238,82 @@ export default function ViewPaymentHistory() {
   }, [table, pageIndex]);
 
   return (
-    <PaymentHistoryTableContext.Provider
-      value={{
-        paymentIdDetails,
-        setPaymentIdDetails,
-      }}
-    >
-      <div className="w-full">
-        <PaymentHistoryDetails
-          id={paymentIdDetails}
-          setId={setPaymentIdDetails}
-          onSubmitSuccess={() => {}}
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center py-4 gap-4 sm:gap-2">
+        <Input
+          placeholder="Tìm kiếm ngày thanh toán ..."
+          value={
+            (table.getColumn("paymentDate")?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table.getColumn("paymentDate")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
         />
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Tìm theo đơn hàng"
-            value={
-              (table.getColumn("orderCode")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("orderCode")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
+      </div>
+      <div className="rounded-md border overflow-x-auto max-w-full">
+        <Table className="max-w-full">
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-textChat"
+                >
+                  Bạn chưa có giao dịch nào
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+      <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 py-4">
+        <div className="text-xs text-muted-foreground text-center flex-1 sm:text-left">
+          Hiển thị <strong>{table.getPaginationRowModel().rows.length}</strong>{" "}
+          trong <strong>{data.length}</strong> kết quả
+        </div>
+        <div>
+          <AutoPagination
+            page={table.getState().pagination.pageIndex + 1}
+            pageSize={table.getPageCount()}
+            pathname="/payment-history"
           />
         </div>
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center text-textChat"
-                  >
-                    Không có giao dịch nào.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="text-xs text-muted-foreground py-4 flex-1 ">
-            Hiển thị{" "}
-            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
-            <strong>{data.length}</strong> kết quả
-          </div>
-          <div>
-            <AutoPagination
-              page={table.getState().pagination.pageIndex + 1}
-              pageSize={table.getPageCount()}
-              pathname="/user/payment-history"
-            />
-          </div>
-        </div>
       </div>
-    </PaymentHistoryTableContext.Provider>
+    </div>
   );
 }

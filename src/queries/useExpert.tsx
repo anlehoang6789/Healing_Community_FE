@@ -302,3 +302,24 @@ export const useRejectCertificateMutation = () => {
     },
   });
 };
+
+export const useGetDashboardRecentRatingQuery = () => {
+  return useQuery({
+    queryKey: ["dashboard-recent-rating"],
+    queryFn: expertApiRequest.getDashboardRecentRating,
+  });
+};
+
+export const useGetDashboardStatisticsQuery = () => {
+  return useQuery({
+    queryKey: ["dashboard-statistics"],
+    queryFn: expertApiRequest.getDashboardStatistics,
+  });
+};
+
+export const useGetActivityReportDashboardQuery = () => {
+  return useQuery({
+    queryKey: ["activity-report-dashboard"],
+    queryFn: expertApiRequest.getActivityReportDashboard,
+  });
+};

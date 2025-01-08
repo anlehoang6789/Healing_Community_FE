@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Eye, EyeOff, Upload, X } from "lucide-react";
-import Image from "next/image";
+import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -346,7 +344,7 @@ export default function RegisterExpertForm() {
             >
               Đăng ký
             </Button>
-            <div className="flex items-center justify-center text-black space-x-4">
+            {/* <div className="flex items-center justify-center text-black space-x-4">
               <Separator className="flex-1 h-[1px] bg-[#b2babb]" />
               <h5 className="text-base text-black">Hoặc</h5>
               <Separator className="flex-1 h-[1px] bg-[#b2babb]" />
@@ -365,7 +363,7 @@ export default function RegisterExpertForm() {
                 className="mr-2"
               />
               Đăng nhập bằng Google
-            </Button>
+            </Button> */}
             <div className="flex items-center justify-center text-black">
               <h5 className="text-sm">Đã có tài khoản?</h5>
               <span className="ml-1 underline text-sm hover:bg-clip-text hover:text-transparent hover:bg-gradient-to-r from-pink-500 to-violet-500">

@@ -12,7 +12,7 @@ export default function LoginPage() {
               <LoginForm />
             </Suspense>
           </div>
-          <div className="hidden md:block w-1/2 relative h-full min-h-[600px]">
+          <div className="hidden md:block w-1/2 relative h-full min-h-[550px]">
             <Image
               src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
               alt="Lotus Login"

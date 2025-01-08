@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, Star, Heart } from "lucide-react";
+import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
@@ -96,7 +96,7 @@ export default function ExpertsPage() {
       .map((spec) => spec.trim());
 
     return (
-      <Link href={`/user/profile/expert-info/${expert.expertId}`}>
+      <Link href={`/user/profile/${expert.expertId}/expert-info`}>
         <Card className="overflow-hidden relative md:w-[260px]">
           <CardContent className="p-4">
             <div className="absolute top-2 right-2 z-10">

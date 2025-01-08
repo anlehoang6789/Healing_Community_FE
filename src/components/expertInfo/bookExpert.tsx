@@ -306,6 +306,7 @@ export default function BookExpert() {
                       variant="outline"
                       onClick={() => setIsBookingDialogOpen(false)}
                       className="text-textChat"
+                      type="reset"
                     >
                       Hủy
                     </Button>

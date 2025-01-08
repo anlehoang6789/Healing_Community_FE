@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -116,7 +116,7 @@ export default function RecommendExperts() {
       .split(",")
       .map((spec) => spec.trim());
     return (
-      <Link href={`/user/profile/expert-info/${expert.expertId}`}>
+      <Link href={`/user/profile/${expert.expertId}/expert-info`}>
         <Card className="overflow-hidden relative w-full">
           <CardContent className="p-4 flex items-center">
             <div className="mr-6">

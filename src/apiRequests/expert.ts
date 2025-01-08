@@ -8,7 +8,10 @@ import {
   CreateAvailableTimeSlotResponseType,
   CreateExpertExperienceBodyType,
   DeleteCertificateResponseType,
+  ExpertActivityReportDashboardListResType,
   ExpertExperienceListResType,
+  ExpertRecentRatingDashboardListResType,
+  ExpertStaticDashboardResType,
   GetAllCertificatesResponseType,
   GetCertificateTypeResponseType,
   GetDetailExpertExperienceResType,
@@ -121,6 +124,16 @@ const expertApiRequest = {
 
   rejectCertificate: (body: RejectCertificateType) =>
     http.post<{ message: string }>("expert/api/certificate/reject", body),
+  getDashboardRecentRating: () =>
+    http.get<ExpertRecentRatingDashboardListResType>(
+      "expert/api/appointment/recent-ratings"
+    ),
+  getDashboardStatistics: () =>
+    http.get<ExpertStaticDashboardResType>("expert/api/appointment/statistics"),
+  getActivityReportDashboard: () =>
+    http.get<ExpertActivityReportDashboardListResType>(
+      "expert/api/appointment/activity-report"
+    ),
 };
 
 export default expertApiRequest;

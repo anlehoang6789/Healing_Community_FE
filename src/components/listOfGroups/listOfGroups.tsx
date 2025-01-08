@@ -35,7 +35,6 @@ import {
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import CrequestGroupDialog from "@/app/user/list-of-groups/request-group";
 
 export default function ListOfGroups() {
   const { theme } = useTheme();
@@ -45,9 +44,9 @@ export default function ListOfGroups() {
   const groups = response?.payload?.data || [];
   const [userId, setUserId] = useState<string | null>(null);
 
-  const joinGroupMutation = useJoinGroupMutation();
+  const joinGroupMutation = useJoinGroupMutation(userId as string);
 
-  const leaveGroupMutation = useLeaveGroupByGroupIdMutation();
+  const leaveGroupMutation = useLeaveGroupByGroupIdMutation(userId as string);
 
   useEffect(() => {
     const storedUserId = getUserIdFromLocalStorage();
@@ -182,49 +181,52 @@ export default function ListOfGroups() {
                     {group.isAutoApprove ? "Tự động duyệt" : "Duyệt thủ công"}
                   </p>
                 </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    align="end"
-                    className={`${
-                      theme === "dark"
-                        ? "bg-black text-white"
-                        : "bg-white text-black"
-                    }`}
-                  >
-                    {isGroupJoined(group.groupId) && (
-                      <DropdownMenuItem>
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        <span>Nội dung của bạn</span>
-                      </DropdownMenuItem>
-                    )}
+                {isGroupJoined(group.groupId) && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      align="end"
+                      className={`${
+                        theme === "dark"
+                          ? "bg-black text-white"
+                          : "bg-white text-black"
+                      }`}
+                    >
+                      {isGroupJoined(group.groupId) && (
+                        <DropdownMenuItem>
+                          <Link
+                            href={`/user/group/${group.groupId}`}
+                            className="flex items-center"
+                          >
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            <span>Truy cập nhóm</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
 
-                    <DropdownMenuItem>
-                      <Flag className="mr-2 h-4 w-4" />
-                      <span>Báo cáo nhóm</span>
-                    </DropdownMenuItem>
-                    {isGroupJoined(group.groupId) && (
-                      <DropdownMenuItem className="border-t-2 group">
-                        <LogOut className="mr-2 h-4 w-4 group-hover:text-red-500 " />
-                        <Button
-                          className={`group-hover:text-red-500 m-[-6px] ml-[-15px] border-none bg-transparent shadow-none hover:bg-transparent font-normal ${
-                            theme === "dark" ? " text-white" : " text-black"
-                          } `}
-                          onClick={() => handleLeaveGroup(group.groupId)}
-                        >
-                          Rời nhóm
-                        </Button>
-                        {/* <span className="group-hover:text-red-500 ">
+                      {isGroupJoined(group.groupId) && (
+                        <DropdownMenuItem className="border-t-2 group">
+                          <LogOut className="mr-2 h-4 w-4 group-hover:text-red-500 " />
+                          <Button
+                            className={`group-hover:text-red-500 m-[-6px] ml-[-15px] border-none bg-transparent shadow-none hover:bg-transparent font-normal ${
+                              theme === "dark" ? " text-white" : " text-black"
+                            } `}
+                            onClick={() => handleLeaveGroup(group.groupId)}
+                          >
+                            Rời nhóm
+                          </Button>
+                          {/* <span className="group-hover:text-red-500 ">
                           Rời nhóm
                         </span> */}
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </CardContent>
 
               {!isGroupJoined(group.groupId) && (

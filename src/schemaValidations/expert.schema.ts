@@ -396,3 +396,64 @@ export const RejectCertificate = z.object({
 });
 
 export type RejectCertificateType = z.TypeOf<typeof RejectCertificate>;
+
+// ================ dashboard cho expert ================
+export const ExpertRecentRatingDashboardSchema = z.object({
+  userId: z.string(),
+  userEmail: z.string().email(),
+  rating: z.number(),
+  comment: z.string(),
+});
+
+export type ExpertRecentRatingDashboardType = z.TypeOf<
+  typeof ExpertRecentRatingDashboardSchema
+>;
+
+export const ExpertRecentRatingDashboardListRes = z.object({
+  data: z.array(ExpertRecentRatingDashboardSchema),
+  message: z.string(),
+});
+
+export type ExpertRecentRatingDashboardListResType = z.TypeOf<
+  typeof ExpertRecentRatingDashboardListRes
+>;
+
+export const ExpertStaticDashboardSchema = z.object({
+  totalAppointments: z.number(),
+  averageRating: z.number(),
+});
+
+export type ExpertStaticDashboardType = z.TypeOf<
+  typeof ExpertStaticDashboardSchema
+>;
+
+export const ExpertStaticDashboardRes = z.object({
+  data: ExpertStaticDashboardSchema,
+  message: z.string(),
+});
+
+export type ExpertStaticDashboardResType = z.TypeOf<
+  typeof ExpertStaticDashboardRes
+>;
+
+export const ExpertActivityReportDashboardSchema = z.object({
+  date: z.string(),
+  totalAppointments: z.number(),
+  completedAppointments: z.number(),
+  completionRate: z.number(),
+  status: z.string(),
+});
+
+export type ExpertActivityReportDashboardType = z.TypeOf<
+  typeof ExpertActivityReportDashboardSchema
+>;
+
+export const ExpertActivityReportDashboardListRes = z.object({
+  data: z.array(ExpertActivityReportDashboardSchema),
+  message: z.string(),
+});
+
+export type ExpertActivityReportDashboardListResType = z.TypeOf<
+  typeof ExpertActivityReportDashboardListRes
+>;
+//=======================================================
