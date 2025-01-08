@@ -62,3 +62,27 @@ export const usePaymentHistoryForModeratorQuery = () => {
     queryFn: paymentApiRequest.getPaymentHistoryForModerator,
   });
 };
+
+export const usePaymentHistoryForUserQuery = ({
+  enabled,
+}: {
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["payment-history-user"],
+    queryFn: paymentApiRequest.getPaymentHistoryForUser,
+    enabled,
+  });
+};
+
+export const usePaymentHistoryForExpertQuery = ({
+  enabled,
+}: {
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["payment-history-expert"],
+    queryFn: paymentApiRequest.getPaymentHistoryForExpert,
+    enabled,
+  });
+};
