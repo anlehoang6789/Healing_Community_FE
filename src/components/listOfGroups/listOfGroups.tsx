@@ -176,6 +176,10 @@ export default function ListOfGroups() {
                     Thành viên: {group.currentMemberCount.toLocaleString()}/
                     {group.memberLimit.toLocaleString()}
                   </p>
+                  <p className="text-sm text-gray-500">
+                    Phê duyệt:{" "}
+                    {group.isAutoApprove ? "Tự động duyệt" : "Duyệt thủ công"}
+                  </p>
                 </div>
                 {isGroupJoined(group.groupId) && (
                   <DropdownMenu>
