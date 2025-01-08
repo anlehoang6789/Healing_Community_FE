@@ -31,18 +31,11 @@ import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 
 import {
-  GetListRequestGroupByUserIdResponseType,
-  GetRequestGroupType,
-} from "@/schemaValidations/group.schema";
-import { useGetListRequestedGroupByUserIdQuery } from "@/queries/useGroup";
-
-import {
   formatDateTime,
   getUserIdFromLocalStorage,
   handleErrorApi,
 } from "@/lib/utils";
-import { useGetAllUsers } from "@/queries/useUser";
-import { UserType } from "@/schemaValidations/user.schema";
+
 import {
   CertificateType,
   GetAllCertificatesResponseType,
