@@ -1,11 +1,12 @@
 import CarouselHome from "@/components/homePage/carouselHome";
-// import HighlightPosts from "@/components/homePage/highlightPosts";
 import HighlightPostSEO from "@/components/homePage/highlightPostSEO";
-import Posts from "@/components/homePage/posts";
-// import PostSEO from "@/components/homePage/postSEO";
-// import QuickPosts from "@/components/homePage/quickPosts";
 import QuickPostSEO from "@/components/homePage/quickPostSEO";
+import dynamic from "next/dynamic";
 import React from "react";
+
+const Posts = dynamic(() => import("@/components/homePage/posts"), {
+  ssr: false,
+});
 
 export default function HomePage() {
   return (
