@@ -112,7 +112,7 @@ const CreateGroupDialog = () => {
                   height={200}
                   src={avatarGroup}
                   alt="Group"
-                  className="rounded-lg object-cover"
+                  className="rounded-lg object-cover h-[200px] w-[200px]"
                 />
               ) : (
                 <div className="h-52 w-52 bg-gray-300 flex items-center justify-center text-gray-700">
