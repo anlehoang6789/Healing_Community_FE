@@ -295,6 +295,8 @@ export default function TableListCertificate() {
           }
         };
 
+        const status: number = row.original.status;
+
         return (
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild>
@@ -304,10 +306,26 @@ export default function TableListCertificate() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={handleApprove}>Duyệt</DropdownMenuItem>
-              <DropdownMenuItem onClick={handleReject}>
-                Từ chối
-              </DropdownMenuItem>
+              {status === 0 && (
+                <>
+                  <DropdownMenuItem onClick={handleApprove}>
+                    Duyệt
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleReject}>
+                    Từ chối
+                  </DropdownMenuItem>
+                </>
+              )}
+              {status === 1 && (
+                <DropdownMenuItem onClick={handleReject}>
+                  Từ chối
+                </DropdownMenuItem>
+              )}
+              {status === 3 && (
+                <DropdownMenuItem onClick={handleApprove}>
+                  Duyệt
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         );
