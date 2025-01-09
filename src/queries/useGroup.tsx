@@ -1,6 +1,7 @@
 import groupApiRequest from "@/apiRequests/group";
 import {
   ApproveOrRejectRequestGroupResType,
+  AssignRoleRequestType,
   CreateGroupRequestType,
   CrequestGroupRequestType,
   JoinGroupRequestType,
@@ -216,5 +217,22 @@ export const useGetRecommendGroupQuery = () => {
   return useQuery({
     queryKey: ["get-recommend-group"],
     queryFn: groupApiRequest.getRecommendGroup,
+  });
+};
+
+export const useAssignRoleMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: AssignRoleRequestType) =>
+      groupApiRequest.assignRole(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-members-by-group-id"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-role-count-by-group-id"],
+      });
+    },
   });
 };

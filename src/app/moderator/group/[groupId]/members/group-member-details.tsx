@@ -6,13 +6,29 @@ import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { Role } from "@/constants/type";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import {
+  useAssignRoleMutation,
+  useCheckRoleInGroupQuery,
+} from "@/queries/useGroup";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 export default function GroupMemberDetailsForModerator({
   userId,
   roleInGroup,
+  groupId,
 }: {
   userId: string;
   roleInGroup: string;
+  groupId: string;
 }) {
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
@@ -28,6 +44,42 @@ export default function GroupMemberDetailsForModerator({
   } = useGetExpertProfileQuery(userId, isExpert && !!userId);
 
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
+  const { data } = useCheckRoleInGroupQuery(
+    userIdFromLocalStorage as string,
+    groupId
+  );
+
+  const isOwnerInGroup = data?.payload.data.roleInGroup === "Owner";
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedRole, setSelectedRole] = useState(
+    roleInGroup === "Moderator" ? 2 : 1
+  );
+
+  const [role, setRole] = useState<string>(String(selectedRole)); // Ép kiểu thành string
+
+  useEffect(() => {
+    if (dialogOpen) {
+      // Reset role về giá trị mặc định khi Dialog mở
+      setRole(roleInGroup === "Moderator" ? "2" : "1");
+    }
+  }, [dialogOpen, roleInGroup]);
+
+  const assignRoleMutation = useAssignRoleMutation();
+
+  const handleSave = async () => {
+    const updatedRole = Number(role);
+    try {
+      await assignRoleMutation.mutateAsync({
+        groupId,
+        userId,
+        role: updatedRole,
+      });
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Failed to assign role:", error);
+    }
+  };
 
   const getRoleLabel = (role: string) => {
     switch (role) {
@@ -36,7 +88,7 @@ export default function GroupMemberDetailsForModerator({
       case "Owner":
         return "Chủ nhóm";
       case "Moderator":
-        return "Kiểm duyệt viên";
+        return "Quản trị nhóm";
       default:
         return "Thành viên";
     }
@@ -111,6 +163,62 @@ export default function GroupMemberDetailsForModerator({
           </div>
         </div>
       </div>
+
+      {isOwnerInGroup && userIdFromLocalStorage !== userId && (
+        <Button variant="outline" onClick={() => setDialogOpen(true)}>
+          Thay đổi vai trò
+        </Button>
+      )}
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="text-textChat">
+          <DialogHeader>
+            <DialogTitle>Thay đổi vai trò</DialogTitle>
+          </DialogHeader>
+          <div className="flex items-center gap-2">
+            <Avatar className="w-12 h-12  border-2 border-rose-300 mb-2">
+              <AvatarImage
+                src={
+                  userProfile?.payload.data.profilePicture ||
+                  expertProfile?.payload.data.profileImageUrl ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt="Avatar"
+              />
+            </Avatar>
+            <div>
+              <h3>
+                {isExpert
+                  ? expertProfile?.payload.data.fullname ||
+                    expertProfile?.payload.data.email
+                  : userProfile?.payload.data.fullName ||
+                    userProfile?.payload.data.userName ||
+                    "Anonymous"}
+              </h3>
+            </div>
+          </div>
+          <RadioGroup
+            value={role}
+            onValueChange={(value) => setRole(value)}
+            className=" gap-10 flex justify-center items-center"
+          >
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="1" id="member" />
+              <label htmlFor="member">Thành viên</label>
+            </div>
+            <div className="flex items-center gap-2">
+              <RadioGroupItem value="2" id="moderator" />
+              <label htmlFor="moderator">Quản trị nhóm</label>
+            </div>
+          </RadioGroup>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button onClick={handleSave}>Lưu</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

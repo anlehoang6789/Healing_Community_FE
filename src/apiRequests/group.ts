@@ -2,6 +2,7 @@ import http from "@/lib/http";
 import {
   ApproveOrRejectRequestGroupResType,
   ApproveOrRejectRequestGroupType,
+  AssignRoleRequestType,
   CheckRoleInGroupResType,
   CreateGroupRequestType,
   CrequestGroupRequestType,
@@ -98,6 +99,12 @@ const groupApiRequest = {
   getRecommendGroup: () =>
     http.get<GetRecommendedGroupsListType>(
       `post/api/post/get-recommend-groups`
+    ),
+
+  assignRole: (payload: AssignRoleRequestType) =>
+    http.post<{ message: string }>(
+      `group/api/managegroup/assign-role?groupId=${payload.groupId}&userId=${payload.userId}&role=${payload.role}`,
+      {}
     ),
 };
 
