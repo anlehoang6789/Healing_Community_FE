@@ -284,3 +284,11 @@ export const GetRecommendedGroupsListSchema = z.object({
 export type GetRecommendedGroupsListType = z.TypeOf<
   typeof GetRecommendedGroupsListSchema
 >;
+
+export const AssignRoleRequestSchema = z.object({
+  groupId: z.string(),
+  userId: z.string(),
+  role: z.number(),
+});
+
+export type AssignRoleRequestType = z.TypeOf<typeof AssignRoleRequestSchema>;

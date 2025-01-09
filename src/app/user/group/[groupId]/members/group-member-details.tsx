@@ -99,7 +99,7 @@ export default function GroupMemberDetails({
       case "Owner":
         return "Chủ nhóm";
       case "Moderator":
-        return "Kiểm duyệt viên";
+        return "Quản trị nhóm";
       default:
         return "Thành viên";
     }

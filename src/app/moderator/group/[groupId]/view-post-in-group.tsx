@@ -3,11 +3,10 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import {
-  useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useViewPostInGroupByGroupIdQuery,
 } from "@/queries/usePost";
-import UserHeaderInGroup from "@/app/user/group/[groupId]/user-header-in-group";
+
 import ReactionCount from "@/components/homePage/reactionCount";
 
 import CommentCount from "@/components/commentSection/commentCount";
@@ -16,6 +15,7 @@ import { MessageSquare } from "lucide-react";
 import CommentSection from "@/components/commentSection/commentSection";
 import { CommentType } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
+import UserHeaderInGroupForModerator from "@/app/moderator/group/[groupId]/user-header-in-group";
 
 export default function ViewPostInGroupForModerator({
   groupId,
@@ -52,7 +52,7 @@ export default function ViewPostInGroupForModerator({
   //data cua bai viet trong group theo groupId
   const { data } = useViewPostInGroupByGroupIdQuery(groupId);
   const postListInGroup = data?.payload.data || [];
-  const { mutate: createComment } = useCreateCommentMutation();
+
   const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation();
 
   useEffect(() => {
@@ -165,7 +165,7 @@ export default function ViewPostInGroupForModerator({
               />
               {/* Header with name, avatar, post create at, dropdown edit and delete */}
               <div className="flex items-center gap-4 mb-6 p-4">
-                <UserHeaderInGroup
+                <UserHeaderInGroupForModerator
                   userId={post.userId}
                   createPost={post.createAt}
                   groupId={groupId}
