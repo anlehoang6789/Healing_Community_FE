@@ -155,7 +155,7 @@ export default function Posts() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
   //Phần home page lazy load
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useGetHomePageLazyLoadQuery(pageSizes);
   const router = useRouter();
 
@@ -187,10 +187,13 @@ export default function Posts() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Ghép các trang dữ liệu
-  const articles = data?.pages.flatMap((page) => page.payload.data) || [];
-  // const uniqueArticles = Array.from(
-  //   new Map(articles.map((article) => [article.postId, article])).values()
-  // );
+  // const articles = data?.pages.flatMap((page) => page.payload.data) || [];
+  const articles = Array.isArray(data?.pages)
+    ? data.pages.flatMap((page) => page.payload?.data || [])
+    : [];
+
+  console.log("Data:", data);
+  console.log("Articles:", articles);
 
   const handlePostClick = async (
     postId: string,
@@ -211,6 +214,32 @@ export default function Posts() {
       }
     }
   };
+
+  if (!data || isLoading)
+    return (
+      <div className="p-4 rounded-lg shadow-lg border mb-6 animate-pulse w-[600px]">
+        <div className="h-20 bg-gray-200 rounded"></div>
+        <div className="whitespace-pre-wrap mb-4 text-textChat flex flex-col">
+          <div className="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div className="h-16 bg-gray-200 rounded mb-2"></div>
+          <div className="w-full h-64 bg-gray-200 rounded-md mt-4"></div>
+        </div>
+        <div className="flex flex-col items-start gap-4">
+          <div className="flex justify-between w-full">
+            <div className="h-6 w-6 bg-gray-200 rounded mr-2"></div>
+            <span className="justify-end text-sm text-gray-500">
+              <div className="h-6 w-6 bg-gray-200 rounded"></div>
+            </span>
+          </div>
+          <div className="flex items-center justify-between w-full">
+            <div className="h-6 w-6 bg-gray-200 rounded"></div>
+            <div className="flex items-center gap-2 p-0">
+              <div className="h-6 w-6 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
 
   return (
     <div>

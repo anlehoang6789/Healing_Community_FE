@@ -149,7 +149,52 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
     ),
   },
   {
-    accessorKey: "status",
+    accessorKey: "appointmentStatus",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Trạng thái lịch hẹn
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const status: number = row.original.appointmentStatus;
+      const statusMapping: Record<number, string> = {
+        0: "Chờ thanh toán",
+        1: "Buổi tư vấn đang diễn ra",
+        2: "Buổi tư vấn đã hủy",
+        3: "Buổi tư vấn đã hoàn thành",
+        4: "Đã hủy thanh toán",
+        5: "Đã hoàn tiền",
+      };
+      const statusLabel = statusMapping[status] || "Không xác định";
+
+      const statusColor: Record<number, string> = {
+        0: "bg-gray-100 text-gray-800 text-xs",
+        1: "bg-blue-100 text-blue-800 text-xs",
+        3: "bg-green-100 text-green-800 text-xs",
+        2: "bg-red-100 text-red-800 text-xs",
+        4: "bg-gray-100 text-gray-800 text-xs",
+        5: "bg-gray-100 text-gray-800 text-xs",
+      };
+
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium ${
+            statusColor[status] || "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {statusLabel}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "paymemtStatus",
     header: ({ column }) => {
       return (
         <Button
@@ -162,7 +207,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
       );
     },
     cell: ({ row }) => {
-      const status: number = row.original.status;
+      const status: number = row.original.paymemtStatus;
       const statusMapping: Record<number, string> = {
         0: "Chờ thanh toán",
         1: "Người dùng đã thanh toán",
@@ -181,6 +226,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
         3: "bg-red-100 text-red-800 text-xs",
         4: "bg-lime-100 text-lime-800 text-xs",
         5: "bg-pink-100 text-pink-800 text-xs",
+        6: "bg-pink-100 text-pink-800 text-xs",
       };
 
       return (
@@ -198,12 +244,12 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
     id: "transaction",
     header: "Giao dịch",
     cell: ({ row }) => {
-      const status: number = row.original.status;
+      const status: number = row.original.appointmentStatus;
       const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
       const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
 
       // Status la 0, 2, 3, 4 thi khong hien thi nut
-      if ([0, 2, 3, 4].includes(status)) return null;
+      if ([0, 1, 4, 5].includes(status)) return null;
 
       return (
         <div className="relative">
@@ -215,7 +261,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {status === 1 && expertPaymentQrCodeLink && (
+              {status === 3 && expertPaymentQrCodeLink && (
                 <DropdownMenuItem
                   onClick={() =>
                     window.open(
@@ -228,7 +274,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
                   Chuyển tiền cho chuyên gia
                 </DropdownMenuItem>
               )}
-              {[1, 5, 6].includes(status) && userPaymentQrCodeLink && (
+              {status === 2 && userPaymentQrCodeLink && (
                 <DropdownMenuItem
                   onClick={() =>
                     window.open(
