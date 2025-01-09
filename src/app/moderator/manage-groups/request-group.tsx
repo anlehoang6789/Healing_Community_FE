@@ -129,6 +129,27 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
   },
 
   {
+    accessorKey: "coverImg",
+    header: "Ảnh bìa",
+    cell: ({ row }) => {
+      const coverImg = row.getValue("coverImg") as string | null;
+      if (!coverImg) {
+        // Kiểm tra nếu coverImg là null hoặc chuỗi rỗng
+        return null; // Không hiển thị gì
+      }
+      return (
+        <div className="text-textChat">
+          <img
+            src={coverImg}
+            alt="Ảnh bìa"
+            className="w-20 h-20 rounded-lg object-cover"
+          />
+        </div>
+      );
+    },
+  },
+
+  {
     id: "requesterName",
     header: "Tên người yêu cầu",
     cell: ({ row }) => {
@@ -156,16 +177,16 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
     accessorKey: "groupName",
     header: "Tên nhóm",
     cell: ({ row }) => (
-      <div className="text-textChat">{row.getValue("groupName")}</div>
+      <div className="text-textChat font-semibold">
+        {row.getValue("groupName")}
+      </div>
     ),
   },
   {
     accessorKey: "description",
     header: "Mô tả",
     cell: ({ row }) => (
-      <div className="text-textChat font-semibold">
-        {row.getValue("description") ?? ""}
-      </div>
+      <div className="text-textChat ">{row.getValue("description") ?? ""}</div>
     ),
   },
   {

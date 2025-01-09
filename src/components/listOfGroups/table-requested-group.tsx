@@ -82,6 +82,27 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
   },
 
   {
+    accessorKey: "coverImg",
+    header: "Ảnh bìa",
+    cell: ({ row }) => {
+      const coverImg = row.getValue("coverImg") as string | null;
+      if (!coverImg) {
+        // Kiểm tra nếu coverImg là null hoặc chuỗi rỗng
+        return null; // Không hiển thị gì
+      }
+      return (
+        <div className="text-textChat">
+          <img
+            src={coverImg}
+            alt="Ảnh bìa"
+            className="w-20 h-20 rounded-lg object-cover"
+          />
+        </div>
+      );
+    },
+  },
+
+  {
     accessorKey: "groupName",
     header: "Tên nhóm",
     cell: ({ row }) => (
@@ -171,7 +192,7 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
 ];
 
 // Số lượng item trên 1 trang
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 export default function TableRequestedGroups() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
