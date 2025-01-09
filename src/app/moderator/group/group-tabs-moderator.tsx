@@ -24,6 +24,8 @@ export default function GroupTabsModerator({
     ? "members"
     : pathname.startsWith(`/moderator/group/${groupId}`)
     ? "discussion"
+    : pathname.startsWith(`/moderator/group/${groupId}/request-join`)
+    ? "request-join"
     : "discussion";
 
   const handleNavigation = () => {
@@ -69,6 +71,18 @@ export default function GroupTabsModerator({
               className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
             >
               Mọi người
+            </Button>
+          </Link>
+          <Link href={`/moderator/group/${groupId}/request-join`} passHref>
+            <Button
+              variant={
+                activeTab === "request-join"
+                  ? "gradientUnderline"
+                  : "gradientHoverUnderline"
+              }
+              className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+            >
+              Duyệt yêu cầu
             </Button>
           </Link>
         </div>
