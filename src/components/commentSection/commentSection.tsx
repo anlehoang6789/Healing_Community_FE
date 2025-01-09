@@ -8,7 +8,6 @@ import {
   ImageIcon,
   X,
   Smile,
-  ThumbsUp,
   Trash2,
   ChevronUp,
   ChevronDown,
@@ -17,8 +16,7 @@ import {
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { CommentType } from "@/schemaValidations/post.schema";
-import { useGetAllUsers } from "@/queries/useUser";
-import { UserType } from "@/schemaValidations/user.schema";
+
 import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import {
@@ -42,11 +40,11 @@ import { useGetExpertProfileQuery } from "@/queries/useExpert";
 
 interface CommentSectionProps {
   comments: CommentType[];
-  onAddComment: (comment: {
+  onAddComment?: (comment: {
     content: string;
     coverImgUrl?: string | null;
   }) => void;
-  onAddReply: (
+  onAddReply?: (
     parentId: string,
     reply: {
       content: string;
@@ -180,10 +178,12 @@ export default function CommentSection({
         }
 
         // Gửi bình luận
-        onAddComment({
-          content: newComment,
-          coverImgUrl: commentImage,
-        });
+        if (onAddComment) {
+          onAddComment({
+            content: newComment,
+            coverImgUrl: commentImage,
+          });
+        }
 
         // Reset các trường sau khi gửi
         if (textareaRef.current) {
@@ -224,10 +224,12 @@ export default function CommentSection({
         }
 
         // Gửi phản hồi
-        onAddReply(parentId, {
-          content: replyContent,
-          coverImgUrl: replyImages[parentId],
-        });
+        if (onAddReply) {
+          onAddReply(parentId, {
+            content: replyContent,
+            coverImgUrl: replyImages[parentId],
+          });
+        }
 
         // Reset các trường sau khi gửi
         setReplyContent("");
@@ -472,11 +474,6 @@ export default function CommentSection({
                   timeZone: "UTC",
                 })}
               </span>
-              {/* {comment.likes > 0 && (
-              <span className="flex items-center gap-1">
-                <ThumbsUp className="w-3 h-3" /> {comment.likes}
-              </span>
-            )} */}
             </div>
 
             {/* Nút mở/đóng replies */}
@@ -503,7 +500,7 @@ export default function CommentSection({
               </div>
             )}
 
-            {replyingTo === comment.commentId && (
+            {replyingTo === comment.commentId && onAddReply && (
               <div className="mt-2 flex items-center w-full relative">
                 <div className="flex-1 mr-2">
                   <textarea
@@ -647,27 +644,38 @@ export default function CommentSection({
     });
   };
 
+  if (!onAddComment && !onAddReply) {
+    return (
+      <div>
+        {/* Render comments */}
+        <div className="w-full">{renderComments(comments)}</div>
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Input comment */}
       <div className="w-full flex items-center relative">
-        <textarea
-          ref={textareaRef}
-          value={newComment}
-          onChange={handleTextareaChange}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleAddComment();
-            }
-          }}
-          className="border rounded-lg p-2 pr-10 flex-1 resize-none text-muted-foreground"
-          style={{
-            height: "65.6px",
-            maxHeight: "150px",
-          }}
-          placeholder="Nhập bình luận..."
-        />
+        {onAddComment && (
+          <textarea
+            ref={textareaRef}
+            value={newComment}
+            onChange={handleTextareaChange}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleAddComment();
+              }
+            }}
+            className="border rounded-lg p-2 pr-10 flex-1 resize-none text-muted-foreground"
+            style={{
+              height: "65.6px",
+              maxHeight: "150px",
+            }}
+            placeholder="Nhập bình luận..."
+          />
+        )}
 
         <Button
           variant="iconSend"
