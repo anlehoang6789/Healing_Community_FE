@@ -106,7 +106,7 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     },
   },
   {
-    accessorKey: "postTitle",
+    id: "postTitle",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -116,12 +116,14 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
         <CaretSortIcon className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <>
-        <div className="font-bold">{row.getValue("postTitle")}</div>
-        {/* Dialog xem bai viet */}
-      </>
-    ),
+    cell: ({ row }) => {
+      return (
+        <>
+          <div className="font-bold">{row.getValue("postTitle")}</div>
+          {/* Dialog xem bai viet */}
+        </>
+      );
+    },
   },
   {
     accessorKey: "reportTypeEnum",
