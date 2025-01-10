@@ -640,13 +640,24 @@ export const useGetTopPostInGroupQuery = (groupId: string) => {
   });
 };
 
+export const useGetReportCommentQuery = () => {
+  return useQuery({
+    queryKey: ["report-comment"],
+    queryFn: () => postApiRequest.getReportComment(),
+    refetchOnWindowFocus: true,
+  });
+};
+
 export const useReportCommentMutation = () => {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (body: ReportCommentBodyType) =>
       postApiRequest.reportComment(body),
     onSuccess: () => {
-      // Bạn có thể thêm logic để cập nhật cache sau khi báo cáo comment thành công
+      queryClient.invalidateQueries({
+        queryKey: ["report-comment"],
+      });
     },
   });
 };

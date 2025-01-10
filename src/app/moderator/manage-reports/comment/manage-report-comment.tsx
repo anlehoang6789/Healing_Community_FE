@@ -1,6 +1,5 @@
 "use client";
 
-import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -14,14 +13,13 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { Button } from "@/components/ui/button";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -31,136 +29,166 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createContext, useContext, useEffect, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { createContext, useEffect, useState } from "react";
+
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 
-type ManageReportCommentItem = {
-  id: number;
-  name: string;
-  nameReport: string;
-  email: string;
-  commentContent: string;
-  contentReport: string;
-  createAt: string;
-  status: string;
-};
+import { formatDateTime } from "@/lib/utils";
 
-const AccountTableContext = createContext<{
-  setEmployeeIdEdit: (value: number) => void;
-  employeeIdEdit: number | undefined;
-  employeeDelete: ManageReportCommentItem | null;
-  setEmployeeDelete: (value: ManageReportCommentItem | null) => void;
+import {
+  GetReportCommentResponseType,
+  ReportCommentDataType,
+} from "@/schemaValidations/post.schema";
+import { useGetReportCommentQuery } from "@/queries/usePost";
+import { Button } from "@/components/ui/button";
+import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+
+type ReportCommentItem = GetReportCommentResponseType["data"][0];
+
+const ReportCommentTableContext = createContext<{
+  experienceDelete: ReportCommentItem | null;
+  setExperienceDelete: (value: ReportCommentItem | null) => void;
 }>({
-  setEmployeeIdEdit: (value: number | undefined) => {},
-  employeeIdEdit: undefined,
-  employeeDelete: null,
-  setEmployeeDelete: (value: ManageReportCommentItem | null) => {},
+  experienceDelete: null,
+  setExperienceDelete: (value: ReportCommentItem | null) => {},
 });
 
-const columns: ColumnDef<ManageReportCommentItem>[] = [
+export const columns: ColumnDef<ReportCommentDataType>[] = [
   {
-    id: "id",
+    id: "index",
     header: "STT",
-    cell: ({ row }) => <div>{row.index + 1}</div>,
+    cell: ({ row }) => row.index + 1,
+  },
+
+  {
+    accessorKey: "userName",
+    header: "Người báo cáo",
+    cell: ({ row }) => (
+      <div className="text-textChat">{row.getValue("userName")}</div>
+    ),
   },
   {
-    accessorKey: "name",
-    header: "Tên",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
-  },
-  {
-    accessorKey: "nameReport",
+    accessorKey: "reportedUserName",
     header: "Người bị báo cáo",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("nameReport")}</div>
+      <TableCell style={{ width: "100px" }}>
+        <div className="text-textChat ">{row.getValue("reportedUserName")}</div>
+      </TableCell>
     ),
   },
   {
-    accessorKey: "email",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Email
-        <CaretSortIcon className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => <div>{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "commentContent",
-    header: "Nội dung bình luận",
+    accessorKey: "reportedUserEmail",
+    header: "Email người bị báo cáo",
     cell: ({ row }) => (
-      <div className="break-words max-w-[300px]">
-        {row.getValue("commentContent")}
-      </div>
+      <div className="text-textChat">{row.getValue("reportedUserEmail")}</div>
     ),
   },
   {
-    accessorKey: "contentReport",
+    accessorKey: "content",
+    header: () => "Nội dung bình luận",
+    cell: ({ row }) => (
+      <TableCell style={{ width: "250px" }}>
+        <div className="text-textChat">{row.getValue("content")}</div>
+      </TableCell>
+    ),
+  },
+
+  {
+    accessorKey: "reportTypeEnum",
     header: "Nội dung báo cáo",
-    cell: ({ row }) => <div>{row.getValue("contentReport")}</div>,
+    cell: ({ row }) => {
+      const reportTypeEnum = row.getValue("reportTypeEnum");
+      let reportTypeText = "";
+
+      switch (reportTypeEnum) {
+        case 0:
+          reportTypeText = "Ngôn từ không phù hợp";
+          break;
+        case 1:
+          reportTypeText = "Chỉ là tôi không thích nội dung này";
+          break;
+        case 2:
+          reportTypeText = "Thông tin sai lệch";
+          break;
+        case 3:
+          reportTypeText = "Vi phạm quy tắc cộng đồng";
+          break;
+        default:
+          reportTypeText = "Không xác định";
+          break;
+      }
+
+      return <div className="text-textChat">{reportTypeText}</div>;
+    },
   },
   {
-    accessorKey: "createAt",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        className="ml-[-15px]"
-      >
-        Thời gian
-        <CaretSortIcon className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("createAt")}</div>
-    ),
+    accessorKey: "createdAt",
+    header: "Ngày báo cáo",
+    cell: ({ row }) => {
+      const createdAt = row.getValue("createdAt") as string;
+      const formattedDateTime = formatDateTime(createdAt);
+      return <div className="text-textChat">{formattedDateTime}</div>;
+    },
   },
   {
     accessorKey: "status",
     header: "Trạng thái",
-    cell: ({ row }) => <div>{row.getValue("status")}</div>,
+    cell: ({ row }) => {
+      return <div className="text-textChat"></div>;
+    },
   },
+
   {
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      const { setEmployeeIdEdit, setEmployeeDelete } =
-        useContext(AccountTableContext);
-      const openEditEmployee = () => {
-        setEmployeeIdEdit(row.original.id);
-      };
-      const openDeleteEmployee = () => {
-        setEmployeeDelete(row.original);
-      };
+      // const { mutateAsync: approveOrRejectRequestGroup } =
+      //   useApproveOrRejectRequestGroupMutation();
+
+      // const handleApprove = async () => {
+      //   try {
+      //     const payload = {
+      //       groupRequestId: row.original.groupRequestId,
+      //       isApproved: true,
+      //     };
+      //     const result = await approveOrRejectRequestGroup(payload);
+      //     toast({
+      //       description: result.payload.data,
+      //       variant: "success",
+      //     });
+      //   } catch (error) {
+      //     handleErrorApi({ error });
+      //   }
+      // };
+
+      // const handleReject = async () => {
+      //   try {
+      //     const payload = {
+      //       groupRequestId: row.original.groupRequestId,
+      //       isApproved: false,
+      //     };
+      //     const result = await approveOrRejectRequestGroup(payload);
+      //     toast({
+      //       description: result.payload.data,
+      //       variant: "success",
+      //     });
+      //   } catch (error) {
+      //     handleErrorApi({ error });
+      //   }
+      // };
+
       return (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4" />
+              <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={openEditEmployee}>
-              Phản hồi
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteEmployee}>
-              Xóa
-            </DropdownMenuItem>
+            <DropdownMenuItem>Duyệt</DropdownMenuItem>
+            <DropdownMenuItem>Từ chối</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -168,152 +196,30 @@ const columns: ColumnDef<ManageReportCommentItem>[] = [
   },
 ];
 
-const mockData: ManageReportCommentItem[] = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    commentContent: "Bài viết của bạn thật tuyệt vời, rất cảm động!",
-    contentReport: "Ngôn từ đả kích",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 2,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    commentContent: "Bài viết này không có ý nghĩa gì cả.",
-    contentReport: "Vi phạm quy tắc cộng đồng",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 3,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    commentContent: "Câu chuyện chữa lành này rất sâu sắc.",
-    contentReport: "Thông tin sai lệch",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 4,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    commentContent: "Đây là một bài viết thiếu sự thấu hiểu.",
-    contentReport: "Vi phạm quy tắc cộng đồng",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 5,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    commentContent: "Bài viết này không có giá trị giáo dục.",
-    contentReport: "Ngôn từ đả kích",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 6,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    commentContent: "Câu chuyện này quá bi kịch và không phù hợp với nền tảng.",
-    contentReport: "Có chứa hình ảnh phản cảm",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 7,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    commentContent:
-      "Bài viết này có thông tin rất hữu ích về sức khỏe tinh thần.",
-    contentReport: "Vi phạm quy tắc cộng đồng",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 8,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    commentContent: "Lý thuyết về chữa lành này không có căn cứ khoa học.",
-    contentReport: "Thông tin sai lệch",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 9,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    commentContent: "Tôi rất thích cách bạn viết về sự cảm thông.",
-    contentReport: "Ngôn từ đả kích",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 10,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    commentContent: "Bài viết này quá dài và khó hiểu.",
-    contentReport: "Vi phạm quy tắc cộng đồng",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 11,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    commentContent: "Bài viết này rất dễ hiểu và dễ áp dụng.",
-    contentReport: "Có chứa hình ảnh phản cảm",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 12,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    commentContent: "Tôi không đồng ý với những gì bạn viết.",
-    contentReport: "Thông tin sai lệch",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-];
-
+// Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
-
-export default function ManageReportComment() {
+export default function TableReportComment() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
-
-  const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>();
-  const [employeeDelete, setEmployeeDelete] =
-    useState<ManageReportCommentItem | null>(null);
+  // const params = Object.fromEntries(searchParam.entries())
+  const [experienceDelete, setExperienceDelete] =
+    useState<ReportCommentItem | null>(null);
+  //tao bien lay data tu api
+  const listReportComment = useGetReportCommentQuery();
+  const data = listReportComment.data?.payload.data ?? [];
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState({
-    pageIndex,
-    pageSize: PAGE_SIZE,
+    pageIndex, // Gía trị mặc định ban đầu, không có ý nghĩa khi data được fetch bất đồng bộ
+    pageSize: PAGE_SIZE, //default page size
   });
 
   const table = useReactTable({
-    data: mockData,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -342,83 +248,52 @@ export default function ManageReportComment() {
   }, [table, pageIndex]);
 
   return (
-    <AccountTableContext.Provider
+    <ReportCommentTableContext.Provider
       value={{
-        employeeIdEdit,
-        setEmployeeIdEdit,
-        employeeDelete,
-        setEmployeeDelete,
+        experienceDelete,
+        setExperienceDelete,
       }}
     >
       <div className="w-full">
-        <AlertDialog
-          open={Boolean(employeeDelete)}
-          onOpenChange={(value) => {
-            if (!value) {
-              setEmployeeDelete(null);
-            }
-          }}
-        >
-          <AlertDialogContent className="bg-backgroundChat text-red-500">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Xóa báo cáo?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Báo cáo của bài viết {""}
-                <span className="text-red-500">
-                  {employeeDelete?.commentContent}
-                </span>{" "}
-                {""}
-                sẽ bị xóa <b className="text-red-500">vĩnh viễn</b>.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Hủy</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-500 text-white">
-                Tiếp tục
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
-        <div className="flex items-center py-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center py-4 gap-4 sm:gap-2">
           <Input
-            placeholder="Tìm kiếm theo bình luận ..."
+            placeholder="Tìm kiếm bình luận ..."
             value={
-              (table.getColumn("commentContent")?.getFilterValue() as string) ??
-              ""
+              (table.getColumn("content")?.getFilterValue() as string) ?? ""
             }
             onChange={(event) =>
-              table
-                .getColumn("commentContent")
-                ?.setFilterValue(event.target.value)
+              table.getColumn("content")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
         </div>
-
-        <div className="rounded-md border">
-          <Table>
+        <div className="rounded-md border overflow-x-auto max-w-full">
+          <Table className="max-w-full">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
-
             <TableBody>
-              {table.getRowModel().rows.length ? (
+              {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                  >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
                         {flexRender(
@@ -433,31 +308,30 @@ export default function ManageReportComment() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-24 text-center text-textChat"
                   >
-                    No results.
+                    Chưa có báo cáo bình luận nào.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
         </div>
-
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="text-xs text-muted-foreground py-4 flex-1 ">
+        <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 py-4">
+          <div className="text-xs text-muted-foreground text-center flex-1 sm:text-left">
             Hiển thị{" "}
             <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
-            <strong>{mockData.length}</strong> kết quả
+            <strong>{data.length}</strong> kết quả
           </div>
           <div>
             <AutoPagination
               page={table.getState().pagination.pageIndex + 1}
               pageSize={table.getPageCount()}
-              pathname="/moderator/manage-reports/story"
+              pathname="/moderator/manage-reports/comment"
             />
           </div>
         </div>
       </div>
-    </AccountTableContext.Provider>
+    </ReportCommentTableContext.Provider>
   );
 }
