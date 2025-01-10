@@ -44,6 +44,7 @@ import {
   GetUserReactionByShareIdResType,
   GetShareCountResponseType,
   GetTopPostInGroupListResType,
+  ReportCommentBodyType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -223,6 +224,9 @@ const postApiRequest = {
     http.get<GetTopPostInGroupListResType>(
       `post/api/post/get-posts-by-reaction-in-group/${groupId}`
     ),
+
+  reportComment: (body: ReportCommentBodyType) =>
+    http.post<{ message: string }>("post/api/report/report-comment", body),
 };
 
 export default postApiRequest;

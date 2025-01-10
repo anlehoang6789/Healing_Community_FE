@@ -37,6 +37,7 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import ReportComment from "@/components/commentSection/reportComment";
 
 interface CommentSectionProps {
   comments: CommentType[];
@@ -449,16 +450,7 @@ export default function CommentSection({
               {/* Hiển thị icon Flag khi hover và comment không phải của người đăng nhập */}
               {!isCurrentUserComment &&
                 hoveredCommentId === comment.commentId && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-2 right-2 text-gray-400 hover:text-red-500"
-                    onClick={() =>
-                      alert(`Report comment: ${comment.commentId}`)
-                    }
-                  >
-                    <Flag className="h-4 w-4" />
-                  </Button>
+                  <ReportComment commentId={comment.commentId} />
                 )}
             </div>
 

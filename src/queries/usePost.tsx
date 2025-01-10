@@ -5,6 +5,7 @@ import {
   CreateSharedCommentBodyType,
   GetAuthorOtherPostBodyType,
   GetOtherPostWithSameCategoryBodyType,
+  ReportCommentBodyType,
   UpdatePersonalPostBodyType,
   UpdateSharedPostBodyType,
 } from "@/schemaValidations/post.schema";
@@ -636,5 +637,16 @@ export const useGetTopPostInGroupQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["top-post-in-group", groupId],
     queryFn: () => postApiRequest.getTopPostInGroup(groupId),
+  });
+};
+
+export const useReportCommentMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ReportCommentBodyType) =>
+      postApiRequest.reportComment(body),
+    onSuccess: () => {
+      // Bạn có thể thêm logic để cập nhật cache sau khi báo cáo comment thành công
+    },
   });
 };
