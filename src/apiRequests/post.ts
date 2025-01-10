@@ -45,6 +45,7 @@ import {
   GetShareCountResponseType,
   GetTopPostInGroupListResType,
   ReportCommentBodyType,
+  GetReportCommentResponseType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -223,6 +224,11 @@ const postApiRequest = {
   getTopPostInGroup: (groupId: string) =>
     http.get<GetTopPostInGroupListResType>(
       `post/api/post/get-posts-by-reaction-in-group/${groupId}`
+    ),
+
+  getReportComment: () =>
+    http.get<GetReportCommentResponseType>(
+      "report/api/report/get-comment-report"
     ),
 
   reportComment: (body: ReportCommentBodyType) =>
