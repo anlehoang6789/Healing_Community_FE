@@ -728,3 +728,10 @@ export const GetTopPostInGroupListRes = z.object({
 export type GetTopPostInGroupListResType = z.TypeOf<
   typeof GetTopPostInGroupListRes
 >;
+
+export const ReportCommentBody = z.object({
+  commentId: z.string(),
+  reportTypeEnum: z.number(),
+});
+
+export type ReportCommentBodyType = z.TypeOf<typeof ReportCommentBody>;
