@@ -46,73 +46,126 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
+import {
+  GetReportPostListResType,
+  GetReportPostSchemaType,
+} from "@/schemaValidations/report.schema";
+import { formatDateTime, handleErrorApi } from "@/lib/utils";
+import { useGetReportPostQuery } from "@/queries/useReport";
 
-type ManageReportStoryItem = {
-  id: number;
-  name: string;
-  nameReport: string;
-  email: string;
-  title: string;
-  contentReport: string;
-  createAt: string;
-  status: string;
-};
+type ManageReportStoryItem = GetReportPostListResType["data"][0];
 
 const AccountTableContext = createContext<{
-  setEmployeeIdEdit: (value: number) => void;
-  employeeIdEdit: number | undefined;
-  employeeDelete: ManageReportStoryItem | null;
-  setEmployeeDelete: (value: ManageReportStoryItem | null) => void;
+  setReportApproveId: (value: string) => void;
+  reportApproveId: string | undefined;
+  rejectDelete: ManageReportStoryItem | null;
+  setRejectDelete: (value: ManageReportStoryItem | null) => void;
 }>({
-  setEmployeeIdEdit: (value: number | undefined) => {},
-  employeeIdEdit: undefined,
-  employeeDelete: null,
-  setEmployeeDelete: (value: ManageReportStoryItem | null) => {},
+  setReportApproveId: (value: string | undefined) => {},
+  reportApproveId: undefined,
+  rejectDelete: null,
+  setRejectDelete: (value: ManageReportStoryItem | null) => {},
 });
 
-const columns: ColumnDef<ManageReportStoryItem>[] = [
+const columns: ColumnDef<GetReportPostSchemaType>[] = [
   {
     id: "id",
     header: "STT",
     cell: ({ row }) => <div>{row.index + 1}</div>,
   },
   {
-    accessorKey: "name",
-    header: "Tên",
-    cell: ({ row }) => <div className="capitalize">{row.getValue("name")}</div>,
+    id: "annunciator",
+    header: "Thông tin người báo cáo",
+    cell: ({ row }) => {
+      const userName = row.original.userName;
+      const userEmail = row.original.userEmail;
+
+      return (
+        <div>
+          <div className="font-semibold">{userName}</div>
+          <div className="text-xs text-muted-foreground">{userEmail}</div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "nameReport",
-    header: "Người bị báo cáo",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("nameReport")}</div>
-    ),
+    header: "Thông tin người bị báo cáo",
+    cell: ({ row }) => {
+      const reportedUserName = row.original.reportedUserName;
+      const reportedUserEmail = row.original.reportedUserEmail;
+
+      return (
+        <div>
+          <div className="font-semibold">{reportedUserName}</div>
+          <div className="text-xs text-muted-foreground">
+            {reportedUserEmail}
+          </div>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "email",
+    id: "postTitle",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Email
+        Bài viết có tiêu đề
         <CaretSortIcon className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => <div>{row.getValue("email")}</div>,
+    cell: ({ row }) => {
+      return (
+        <>
+          <div className="font-bold">{row.getValue("postTitle")}</div>
+          {/* Dialog xem bai viet */}
+        </>
+      );
+    },
   },
   {
-    accessorKey: "title",
-    header: "Tiêu đề bài viết",
-    cell: ({ row }) => <div>{row.getValue("title")}</div>,
+    accessorKey: "reportTypeEnum",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Lý do
+        <CaretSortIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const reportTypeEnum = row.original.reportTypeEnum;
+      const reportTypeMapping: Record<number, string> = {
+        1: "Ngôn từ không phù hợp",
+        2: "Chỉ là tui không thích nội dung này",
+        3: "Thông tin sai lệch",
+        4: "vi phạm quy tắc cộng đồng",
+      };
+      const reportTypeLabel =
+        reportTypeMapping[reportTypeEnum] || "Không xác định";
+
+      const reportTypeColor: Record<number, string> = {
+        1: "bg-gray-100 text-gray-800 text-xs",
+        2: "bg-pink-100 text-pink-800 text-xs",
+        3: "bg-red-100 text-red-800 text-xs",
+        4: "bg-rose-100 text-rose-800 text-xs",
+      };
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium ${
+            reportTypeColor[reportTypeEnum] || "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {reportTypeLabel}
+        </span>
+      );
+    },
   },
   {
-    accessorKey: "contentReport",
-    header: "Nội dung báo cáo",
-    cell: ({ row }) => <div>{row.getValue("contentReport")}</div>,
-  },
-  {
-    accessorKey: "createAt",
+    accessorKey: "createdAt",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -123,25 +176,22 @@ const columns: ColumnDef<ManageReportStoryItem>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("createAt")}</div>
+      <div className="lowercase">
+        {formatDateTime(row.getValue("createdAt"))}
+      </div>
     ),
-  },
-  {
-    accessorKey: "status",
-    header: "Trạng thái",
-    cell: ({ row }) => <div>{row.getValue("status")}</div>,
   },
   {
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      const { setEmployeeIdEdit, setEmployeeDelete } =
+      const { setReportApproveId, setRejectDelete } =
         useContext(AccountTableContext);
       const openEditEmployee = () => {
-        setEmployeeIdEdit(row.original.id);
+        setReportApproveId(row.original.postId);
       };
       const openDeleteEmployee = () => {
-        setEmployeeDelete(row.original);
+        setRejectDelete(row.original);
       };
       return (
         <DropdownMenu modal={false}>
@@ -153,10 +203,10 @@ const columns: ColumnDef<ManageReportStoryItem>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={openEditEmployee}>
-              Phản hồi
+              Duyệt
             </DropdownMenuItem>
             <DropdownMenuItem onClick={openDeleteEmployee}>
-              Xóa
+              Từ chối
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -165,128 +215,61 @@ const columns: ColumnDef<ManageReportStoryItem>[] = [
   },
 ];
 
-const mockData: ManageReportStoryItem[] = [
-  {
-    id: 1,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 2,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 3,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 4,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 5,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 6,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 7,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 8,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 9,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 10,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-  {
-    id: 11,
-    name: "Nguyễn Văn A",
-    nameReport: "Trần Thị B",
-    email: "a@example.com",
-    title: "Câu chuyện chữa lành",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-12",
-    status: "Đang xử lý",
-  },
-  {
-    id: 12,
-    name: "Lê Thị C",
-    nameReport: "Phạm Văn D",
-    email: "c@example.com",
-    title: "Bài viết B",
-    contentReport: "Nội dung không phù hợp.",
-    createAt: "2024-12-10",
-    status: "Đã xử lý",
-  },
-];
+function AlertDialogDeleteCategory({
+  rejectDelete,
+  setRejectDelete,
+}: {
+  rejectDelete: ManageReportStoryItem | null;
+  setRejectDelete: (value: ManageReportStoryItem | null) => void;
+}) {
+  // const { mutateAsync } = useDeleteCategoryMutation();
+  const rejectReportPost = async () => {
+    if (rejectDelete) {
+      try {
+        // const result = await mutateAsync(rejectDelete.);
+        setRejectDelete(null);
+        // toast({
+        //   description: result.payload.message,
+        //   variant: "success",
+        // });
+      } catch (error) {
+        handleErrorApi({ error });
+      }
+    }
+  };
+
+  return (
+    <AlertDialog
+      open={Boolean(rejectDelete)}
+      onOpenChange={(value) => {
+        if (!value) {
+          setRejectDelete(null);
+        }
+      }}
+    >
+      <AlertDialogContent className="bg-card">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-textChat font-semibold">
+            Từ chối báo cáo bài viết?
+          </AlertDialogTitle>
+          <AlertDialogDescription>
+            Bài viết{" "}
+            <span className="bg-muted text-textChat rounded px-1 font-semibold">
+              {rejectDelete?.postTitle}
+            </span>{" "}
+            sẽ bị từ chối báo cáo.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
+          <AlertDialogAction onClick={rejectReportPost}>
+            Tiếp tục
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
 const PAGE_SIZE = 10;
 
@@ -295,9 +278,12 @@ export default function ManageReportStory() {
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
 
-  const [employeeIdEdit, setEmployeeIdEdit] = useState<number | undefined>();
-  const [employeeDelete, setEmployeeDelete] =
+  const [reportApproveId, setReportApproveId] = useState<string | undefined>();
+  const [rejectDelete, setRejectDelete] =
     useState<ManageReportStoryItem | null>(null);
+
+  const listReportPost = useGetReportPostQuery();
+  const data = listReportPost.data?.payload.data ?? [];
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -309,7 +295,7 @@ export default function ManageReportStory() {
   });
 
   const table = useReactTable({
-    data: mockData,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -340,48 +326,21 @@ export default function ManageReportStory() {
   return (
     <AccountTableContext.Provider
       value={{
-        employeeIdEdit,
-        setEmployeeIdEdit,
-        employeeDelete,
-        setEmployeeDelete,
+        reportApproveId,
+        setReportApproveId,
+        rejectDelete,
+        setRejectDelete,
       }}
     >
       <div className="w-full">
-        <AlertDialog
-          open={Boolean(employeeDelete)}
-          onOpenChange={(value) => {
-            if (!value) {
-              setEmployeeDelete(null);
-            }
-          }}
-        >
-          <AlertDialogContent className="bg-backgroundChat text-red-500">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Xóa báo cáo?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Báo cáo của bài viết {""}
-                <span className="text-red-500">
-                  {employeeDelete?.title}
-                </span>{" "}
-                {""}
-                sẽ bị xóa <b className="text-red-500">vĩnh viễn</b>.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Hủy</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-500 text-white">
-                Tiếp tục
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-
         <div className="flex items-center py-4">
           <Input
             placeholder="Tìm kiếm theo tiêu đề bài viết ..."
-            value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+            value={
+              (table.getColumn("postTitle")?.getFilterValue() as string) ?? ""
+            }
             onChange={(event) =>
-              table.getColumn("title")?.setFilterValue(event.target.value)
+              table.getColumn("postTitle")?.setFilterValue(event.target.value)
             }
             className="max-w-sm"
           />
@@ -438,7 +397,7 @@ export default function ManageReportStory() {
           <div className="text-xs text-muted-foreground py-4 flex-1 ">
             Hiển thị{" "}
             <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
-            <strong>{mockData.length}</strong> kết quả
+            <strong>{data.length}</strong> kết quả
           </div>
           <div>
             <AutoPagination
