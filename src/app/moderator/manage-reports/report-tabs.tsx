@@ -8,7 +8,7 @@ export default function ReportTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { id: "user", label: "Người dùng", path: "/moderator/manage-reports/user" },
+    // { id: "user", label: "Người dùng", path: "/moderator/manage-reports/user" },
     {
       id: "expert",
       label: "Chuyên gia",

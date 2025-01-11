@@ -38,6 +38,8 @@ export default function GroupLayout({
     enabled: !!groupIdFromPath,
   });
 
+  const isPrivateGroup = groupDetails?.payload.data.groupVisibility === 1;
+
   const { data: groupJoin } = useGetGroupInfoQuery({
     userId: userIdFromLocalStorage as string,
     enabled: !!userIdFromLocalStorage,
@@ -177,6 +179,7 @@ export default function GroupLayout({
           groupId={groupIdFromPath}
           userId={userIdFromLocalStorage as string}
           isMember={isMemberState}
+          isPrivateGroup={isPrivateGroup}
         />
         {children}
       </div>

@@ -170,6 +170,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
         3: "Buổi tư vấn đã hoàn thành",
         4: "Đã hủy thanh toán",
         5: "Đã hoàn tiền",
+        6: "Chờ xử lý báo cáo",
       };
       const statusLabel = statusMapping[status] || "Không xác định";
 
@@ -180,6 +181,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
         2: "bg-red-100 text-red-800 text-xs",
         4: "bg-gray-100 text-gray-800 text-xs",
         5: "bg-gray-100 text-gray-800 text-xs",
+        6: "bg-yellow-100 text-yellow-800 text-xs",
       };
 
       return (
@@ -248,8 +250,8 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
       const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
       const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
 
-      // Status la 0, 2, 3, 4 thi khong hien thi nut
-      if ([0, 1, 4, 5].includes(status)) return null;
+      // Status la 0, 1, 4, 5, 6 của trạng thái lịch hẹn thi khong hien thi nut
+      if ([0, 1, 4, 5, 6].includes(status)) return null;
 
       return (
         <div className="relative">
