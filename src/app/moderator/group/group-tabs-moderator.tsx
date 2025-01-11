@@ -11,9 +11,11 @@ import { usePathname, useRouter } from "next/navigation";
 export default function GroupTabsModerator({
   groupId,
   userId,
+  isPrivateGroup,
 }: {
   groupId: string;
   userId: string;
+  isPrivateGroup: boolean;
 }) {
   const { theme } = useTheme();
   const pathname = usePathname();
@@ -79,7 +81,7 @@ export default function GroupTabsModerator({
               Mọi người
             </Button>
           </Link>
-          {isOwnerInGroup && (
+          {isOwnerInGroup && isPrivateGroup && (
             <Link href={`/moderator/group/${groupId}/request-join`} passHref>
               <Button
                 variant={
