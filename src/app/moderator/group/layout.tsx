@@ -28,6 +28,8 @@ export default function GroupLayoutModerator({
     groupId: groupIdFromPath,
   });
 
+  const isPrivateGroup = groupDetails?.payload.data.groupVisibility === 1;
+
   return (
     <GroupContext.Provider
       value={{ groupId: groupIdFromPath, setGroupId: () => {} }}
@@ -77,6 +79,7 @@ export default function GroupLayoutModerator({
         <GroupTabsModerator
           groupId={groupIdFromPath}
           userId={userIdFromLocalStorage as string}
+          isPrivateGroup={isPrivateGroup}
         />
         {children}
       </div>
