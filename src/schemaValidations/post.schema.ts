@@ -728,3 +728,37 @@ export const GetTopPostInGroupListRes = z.object({
 export type GetTopPostInGroupListResType = z.TypeOf<
   typeof GetTopPostInGroupListRes
 >;
+
+export const ReportCommentBody = z.object({
+  commentId: z.string(),
+  reportTypeEnum: z.number(),
+});
+
+export type ReportCommentBodyType = z.TypeOf<typeof ReportCommentBody>;
+
+export const ReportCommentDataSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  userName: z.string(),
+  userEmail: z.string(),
+  reportedUserId: z.string(),
+  reportedUserName: z.string(),
+  reportedUserEmail: z.string(),
+  commentId: z.string(),
+  content: z.string(),
+  postId: z.string(),
+  reportTypeEnum: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type ReportCommentDataType = z.TypeOf<typeof ReportCommentDataSchema>;
+
+export const GetReportCommentResponseSchema = z.object({
+  message: z.string(),
+  data: z.array(ReportCommentDataSchema),
+});
+
+export type GetReportCommentResponseType = z.TypeOf<
+  typeof GetReportCommentResponseSchema
+>;

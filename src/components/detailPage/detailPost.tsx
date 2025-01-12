@@ -41,10 +41,12 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import ShareCount from "@/components/shareSection/shareCount";
+import ReportPostSection from "@/components/reportSection/report-post-section";
 
 export default function DetailPost() {
   const { theme } = useTheme();
   const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
 
   const userIdComment = getUserIdFromLocalStorage() ?? "";
   const param = useParams();
@@ -197,6 +199,10 @@ export default function DetailPost() {
     setIsBookmarkDialogOpen(true);
   };
 
+  const openReportPostDialog = () => {
+    setIsReportDialogOpen(true);
+  };
+
   return (
     <div className="w-full relative">
       {/* Vertical icon bar */}
@@ -222,9 +228,19 @@ export default function DetailPost() {
           </div>
         </ShareSection>
         <BookmarkDialog postId={postIdFromUrl as string} />
-        <Button variant="ghost" size="icon" className="rounded-full mt-7">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="rounded-full mt-7"
+          onClick={openReportPostDialog}
+        >
           <Flag className="h-8 w-8 text-red-500" />
         </Button>
+        <ReportPostSection
+          postId={postIdFromUrl as string}
+          isOpen={isReportDialogOpen}
+          setIsOpen={setIsReportDialogOpen}
+        />
       </div>
 
       {/* Main content */}
@@ -296,7 +312,7 @@ export default function DetailPost() {
                 <Bookmark className="mr-2 h-4 w-4" />
                 <span>Lưu bài viết</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={openReportPostDialog}>
                 <Flag className="mr-2 h-4 w-4" />
                 <span>Báo cáo bài viết</span>
               </DropdownMenuItem>
@@ -306,6 +322,11 @@ export default function DetailPost() {
             postId={postIdFromUrl as string}
             isOpen={isBookmarkDialogOpen}
             setIsOpen={setIsBookmarkDialogOpen}
+          />
+          <ReportPostSection
+            postId={postIdFromUrl as string}
+            isOpen={isReportDialogOpen}
+            setIsOpen={setIsReportDialogOpen}
           />
         </div>
 

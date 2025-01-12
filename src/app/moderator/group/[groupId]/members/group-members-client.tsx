@@ -74,6 +74,7 @@ export default function GroupMembersClient() {
                 currentUser.roleInGroup === "Moderator") && (
                 <div className="flex items-center justify-between">
                   <GroupMemberDetailsForModerator
+                    groupId={groupIdFromPath}
                     userId={currentUser.userId}
                     roleInGroup={currentUser.roleInGroup}
                   />
@@ -90,6 +91,7 @@ export default function GroupMembersClient() {
               .map((admin, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <GroupMemberDetailsForModerator
+                    groupId={groupIdFromPath}
                     userId={admin.userId}
                     roleInGroup={admin.roleInGroup}
                   />
@@ -98,12 +100,12 @@ export default function GroupMembersClient() {
           </div>
         </div>
 
-        {(roleCount?.payload.data.totalUsers as number) > 1 && (
+        {(roleCount?.payload.data.totalUsers as number) >= 1 && (
           <Separator className="bg-zinc-800" />
         )}
         {/* thành viên */}
         <div className="space-y-4">
-          {(roleCount?.payload.data.totalUsers as number) > 1 && (
+          {(roleCount?.payload.data.totalUsers as number) >= 1 && (
             <h3 className="text-sm font-medium">
               Thành viên trong nhóm · {roleCount?.payload.data.totalUsers}
             </h3>
@@ -114,6 +116,7 @@ export default function GroupMembersClient() {
               .map((member, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <GroupMemberDetailsForModerator
+                    groupId={groupIdFromPath}
                     userId={member.userId}
                     roleInGroup={member.roleInGroup}
                   />

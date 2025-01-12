@@ -18,10 +18,12 @@ export default function GroupTabsUser({
   groupId,
   userId,
   isMember,
+  isPrivateGroup,
 }: {
   groupId: string;
   userId: string;
   isMember: boolean | null;
+  isPrivateGroup: boolean;
 }) {
   const { theme } = useTheme();
   const pathname = usePathname();
@@ -107,7 +109,7 @@ export default function GroupTabsUser({
               </Button>
             </Link>
           )}
-          {isModeratorInGroup && (
+          {isModeratorInGroup && isPrivateGroup && (
             <Link href={`/user/group/${groupId}/request-join`} passHref>
               <Button
                 variant={

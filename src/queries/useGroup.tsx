@@ -1,6 +1,7 @@
 import groupApiRequest from "@/apiRequests/group";
 import {
   ApproveOrRejectRequestGroupResType,
+  AssignRoleRequestType,
   CreateGroupRequestType,
   CrequestGroupRequestType,
   JoinGroupRequestType,
@@ -12,6 +13,7 @@ export const useGetAllGroupsQuery = () => {
   return useQuery({
     queryKey: ["get-all-groups"],
     queryFn: groupApiRequest.getAllGroups,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -20,6 +22,7 @@ export const useGetGroupsByUserIdQuery = (userId: string) => {
     queryKey: ["get-groups-by-user-id", userId],
     queryFn: () => groupApiRequest.getGroupsJoinedByUserId(userId),
     enabled: !!userId,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -130,6 +133,7 @@ export const useGetListRequestGroupQuery = () => {
   return useQuery({
     queryKey: ["get-list-request-group"],
     queryFn: groupApiRequest.getApprovalRequestsCreateGroup,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -138,6 +142,7 @@ export const useGetListRequestedGroupByUserIdQuery = (userId: string) => {
     queryKey: ["get-list-request-group-by-user-id", userId],
     queryFn: () => groupApiRequest.getRequestsCreateGroupByUserId(userId),
     enabled: !!userId,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -176,6 +181,7 @@ export const useGetRequestJoinGroupQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["get-request-join-group", groupId],
     queryFn: () => groupApiRequest.getRequestJoinGroup(groupId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -186,6 +192,9 @@ export const useApproveOrRejectRequestJoinGroupMutation = (groupId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["get-request-join-group", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-all-groups", groupId],
       });
     },
   });
@@ -216,5 +225,25 @@ export const useGetRecommendGroupQuery = () => {
   return useQuery({
     queryKey: ["get-recommend-group"],
     queryFn: groupApiRequest.getRecommendGroup,
+  });
+};
+
+export const useAssignRoleMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: AssignRoleRequestType) =>
+      groupApiRequest.assignRole(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-members-by-group-id"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-role-count-by-group-id"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-groups-by-user-id"],
+      });
+    },
   });
 };

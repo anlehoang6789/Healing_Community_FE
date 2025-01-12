@@ -83,6 +83,7 @@ import CommentCount from "@/components/commentSection/commentCount";
 import Link from "next/link";
 import ReactionSharedCount from "@/components/homePage/reactionSharedCount";
 import ReactionSharedEmoji from "@/components/homePage/reactionSharedEmoji";
+import ReportPostSection from "@/components/reportSection/report-post-section";
 
 type PostItem = GetPostByUserIdResType["data"][0];
 const OwnPostContext = createContext<{
@@ -99,6 +100,7 @@ const OwnPostContext = createContext<{
 
 export default function OwnPost() {
   const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const { userId } = useParams(); //lấy userId từ url
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
@@ -673,6 +675,10 @@ export default function OwnPost() {
     setIsBookmarkDialogOpen(true);
   };
 
+  const openReportPostDialog = () => {
+    setIsReportDialogOpen(true);
+  };
+
   return (
     <OwnPostContext.Provider
       value={{
@@ -823,7 +829,7 @@ export default function OwnPost() {
                               <Bookmark className="mr-2 h-4 w-4" />
                               <span>Lưu bài viết</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={openReportPostDialog}>
                               <Flag className="mr-2 h-4 w-4" />
                               <span>Báo cáo bài viết</span>
                             </DropdownMenuItem>
@@ -833,6 +839,11 @@ export default function OwnPost() {
                           postId={post.postId}
                           isOpen={isBookmarkDialogOpen}
                           setIsOpen={setIsBookmarkDialogOpen}
+                        />
+                        <ReportPostSection
+                          postId={post.postId}
+                          isOpen={isReportDialogOpen}
+                          setIsOpen={setIsReportDialogOpen}
                         />
                       </>
                     )}
@@ -1044,7 +1055,7 @@ export default function OwnPost() {
                               <Bookmark className="mr-2 h-4 w-4" />
                               <span>Lưu bài viết</span>
                             </DropdownMenuItem>
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={openReportPostDialog}>
                               <Flag className="mr-2 h-4 w-4" />
                               <span>Báo cáo bài viết</span>
                             </DropdownMenuItem>
@@ -1168,15 +1179,6 @@ export default function OwnPost() {
                         <MessageSquare className="w-4 h-4" />
                         Bình luận
                       </Button>
-                      {/* <ShareSection postId={sharedPost.shareId}>
-                        <Button
-                          variant="iconDarkMod"
-                          className="flex items-center gap-2 p-0"
-                        >
-                          <Share2 className="w-4 h-4" />
-                          Chia sẻ
-                        </Button>
-                      </ShareSection> */}
                     </div>
                   </div>
 
@@ -1221,6 +1223,11 @@ export default function OwnPost() {
                     postId={sharedPost.shareId}
                     isOpen={isBookmarkDialogOpen}
                     setIsOpen={setIsBookmarkDialogOpen}
+                  />
+                  <ReportPostSection
+                    postId={sharedPost.shareId}
+                    isOpen={isReportDialogOpen}
+                    setIsOpen={setIsReportDialogOpen}
                   />
                 </div>
               );

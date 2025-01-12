@@ -5,6 +5,7 @@ import {
   CreateSharedCommentBodyType,
   GetAuthorOtherPostBodyType,
   GetOtherPostWithSameCategoryBodyType,
+  ReportCommentBodyType,
   UpdatePersonalPostBodyType,
   UpdateSharedPostBodyType,
 } from "@/schemaValidations/post.schema";
@@ -636,5 +637,27 @@ export const useGetTopPostInGroupQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["top-post-in-group", groupId],
     queryFn: () => postApiRequest.getTopPostInGroup(groupId),
+  });
+};
+
+export const useGetReportCommentQuery = () => {
+  return useQuery({
+    queryKey: ["report-comment"],
+    queryFn: () => postApiRequest.getReportComment(),
+    refetchOnWindowFocus: true,
+  });
+};
+
+export const useReportCommentMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: ReportCommentBodyType) =>
+      postApiRequest.reportComment(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["report-comment"],
+      });
+    },
   });
 };

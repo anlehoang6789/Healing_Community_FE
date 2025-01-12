@@ -149,6 +149,7 @@ export type GetRoleCountByGroupIdResType = z.infer<
 const CrequestGroupRequestSchema = z.object({
   groupName: z.string(),
   description: z.string(),
+  coverImg: z.string().url(),
 });
 
 export type CrequestGroupRequestType = z.infer<
@@ -164,6 +165,7 @@ export const GetRequestGroupSchema = z.object({
   approvedById: z.string().nullable(),
   requestedById: z.string(),
   requestedAt: z.string(),
+  coverImg: z.string().url().nullable(),
 });
 
 export type GetRequestGroupType = z.TypeOf<typeof GetRequestGroupSchema>;
@@ -195,6 +197,7 @@ export const GetRequestedGroupByUserIdSchema = z.object({
   approvedById: z.string().nullable(),
   requestedById: z.string(),
   requestedAt: z.string(),
+  coverImg: z.string().url().nullable(),
 });
 
 export type GetRequestedGroupByUserIdType = z.TypeOf<
@@ -284,3 +287,11 @@ export const GetRecommendedGroupsListSchema = z.object({
 export type GetRecommendedGroupsListType = z.TypeOf<
   typeof GetRecommendedGroupsListSchema
 >;
+
+export const AssignRoleRequestSchema = z.object({
+  groupId: z.string(),
+  userId: z.string(),
+  role: z.number(),
+});
+
+export type AssignRoleRequestType = z.TypeOf<typeof AssignRoleRequestSchema>;

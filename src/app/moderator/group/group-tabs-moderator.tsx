@@ -1,6 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { useCheckRoleInGroupQuery } from "@/queries/useGroup";
 
 import { useTheme } from "next-themes";
 import Link from "next/link";
@@ -9,9 +11,11 @@ import { usePathname, useRouter } from "next/navigation";
 export default function GroupTabsModerator({
   groupId,
   userId,
+  isPrivateGroup,
 }: {
   groupId: string;
   userId: string;
+  isPrivateGroup: boolean;
 }) {
   const { theme } = useTheme();
   const pathname = usePathname();
@@ -24,11 +28,17 @@ export default function GroupTabsModerator({
     ? "members"
     : pathname.startsWith(`/moderator/group/${groupId}`)
     ? "discussion"
+    : pathname.startsWith(`/moderator/group/${groupId}/request-join`)
+    ? "request-join"
     : "discussion";
 
-  const handleNavigation = () => {
-    router.push(`/moderator/group-user/${groupId}/user/${userId}`);
-  };
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
+  const { data } = useCheckRoleInGroupQuery(
+    userIdFromLocalStorage as string,
+    groupId
+  );
+
+  const isOwnerInGroup = data?.payload.data.roleInGroup === "Owner";
 
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -71,30 +81,21 @@ export default function GroupTabsModerator({
               Mọi người
             </Button>
           </Link>
+          {isOwnerInGroup && isPrivateGroup && (
+            <Link href={`/moderator/group/${groupId}/request-join`} passHref>
+              <Button
+                variant={
+                  activeTab === "request-join"
+                    ? "gradientUnderline"
+                    : "gradientHoverUnderline"
+                }
+                className="text-xs sm:text-sm flex-1 sm:flex-none text-muted-foreground"
+              >
+                Duyệt yêu cầu
+              </Button>
+            </Link>
+          )}
         </div>
-
-        {/* Dropdown Section */}
-        {/* <DropdownMenu modal={false} aria-hidden={false}>
-          <DropdownMenuTrigger asChild>
-            <Button variant="iconSend">
-              <Ellipsis />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className={`w-56 mt-4 ${
-              theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-            }`}
-          >
-            <DropdownMenuItem onClick={handleNavigation}>
-              <MessagesSquare className="mr-2 h-4 w-4" />
-              <span>Nội dung của bạn</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <MessageSquareWarning className="mr-2 h-4 w-4" />
-              <span>Báo cáo nhóm</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu> */}
       </div>
     </main>
   );
