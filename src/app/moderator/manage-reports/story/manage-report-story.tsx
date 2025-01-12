@@ -52,6 +52,7 @@ import {
 } from "@/schemaValidations/report.schema";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
 import { useGetReportPostQuery } from "@/queries/useReport";
+import ReportStoryDetails from "@/app/moderator/manage-reports/story/report-story-details";
 
 type ManageReportStoryItem = GetReportPostListResType["data"][0];
 
@@ -117,10 +118,13 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
       </Button>
     ),
     cell: ({ row }) => {
+      const postTitle = row.original.postTitle;
+      const postId = row.original.postId;
       return (
         <>
-          <div className="font-bold">{row.getValue("postTitle")}</div>
+          <div className="font-bold">{postTitle}</div>
           {/* Dialog xem bai viet */}
+          <ReportStoryDetails postId={postId} />
         </>
       );
     },
