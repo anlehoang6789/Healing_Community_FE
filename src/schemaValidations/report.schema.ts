@@ -11,6 +11,7 @@ export const GetReportPostSchema = z.object({
   postId: z.string(),
   postTitle: z.string(),
   reportTypeEnum: z.number(),
+  isApprove: z.boolean(),
   createdAt: z.string(),
   updatedAt: z.string(),
 });
@@ -30,3 +31,12 @@ export const AddReportPostBody = z.object({
 });
 
 export type AddReportPostBodyType = z.TypeOf<typeof AddReportPostBody>;
+
+export const ApproveOrRejectReportPostBody = z.object({
+  postId: z.string(),
+  isApprove: z.boolean(),
+});
+
+export type ApproveOrRejectReportPostBodyType = z.TypeOf<
+  typeof ApproveOrRejectReportPostBody
+>;

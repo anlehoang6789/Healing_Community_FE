@@ -20,8 +20,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -34,16 +32,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { createContext, useContext, useEffect, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 import {
@@ -51,8 +39,12 @@ import {
   GetReportPostSchemaType,
 } from "@/schemaValidations/report.schema";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
-import { useGetReportPostQuery } from "@/queries/useReport";
+import {
+  useApproveOrRejectReportPostMutation,
+  useGetReportPostQuery,
+} from "@/queries/useReport";
 import ReportStoryDetails from "@/app/moderator/manage-reports/story/report-story-details";
+import { toast } from "@/hooks/use-toast";
 
 type ManageReportStoryItem = GetReportPostListResType["data"][0];
 
@@ -186,16 +178,61 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     ),
   },
   {
+    id: "isApprove",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Trạng thái
+        <CaretSortIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const isApprove = row.original.isApprove ? "Đã duyệt" : "Chưa duyệt";
+      const isApproveColor = row.original.isApprove
+        ? "border border-green-200 px-1 py-1 rounded-lg text-sm text-green-500 text-center"
+        : "border border-red-200 px-1 py-1 rounded-lg text-sm text-red-500 text-center";
+      return <div className={isApproveColor}>{isApprove}</div>;
+    },
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      const { setReportApproveId, setRejectDelete } =
-        useContext(AccountTableContext);
-      const openEditEmployee = () => {
-        setReportApproveId(row.original.postId);
+      const approveOrRejectReportPostMutation =
+        useApproveOrRejectReportPostMutation();
+
+      const handleApproveReportPost = async () => {
+        if (approveOrRejectReportPostMutation.isPending) return;
+        try {
+          const res = await approveOrRejectReportPostMutation.mutateAsync({
+            postId: row.original.postId,
+            isApprove: true,
+          });
+          toast({
+            description: res.payload.message,
+            variant: "success",
+          });
+        } catch (error: any) {
+          handleErrorApi(error);
+        }
       };
-      const openDeleteEmployee = () => {
-        setRejectDelete(row.original);
+
+      const handleRejectReportPost = async () => {
+        if (approveOrRejectReportPostMutation.isPending) return;
+        try {
+          const res = await approveOrRejectReportPostMutation.mutateAsync({
+            postId: row.original.postId,
+            isApprove: false,
+          });
+          toast({
+            description: res.payload.message,
+            variant: "success",
+          });
+        } catch (error: any) {
+          handleErrorApi(error);
+        }
       };
       return (
         <DropdownMenu modal={false}>
@@ -206,10 +243,10 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={openEditEmployee}>
+            <DropdownMenuItem onClick={handleApproveReportPost}>
               Duyệt
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={openDeleteEmployee}>
+            <DropdownMenuItem onClick={handleRejectReportPost}>
               Từ chối
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -218,62 +255,6 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     },
   },
 ];
-
-function AlertDialogDeleteCategory({
-  rejectDelete,
-  setRejectDelete,
-}: {
-  rejectDelete: ManageReportStoryItem | null;
-  setRejectDelete: (value: ManageReportStoryItem | null) => void;
-}) {
-  // const { mutateAsync } = useDeleteCategoryMutation();
-  const rejectReportPost = async () => {
-    if (rejectDelete) {
-      try {
-        // const result = await mutateAsync(rejectDelete.);
-        setRejectDelete(null);
-        // toast({
-        //   description: result.payload.message,
-        //   variant: "success",
-        // });
-      } catch (error) {
-        handleErrorApi({ error });
-      }
-    }
-  };
-
-  return (
-    <AlertDialog
-      open={Boolean(rejectDelete)}
-      onOpenChange={(value) => {
-        if (!value) {
-          setRejectDelete(null);
-        }
-      }}
-    >
-      <AlertDialogContent className="bg-card">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-textChat font-semibold">
-            Từ chối báo cáo bài viết?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Bài viết{" "}
-            <span className="bg-muted text-textChat rounded px-1 font-semibold">
-              {rejectDelete?.postTitle}
-            </span>{" "}
-            sẽ bị từ chối báo cáo.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
-          <AlertDialogAction onClick={rejectReportPost}>
-            Tiếp tục
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
 
 const PAGE_SIZE = 10;
 
