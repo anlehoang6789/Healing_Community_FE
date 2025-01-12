@@ -23,3 +23,10 @@ export const GetReportPostListRes = z.object({
 });
 
 export type GetReportPostListResType = z.TypeOf<typeof GetReportPostListRes>;
+
+export const AddReportPostBody = z.object({
+  postId: z.string(),
+  reportTypeEnum: z.number(),
+});
+
+export type AddReportPostBodyType = z.TypeOf<typeof AddReportPostBody>;
