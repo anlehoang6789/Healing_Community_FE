@@ -19,3 +19,15 @@ export const useAddReportPostMutation = () => {
     },
   });
 };
+
+export const useApproveOrRejectReportPostMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: reportApiRequest.approveOrRejectReportPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reportPost"],
+      });
+    },
+  });
+};
