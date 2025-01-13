@@ -9,7 +9,11 @@ import {
   useGetHomePageLazyLoadQuery,
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { formatDateTime, handleErrorApi } from "@/lib/utils";
+import {
+  formatDateTime,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import { useAppContext } from "@/components/app-provider";
@@ -27,6 +31,7 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import ShareCount from "@/components/shareSection/shareCount";
+import ReportPostSection from "@/components/reportSection/report-post-section";
 
 type UserProfileProps = {
   userId: string;
@@ -44,6 +49,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const { isAuth } = useAppContext();
   const { theme } = useTheme();
   const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data, isLoading, isError } = useGetUserProfileQuery(
@@ -54,6 +60,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
     userId,
     isExpert && !!userId
   );
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
+  const isOwner = userId === userIdFromLocalStorage;
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !data) return <div>Error fetching user profile</div>;
@@ -61,6 +69,10 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const user = data.payload.data;
   const openBookmarkDialog = () => {
     setIsBookmarkDialogOpen(true);
+  };
+
+  const openReportPostDialog = () => {
+    setIsReportDialogOpen(true);
   };
 
   return (
@@ -110,7 +122,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </p>
         </div>
       </div>
-      {isAuth && (
+      {isAuth && !isOwner && (
         <div className="ml-auto">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild className="ml-auto">
@@ -132,7 +144,12 @@ const UserProfile: React.FC<UserProfileProps> = ({
                 <Bookmark className="mr-2 h-4 w-4" />
                 <span>Lưu bài viết</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  openReportPostDialog();
+                  e.stopPropagation();
+                }}
+              >
                 <Flag className="mr-2 h-4 w-4" />
                 <span>Báo cáo bài viết</span>
               </DropdownMenuItem>
@@ -142,6 +159,11 @@ const UserProfile: React.FC<UserProfileProps> = ({
             postId={postId}
             isOpen={isBookmarkDialogOpen}
             setIsOpen={setIsBookmarkDialogOpen}
+          />
+          <ReportPostSection
+            postId={postId}
+            isOpen={isReportDialogOpen}
+            setIsOpen={setIsReportDialogOpen}
           />
         </div>
       )}
