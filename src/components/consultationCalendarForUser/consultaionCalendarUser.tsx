@@ -73,6 +73,7 @@ import { formatCurrency, formatDate, handleErrorApi } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useTheme } from "next-themes";
 import DialogRateExpert from "@/components/consultationCalendarForUser/dialogRateExpert";
+import ReportExpertSection from "@/components/reportSection/report-expert-section";
 
 const ExpertAvatar = ({ expertId }: { expertId: string }) => {
   const { data } = useGetExpertProfileQuery(expertId);
@@ -92,6 +93,7 @@ const ExpertAvatar = ({ expertId }: { expertId: string }) => {
 };
 
 export default function ConsultationSchedule() {
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = React.useState<
     string | null
@@ -186,6 +188,11 @@ export default function ConsultationSchedule() {
       checkRatingStatus.data?.payload.data === false &&
       consultation.tag === "Đã hoàn thành";
 
+    const openReportDialog = () => {
+      setSelectedAppointmentId(consultation.appointmentId);
+      setIsReportDialogOpen(true);
+    };
+
     return (
       <Card key={consultation.appointmentId} className="mb-4 relative">
         {/* Hủy lịch hẹn */}
@@ -257,7 +264,7 @@ export default function ConsultationSchedule() {
                 </DropdownMenuItem>
               )}
 
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={openReportDialog}>
                 <MessageSquareWarning className="mr-2 h-4 w-4" />
                 <span>Báo cáo</span>
               </DropdownMenuItem>
@@ -272,6 +279,14 @@ export default function ConsultationSchedule() {
           }}
           appointmentId={selectedAppointmentId}
           expertProfileId={consultation.expertId}
+        />
+        <ReportExpertSection
+          appoinmtentId={selectedAppointmentId as string}
+          isOpen={isReportDialogOpen}
+          setIsOpen={(value) => {
+            if (!value) setSelectedAppointmentId(null); // Reset khi đóng dialog
+            setIsReportDialogOpen(value);
+          }}
         />
 
         <CardHeader className="flex flex-row items-center gap-4">

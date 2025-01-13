@@ -1,5 +1,6 @@
 import http from "@/lib/http";
 import {
+  AddReportExpertBodyType,
   AddReportPostBodyType,
   ApproveOrRejectReportPostBodyType,
   AprroveOrRejectReportExpertBodyType,
@@ -32,6 +33,11 @@ const reportApiRequest = {
   getModeratorActivityReportExpert: () =>
     http.get<GetModeratorActivityReportExpertListResType>(
       "report/api/moderatoractivity/get-appointment-report-activity"
+    ),
+  addReportExpert: (body: AddReportExpertBodyType) =>
+    http.post<{ message: string }>(
+      "expert/api/report/report-appointment",
+      body
     ),
 };
 

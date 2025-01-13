@@ -78,6 +78,13 @@ export type AprroveOrRejectReportExpertBodyType = z.TypeOf<
   typeof AprroveOrRejectReportExpertBody
 >;
 
+export const AddReportExpertBody = z.object({
+  appoinmtentId: z.string(),
+  reportDescription: z.string(),
+});
+
+export type AddReportExpertBodyType = z.TypeOf<typeof AddReportExpertBody>;
+
 //===========================moderator activity
 export const GetModeratorActivityReportPostSchema = z.object({
   id: z.string(),
