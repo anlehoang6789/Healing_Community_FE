@@ -71,3 +71,22 @@ export const useGetModeratorActivityReportExpertQuery = () => {
     queryFn: reportApiRequest.getModeratorActivityReportExpert,
   });
 };
+
+export const useAddReportExpertMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: reportApiRequest.addReportExpert,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["reportExpert"],
+      });
+    },
+  });
+};
+
+export const useGetModeratorActivityReportCommentQuery = () => {
+  return useQuery({
+    queryKey: ["moderatorActivityReportComment"],
+    queryFn: reportApiRequest.getModeratorActivityReportComment,
+  });
+};
