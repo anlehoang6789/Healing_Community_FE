@@ -17,7 +17,7 @@ const reportApiRequest = {
     http.post<{ message: string }>("post/api/ban/ban-post", body),
   getModeratorActivityReportPost: () =>
     http.get<GetModeratorActivityReportPostListResType>(
-      "report/api//moderatoractivity/get-post-report-activity"
+      "report/api/moderatoractivity/get-post-report-activity"
     ),
   getReportExpert: () =>
     http.get<GetReportExpertListResType>(
