@@ -18,10 +18,13 @@ import {
   RegisterModeratorBody,
   RegisterModeratorBodyType,
 } from "@/schemaValidations/moderator.schema";
+import { useCreateAccountForModerator } from "@/queries/useUser";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
 
 export default function CreateAccountModerator() {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<RegisterModeratorBodyType>({
     resolver: zodResolver(RegisterModeratorBody),
@@ -29,12 +32,29 @@ export default function CreateAccountModerator() {
       email: "",
       userName: "",
       password: "",
-      confirmPassword: "",
+      fullName: "",
+      phoneNumber: "",
     },
   });
 
+  const createAccountForModerator = useCreateAccountForModerator();
+  const onSubmit = async (data: RegisterModeratorBodyType) => {
+    if (createAccountForModerator.isPending) return;
+    try {
+      const res = await createAccountForModerator.mutateAsync(data);
+      toast({
+        description: res.payload.message,
+        variant: "success",
+      });
+      setIsOpen(false);
+      form.reset();
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           variant={"ghost"}
@@ -52,6 +72,9 @@ export default function CreateAccountModerator() {
           <form
             className="space-y-4 max-w-[600px] flex-shrink-0 w-full"
             noValidate
+            onSubmit={form.handleSubmit(onSubmit, (errors) => {
+              console.warn(errors);
+            })}
           >
             <div className="grid gap-4">
               <h1 className="text-2xl font-semibold text-muted-foreground text-center">
@@ -90,7 +113,7 @@ export default function CreateAccountModerator() {
                   <FormItem>
                     <div className="grid gap-2">
                       <div className="flex items-center">
-                        <Label htmlFor="password" className="text-black">
+                        <Label htmlFor="userName" className="text-black">
                           Tên tài khoản
                         </Label>
                         <span className="text-red-500 ml-1">*</span>
@@ -109,6 +132,69 @@ export default function CreateAccountModerator() {
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label htmlFor="fullName" className="text-black">
+                          Tên hiển thị
+                        </Label>
+                        <span className="text-red-500 ml-1">*</span>
+                      </div>
+                      <Input
+                        id="fullName"
+                        type="text"
+                        placeholder="Tên hiển thị"
+                        required
+                        {...field}
+                        autoComplete="off"
+                        className="placeholder:text-[#919BA4] border-[0.5px] border-[#666]"
+                      />
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid gap-2">
+                      <div className="flex items-center">
+                        <Label htmlFor="phoneNumber" className="text-black">
+                          Số điện thoại
+                        </Label>
+                        <span className="text-red-500 ml-1">*</span>
+                      </div>
+                      <Input
+                        id="phoneNumber"
+                        type="text"
+                        placeholder="Số điện thoại"
+                        maxLength={11}
+                        required
+                        {...field}
+                        autoComplete="off"
+                        className="placeholder:text-[#919BA4] border-[0.5px] border-[#666]"
+                        onInput={(e) => {
+                          e.currentTarget.value = e.currentTarget.value.replace(
+                            /\D/g,
+                            ""
+                          );
+                          field.onChange(e.currentTarget.value);
+                        }}
+                      />
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="password"
@@ -136,54 +222,6 @@ export default function CreateAccountModerator() {
                           className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
                         >
                           {showPassword ? (
-                            <Eye
-                              size={"16px"}
-                              strokeWidth="0.5px"
-                              className="text-black"
-                            />
-                          ) : (
-                            <EyeOff
-                              size={"16px"}
-                              strokeWidth="0.5px"
-                              className="text-black"
-                            />
-                          )}
-                        </span>
-                      </div>
-                      <FormMessage />
-                    </div>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="confirmPassword"
-                render={({ field }) => (
-                  <FormItem>
-                    <div className="grid gap-2">
-                      <div className="flex items-center">
-                        <Label htmlFor="confirmPassword" className="text-black">
-                          Xác nhận mật khẩu
-                        </Label>
-                        <span className="text-red-500 ml-1">*</span>
-                      </div>
-                      <div className="relative">
-                        <Input
-                          id="confirmPassword"
-                          type={showConfirmPassword ? "text" : "password"}
-                          required
-                          {...field}
-                          autoComplete="current-password"
-                          placeholder="Mk@12345"
-                          className="placeholder:text-[#919BA4] border-[0.5px] border-[#666]"
-                        />
-                        <span
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                          className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
-                        >
-                          {showConfirmPassword ? (
                             <Eye
                               size={"16px"}
                               strokeWidth="0.5px"
