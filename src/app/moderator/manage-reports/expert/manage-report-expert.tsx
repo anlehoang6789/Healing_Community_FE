@@ -31,36 +31,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
+import { GetReportExpertSchemaType } from "@/schemaValidations/report.schema";
+import { formatDate, formatDateTime, handleErrorApi } from "@/lib/utils";
 import {
-  GetReportPostListResType,
-  GetReportPostSchemaType,
-} from "@/schemaValidations/report.schema";
-import { formatDateTime, handleErrorApi } from "@/lib/utils";
-import {
-  useApproveOrRejectReportPostMutation,
-  useGetReportPostQuery,
+  useApproveOrRejectReportExpertMutation,
+  useGetReportExpertQuery,
 } from "@/queries/useReport";
-import ReportStoryDetails from "@/app/moderator/manage-reports/story/report-story-details";
 import { toast } from "@/hooks/use-toast";
 
-type ManageReportStoryItem = GetReportPostListResType["data"][0];
-
-const AccountTableContext = createContext<{
-  setReportApproveId: (value: string) => void;
-  reportApproveId: string | undefined;
-  rejectDelete: ManageReportStoryItem | null;
-  setRejectDelete: (value: ManageReportStoryItem | null) => void;
-}>({
-  setReportApproveId: (value: string | undefined) => {},
-  reportApproveId: undefined,
-  rejectDelete: null,
-  setRejectDelete: (value: ManageReportStoryItem | null) => {},
-});
-
-const columns: ColumnDef<GetReportPostSchemaType>[] = [
+const columns: ColumnDef<GetReportExpertSchemaType>[] = [
   {
     id: "id",
     header: "STT",
@@ -82,11 +64,11 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     },
   },
   {
-    accessorKey: "nameReport",
+    id: "nameReport",
     header: "Thông tin người bị báo cáo",
     cell: ({ row }) => {
-      const reportedUserName = row.original.reportedUserName;
-      const reportedUserEmail = row.original.reportedUserEmail;
+      const reportedUserName = row.original.expertName;
+      const reportedUserEmail = row.original.expertEmail;
 
       return (
         <div>
@@ -99,64 +81,55 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     },
   },
   {
-    id: "postTitle",
+    id: "reportDescription",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Bài viết có tiêu đề
+        Nội dung báo cáo
         <CaretSortIcon className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => {
-      const postTitle = row.original.postTitle;
-      const postId = row.original.postId;
+      const reportExpertDescription = row.original.reportDescription;
       return (
         <>
-          <div className="font-bold">{postTitle}</div>
-          {/* Dialog xem bai viet */}
-          <ReportStoryDetails postId={postId} />
+          <div className="font-medium">{reportExpertDescription}</div>
         </>
       );
     },
   },
   {
-    accessorKey: "reportTypeEnum",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Lý do
-        <CaretSortIcon className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const reportTypeEnum = row.original.reportTypeEnum;
-      const reportTypeMapping: Record<number, string> = {
-        1: "Ngôn từ không phù hợp",
-        2: "Chỉ là tui không thích nội dung này",
-        3: "Thông tin sai lệch",
-        4: "vi phạm quy tắc cộng đồng",
-      };
-      const reportTypeLabel =
-        reportTypeMapping[reportTypeEnum] || "Không xác định";
-
-      const reportTypeColor: Record<number, string> = {
-        1: "bg-gray-100 text-gray-800 text-xs",
-        2: "bg-pink-100 text-pink-800 text-xs",
-        3: "bg-red-100 text-red-800 text-xs",
-        4: "bg-rose-100 text-rose-800 text-xs",
-      };
+    id: `consultation-info`,
+    header: ({ column }) => {
       return (
-        <span
-          className={`px-2 py-1 rounded-md text-sm font-medium ${
-            reportTypeColor[reportTypeEnum] || "bg-gray-100 text-gray-800"
-          }`}
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          {reportTypeLabel}
-        </span>
+          Lịch tư vấn
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const appointmentDate = row.original.appoinmtentDate;
+      const startTime = row.original.startTime;
+      const endTime = row.original.endTime;
+      return (
+        <div className="text-textChat flex flex-col">
+          <div className="flex">
+            <span className="font-semibold pr-1">Ngày tư vấn: </span>
+            <span>{formatDate(appointmentDate)}</span>
+          </div>
+          <div className="flex">
+            <span className="font-semibold pr-1">Thời gian: </span>
+            <span>
+              {startTime} - {endTime}
+            </span>
+          </div>
+        </div>
       );
     },
   },
@@ -216,14 +189,14 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      const approveOrRejectReportPostMutation =
-        useApproveOrRejectReportPostMutation();
+      const approveOrRejectReportExpertMutation =
+        useApproveOrRejectReportExpertMutation();
 
       const handleApproveReportPost = async () => {
-        if (approveOrRejectReportPostMutation.isPending) return;
+        if (approveOrRejectReportExpertMutation.isPending) return;
         try {
-          const res = await approveOrRejectReportPostMutation.mutateAsync({
-            postId: row.original.postId,
+          const res = await approveOrRejectReportExpertMutation.mutateAsync({
+            appointmentId: row.original.appointmentId,
             isApprove: true,
           });
           toast({
@@ -236,10 +209,10 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
       };
 
       const handleRejectReportPost = async () => {
-        if (approveOrRejectReportPostMutation.isPending) return;
+        if (approveOrRejectReportExpertMutation.isPending) return;
         try {
-          const res = await approveOrRejectReportPostMutation.mutateAsync({
-            postId: row.original.postId,
+          const res = await approveOrRejectReportExpertMutation.mutateAsync({
+            appointmentId: row.original.appointmentId,
             isApprove: false,
           });
           toast({
@@ -274,17 +247,13 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
 
 const PAGE_SIZE = 10;
 
-export default function ManageReportStory() {
+export default function ManageReportExpert() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
 
-  const [reportApproveId, setReportApproveId] = useState<string | undefined>();
-  const [rejectDelete, setRejectDelete] =
-    useState<ManageReportStoryItem | null>(null);
-
-  const listReportPost = useGetReportPostQuery();
-  const data = listReportPost.data?.payload.data ?? [];
+  const listReportExpert = useGetReportExpertQuery();
+  const data = listReportExpert.data?.payload.data ?? [];
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -325,90 +294,84 @@ export default function ManageReportStory() {
   }, [table, pageIndex]);
 
   return (
-    <AccountTableContext.Provider
-      value={{
-        reportApproveId,
-        setReportApproveId,
-        rejectDelete,
-        setRejectDelete,
-      }}
-    >
-      <div className="w-full">
-        <div className="flex items-center py-4">
-          <Input
-            placeholder="Tìm kiếm theo tiêu đề bài viết ..."
-            value={
-              (table.getColumn("postTitle")?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table.getColumn("postTitle")?.setFilterValue(event.target.value)
-            }
-            className="max-w-sm"
-          />
-        </div>
+    <div className="w-full">
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Tìm kiếm theo nội dung bị báo cáo ..."
+          value={
+            (table
+              .getColumn("reportDescription")
+              ?.getFilterValue() as string) ?? ""
+          }
+          onChange={(event) =>
+            table
+              .getColumn("reportDescription")
+              ?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+      </div>
 
-        <div className="rounded-md border">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+
+          <TableBody>
+            {table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
                   ))}
                 </TableRow>
-              ))}
-            </TableHeader>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-            <TableBody>
-              {table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <div className="text-xs text-muted-foreground py-4 flex-1 ">
+          Hiển thị <strong>{table.getPaginationRowModel().rows.length}</strong>{" "}
+          trong <strong>{data.length}</strong> kết quả
         </div>
-
-        <div className="flex items-center justify-end space-x-2 py-4">
-          <div className="text-xs text-muted-foreground py-4 flex-1 ">
-            Hiển thị{" "}
-            <strong>{table.getPaginationRowModel().rows.length}</strong> trong{" "}
-            <strong>{data.length}</strong> kết quả
-          </div>
-          <div>
-            <AutoPagination
-              page={table.getState().pagination.pageIndex + 1}
-              pageSize={table.getPageCount()}
-              pathname="/moderator/manage-reports/story"
-            />
-          </div>
+        <div>
+          <AutoPagination
+            page={table.getState().pagination.pageIndex + 1}
+            pageSize={table.getPageCount()}
+            pathname="/moderator/manage-reports/expert"
+          />
         </div>
       </div>
-    </AccountTableContext.Provider>
+    </div>
   );
 }
