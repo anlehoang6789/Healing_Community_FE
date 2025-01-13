@@ -58,6 +58,16 @@ export const useApproveOrRejectReportExpertMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["reportExpert"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["moderatorActivityReportExpert"],
+      });
     },
+  });
+};
+
+export const useGetModeratorActivityReportExpertQuery = () => {
+  return useQuery({
+    queryKey: ["moderatorActivityReportExpert"],
+    queryFn: reportApiRequest.getModeratorActivityReportExpert,
   });
 };
