@@ -135,19 +135,19 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     cell: ({ row }) => {
       const reportTypeEnum = row.original.reportTypeEnum;
       const reportTypeMapping: Record<number, string> = {
-        1: "Ngôn từ không phù hợp",
-        2: "Chỉ là tui không thích nội dung này",
-        3: "Thông tin sai lệch",
-        4: "vi phạm quy tắc cộng đồng",
+        0: "Ngôn từ không phù hợp",
+        1: "Chỉ là tôi không thích nội dung này",
+        2: "Thông tin sai lệch",
+        3: "Vi phạm quy tắc cộng đồng",
       };
       const reportTypeLabel =
         reportTypeMapping[reportTypeEnum] || "Không xác định";
 
       const reportTypeColor: Record<number, string> = {
-        1: "bg-gray-100 text-gray-800 text-xs",
-        2: "bg-pink-100 text-pink-800 text-xs",
-        3: "bg-red-100 text-red-800 text-xs",
-        4: "bg-rose-100 text-rose-800 text-xs",
+        0: "bg-gray-100 text-gray-800 text-xs",
+        1: "bg-pink-100 text-pink-800 text-xs",
+        2: "bg-red-100 text-red-800 text-xs",
+        3: "bg-rose-100 text-rose-800 text-xs",
       };
       return (
         <span
