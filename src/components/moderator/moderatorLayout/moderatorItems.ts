@@ -17,7 +17,7 @@ const moderatorItems = [
   {
     title: "Quản lí báo cáo",
     Icon: MessageSquareWarning,
-    href: "/moderator/manage-reports/user",
+    href: "/moderator/manage-reports/expert",
   },
   {
     title: "Lịch sử giao dịch",

@@ -9,7 +9,11 @@ import {
   useGetHomePageLazyLoadQuery,
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { formatDateTime, handleErrorApi } from "@/lib/utils";
+import {
+  formatDateTime,
+  getUserIdFromLocalStorage,
+  handleErrorApi,
+} from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import ReactionEmoji from "@/components/homePage/reactionEmoji";
 import { useAppContext } from "@/components/app-provider";
@@ -56,6 +60,8 @@ const UserProfile: React.FC<UserProfileProps> = ({
     userId,
     isExpert && !!userId
   );
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
+  const isOwner = userId === userIdFromLocalStorage;
 
   if (isLoading) return <div>Loading...</div>;
   if (isError || !data) return <div>Error fetching user profile</div>;
@@ -116,7 +122,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
           </p>
         </div>
       </div>
-      {isAuth && (
+      {isAuth && !isOwner && (
         <div className="ml-auto">
           <DropdownMenu modal={false}>
             <DropdownMenuTrigger asChild className="ml-auto">

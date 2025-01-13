@@ -20,7 +20,7 @@ const adminItems = [
   {
     title: "Xem hoạt động của kiểm duyệt viên",
     Icon: ScanEye,
-    href: "/admin/moderator-activity",
+    href: "/admin/moderator-activity/moderator-report-expert-activity",
   },
   {
     title: "Quản lí tài khoản",
