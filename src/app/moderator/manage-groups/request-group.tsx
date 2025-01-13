@@ -50,6 +50,7 @@ import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { Role } from "@/constants/type";
 import { formatDateTime, handleErrorApi } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 type RequestGroupItem = GetListRequestGroupResponseType["data"][0];
 
@@ -139,9 +140,11 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
       }
       return (
         <div className="text-textChat">
-          <img
+          <Image
             src={coverImg}
             alt="Ảnh bìa"
+            width={80}
+            height={80}
             className="w-20 h-20 rounded-lg object-cover"
           />
         </div>
