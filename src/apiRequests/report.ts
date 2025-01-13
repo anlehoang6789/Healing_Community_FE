@@ -4,6 +4,7 @@ import {
   AddReportPostBodyType,
   ApproveOrRejectReportPostBodyType,
   AprroveOrRejectReportExpertBodyType,
+  GetModeratorActivityReportCommentListResType,
   GetModeratorActivityReportExpertListResType,
   GetModeratorActivityReportPostListResType,
   GetReportExpertListResType,
@@ -38,6 +39,10 @@ const reportApiRequest = {
     http.post<{ message: string }>(
       "expert/api/report/report-appointment",
       body
+    ),
+  getModeratorActivityReportComment: () =>
+    http.get<GetModeratorActivityReportCommentListResType>(
+      "report/api/moderatoractivity/get-comment-report-activity"
     ),
 };
 

@@ -83,3 +83,10 @@ export const useAddReportExpertMutation = () => {
     },
   });
 };
+
+export const useGetModeratorActivityReportCommentQuery = () => {
+  return useQuery({
+    queryKey: ["moderatorActivityReportComment"],
+    queryFn: reportApiRequest.getModeratorActivityReportComment,
+  });
+};
