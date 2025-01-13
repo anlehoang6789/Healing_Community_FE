@@ -1,6 +1,5 @@
 import { userApiRequest } from "@/apiRequests/user";
-import { GetUsersResponseType } from "@/schemaValidations/user.schema";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetAllUsers = () => {
   return useQuery({
@@ -14,5 +13,17 @@ export const useGetToManageUser = () => {
   return useQuery({
     queryKey: ["manage-users"],
     queryFn: userApiRequest.getToManageUser,
+  });
+};
+
+export const useCreateAccountForModerator = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: userApiRequest.createAccountForModerator,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["manage-users"],
+      });
+    },
   });
 };

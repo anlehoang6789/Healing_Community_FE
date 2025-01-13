@@ -114,6 +114,7 @@ export const useGetCommentsByPostIdQuery = (postId: string) => {
     queryKey: ["comments", postId],
     queryFn: () => postApiRequest.getCommentsByPostId(postId),
     enabled: !!postId,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -657,6 +658,21 @@ export const useReportCommentMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["report-comment"],
+      });
+    },
+  });
+};
+
+export const useApproveOrRejectReportCommentMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: postApiRequest.approveOrRejectReportComment,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["report-comment"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["comments"],
       });
     },
   });

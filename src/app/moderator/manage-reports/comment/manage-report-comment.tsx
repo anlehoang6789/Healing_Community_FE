@@ -34,15 +34,19 @@ import { createContext, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 
-import { formatDateTime } from "@/lib/utils";
+import { formatDateTime, handleErrorApi } from "@/lib/utils";
 
 import {
   GetReportCommentResponseType,
   ReportCommentDataType,
 } from "@/schemaValidations/post.schema";
-import { useGetReportCommentQuery } from "@/queries/usePost";
+import {
+  useApproveOrRejectReportCommentMutation,
+  useGetReportCommentQuery,
+} from "@/queries/usePost";
 import { Button } from "@/components/ui/button";
-import { DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { CaretSortIcon, DotsHorizontalIcon } from "@radix-ui/react-icons";
+import { toast } from "@/hooks/use-toast";
 
 type ReportCommentItem = GetReportCommentResponseType["data"][0];
 
@@ -62,27 +66,36 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
   },
 
   {
-    accessorKey: "userName",
-    header: "Người báo cáo",
-    cell: ({ row }) => (
-      <div className="text-textChat">{row.getValue("userName")}</div>
-    ),
+    id: "annunciator",
+    header: "Thông tin người báo cáo",
+    cell: ({ row }) => {
+      const userName = row.original.userName;
+      const userEmail = row.original.userEmail;
+
+      return (
+        <div>
+          <div className="font-semibold">{userName}</div>
+          <div className="text-xs text-muted-foreground">{userEmail}</div>
+        </div>
+      );
+    },
   },
   {
-    accessorKey: "reportedUserName",
-    header: "Người bị báo cáo",
-    cell: ({ row }) => (
-      <TableCell style={{ width: "100px" }}>
-        <div className="text-textChat ">{row.getValue("reportedUserName")}</div>
-      </TableCell>
-    ),
-  },
-  {
-    accessorKey: "reportedUserEmail",
-    header: "Email người bị báo cáo",
-    cell: ({ row }) => (
-      <div className="text-textChat">{row.getValue("reportedUserEmail")}</div>
-    ),
+    accessorKey: "nameReport",
+    header: "Thông tin người bị báo cáo",
+    cell: ({ row }) => {
+      const reportedUserName = row.original.reportedUserName;
+      const reportedUserEmail = row.original.reportedUserEmail;
+
+      return (
+        <div>
+          <div className="font-semibold">{reportedUserName}</div>
+          <div className="text-xs text-muted-foreground">
+            {reportedUserEmail}
+          </div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "content",
@@ -96,35 +109,46 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
 
   {
     accessorKey: "reportTypeEnum",
-    header: "Nội dung báo cáo",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Lý do
+        <CaretSortIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
-      const reportTypeEnum = row.getValue("reportTypeEnum");
-      let reportTypeText = "";
+      const reportTypeEnum = row.original.reportTypeEnum;
+      const reportTypeMapping: Record<number, string> = {
+        0: "Ngôn từ không phù hợp",
+        1: "Chỉ là tôi không thích nội dung này",
+        2: "Thông tin sai lệch",
+        3: "Vi phạm quy tắc cộng đồng",
+      };
+      const reportTypeLabel =
+        reportTypeMapping[reportTypeEnum] || "Không xác định";
 
-      switch (reportTypeEnum) {
-        case 0:
-          reportTypeText = "Ngôn từ không phù hợp";
-          break;
-        case 1:
-          reportTypeText = "Chỉ là tôi không thích nội dung này";
-          break;
-        case 2:
-          reportTypeText = "Thông tin sai lệch";
-          break;
-        case 3:
-          reportTypeText = "Vi phạm quy tắc cộng đồng";
-          break;
-        default:
-          reportTypeText = "Không xác định";
-          break;
-      }
-
-      return <div className="text-textChat">{reportTypeText}</div>;
+      const reportTypeColor: Record<number, string> = {
+        0: "bg-gray-100 text-gray-800 text-xs",
+        1: "bg-pink-100 text-pink-800 text-xs",
+        2: "bg-red-100 text-red-800 text-xs",
+        3: "bg-rose-100 text-rose-800 text-xs",
+      };
+      return (
+        <span
+          className={`px-2 py-1 rounded-md text-sm font-medium ${
+            reportTypeColor[reportTypeEnum] || "bg-gray-100 text-gray-800"
+          }`}
+        >
+          {reportTypeLabel}
+        </span>
+      );
     },
   },
   {
     accessorKey: "createdAt",
-    header: "Ngày báo cáo",
+    header: "Thời gian",
     cell: ({ row }) => {
       const createdAt = row.getValue("createdAt") as string;
       const formattedDateTime = formatDateTime(createdAt);
@@ -132,10 +156,38 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: "Trạng thái",
+    id: "isApprove",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Trạng thái
+        <CaretSortIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => {
-      return <div className="text-textChat"></div>;
+      const isApprove = row.original.isApprove;
+      switch (isApprove) {
+        case true:
+          return (
+            <div className="bg-green-100 text-green-800 px-1 py-1 rounded-lg text-sm text-center">
+              Đã duyệt
+            </div>
+          );
+        case false:
+          return (
+            <div className="bg-red-100 text-red-800 px-1 py-1 rounded-lg text-sm text-center">
+              Từ chối
+            </div>
+          );
+        default:
+          return (
+            <div className="bg-gray-100 text-gray-800 px-1 py-1 rounded-lg text-sm text-center">
+              Chưa duyệt
+            </div>
+          );
+      }
     },
   },
 
@@ -143,52 +195,55 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      // const { mutateAsync: approveOrRejectRequestGroup } =
-      //   useApproveOrRejectRequestGroupMutation();
+      const approveOrRejectReportCommentMutation =
+        useApproveOrRejectReportCommentMutation();
 
-      // const handleApprove = async () => {
-      //   try {
-      //     const payload = {
-      //       groupRequestId: row.original.groupRequestId,
-      //       isApproved: true,
-      //     };
-      //     const result = await approveOrRejectRequestGroup(payload);
-      //     toast({
-      //       description: result.payload.data,
-      //       variant: "success",
-      //     });
-      //   } catch (error) {
-      //     handleErrorApi({ error });
-      //   }
-      // };
+      const handleApproveReportPost = async () => {
+        if (approveOrRejectReportCommentMutation.isPending) return;
+        try {
+          const res = await approveOrRejectReportCommentMutation.mutateAsync({
+            commentId: row.original.commentId,
+            isApprove: true,
+          });
+          toast({
+            description: res.payload.message,
+            variant: "success",
+          });
+        } catch (error: any) {
+          handleErrorApi(error);
+        }
+      };
 
-      // const handleReject = async () => {
-      //   try {
-      //     const payload = {
-      //       groupRequestId: row.original.groupRequestId,
-      //       isApproved: false,
-      //     };
-      //     const result = await approveOrRejectRequestGroup(payload);
-      //     toast({
-      //       description: result.payload.data,
-      //       variant: "success",
-      //     });
-      //   } catch (error) {
-      //     handleErrorApi({ error });
-      //   }
-      // };
-
+      const handleRejectReportPost = async () => {
+        if (approveOrRejectReportCommentMutation.isPending) return;
+        try {
+          const res = await approveOrRejectReportCommentMutation.mutateAsync({
+            commentId: row.original.commentId,
+            isApprove: false,
+          });
+          toast({
+            description: res.payload.message,
+            variant: "success",
+          });
+        } catch (error: any) {
+          handleErrorApi(error);
+        }
+      };
       return (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
               <span className="sr-only">Open menu</span>
-              <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
+              <DotsHorizontalIcon className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>Duyệt</DropdownMenuItem>
-            <DropdownMenuItem>Từ chối</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleApproveReportPost}>
+              Duyệt
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleRejectReportPost}>
+              Từ chối
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

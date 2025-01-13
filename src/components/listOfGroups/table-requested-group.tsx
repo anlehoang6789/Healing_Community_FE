@@ -39,6 +39,7 @@ import { useGetListRequestedGroupByUserIdQuery } from "@/queries/useGroup";
 import { formatDateTime, getUserIdFromLocalStorage } from "@/lib/utils";
 import { useGetAllUsers } from "@/queries/useUser";
 import { UserType } from "@/schemaValidations/user.schema";
+import Image from "next/image";
 
 type RequestGroupItem = GetListRequestGroupByUserIdResponseType["data"][0];
 
@@ -92,9 +93,11 @@ export const columns: ColumnDef<GetRequestGroupType>[] = [
       }
       return (
         <div className="text-textChat">
-          <img
+          <Image
             src={coverImg}
             alt="Ảnh bìa"
+            width={80}
+            height={80}
             className="w-20 h-20 rounded-lg object-cover"
           />
         </div>
