@@ -5,6 +5,7 @@ export const useGetReportPostQuery = () => {
   return useQuery({
     queryKey: ["reportPost"],
     queryFn: reportApiRequest.getReportPost,
+    refetchOnWindowFocus: true,
   });
 };
 
