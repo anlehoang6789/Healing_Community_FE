@@ -104,4 +104,35 @@ export const GetModeratorActivityReportPostListRes = z.object({
 export type GetModeratorActivityReportPostListResType = z.TypeOf<
   typeof GetModeratorActivityReportPostListRes
 >;
+
+export const GetModeratorActivityReportExpertSchema = z.object({
+  id: z.string(),
+  moderatorId: z.string(),
+  moderatorName: z.string(),
+  moderatorEmail: z.string(),
+  appointmentId: z.string(),
+  appoinmtentDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  userEmail: z.string(),
+  userName: z.string(),
+  expertEmail: z.string(),
+  expertName: z.string(),
+  isApprove: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetModeratorActivityReportExpertSchemaType = z.TypeOf<
+  typeof GetModeratorActivityReportExpertSchema
+>;
+
+export const GetModeratorActivityReportExpertListRes = z.object({
+  data: z.array(GetModeratorActivityReportExpertSchema),
+  message: z.string(),
+});
+
+export type GetModeratorActivityReportExpertListResType = z.TypeOf<
+  typeof GetModeratorActivityReportExpertListRes
+>;
 // ============================================

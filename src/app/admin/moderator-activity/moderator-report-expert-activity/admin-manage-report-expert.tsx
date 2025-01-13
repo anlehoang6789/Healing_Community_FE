@@ -26,69 +26,94 @@ import {
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
-import { GetModeratorActivityReportPostSchemaType } from "@/schemaValidations/report.schema";
-import { formatDateTime } from "@/lib/utils";
-import { useGetModeratorActivityReportPostQuery } from "@/queries/useReport";
-import ReportStoryDetails from "@/app/moderator/manage-reports/story/report-story-details";
+import { GetModeratorActivityReportExpertSchemaType } from "@/schemaValidations/report.schema";
+import { formatDate, formatDateTime } from "@/lib/utils";
+import { useGetModeratorActivityReportExpertQuery } from "@/queries/useReport";
 
-const columns: ColumnDef<GetModeratorActivityReportPostSchemaType>[] = [
+const columns: ColumnDef<GetModeratorActivityReportExpertSchemaType>[] = [
   {
     id: "id",
     header: "STT",
     cell: ({ row }) => <div>{row.index + 1}</div>,
   },
   {
-    id: "userName",
-    header: "Tên người kiểm duyệt",
+    accessorKey: "moderatorEmail",
+    header: "Thông tin người kiểm duyệt",
     cell: ({ row }) => {
-      const userName = row.original.userName;
+      const moderatorName = row.original.moderatorName;
+      const moderatorEmail = row.original.moderatorEmail;
       return (
         <div>
-          <div className="font-semibold">{userName}</div>
+          <div className="font-semibold">{moderatorName}</div>
+          <div className="text-xs text-muted-foreground">{moderatorEmail}</div>
         </div>
       );
     },
   },
   {
-    accessorKey: "userEmail",
-    header: "Email người kiểm duyệt",
+    id: "annunciator",
+    header: "Thông tin người báo cáo",
     cell: ({ row }) => {
+      const userName = row.original.userName;
+      const userEmail = row.original.userEmail;
+
       return (
         <div>
+          <div className="font-semibold">{userName}</div>
+          <div className="text-xs text-muted-foreground">{userEmail}</div>
+        </div>
+      );
+    },
+  },
+  {
+    id: "nameReport",
+    header: "Thông tin người bị báo cáo",
+    cell: ({ row }) => {
+      const reportedUserName = row.original.expertName;
+      const reportedUserEmail = row.original.expertEmail;
+
+      return (
+        <div>
+          <div className="font-semibold">{reportedUserName}</div>
           <div className="text-xs text-muted-foreground">
-            {row.getValue("userEmail")}
+            {reportedUserEmail}
           </div>
         </div>
       );
     },
   },
   {
-    id: "postTitle",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Bài viết có tiêu đề
-        <CaretSortIcon className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const postTitle = row.original.postTitle;
-      const postId = row.original.postId;
+    id: `consultation-info`,
+    header: ({ column }) => {
       return (
-        <>
-          <div className="font-bold">{postTitle}</div>
-          {/* Dialog xem bai viet */}
-          <ReportStoryDetails postId={postId} />
-        </>
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Lịch tư vấn
+          <CaretSortIcon className="ml-2 h-4 w-4" />
+        </Button>
       );
     },
-  },
-  {
-    accessorKey: "reason",
-    header: "Lý do",
-    cell: ({ row }) => <div>{row.getValue("reason")}</div>,
+    cell: ({ row }) => {
+      const appointmentDate = row.original.appoinmtentDate;
+      const startTime = row.original.startTime;
+      const endTime = row.original.endTime;
+      return (
+        <div className="text-textChat flex flex-col">
+          <div className="flex">
+            <span className="font-semibold pr-1">Ngày tư vấn: </span>
+            <span>{formatDate(appointmentDate)}</span>
+          </div>
+          <div className="flex">
+            <span className="font-semibold pr-1">Thời gian: </span>
+            <span>
+              {startTime} - {endTime}
+            </span>
+          </div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "createdAt",
@@ -107,6 +132,7 @@ const columns: ColumnDef<GetModeratorActivityReportPostSchemaType>[] = [
       </div>
     ),
   },
+
   {
     id: "isApprove",
     header: ({ column }) => (
@@ -146,13 +172,14 @@ const columns: ColumnDef<GetModeratorActivityReportPostSchemaType>[] = [
 
 const PAGE_SIZE = 10;
 
-export default function AdminManageReportPost() {
+export default function AdminManageReportExpert() {
   const searchParam = useSearchParams();
   const page = searchParam.get("page") ? Number(searchParam.get("page")) : 1;
   const pageIndex = page - 1;
 
-  const adminManageReportPostList = useGetModeratorActivityReportPostQuery();
-  const data = adminManageReportPostList.data?.payload.data ?? [];
+  const adminManageReportExpertList =
+    useGetModeratorActivityReportExpertQuery();
+  const data = adminManageReportExpertList.data?.payload.data ?? [];
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -198,10 +225,13 @@ export default function AdminManageReportPost() {
         <Input
           placeholder="Tìm kiếm theo email nguời kiểm duyệt ..."
           value={
-            (table.getColumn("userEmail")?.getFilterValue() as string) ?? ""
+            (table.getColumn("moderatorEmail")?.getFilterValue() as string) ??
+            ""
           }
           onChange={(event) =>
-            table.getColumn("userEmail")?.setFilterValue(event.target.value)
+            table
+              .getColumn("moderatorEmail")
+              ?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -263,7 +293,7 @@ export default function AdminManageReportPost() {
           <AutoPagination
             page={table.getState().pagination.pageIndex + 1}
             pageSize={table.getPageCount()}
-            pathname="/admin/moderator-activity/moderator-report-post-activity"
+            pathname="/admin/moderator-activity/moderator-report-expert-activity"
           />
         </div>
       </div>
