@@ -750,6 +750,7 @@ export const ReportCommentDataSchema = z.object({
   reportTypeEnum: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  isApprove: z.boolean(),
 });
 
 export type ReportCommentDataType = z.TypeOf<typeof ReportCommentDataSchema>;
@@ -761,4 +762,13 @@ export const GetReportCommentResponseSchema = z.object({
 
 export type GetReportCommentResponseType = z.TypeOf<
   typeof GetReportCommentResponseSchema
+>;
+
+export const ApproveOrRejectReportCommentBody = z.object({
+  commentId: z.string(),
+  isApprove: z.boolean(),
+});
+
+export type ApproveOrRejectReportCommentBodyType = z.TypeOf<
+  typeof ApproveOrRejectReportCommentBody
 >;

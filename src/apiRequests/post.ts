@@ -46,6 +46,7 @@ import {
   GetTopPostInGroupListResType,
   ReportCommentBodyType,
   GetReportCommentResponseType,
+  ApproveOrRejectReportCommentBodyType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -233,6 +234,9 @@ const postApiRequest = {
 
   reportComment: (body: ReportCommentBodyType) =>
     http.post<{ message: string }>("post/api/report/report-comment", body),
+
+  approveOrRejectReportComment: (body: ApproveOrRejectReportCommentBodyType) =>
+    http.post<{ message: string }>("post/api/ban/ban-comment", body),
 };
 
 export default postApiRequest;
