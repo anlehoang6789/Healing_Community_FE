@@ -54,3 +54,21 @@ export const GetToManageUserListRes = z.object({
 export type GetToManageUserListResType = z.TypeOf<
   typeof GetToManageUserListRes
 >;
+
+export const UpdateStatusUserAccountBody = z.object({
+  userId: z.string(),
+  status: z.number(),
+});
+
+export type UpdateStatusUserAccountBodyType = z.TypeOf<
+  typeof UpdateStatusUserAccountBody
+>;
+
+export const UpdateStatusModeratorAccountBody = z.object({
+  userId: z.string(),
+  status: z.number(),
+});
+
+export type UpdateStatusModeratorAccountBodyType = z.TypeOf<
+  typeof UpdateStatusModeratorAccountBody
+>;

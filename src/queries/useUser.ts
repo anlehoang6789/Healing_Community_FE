@@ -27,3 +27,27 @@ export const useCreateAccountForModerator = () => {
     },
   });
 };
+
+export const useUpdateStatusModeratorAccount = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: userApiRequest.updateStatusModeratorAccount,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["manage-users"],
+      });
+    },
+  });
+};
+
+export const useUpdateStatusUserAccount = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: userApiRequest.updateStatusUserAccount,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["manage-users"],
+      });
+    },
+  });
+};
