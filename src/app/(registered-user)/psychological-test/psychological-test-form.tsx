@@ -47,21 +47,34 @@ export default function PsychologicalTestForm() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   useEffect(() => {
-    const handleScroll = () => {
-      questionRefs.current.forEach((ref, index) => {
-        if (ref) {
-          const rect = ref.getBoundingClientRect();
-          const isInView = rect.top >= 0 && rect.bottom <= window.innerHeight;
-          if (isInView) {
-            setCurrentQuestionIndex(index);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = questionRefs.current.indexOf(
+              entry.target as HTMLDivElement
+            );
+            if (index !== -1) {
+              setCurrentQuestionIndex(index);
+            }
           }
-        }
-      });
-    };
+        });
+      },
+      {
+        root: null, // Sử dụng viewport hiện tại
+        threshold: 0.5, // Ít nhất 50% phần tử phải nằm trong viewport
+      }
+    );
 
-    window.addEventListener("scroll", handleScroll);
+    const currentRefs = questionRefs.current;
+    currentRefs.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      currentRefs.forEach((ref) => {
+        if (ref) observer.unobserve(ref);
+      });
     };
   }, []);
 
@@ -70,7 +83,10 @@ export default function PsychologicalTestForm() {
       <div className="container mx-auto">
         <div className="sticky top-0 z-10 mb-4 p-4 shadow-md">
           <div className="animate-pulse">
-            <Progress value={0} className="w-full bg-gray-200 h-4 opacity-65" />
+            <Progress
+              value={0}
+              className="w-full bg-gray-200 h-4 opacity-65 text-muted-foreground"
+            />
             <p className="text-right mt-2 bg-gray-300 rounded w-1/4 h-4"></p>
           </div>
         </div>
@@ -119,13 +135,17 @@ export default function PsychologicalTestForm() {
       [questionId]: selectedValue,
     }));
 
-    // Khi chọn xong, tự động chuyển sang câu tiếp theo
-    const nextIndex = questions.findIndex((q) => q.id === questionId) + 0;
+    // Lấy chỉ số câu hỏi hiện tại
+    const currentIndex = questions.findIndex((q) => q.id === questionId);
+    const nextIndex = currentIndex + 1;
+
     if (nextIndex < questions.length) {
+      // Khi chọn xong, tự động chuyển sang câu tiếp theo
       questionRefs.current[nextIndex]?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
+      setCurrentQuestionIndex(nextIndex);
     }
   };
 
@@ -169,9 +189,9 @@ export default function PsychologicalTestForm() {
       <div className="sticky top-0 z-10 mb-4 p-4 shadow-md">
         <Progress
           value={progressValue}
-          className="w-full bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] h-4 opacity-65"
+          className="w-full bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] h-4 opacity-100"
         />
-        <p className="text-right mt-2">{`${
+        <p className="text-right mt-2 text-muted-foreground">{`${
           Object.keys(selectedOptions).length
         }/${
           quizData?.data.dass21Categories.flatMap((c) => c.questions).length
