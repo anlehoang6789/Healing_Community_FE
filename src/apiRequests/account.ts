@@ -5,8 +5,11 @@ import {
   FollowUserBodyType,
   FollowUserResType,
   ForgotPasswordBodyType,
+  GetFollowerCountResType,
+  GetFollowingCountResType,
   GetFollowingResType,
   GetPaymentInformationResType,
+  GetRegistrationCountResType,
   PersonalInformationBodyType,
   ResetPasswordWithOtpBodyType,
   UpdateAvatarProfileBodyType,
@@ -55,6 +58,21 @@ const accountApiRequest = {
     http.put<{ message: string }>(
       "user/api/paymentinfo/update-payment-info",
       body
+    ),
+
+  getFollowerCount: (userId: string) =>
+    http.get<GetFollowerCountResType>(
+      `user/api/follower/count-followers/${userId}`
+    ),
+
+  getFollowingCount: (userId: string) =>
+    http.get<GetFollowingCountResType>(
+      `user/api/follower/count-following/${userId}`
+    ),
+
+  getRegistrationCount: (userId: string) =>
+    http.get<GetRegistrationCountResType>(
+      `user/api/user/count-registration-days/${userId}`
     ),
 };
 

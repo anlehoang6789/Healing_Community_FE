@@ -65,7 +65,7 @@ export default function FollowedUser() {
                   className="flex justify-between items-center my-2"
                 >
                   <Link
-                    href={`/user/${user.userId}`}
+                    href={`/user/profile/${user.userId}`}
                     className="flex items-center space-x-2 sm:space-x-2 md:space-x-1 lg:space-x-3"
                   >
                     <Image

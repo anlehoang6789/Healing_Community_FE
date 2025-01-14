@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { handleErrorApi } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import {
   useAddReactionMutation,
   useGetAllReactionTypeQuery,
@@ -15,13 +15,14 @@ export default function ReactionEmoji({ postId }: { postId: string }) {
   const [isHovered, setIsHovered] = useState(false);
   const { data: reactionType } = useGetAllReactionTypeQuery();
   const reactionTypeList = reactionType?.payload.data || [];
+  const userId = getUserIdFromLocalStorage();
 
   //show reaction when user choose
   const { data: emojiSelected } = useGetUserReactionByPostIdQuery(postId);
   const emojiSelectedItem = emojiSelected?.payload.data;
 
   //add reaction
-  const addReactionMutation = useAddReactionMutation(postId);
+  const addReactionMutation = useAddReactionMutation(postId, userId as string);
   const handleAddReaction = async (body: AddReactionBodyType) => {
     if (addReactionMutation.isPending) return;
     try {
@@ -32,7 +33,10 @@ export default function ReactionEmoji({ postId }: { postId: string }) {
   };
 
   //remove reaction
-  const removeReactionMutation = useRemoveReactionMutation(postId);
+  const removeReactionMutation = useRemoveReactionMutation(
+    postId,
+    userId as string
+  );
   const handleRemoveReaction = async (postId: string) => {
     if (removeReactionMutation.isPending) return;
     try {

@@ -216,3 +216,50 @@ export const GetPaymentInformationRes = z.object({
 export type GetPaymentInformationResType = z.TypeOf<
   typeof GetPaymentInformationRes
 >;
+
+export const GetFollowerCountRes = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.object({
+    userId: z.string(),
+    followerCount: z.number(),
+  }),
+  errors: z.nullable(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetFollowerCountResType = z.TypeOf<typeof GetFollowerCountRes>;
+
+export const GetFollowingCountRes = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.object({
+    userId: z.string(),
+    followingCount: z.number(),
+  }),
+  errors: z.nullable(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetFollowingCountResType = z.TypeOf<typeof GetFollowingCountRes>;
+
+export const GetRegistrationCountRes = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.object({
+    userId: z.string(),
+    totalDays: z.number(),
+  }),
+  errors: z.nullable(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetRegistrationCountResType = z.TypeOf<
+  typeof GetRegistrationCountRes
+>;
