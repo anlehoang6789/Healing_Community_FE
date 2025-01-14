@@ -86,3 +86,10 @@ export const usePaymentHistoryForExpertQuery = ({
     enabled,
   });
 };
+
+export const useGetTotalRevenueForExpert = () => {
+  return useQuery({
+    queryKey: ["totalRevenueForExpert"],
+    queryFn: paymentApiRequest.getTotalRevenueForExpert,
+  });
+};
