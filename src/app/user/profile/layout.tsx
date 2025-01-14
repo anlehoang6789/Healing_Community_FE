@@ -4,9 +4,19 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Role } from "@/constants/type";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
-import { useGetUserProfileQuery } from "@/queries/useAccount";
+import {
+  useGetFollowerCountQuery,
+  useGetFollowingCountQuery,
+  useGetRegistrationQuery,
+  useGetUserProfileQuery,
+} from "@/queries/useAccount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
+import {
+  useGetPostCountQuery,
+  useGetReactionCountByUserIdQuery,
+} from "@/queries/usePost";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { createContext, useEffect, useState } from "react";
 
@@ -30,6 +40,26 @@ export default function ProfileUserLayout({
   const [userId, setUserId] = useState<string | null>(null);
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
 
+  const { data: followerCountData } = useGetFollowerCountQuery(
+    (userIdFromPath as string) || (expertIdFromPath as string)
+  );
+
+  const { data: followingCountData } = useGetFollowingCountQuery(
+    (userIdFromPath as string) || (expertIdFromPath as string)
+  );
+
+  const { data: postCountData } = useGetPostCountQuery(
+    (userIdFromPath as string) || (expertIdFromPath as string)
+  );
+
+  const { data: reactionCountData } = useGetReactionCountByUserIdQuery(
+    (userIdFromPath as string) || (expertIdFromPath as string)
+  );
+
+  const { data: registrationCountData } = useGetRegistrationQuery(
+    (userIdFromPath as string) || (expertIdFromPath as string)
+  );
+
   const isOwner = userIdFromPath === currentUserId;
   useEffect(() => {
     if (userIdFromPath) {
@@ -51,7 +81,14 @@ export default function ProfileUserLayout({
   );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
-  if (!userId) {
+  if (
+    !userId ||
+    !followerCountData ||
+    !followingCountData ||
+    !postCountData ||
+    !reactionCountData ||
+    !registrationCountData
+  ) {
     return (
       <div className="animate-pulse">
         <div className="flex justify-center w-full h-auto sm:h-80 bg-gray-200 overflow-hidden">
@@ -112,7 +149,7 @@ export default function ProfileUserLayout({
       }}
     >
       {/* Profile Section */}
-      <div className="flex justify-center w-full h-auto sm:h-80 bg-gradient-custom-left-to-right">
+      <div className="flex justify-center w-full h-auto pt-4 bg-gradient-custom-left-to-right">
         <div className="flex flex-col items-center justify-center pb-4">
           {/* Avatar */}
           <Avatar className="w-20 h-20 sm:w-28 sm:h-28 border-2 border-rose-300 mb-2">
@@ -145,14 +182,29 @@ export default function ProfileUserLayout({
                 "Anonymous"}
           </h1>
           <div className="flex flex-col items-center justify-center">
+            <div className="flex items-center">
+              {isExpert ? (
+                <p className="text-lg text-gray-700 font-medium max-w-xl text-center">
+                  {expertProfile?.payload.data.bio}
+                </p>
+              ) : (
+                <p className="text-lg text-gray-700 font-medium max-w-xl text-center">
+                  {userProfile?.payload.data.descrtiption}
+                </p>
+              )}
+            </div>
             {/* First information */}
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-4 mt-1 text-xs sm:text-base">
               <div className="flex space-x-2 sm:space-x-4 items-center">
-                <div className="flex items-center">
-                  <span className="mr-1 sm:mr-2 text-[#707B7C]">
-                    Lượt thích:
-                  </span>
-                  <span className="text-[#2E4053]">100</span>
+                <div className="flex space-x-2 sm:space-x-4">
+                  <div className="flex items-center">
+                    <span className="mr-1 sm:mr-2 text-[#707B7C]">
+                      Đang theo dõi:
+                    </span>
+                    <span className="text-[#2E4053]">
+                      {followerCountData.payload.data.followerCount}
+                    </span>
+                  </div>
                 </div>
                 <Separator
                   orientation="vertical"
@@ -162,9 +214,11 @@ export default function ProfileUserLayout({
               <div className="flex space-x-2 sm:space-x-4">
                 <div className="flex items-center">
                   <span className="mr-1 sm:mr-2 text-[#707B7C]">
-                    Số người theo dõi:
+                    Người theo dõi:
                   </span>
-                  <span className="text-[#2E4053]">100</span>
+                  <span className="text-[#2E4053]">
+                    {followingCountData.payload.data.followingCount}
+                  </span>
                 </div>
               </div>
             </div>
@@ -175,7 +229,9 @@ export default function ProfileUserLayout({
                   <span className="mr-1 sm:mr-2 text-[#707B7C]">
                     Bài viết đã đăng:
                   </span>
-                  <span className="text-[#2E4053]">100</span>
+                  <span className="text-[#2E4053]">
+                    {postCountData.payload.data.postCount}
+                  </span>
                 </div>
                 <Separator
                   orientation="vertical"
@@ -187,7 +243,9 @@ export default function ProfileUserLayout({
                   <span className="mr-1 sm:mr-2 text-[#707B7C]">
                     Tuổi của bạn:
                   </span>
-                  <span className="text-[#2E4053]">100</span>
+                  <span className="text-[#2E4053]">
+                    {registrationCountData.payload.data.totalDays} ngày
+                  </span>
                 </div>
                 <Separator
                   orientation="vertical"
@@ -197,12 +255,58 @@ export default function ProfileUserLayout({
               <div className="flex space-x-2 sm:space-x-4">
                 <div className="flex items-center">
                   <span className="mr-1 sm:mr-2 text-[#707B7C]">
-                    Lượt theo dõi:
+                    Lượt thích:
                   </span>
-                  <span className="text-[#2E4053]">100</span>
+                  <span className="text-[#2E4053]">
+                    {reactionCountData.payload.data.reactionCount}
+                  </span>
                 </div>
               </div>
             </div>
+            {!isExpert && userProfile?.payload.data.socialLink && (
+              <div className="flex space-x-4 mt-2">
+                {userProfile.payload.data.socialLink.facebook && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    Facebook
+                  </Link>
+                )}
+                {userProfile.payload.data.socialLink.instagram && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-pink-600 hover:text-pink-800"
+                  >
+                    Instagram
+                  </Link>
+                )}
+                {userProfile.payload.data.socialLink.twitter && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-600"
+                  >
+                    Twitter
+                  </Link>
+                )}
+                {userProfile.payload.data.socialLink.linkedIn && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.linkedIn}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-700 hover:text-blue-900"
+                  >
+                    LinkedIn
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
