@@ -90,3 +90,22 @@ export const useGetModeratorActivityReportCommentQuery = () => {
     queryFn: reportApiRequest.getModeratorActivityReportComment,
   });
 };
+
+export const useGetSystemReportQuery = () => {
+  return useQuery({
+    queryKey: ["systemReport"],
+    queryFn: reportApiRequest.getSystemReport,
+  });
+};
+
+export const useAddSystemReportMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: reportApiRequest.addSystemReport,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["systemReport"],
+      });
+    },
+  });
+};
