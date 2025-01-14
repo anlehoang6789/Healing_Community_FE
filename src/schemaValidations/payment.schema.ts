@@ -174,3 +174,17 @@ export const GetManagerPaymentForUserAndExpertListRes = z.object({
 export type GetManagerPaymentForUserAndExpertListResType = z.infer<
   typeof GetManagerPaymentForUserAndExpertListRes
 >;
+
+export const GetTotalRevenueForExpertRes = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.number(),
+  errors: z.nullable(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetTotalRevenueForExpertResType = z.infer<
+  typeof GetTotalRevenueForExpertRes
+>;

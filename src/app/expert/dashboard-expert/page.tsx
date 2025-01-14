@@ -4,12 +4,16 @@ import ExpertCalendarDashboard from "@/app/expert/dashboard-expert/expert-calend
 import ExpertFeedbackDashboard from "@/app/expert/dashboard-expert/expert-feedback-dashboard";
 import ExpertIncomeFilter from "@/app/expert/dashboard-expert/expert-income-filter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/utils";
 import { useGetDashboardStatisticsQuery } from "@/queries/useExpert";
+import { useGetTotalRevenueForExpert } from "@/queries/usePayment";
 import { CalendarDays, Banknote, Star, Users } from "lucide-react";
 import React from "react";
 
 export default function DashboardExpert() {
   const { data: expertStatistic } = useGetDashboardStatisticsQuery();
+
+  const { data: expertTotalRevenue } = useGetTotalRevenueForExpert();
 
   return (
     <div className="min-h-screen">
@@ -29,7 +33,7 @@ export default function DashboardExpert() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-textChat">
-                45.231.000 đ
+                {formatCurrency(expertTotalRevenue?.payload.data || 0)}
               </div>
               <p className="text-xs text-green-500">
                 +20.1% so với tháng trước
