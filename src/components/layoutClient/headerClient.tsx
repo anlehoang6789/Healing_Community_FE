@@ -19,6 +19,7 @@ import {
   CircleDollarSign,
   Clock,
   UserSearch,
+  MessageSquarePlus,
 } from "lucide-react";
 import {
   Sheet,
@@ -54,6 +55,7 @@ import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Role } from "@/constants/type";
+import SystemReportDialog from "@/components/reportSection/system-report-dialog";
 
 const navItems = [
   { icon: Home, label: "Trang chủ", href: "/content", authRequired: true },
@@ -74,6 +76,7 @@ const navItems = [
 export default function Header() {
   const pathname = usePathname();
   const [isExpertMenuOpen, setExpertMenuOpen] = useState(false);
+  const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
   const { theme } = useTheme();
   const router = useRouter();
   // check xem đã đăng nhập chưa
@@ -101,6 +104,10 @@ export default function Header() {
     userId as string,
     role === Role.Expert && !!userId
   );
+
+  const openFeedbackDialog = () => {
+    setIsFeedbackDialogOpen(true);
+  };
 
   return (
     <div className="flex h-10 items-center justify-between top-0 z-50 w-full border-b px-4 py-8">
@@ -218,7 +225,7 @@ export default function Header() {
             <NotificationPopover />
             {/* chuyển đổi giao diện */}
             <DarkModeToggle />
-            <DropdownMenu>
+            <DropdownMenu modal={false}>
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
@@ -346,6 +353,10 @@ export default function Header() {
                     })}
                   </div>
                 )}
+                <DropdownMenuItem onClick={openFeedbackDialog}>
+                  <MessageSquarePlus className="mr-2 h-4 w-4" />
+                  <span>Góp ý & Thông tin hỗ trợ</span>
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span onClick={handleLogout}>Đăng xuất</span>
@@ -353,6 +364,10 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          <SystemReportDialog
+            isOpen={isFeedbackDialogOpen}
+            setIsOpen={setIsFeedbackDialogOpen}
+          />
         </>
       )}
       {/* Mobile Navigation */}

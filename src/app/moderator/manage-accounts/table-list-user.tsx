@@ -34,22 +34,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { createContext, useContext, useEffect, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
-import AddExperience from "@/app/expert/experience/add-experience";
-import { useDeleteExpertExperienceMutation } from "@/queries/useExpert";
 import {
   GetToManageUserListResType,
   GetToManageUserType,
