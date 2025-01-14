@@ -2,6 +2,7 @@ import http from "@/lib/http";
 import {
   AddReportExpertBodyType,
   AddReportPostBodyType,
+  AddSystemReportBodyType,
   ApproveOrRejectReportPostBodyType,
   AprroveOrRejectReportExpertBodyType,
   GetModeratorActivityReportCommentListResType,
@@ -9,6 +10,7 @@ import {
   GetModeratorActivityReportPostListResType,
   GetReportExpertListResType,
   GetReportPostListResType,
+  GetSystemReportListResType,
 } from "@/schemaValidations/report.schema";
 
 const reportApiRequest = {
@@ -44,6 +46,10 @@ const reportApiRequest = {
     http.get<GetModeratorActivityReportCommentListResType>(
       "report/api/moderatoractivity/get-comment-report-activity"
     ),
+  getSystemReport: () =>
+    http.get<GetSystemReportListResType>("report/api/report/get-system-report"),
+  addSystemReport: (body: AddSystemReportBodyType) =>
+    http.post<{ message: string }>("user/api/report/send-report-system", body),
 };
 
 export default reportApiRequest;
