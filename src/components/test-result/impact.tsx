@@ -1,24 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { Dass21ScoreResponseType } from "@/schemaValidations/quizz.schema";
+"use client";
+import React from "react";
+import { useGetDass21ResultQuery } from "@/queries/useQuizz";
 
 export default function Impact() {
-  const [quizResult, setQuizResult] = useState<Dass21ScoreResponseType | null>(
-    null
-  );
-
-  useEffect(() => {
-    const storedResult = localStorage.getItem("quizResult");
-    if (storedResult) {
-      try {
-        const parsedResult = JSON.parse(
-          storedResult
-        ) as Dass21ScoreResponseType;
-        setQuizResult(parsedResult);
-      } catch (error) {
-        console.error("Error parsing quiz result:", error);
-      }
-    }
-  }, []);
+  const { data: quizResult } = useGetDass21ResultQuery();
 
   // Hàm phân tách và render các tác động ngắn hạn
   const renderShortTermEffects = (effects: any[]) => {
@@ -47,10 +32,10 @@ export default function Impact() {
           wordWrap: "break-word",
         }}
       >
-        {quizResult.data.shortTermEffects &&
-        quizResult.data.shortTermEffects.length > 0 ? (
+        {quizResult.payload.data.shortTermEffects &&
+        quizResult.payload.data.shortTermEffects.length > 0 ? (
           <ul className="list-none space-y-2 ">
-            {renderShortTermEffects(quizResult.data.shortTermEffects)}
+            {renderShortTermEffects(quizResult.payload.data.shortTermEffects)}
           </ul>
         ) : (
           <p className="text-gray-700">

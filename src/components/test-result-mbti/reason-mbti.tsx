@@ -1,9 +1,9 @@
 "use client";
-import { useGetDass21ResultQuery } from "@/queries/useQuizz";
+import { useGetMBTIResultQuery } from "@/queries/useQuizz";
 import React from "react";
 
-export default function Reason() {
-  const { data: quizResult } = useGetDass21ResultQuery();
+export default function ReasonMBTI() {
+  const { data: quizResult } = useGetMBTIResultQuery();
 
   // Hàm phân tách văn bản thành các đoạn
   const parseOverallComment = (comment: string) => {

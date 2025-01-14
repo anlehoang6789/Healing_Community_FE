@@ -73,3 +73,59 @@ export const Dass21ScoreResponseSchema = z.object({
 });
 
 export type Dass21ScoreResponseType = z.infer<typeof Dass21ScoreResponseSchema>;
+
+const QuizMBTIDataSchema = z.object({
+  id: z.string(),
+  categories: z.array(Dass21CategorySchema),
+});
+
+export const QuizMBTIResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: QuizMBTIDataSchema, // Sử dụng QuizDataSchema đã định nghĩa
+  errors: z.any(), // Để phù hợp với kiểu 'errors: any' trong interface của bạn
+  timestamp: z.string(),
+});
+
+export type QuizMBTIResponseType = z.infer<typeof QuizMBTIResponseSchema>;
+
+export const SubmitQuizMBTIScoreSchema = z.object({
+  extroversion: z.array(z.number()),
+  sensing: z.array(z.number()),
+  thinking: z.array(z.number()),
+  judging: z.array(z.number()),
+});
+
+export type SubmitQuizMBTIScoreType = z.infer<typeof SubmitQuizMBTIScoreSchema>;
+
+export const MBTIResultDetailSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  dateTaken: z.string().datetime(), // Sử dụng datetime để validate định dạng ngày
+  extroversionScore: z.number(),
+  sensingScore: z.number(),
+  thinkingScore: z.number(),
+  judgingScore: z.number(),
+  extroversionDescription: z.string(),
+  sensingDescription: z.string(),
+  thinkingDescription: z.string(),
+  judgingDescription: z.string(),
+  overallComment: z.string(),
+  factors: z.array(z.any()).optional(), // Có thể điều chỉnh kiểu dữ liệu cụ thể nếu biết
+  shortTermEffects: z.array(z.any()).optional(),
+  longTermEffects: z.array(z.any()).optional(),
+});
+
+export const MBTIScoreResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: MBTIResultDetailSchema,
+  errors: z.null().or(z.any()),
+  timestamp: z.string().datetime(),
+});
+
+export type MBTIScoreResponseType = z.infer<typeof MBTIScoreResponseSchema>;
