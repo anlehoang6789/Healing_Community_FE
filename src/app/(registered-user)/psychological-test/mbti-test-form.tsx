@@ -6,19 +6,21 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Button } from "@/components/ui/button";
-
-import { useGetDass21QuizQuery } from "@/queries/useQuizz";
-import { useSubmitDass21QuizMutation } from "@/queries/useQuizz";
+import {
+  useGetMBTIQuizQuery,
+  useSubmitMTBIQuizMutation,
+} from "@/queries/useQuizz";
 import { useRouter } from "next/navigation";
 import { handleErrorApi } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
-import { SubmitQuizScoreType } from "@/schemaValidations/quizz.schema";
+import { SubmitQuizMBTIScoreType } from "@/schemaValidations/quizz.schema";
 
-export default function PsychologicalTestForm() {
+export default function MBTITestForm() {
   const router = useRouter();
-  const { data: quizData } = useGetDass21QuizQuery();
+  const { data: quizData } = useGetMBTIQuizQuery();
+  console.log("quizData", quizData);
 
-  const submitQuizMutation = useSubmitDass21QuizMutation({
+  const submitQuizMutation = useSubmitMTBIQuizMutation({
     onSuccess: (data) => {
       // Hiển thị thông báo thành công
       toast({
@@ -27,10 +29,10 @@ export default function PsychologicalTestForm() {
       });
 
       // Lưu kết quả vào localStorage để trang kết quả có thể truy cập
-      // localStorage.setItem("quizResult", JSON.stringify(data));
+      //   localStorage.setItem("quizResults", JSON.stringify(data));
 
       // Điều hướng đến trang kết quả
-      router.push("/test-result");
+      router.push("/test-result-mtbi");
     },
     onError: (error: any) => {
       handleErrorApi({
@@ -117,7 +119,7 @@ export default function PsychologicalTestForm() {
   }
 
   const questions =
-    quizData?.data.dass21Categories.flatMap((category) =>
+    quizData?.data.categories.flatMap((category) =>
       category.questions.map((question, index) => ({
         id: `${category.categoryName}-${index}`,
         text: question.questionText,
@@ -127,6 +129,8 @@ export default function PsychologicalTestForm() {
         })),
       }))
     ) || [];
+  console.log("questions", questions);
+  console.log("quizData", quizData);
 
   const handleOptionChange = (questionId: string, selectedValue: number) => {
     setSelectedOptions((prev) => ({
@@ -149,13 +153,14 @@ export default function PsychologicalTestForm() {
   };
 
   const handleSubmitQuiz = () => {
-    const scores: SubmitQuizScoreType["score"] = {
-      stress: [],
-      anxiety: [],
-      depression: [],
+    const scores: SubmitQuizMBTIScoreType = {
+      extroversion: [],
+      sensing: [],
+      thinking: [],
+      judging: [],
     };
 
-    quizData?.data.dass21Categories.forEach((category) => {
+    quizData?.data.categories.forEach((category) => {
       const categoryScores = category.questions.map((_, questionIndex) => {
         const selectedOptionValue =
           selectedOptions[`${category.categoryName}-${questionIndex}`];
@@ -163,24 +168,32 @@ export default function PsychologicalTestForm() {
       });
 
       switch (category.categoryName) {
-        case "Stress":
-          scores.stress = categoryScores;
+        case "Hướng Ngoại (E) / Hướng Nội (I)":
+          scores.extroversion = categoryScores;
           break;
-        case "Anxiety":
-          scores.anxiety = categoryScores;
+        case "Giác Quan (S) / Trực Giác (N)":
+          scores.judging = categoryScores;
           break;
-        case "Depression":
-          scores.depression = categoryScores;
+        case "Lý Trí (T) / Cảm Xúc (F)":
+          scores.sensing = categoryScores;
+          break;
+        case "Nguyên Tắc (J) / Linh Hoạt (P)":
+          scores.thinking = categoryScores;
           break;
       }
     });
 
-    submitQuizMutation.mutate({ score: scores });
+    submitQuizMutation.mutate({
+      extroversion: scores.extroversion,
+      sensing: scores.sensing,
+      thinking: scores.thinking,
+      judging: scores.judging,
+    });
   };
 
   const progressValue =
     (Object.keys(selectedOptions).length /
-      quizData?.data.dass21Categories.flatMap((c) => c.questions).length) *
+      quizData?.data.categories.flatMap((c) => c.questions).length) *
     100;
 
   return (
@@ -192,21 +205,27 @@ export default function PsychologicalTestForm() {
         />
         <p className="text-right mt-2 text-muted-foreground">{`${
           Object.keys(selectedOptions).length
-        }/${
-          quizData?.data.dass21Categories.flatMap((c) => c.questions).length
-        }`}</p>
+        }/${quizData?.data.categories.flatMap((c) => c.questions).length}`}</p>
       </div>
 
-      {quizData?.data.dass21Categories.map((category) => (
+      {quizData?.data.categories.map((category) => (
         <div key={category.categoryName} className="mb-6">
           <h3 className="text-2xl font-bold text-textChat mb-4">
             Câu hỏi để kiểm tra độ{" "}
-            {category.categoryName === "Depression" ? (
-              <span className="text-red-500">Trầm cảm</span>
-            ) : category.categoryName === "Anxiety" ? (
-              <span className="text-blue-500">Lo âu</span>
-            ) : category.categoryName === "Stress" ? (
-              <span className="text-green-500">Căng thẳng</span>
+            {category.categoryName === "Hướng Ngoại (E) / Hướng Nội (I)" ? (
+              <span className="text-red-500">
+                Hướng Ngoại (E) / Hướng Nội (I)
+              </span>
+            ) : category.categoryName === "Giác Quan (S) / Trực Giác (N)" ? (
+              <span className="text-blue-500">
+                Giác Quan (S) / Trực Giác (N)
+              </span>
+            ) : category.categoryName === "Lý Trí (T) / Cảm Xúc (F)" ? (
+              <span className="text-green-500">Lý Trí (T) / Cảm Xúc (F)</span>
+            ) : category.categoryName === "Nguyên Tắc (J) / Linh Hoạt (P)" ? (
+              <span className="text-orange-500">
+                Nguyên Tắc (J) / Linh Hoạt (P)
+              </span>
             ) : (
               category.categoryName
             )}
@@ -214,7 +233,7 @@ export default function PsychologicalTestForm() {
           {category.questions.map((question, questionIndex) => {
             const questionId = `${category.categoryName}-${questionIndex}`;
             const flatIndex =
-              quizData?.data.dass21Categories
+              quizData?.data.categories
                 .flatMap((c) => c.questions)
                 .findIndex((q) => q === question) || 0;
 
@@ -269,7 +288,7 @@ export default function PsychologicalTestForm() {
       ))}
 
       {Object.keys(selectedOptions).length ===
-        quizData?.data.dass21Categories.flatMap((c) => c.questions).length && (
+        quizData?.data.categories.flatMap((c) => c.questions).length && (
         <Button
           onClick={handleSubmitQuiz}
           className="rounded-[20px] w-full float-right md:w-40 h-12 md:text-base bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] text-black"
