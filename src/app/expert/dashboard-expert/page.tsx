@@ -35,9 +35,7 @@ export default function DashboardExpert() {
               <div className="text-2xl font-bold text-textChat">
                 {formatCurrency(expertTotalRevenue?.payload.data || 0)}
               </div>
-              <p className="text-xs text-green-500">
-                +20.1% so với tháng trước
-              </p>
+              <p className="text-xs text-green-500"></p>
             </CardContent>
           </Card>
           {/* lượt đặt lịch */}

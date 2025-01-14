@@ -7,6 +7,8 @@ import {
   GetFeeServiceResType,
   GetManagerPaymentForModeratorResType,
   GetManagerPaymentForUserAndExpertListResType,
+  GetRevenueStatisticsResponseType,
+  GetTotalRevenueForExpertRequestSchemaType,
   GetTotalRevenueForExpertResType,
   PaymentHistoryDetailsResType,
   PaymentHistoryListResType,
@@ -48,6 +50,13 @@ const paymentApiRequest = {
   getTotalRevenueForExpert: () =>
     http.get<GetTotalRevenueForExpertResType>(
       "payment/api/payment/total-revenue-expert"
+    ),
+
+  getRevenueDetailsForExpert: (
+    filterType: GetTotalRevenueForExpertRequestSchemaType
+  ) =>
+    http.get<GetRevenueStatisticsResponseType>(
+      `payment/api/payment/revenue-details-experts?filterType=${filterType.filterType}`
     ),
 };
 export default paymentApiRequest;
