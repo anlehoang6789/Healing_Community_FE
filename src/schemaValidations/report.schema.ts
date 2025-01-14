@@ -169,3 +169,30 @@ export type GetModeratorActivityReportCommentListResType = z.TypeOf<
   typeof GetModeratorActivityReportCommentListRes
 >;
 // ============================================
+
+export const GetSystemReportSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  userName: z.string(),
+  email: z.string(),
+  content: z.string(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetSystemReportSchemaType = z.TypeOf<typeof GetSystemReportSchema>;
+
+export const GetSystemReportListRes = z.object({
+  data: z.array(GetSystemReportSchema),
+  message: z.string(),
+});
+
+export type GetSystemReportListResType = z.TypeOf<
+  typeof GetSystemReportListRes
+>;
+
+export const AddSystemReportBody = z.object({
+  content: z.string(),
+});
+
+export type AddSystemReportBodyType = z.TypeOf<typeof AddSystemReportBody>;

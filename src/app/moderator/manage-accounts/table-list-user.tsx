@@ -34,27 +34,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { createContext, useContext, useEffect, useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
 import AutoPagination from "@/components/auto-pagination";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
-import AddExperience from "@/app/expert/experience/add-experience";
-import { useDeleteExpertExperienceMutation } from "@/queries/useExpert";
 import {
   GetToManageUserListResType,
   GetToManageUserType,
 } from "@/schemaValidations/user.schema";
-import { useGetToManageUser } from "@/queries/useUser";
+import {
+  useGetToManageUser,
+  useUpdateStatusUserAccount,
+} from "@/queries/useUser";
 
 type AccountItem = GetToManageUserListResType["data"][0];
 
@@ -190,11 +181,40 @@ export const columns: ColumnDef<GetToManageUserType>[] = [
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      const { setExperienceDelete } = useContext(AccountTableContext);
-
-      const openDeleteEmployee = () => {
-        setExperienceDelete(row.original);
+      const status = row.original.status;
+      const updateStatusUserAccount = useUpdateStatusUserAccount();
+      const handleActive = async () => {
+        if (updateStatusUserAccount.isPending) return;
+        try {
+          await updateStatusUserAccount.mutateAsync({
+            userId: row.original.userId,
+            status: 1,
+          });
+          toast({
+            title: "Kích hoạt tài khoản thành công",
+            variant: "success",
+          });
+        } catch (error: any) {
+          handleErrorApi(error);
+        }
       };
+
+      const handleInactive = async () => {
+        if (updateStatusUserAccount.isPending) return;
+        try {
+          await updateStatusUserAccount.mutateAsync({
+            userId: row.original.userId,
+            status: 0,
+          });
+          toast({
+            title: "Vô hiệu hóa tài khoản thành công",
+            variant: "success",
+          });
+        } catch (error: any) {
+          handleErrorApi(error);
+        }
+      };
+
       return (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -206,9 +226,16 @@ export const columns: ColumnDef<GetToManageUserType>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Hành động</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={openDeleteEmployee}>
-              Vô hiệu hóa
-            </DropdownMenuItem>
+            {status === 1 && (
+              <DropdownMenuItem onClick={handleInactive}>
+                Vô hiệu hóa
+              </DropdownMenuItem>
+            )}
+            {status === 0 && (
+              <DropdownMenuItem onClick={handleActive}>
+                Kích hoạt
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       );
@@ -216,61 +243,6 @@ export const columns: ColumnDef<GetToManageUserType>[] = [
   },
 ];
 
-function AlertDialogDeleteAccount({
-  experienceDelete,
-  setExperienceDelete,
-}: {
-  experienceDelete: AccountItem | null;
-  setExperienceDelete: (value: AccountItem | null) => void;
-}) {
-  const { mutateAsync } = useDeleteExpertExperienceMutation();
-  const deleteExperience = async () => {
-    if (experienceDelete) {
-      try {
-        const result = await mutateAsync(experienceDelete.userId);
-        setExperienceDelete(null);
-        toast({
-          description: result.payload.message,
-          variant: "success",
-        });
-      } catch (error) {
-        handleErrorApi({ error });
-      }
-    }
-  };
-
-  return (
-    <AlertDialog
-      open={Boolean(experienceDelete)}
-      onOpenChange={(value) => {
-        if (!value) {
-          setExperienceDelete(null);
-        }
-      }}
-    >
-      <AlertDialogContent className="bg-card">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-textChat font-semibold">
-            Vô hiệu hóa người dùng?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            Người dùng được đăng ký với tên{" "}
-            <span className="bg-muted text-textChat rounded px-1 font-semibold">
-              {experienceDelete?.userName}
-            </span>{" "}
-            sẽ bị xóa vĩnh viễn
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel className="text-textChat">Hủy</AlertDialogCancel>
-          <AlertDialogAction onClick={deleteExperience}>
-            Tiếp tục
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
 // Số lượng item trên 1 trang
 const PAGE_SIZE = 10;
 export default function TableListUser() {
@@ -331,10 +303,6 @@ export default function TableListUser() {
       }}
     >
       <div className="w-full">
-        <AlertDialogDeleteAccount
-          experienceDelete={experienceDelete}
-          setExperienceDelete={setExperienceDelete}
-        />
         <div className="flex flex-col sm:flex-row items-start sm:items-center py-4 gap-4 sm:gap-2">
           <Input
             placeholder="Tìm kiếm tên đăng ký ..."
