@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -30,69 +30,96 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-const bookingsData = {
-  year: [
-    { name: "Tháng 1", total: 1200 },
-    { name: "Tháng 2", total: 1900 },
-    { name: "Tháng 3", total: 3000 },
-    { name: "Tháng 4", total: 5000 },
-    { name: "Tháng 5", total: 2000 },
-    { name: "Tháng 6", total: 3000 },
-    { name: "Tháng 7", total: 4000 },
-    { name: "Tháng 8", total: 4500 },
-    { name: "Tháng 9", total: 5000 },
-    { name: "Tháng 10", total: 3500 },
-    { name: "Tháng 11", total: 4000 },
-    { name: "Tháng 12", total: 4800 },
-  ],
-  month: [
-    { name: "Tuần 1", total: 500 },
-    { name: "Tuần 2", total: 750 },
-    { name: "Tuần 3", total: 1200 },
-    { name: "Tuần 4", total: 1000 },
-  ],
-  week: [
-    { name: "Thứ 2", total: 100 },
-    { name: "Thứ 3", total: 150 },
-    { name: "Thứ 4", total: 200 },
-    { name: "Thứ 5", total: 180 },
-    { name: "Thứ 6", total: 220 },
-    { name: "Thứ 7", total: 250 },
-    { name: "Chủ nhật", total: 180 },
-  ],
-};
+import { useGetRevenueDetailsForExpertQuery } from "@/queries/usePayment";
 
 type RevenueTimeframe = "year" | "month" | "week";
 
-const chartConfig = {
-  total: {
-    label: "Lượt đặt",
-    color: "hsl(var(--chart-1))",
-  },
+const timeframeLabels = {
+  year: "Năm nay",
+  month: "Tháng này",
+  week: "Tuần này",
+};
+
+const timeframeFilters = {
+  year: "month",
+  month: "week",
+  week: "day",
+};
+
+const dayOfWeekLabels = {
+  Monday: "Thứ hai",
+  Tuesday: "Thứ ba",
+  Wednesday: "Thứ tư",
+  Thursday: "Thứ năm",
+  Friday: "Thứ sáu",
+  Saturday: "Thứ bảy",
+  Sunday: "Chủ nhật",
 };
 
 export default function ExpertBookingFilter() {
   const [bookingsTimeframe, setBookingsTimeframe] =
     useState<RevenueTimeframe>("year");
 
-  const getTimeframeLabel = (timeframe: RevenueTimeframe) => {
-    switch (timeframe) {
-      case "year":
-        return "năm nay";
-      case "month":
-        return "tháng này";
-      case "week":
-        return "tuần này";
-    }
+  const { data: expertRevenueData } = useGetRevenueDetailsForExpertQuery({
+    filterType: timeframeFilters[bookingsTimeframe],
+  });
+
+  const chartConfig = {
+    total: {
+      label: "Lượt đặt",
+      color: "hsl(var(--chart-1))",
+    },
   };
+
+  const currentData = useMemo(() => {
+    if (!expertRevenueData) return [];
+
+    if (timeframeFilters[bookingsTimeframe] === "month") {
+      const months = Array(12)
+        .fill(0)
+        .map((_, index) => ({
+          name: `Tháng ${index + 1}`,
+          total:
+            expertRevenueData.payload.data.find(
+              (item: any) => item.month === index + 1
+            )?.totalBookings || 0,
+        }));
+      return months;
+    }
+
+    if (timeframeFilters[bookingsTimeframe] === "week") {
+      const weeks = Array(4)
+        .fill(0)
+        .map((_, index) => ({
+          name: `Tuần ${index + 1}`,
+          total:
+            expertRevenueData.payload.data.find(
+              (item: any) => item.weekOfMonth === index + 1
+            )?.totalBookings || 0,
+        }));
+      return weeks;
+    }
+
+    if (timeframeFilters[bookingsTimeframe] === "day") {
+      const days = Object.keys(dayOfWeekLabels).map((day: string) => ({
+        name: dayOfWeekLabels[day as keyof typeof dayOfWeekLabels],
+        total:
+          expertRevenueData.payload.data.find(
+            (item: any) => item.dayOfWeek === day
+          )?.totalBookings || 0,
+      }));
+      return days;
+    }
+
+    return [];
+  }, [expertRevenueData, bookingsTimeframe]);
 
   return (
     <Card className="w-full">
       <CardHeader>
         <div className="flex justify-between items-center">
           <CardTitle className="text-xl font-semibold text-textChat">
-            Doanh thu chi tiết
+            Lượt đặt lịch chi tiết
           </CardTitle>
           <Select
             value={bookingsTimeframe}
@@ -113,9 +140,9 @@ export default function ExpertBookingFilter() {
         <CardDescription className="sr-only">mô tả doanh thu</CardDescription>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
-          {/* <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={bookingsData[bookingsTimeframe]}>
+        <ResponsiveContainer width="100%" height={400}>
+          <ChartContainer config={chartConfig}>
+            <BarChart data={currentData}>
               <defs>
                 <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
                   <stop
@@ -144,48 +171,18 @@ export default function ExpertBookingFilter() {
                 radius={[4, 4, 0, 0]}
               />
             </BarChart>
-          </ResponsiveContainer> */}
-
-          <BarChart data={bookingsData[bookingsTimeframe]}>
-            <defs>
-              <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="hsl(var(--chart-1))"
-                  stopOpacity={0.8}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="hsl(var(--chart-1))"
-                  stopOpacity={0.2}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-            <XAxis
-              dataKey="name"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-            />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-            <Bar
-              dataKey="total"
-              fill="url(#colorTotal)"
-              radius={[4, 4, 0, 0]}
-            />
-          </BarChart>
-        </ChartContainer>
+          </ChartContainer>
+        </ResponsiveContainer>
       </CardContent>
-      <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none text-textChat">
-          Tăng <span className="text-green-500">5.2%</span> so với{" "}
-          {getTimeframeLabel(bookingsTimeframe)} trước{" "}
-          <TrendingUp className="h-4 w-4 text-green-500" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Hiển thị tổng số lượt đặt lịch cho{" "}
-          {getTimeframeLabel(bookingsTimeframe)}
+      <CardFooter className="flex flex-col sm:flex-row justify-between items-center">
+        <div className="text-sm text-muted-foreground mb-2 sm:mb-0">
+          Tổng lượt đặt lịch:{" "}
+          <span className="font-semibold text-green-500">
+            {currentData
+              .reduce((sum, item) => sum + item.total, 0)
+              .toLocaleString()}{" "}
+            lượt
+          </span>
         </div>
       </CardFooter>
     </Card>

@@ -1,5 +1,8 @@
 import paymentApiRequest from "@/apiRequests/payment";
-import { CreatePaymentRequestType } from "@/schemaValidations/payment.schema";
+import {
+  CreatePaymentRequestType,
+  GetTotalRevenueForExpertRequestSchemaType,
+} from "@/schemaValidations/payment.schema";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -91,5 +94,14 @@ export const useGetTotalRevenueForExpert = () => {
   return useQuery({
     queryKey: ["totalRevenueForExpert"],
     queryFn: paymentApiRequest.getTotalRevenueForExpert,
+  });
+};
+
+export const useGetRevenueDetailsForExpertQuery = (
+  filterType: GetTotalRevenueForExpertRequestSchemaType
+) => {
+  return useQuery({
+    queryKey: ["revenue-details-expert", filterType],
+    queryFn: () => paymentApiRequest.getRevenueDetailsForExpert(filterType),
   });
 };
