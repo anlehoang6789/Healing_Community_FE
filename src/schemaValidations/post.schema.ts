@@ -772,3 +772,37 @@ export const ApproveOrRejectReportCommentBody = z.object({
 export type ApproveOrRejectReportCommentBodyType = z.TypeOf<
   typeof ApproveOrRejectReportCommentBody
 >;
+
+export const GetPostCountByUserIdCountRes = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.object({
+    userId: z.string(),
+    postCount: z.number(),
+  }),
+  errors: z.nullable(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetPostCountByUserIdCountResType = z.TypeOf<
+  typeof GetPostCountByUserIdCountRes
+>;
+
+export const GetReactionCountByUserIdCountRes = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.object({
+    userId: z.string(),
+    reactionCount: z.number(),
+  }),
+  errors: z.nullable(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetReactionCountByUserIdCountResType = z.TypeOf<
+  typeof GetReactionCountByUserIdCountRes
+>;

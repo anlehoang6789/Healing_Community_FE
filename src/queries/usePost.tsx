@@ -83,6 +83,14 @@ export const useUploadAvatarCoverFromFileMutation = () => {
   });
 };
 
+export const useGetPostCountQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["postsCount", userId],
+    queryFn: () => postApiRequest.getPostCountByUserId(userId),
+    refetchOnWindowFocus: true,
+  });
+};
+
 export const useCreatePostMutation = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -90,6 +98,9 @@ export const useCreatePostMutation = (userId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post-by-user-id", userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["postsCount", userId],
       });
     },
   });
@@ -132,6 +143,9 @@ export const useDeletePostByPostIdMutation = (userId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["post-by-user-id", userId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["postsCount", userId],
       });
     },
   });
@@ -220,6 +234,14 @@ export const useGetReactionCountQuery = (postId: string) => {
   });
 };
 
+export const useGetReactionCountByUserIdQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["reactionCount", userId],
+    queryFn: () => postApiRequest.getReactionCountByUserId(userId),
+    refetchOnWindowFocus: true,
+  });
+};
+
 export const useGetCommentCountQuery = (postId: string) => {
   return useQuery({
     queryKey: ["comment-count", postId],
@@ -279,7 +301,7 @@ export const useDeleteCommentByCommnetIdMutation = () => {
   });
 };
 
-export const useAddReactionMutation = (postId: string) => {
+export const useAddReactionMutation = (postId: string, userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.addReaction,
@@ -289,6 +311,9 @@ export const useAddReactionMutation = (postId: string) => {
       });
       queryClient.invalidateQueries({
         queryKey: ["user-reaction-by-post-id", postId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["reactionCount", userId],
       });
     },
   });
@@ -377,7 +402,7 @@ export const useGetAllReactionTypeQuery = () => {
   });
 };
 
-export const useRemoveReactionMutation = (postId: string) => {
+export const useRemoveReactionMutation = (postId: string, userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.removeReaction,
@@ -387,6 +412,9 @@ export const useRemoveReactionMutation = (postId: string) => {
       });
       queryClient.invalidateQueries({
         queryKey: ["user-reaction-by-post-id", postId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["reactionCount", userId],
       });
     },
   });

@@ -47,6 +47,8 @@ import {
   ReportCommentBodyType,
   GetReportCommentResponseType,
   ApproveOrRejectReportCommentBodyType,
+  GetPostCountByUserIdCountResType,
+  GetReactionCountByUserIdCountResType,
 } from "@/schemaValidations/post.schema";
 
 const postApiRequest = {
@@ -237,6 +239,16 @@ const postApiRequest = {
 
   approveOrRejectReportComment: (body: ApproveOrRejectReportCommentBodyType) =>
     http.post<{ message: string }>("post/api/ban/ban-comment", body),
+
+  getPostCountByUserId: (userId: string) =>
+    http.get<GetPostCountByUserIdCountResType>(
+      `post/api/post/count-posts/${userId}`
+    ),
+
+  getReactionCountByUserId: (userId: string) =>
+    http.get<GetReactionCountByUserIdCountResType>(
+      `post/api/reaction/count-reactions/${userId}`
+    ),
 };
 
 export default postApiRequest;
