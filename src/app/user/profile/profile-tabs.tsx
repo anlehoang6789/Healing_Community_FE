@@ -118,7 +118,7 @@ export default function ProfileTabs({
           </Button>
         )}
 
-        <div className="flex justify-between sm:justify-start items-center space-x-2 sm:space-x-4 w-full sm:w-auto sm:order-1">
+        <div className="flex justify-between sm:justify-start items-center space-x-2 sm:space-x-4 w-full sm:w-auto sm:order-1 overflow-x-auto pb-2">
           <Link href={`/user/profile/${userId}`} passHref>
             <Button
               variant={

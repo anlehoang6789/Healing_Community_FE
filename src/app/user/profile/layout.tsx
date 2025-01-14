@@ -16,6 +16,7 @@ import {
   useGetPostCountQuery,
   useGetReactionCountByUserIdQuery,
 } from "@/queries/usePost";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { createContext, useEffect, useState } from "react";
 
@@ -148,7 +149,7 @@ export default function ProfileUserLayout({
       }}
     >
       {/* Profile Section */}
-      <div className="flex justify-center w-full h-auto sm:h-80 bg-gradient-custom-left-to-right">
+      <div className="flex justify-center w-full h-auto pt-4 bg-gradient-custom-left-to-right">
         <div className="flex flex-col items-center justify-center pb-4">
           {/* Avatar */}
           <Avatar className="w-20 h-20 sm:w-28 sm:h-28 border-2 border-rose-300 mb-2">
@@ -181,6 +182,17 @@ export default function ProfileUserLayout({
                 "Anonymous"}
           </h1>
           <div className="flex flex-col items-center justify-center">
+            <div className="flex items-center">
+              {isExpert ? (
+                <p className="text-lg text-gray-700 font-medium max-w-xl text-center">
+                  {expertProfile?.payload.data.bio}
+                </p>
+              ) : (
+                <p className="text-lg text-gray-700 font-medium max-w-xl text-center">
+                  {userProfile?.payload.data.descrtiption}
+                </p>
+              )}
+            </div>
             {/* First information */}
             <div className="flex flex-col sm:flex-row items-center justify-center space-y-1 sm:space-y-0 sm:space-x-4 mt-1 text-xs sm:text-base">
               <div className="flex space-x-2 sm:space-x-4 items-center">
@@ -251,6 +263,50 @@ export default function ProfileUserLayout({
                 </div>
               </div>
             </div>
+            {!isExpert && userProfile?.payload.data.socialLink && (
+              <div className="flex space-x-4 mt-2">
+                {userProfile.payload.data.socialLink.facebook && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    Facebook
+                  </Link>
+                )}
+                {userProfile.payload.data.socialLink.instagram && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-pink-600 hover:text-pink-800"
+                  >
+                    Instagram
+                  </Link>
+                )}
+                {userProfile.payload.data.socialLink.twitter && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.twitter}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-600"
+                  >
+                    Twitter
+                  </Link>
+                )}
+                {userProfile.payload.data.socialLink.linkedIn && (
+                  <Link
+                    href={userProfile.payload.data.socialLink.linkedIn}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-700 hover:text-blue-900"
+                  >
+                    LinkedIn
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
