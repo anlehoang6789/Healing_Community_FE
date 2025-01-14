@@ -14,10 +14,10 @@ import { useTheme } from "next-themes";
 import { useAddReportPostMutation } from "@/queries/useReport";
 
 const reportReasons = [
-  { id: 0, label: "Ngôn từ không phù hợp" },
-  { id: 1, label: "Chỉ là tôi không thích nội dung này" },
-  { id: 2, label: "Thông tin sai lệch" },
-  { id: 3, label: "Vi phạm quy tắc cộng đồng" },
+  { id: 1, label: "Ngôn từ không phù hợp" },
+  { id: 2, label: "Chỉ là tôi không thích nội dung này" },
+  { id: 3, label: "Thông tin sai lệch" },
+  { id: 4, label: "Vi phạm quy tắc cộng đồng" },
 ];
 
 export default function ReportPostSection({
