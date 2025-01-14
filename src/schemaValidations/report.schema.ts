@@ -78,6 +78,13 @@ export type AprroveOrRejectReportExpertBodyType = z.TypeOf<
   typeof AprroveOrRejectReportExpertBody
 >;
 
+export const AddReportExpertBody = z.object({
+  appoinmtentId: z.string(),
+  reportDescription: z.string(),
+});
+
+export type AddReportExpertBodyType = z.TypeOf<typeof AddReportExpertBody>;
+
 //===========================moderator activity
 export const GetModeratorActivityReportPostSchema = z.object({
   id: z.string(),
@@ -103,5 +110,62 @@ export const GetModeratorActivityReportPostListRes = z.object({
 
 export type GetModeratorActivityReportPostListResType = z.TypeOf<
   typeof GetModeratorActivityReportPostListRes
+>;
+
+export const GetModeratorActivityReportExpertSchema = z.object({
+  id: z.string(),
+  moderatorId: z.string(),
+  moderatorName: z.string(),
+  moderatorEmail: z.string(),
+  appointmentId: z.string(),
+  appoinmtentDate: z.string(),
+  startTime: z.string(),
+  endTime: z.string(),
+  userEmail: z.string(),
+  userName: z.string(),
+  expertEmail: z.string(),
+  expertName: z.string(),
+  isApprove: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetModeratorActivityReportExpertSchemaType = z.TypeOf<
+  typeof GetModeratorActivityReportExpertSchema
+>;
+
+export const GetModeratorActivityReportExpertListRes = z.object({
+  data: z.array(GetModeratorActivityReportExpertSchema),
+  message: z.string(),
+});
+
+export type GetModeratorActivityReportExpertListResType = z.TypeOf<
+  typeof GetModeratorActivityReportExpertListRes
+>;
+
+export const GetModeratorActivityReportCommentSchema = z.object({
+  id: z.string(),
+  commentId: z.string(),
+  comment: z.string(),
+  userId: z.string(),
+  userName: z.string(),
+  userEmail: z.string(),
+  content: z.string(),
+  isApprove: z.boolean(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type GetModeratorActivityReportCommentSchemaType = z.TypeOf<
+  typeof GetModeratorActivityReportCommentSchema
+>;
+
+export const GetModeratorActivityReportCommentListRes = z.object({
+  data: z.array(GetModeratorActivityReportCommentSchema),
+  message: z.string(),
+});
+
+export type GetModeratorActivityReportCommentListResType = z.TypeOf<
+  typeof GetModeratorActivityReportCommentListRes
 >;
 // ============================================
