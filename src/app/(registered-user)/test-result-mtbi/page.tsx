@@ -1,17 +1,16 @@
 "use client";
-
 import ButtonTestAgain from "@/app/(registered-user)/test-result/button-test-again";
-import ContentTestResultTabs from "@/app/(registered-user)/test-result/content-test-result-tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 import React from "react";
-import { useGetDass21ResultQuery } from "@/queries/useQuizz";
+import { useGetMBTIResultQuery } from "@/queries/useQuizz";
+import ContentTestResultMBTITabs from "@/app/(registered-user)/test-result-mtbi/content-test-result-mbti-tabs";
 
-export default function TestResult() {
-  const { data: quizResult } = useGetDass21ResultQuery();
+export default function TestResultMBTI() {
+  const { data: quizMTBIResult } = useGetMBTIResultQuery();
 
   // Nếu chưa có kết quả, hiển thị loading
-  if (!quizResult) {
+  if (!quizMTBIResult) {
     return (
       <div className="min-h-screen p-8">
         <Card className="w-full max-w-6xl mx-auto">
@@ -41,7 +40,7 @@ export default function TestResult() {
             </CardContent>
           </div>
           <div className="animate-pulse">
-            <ContentTestResultTabs />
+            <ContentTestResultMBTITabs />
           </div>
           <div className="animate-pulse">
             <ButtonTestAgain />
@@ -57,7 +56,7 @@ export default function TestResult() {
         <div className="w-full">
           <CardHeader className="relative">
             <CardTitle className="text-green-500 text-3xl font-bold text-center mb-2">
-              Kết Quả Kiểm Tra Tâm Lý DASS-21
+              Kết Quả Kiểm Tra Tâm Lý MBTI
             </CardTitle>
             <div className="relative w-full h-[300px]">
               <Image
@@ -71,36 +70,53 @@ export default function TestResult() {
           <CardContent className="p-6 mb-4">
             <div className="grid md:grid-cols-3 gap-4">
               <div className="bg-green-100 p-4 rounded-lg">
-                <h3 className="font-bold text-green-700">Căng thẳng</h3>
+                <h3 className="font-bold text-green-700">
+                  Giác Quan (S) / Trực Giác (N)
+                </h3>
                 <p className="text-gray-700">
-                  Điểm số: {quizResult.payload.data.stressScore}
+                  Điểm số: {quizMTBIResult.payload.data.judgingScore}
                 </p>
                 <p className="text-sm mt-2 text-gray-700">
-                  {quizResult.payload.data.sressDescription}
+                  {quizMTBIResult.payload.data.judgingDescription}
                 </p>
               </div>
               <div className="bg-blue-100 p-4 rounded-lg">
-                <h3 className="font-bold text-blue-700">Lo Âu</h3>
+                <h3 className="font-bold text-blue-700">
+                  Hướng Ngoại (E) / Hướng Nội (I)
+                </h3>
                 <p className="text-gray-700">
-                  Điểm số: {quizResult.payload.data.anxietyScore}
+                  Điểm số: {quizMTBIResult.payload.data.extroversionScore}
                 </p>
                 <p className="text-sm mt-2 text-gray-700">
-                  {quizResult.payload.data.anxietyDescription}
+                  {quizMTBIResult.payload.data.extroversionDescription}
                 </p>
               </div>
               <div className="bg-red-100 p-4 rounded-lg">
-                <h3 className="font-bold text-red-700">Trầm Cảm</h3>
+                <h3 className="font-bold text-red-700">
+                  Lý Trí (T) / Cảm Xúc (F)
+                </h3>
                 <p className="text-gray-700">
-                  Điểm số: {quizResult.payload.data.depressionScore}
+                  Điểm số: {quizMTBIResult.payload.data.sensingScore}
                 </p>
                 <p className="text-sm mt-2 text-gray-700">
-                  {quizResult.payload.data.depressionDescription}
+                  {quizMTBIResult.payload.data.sensingDescription}
                 </p>
               </div>
             </div>
+            <div className="bg-red-100 p-4 rounded-lg text-center mt-4">
+              <h3 className="font-bold text-red-700">
+                Nguyên Tắc (J) / Linh Hoạt (P)
+              </h3>
+              <p className="text-gray-700">
+                Điểm số: {quizMTBIResult.payload.data.thinkingScore}
+              </p>
+              <p className="text-sm mt-2 text-gray-700">
+                {quizMTBIResult.payload.data.thinkingDescription}
+              </p>
+            </div>
           </CardContent>
         </div>
-        <ContentTestResultTabs />
+        <ContentTestResultMBTITabs />
         <ButtonTestAgain />
       </Card>
     </div>

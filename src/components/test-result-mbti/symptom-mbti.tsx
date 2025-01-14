@@ -1,9 +1,9 @@
 "use client";
-import { useGetDass21ResultQuery } from "@/queries/useQuizz";
+import { useGetMBTIResultQuery } from "@/queries/useQuizz";
 import React from "react";
 
-export default function Symptom() {
-  const { data: quizResult } = useGetDass21ResultQuery();
+export default function SymptomMBTI() {
+  const { data: quizResult } = useGetMBTIResultQuery();
 
   // Hàm phân tách và render các yếu tố
   const renderFactors = (factors: any[]) => {
