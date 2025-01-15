@@ -51,3 +51,10 @@ export const useUpdateStatusUserAccount = () => {
     },
   });
 };
+
+export const useGetUserStatistics = () => {
+  return useQuery({
+    queryKey: ["user-statistics"],
+    queryFn: userApiRequest.getUserStatistics,
+  });
+};

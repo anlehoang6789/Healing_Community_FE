@@ -224,3 +224,53 @@ export const GetTotalRevenueForExpertRequestSchema = z.object({
 export type GetTotalRevenueForExpertRequestSchemaType = z.infer<
   typeof GetTotalRevenueForExpertRequestSchema
 >;
+
+export const GetTotalRevenueForAdminRes = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.number(),
+  errors: z.nullable(z.any()),
+  timestamp: z.string(),
+});
+
+export type GetTotalRevenueForAdminResType = z.infer<
+  typeof GetTotalRevenueForAdminRes
+>;
+
+export const GetRevenueStatisticsItemForAdminSchema = z.object({
+  year: z.number().nullable(),
+  month: z.number().nullable(),
+  day: z.number().nullable(),
+  dayOfWeek: z.string().nullable(),
+  weekOfMonth: z.number().nullable(),
+  totalRevenue: z.number(),
+  totalBookings: z.number(),
+});
+
+export type GetRevenueStatisticsItemForAdminType = z.infer<
+  typeof GetRevenueStatisticsItemForAdminSchema
+>;
+
+export const GetRevenueStatisticsForAdminResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string(),
+  success: z.boolean(),
+  data: z.array(GetRevenueStatisticsItemForAdminSchema),
+  errors: z.nullable(z.unknown()),
+  timestamp: z.string(),
+});
+
+export type GetRevenueStatisticsForAdminResponseType = z.infer<
+  typeof GetRevenueStatisticsForAdminResponseSchema
+>;
+
+export const GetTotalRevenueForAdminRequestSchema = z.object({
+  filterType: z.string().optional(),
+});
+
+export type GetTotalRevenueForAdminRequestSchemaType = z.infer<
+  typeof GetTotalRevenueForAdminRequestSchema
+>;

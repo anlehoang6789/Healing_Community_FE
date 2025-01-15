@@ -5,6 +5,7 @@ import {
   GetUsersResponseType,
   UpdateStatusModeratorAccountBodyType,
   UpdateStatusUserAccountBodyType,
+  UserStatisticsResponseType,
 } from "@/schemaValidations/user.schema";
 
 export const userApiRequest = {
@@ -29,6 +30,9 @@ export const userApiRequest = {
       "user/api/manageraccount/change-status-user-account",
       body
     ),
+
+  getUserStatistics: () =>
+    http.get<UserStatisticsResponseType>("user/api/user/statistics"),
 };
 
 export default userApiRequest;

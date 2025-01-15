@@ -1,6 +1,7 @@
 import paymentApiRequest from "@/apiRequests/payment";
 import {
   CreatePaymentRequestType,
+  GetTotalRevenueForAdminRequestSchemaType,
   GetTotalRevenueForExpertRequestSchemaType,
 } from "@/schemaValidations/payment.schema";
 
@@ -103,5 +104,21 @@ export const useGetRevenueDetailsForExpertQuery = (
   return useQuery({
     queryKey: ["revenue-details-expert", filterType],
     queryFn: () => paymentApiRequest.getRevenueDetailsForExpert(filterType),
+  });
+};
+
+export const useGetTotalRevenueForAdmin = () => {
+  return useQuery({
+    queryKey: ["totalRevenueForAdmin"],
+    queryFn: paymentApiRequest.getTotalRevenueForAdmin,
+  });
+};
+
+export const useGetRevenueDetailsForAdminQuery = (
+  filterType: GetTotalRevenueForAdminRequestSchemaType
+) => {
+  return useQuery({
+    queryKey: ["revenue-details-admin", filterType],
+    queryFn: () => paymentApiRequest.getRevenueDetailsForAdmin(filterType),
   });
 };
