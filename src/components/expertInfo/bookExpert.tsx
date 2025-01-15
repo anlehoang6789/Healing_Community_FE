@@ -37,6 +37,7 @@ import {
   formatDateTime,
   getRoleFromLocalStorage,
   getUserIdFromLocalStorage,
+  handleErrorApi,
 } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 
@@ -166,7 +167,7 @@ export default function BookExpert() {
             setSelectedSlot(null);
           },
           onError: (error) => {
-            console.error("Error booking schedule:", error);
+            handleErrorApi({ error });
           },
         }
       );
