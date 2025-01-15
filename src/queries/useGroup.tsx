@@ -50,7 +50,7 @@ export const useDeleteGroupByGroupIdMutation = () => {
   });
 };
 
-export const useJoinGroupMutation = (userId?: string) => {
+export const useJoinGroupMutation = (userId?: string, groupId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -60,6 +60,9 @@ export const useJoinGroupMutation = (userId?: string) => {
       queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
       queryClient.invalidateQueries({ queryKey: ["get-groups-by-user-id"] });
       queryClient.invalidateQueries({ queryKey: ["get-group-info", userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-details-by-group-id", groupId],
+      });
     },
     onError: (error) => {
       console.error("Lỗi khi tham gia nhóm:", error);
@@ -67,7 +70,10 @@ export const useJoinGroupMutation = (userId?: string) => {
   });
 };
 
-export const useLeaveGroupByGroupIdMutation = (userId?: string) => {
+export const useLeaveGroupByGroupIdMutation = (
+  userId?: string,
+  groupId?: string
+) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: LeaveGroupRequestType) =>
@@ -76,6 +82,9 @@ export const useLeaveGroupByGroupIdMutation = (userId?: string) => {
       queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
       queryClient.invalidateQueries({ queryKey: ["get-groups-by-user-id"] });
       queryClient.invalidateQueries({ queryKey: ["get-group-info", userId] });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-details-by-group-id", groupId],
+      });
     },
     onError: (error) => {
       console.error("Lỗi khi rời nhóm:", error);
@@ -112,6 +121,7 @@ export const useGetGroupDetailsByGroupIdQuery = ({
     queryKey: ["get-group-details-by-group-id", groupId],
     queryFn: () => groupApiRequest.getGroupDetailsByGroupId(groupId),
     enabled: enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -119,6 +129,7 @@ export const useGetGroupMembersByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["get-group-members-by-group-id", groupId],
     queryFn: () => groupApiRequest.getGroupMemberByGroupId(groupId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -126,6 +137,7 @@ export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["get-role-count-by-group-id", groupId],
     queryFn: () => groupApiRequest.getRoleCountByGroupId(groupId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -218,6 +230,7 @@ export const useGetGroupInfoQuery = ({
     queryKey: ["get-group-info", userId],
     queryFn: () => groupApiRequest.getGroupInfo(userId),
     enabled: enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -225,6 +238,7 @@ export const useGetRecommendGroupQuery = () => {
   return useQuery({
     queryKey: ["get-recommend-group"],
     queryFn: groupApiRequest.getRecommendGroup,
+    refetchOnWindowFocus: true,
   });
 };
 

@@ -65,7 +65,8 @@ export default function GroupLayout({
   }, [groupJoinList, groupIdFromPath]);
 
   const joinGroupMutation = useJoinGroupMutation(
-    userIdFromLocalStorage as string
+    userIdFromLocalStorage as string,
+    groupIdFromPath as string
   );
   const handleJoinGroup = async (groupId: string) => {
     try {
@@ -81,7 +82,8 @@ export default function GroupLayout({
   };
 
   const leaveGroupMutation = useLeaveGroupByGroupIdMutation(
-    userIdFromLocalStorage as string
+    userIdFromLocalStorage as string,
+    groupIdFromPath as string
   );
   const handleLeaveGroup = async (groupId: string) => {
     try {
