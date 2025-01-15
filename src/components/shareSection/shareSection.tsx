@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 import { ReactNode, useState } from "react";
 import { useSharePostMutation } from "@/queries/usePost";
 import { handleErrorApi } from "@/lib/utils";
+import { useParams } from "next/navigation";
 
 type ShareSectionProps = {
   postId: string | string[];
@@ -28,10 +29,11 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const userId = getUserIdFromLocalStorage();
+  const { userIdFromParams } = useParams();
   const { data: userById } = useGetUserProfileQuery(userId as string);
   const userData = userById?.payload.data;
 
-  const sharePostMutation = useSharePostMutation();
+  const sharePostMutation = useSharePostMutation(userIdFromParams as string);
 
   const handleShare = (platform: "facebook" | "gmail") => {
     const url = `http://localhost:3000/content/${postId}`;

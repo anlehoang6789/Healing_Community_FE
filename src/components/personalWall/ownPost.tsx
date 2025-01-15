@@ -1143,12 +1143,14 @@ export default function OwnPost() {
                       {truncate && (
                         <div className="flex justify-end p-4">
                           <button
-                            onClick={() =>
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
                               toggleSharedPostExpand(
                                 sharedPost.shareId,
                                 !isExpanded
-                              )
-                            }
+                              );
+                            }}
                             className="text-blue-500 hover:underline focus:outline-none mt-2 mb-3"
                           >
                             {isExpanded ? "Thu gọn" : "Xem thêm"}
