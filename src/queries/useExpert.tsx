@@ -135,6 +135,7 @@ export const useGetExpertAvailability = (expertProfileId: string) => {
       expertApiRequest.getExpertAvailabilityByExpertProfileId(expertProfileId),
     // Thêm cấu hình để xử lý trường hợp không có dữ liệu
     enabled: !!expertProfileId, // Chỉ chạy query khi expertProfileId có giá trị
+    refetchOnWindowFocus: true,
   });
 };
 
