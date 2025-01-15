@@ -105,23 +105,6 @@ export default function GroupCurrentUserForModerator({
           </p>
         </div>
       </div>
-      <DropdownMenu modal={false} aria-hidden={false}>
-        <DropdownMenuTrigger asChild>
-          <Button variant="iconSend">
-            <EllipsisVertical />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          className={`w-56 mt-4 ${
-            theme === "dark" ? "bg-black text-white" : "bg-white text-black"
-          }`}
-        >
-          <DropdownMenuItem>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Rời nhóm</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </div>
   );
 }
