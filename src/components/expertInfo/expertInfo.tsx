@@ -77,7 +77,7 @@ export default function ExpertProfile() {
     !certificateTypesResponse ||
     !certificateTypesResponse.payload
   ) {
-    return <div>Chưa có thông tin chuyên gia</div>;
+    return <div className="text-textChat">Chưa có thông tin chuyên gia</div>;
   }
 
   // Lấy dữ liệu từ response
