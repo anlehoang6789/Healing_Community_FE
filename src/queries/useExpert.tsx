@@ -20,6 +20,7 @@ export const useGetAllCertificates = () => {
   return useQuery({
     queryKey: ["certificates"],
     queryFn: () => expertApiRequest.getAllCertificates(),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -27,6 +28,7 @@ export const useGetCertificatesByExpertId = (expertId: string) => {
   return useQuery({
     queryKey: ["certificate-by-expertId", expertId],
     queryFn: () => expertApiRequest.getCertificatesByExpertId(expertId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -287,6 +289,9 @@ export const useApproveCertificateMutation = () => {
       queryClient.invalidateQueries({
         queryKey: ["certificates"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["certificate-by-expertId"],
+      });
     },
   });
 };
@@ -298,6 +303,9 @@ export const useRejectCertificateMutation = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["certificates"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["certificate-by-expertId"],
       });
     },
   });
