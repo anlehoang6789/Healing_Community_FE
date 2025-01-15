@@ -558,8 +558,12 @@ export default function UploadFileForExpert() {
       </div>
 
       <div className="mt-4 flex justify-end">
-        <Button onClick={handleSave} variant="default">
-          Lưu
+        <Button
+          onClick={handleSave}
+          variant="default"
+          disabled={uploadFileForExpert.isPending}
+        >
+          {uploadFileForExpert.isPending ? "Đang lưu..." : "Lưu"}
         </Button>
       </div>
     </div>
