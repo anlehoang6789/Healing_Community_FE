@@ -195,9 +195,9 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
-      if (row.original.isApprove !== null) return null;
       const approveOrRejectReportCommentMutation =
         useApproveOrRejectReportCommentMutation();
+      if (row.original.isApprove !== null) return null;
 
       const handleApproveReportPost = async () => {
         if (approveOrRejectReportCommentMutation.isPending) return;

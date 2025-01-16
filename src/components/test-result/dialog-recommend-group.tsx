@@ -63,9 +63,9 @@ const RecommendGroup = ({
   });
   const groupJoinList = groupJoin?.payload.data || [];
   const isMember = groupJoinList.some((group) => group.groupId === groupId);
-  const joinGroupMutation = useJoinGroupMutation(
-    userIdFromLocalStorage as string
-  );
+  const joinGroupMutation = useJoinGroupMutation({
+    userId: userIdFromLocalStorage as string,
+  });
   const handleJoinGroup = async (groupId: string) => {
     try {
       const result = await joinGroupMutation.mutateAsync({ groupId });

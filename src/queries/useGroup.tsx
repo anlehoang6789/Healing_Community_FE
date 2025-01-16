@@ -182,7 +182,7 @@ export const useCrequestGroupMutation = () => {
   });
 };
 
-export const useApproveOrRejectRequestGroupMutation = (groupId: string) => {
+export const useApproveOrRejectRequestGroupMutation = (groupId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
