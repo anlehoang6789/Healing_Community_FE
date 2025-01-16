@@ -13,7 +13,7 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { MessageCircle, User, UserCheck, UserPlus } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { createContext, useEffect, useState } from "react";
 import Link from "next/link";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
@@ -35,6 +35,7 @@ const GroupUserContext = createContext<{
 export default function GroupUserLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const router = useRouter();
   const params = useParams();
   const groupIdFromPath = params.groupId as string;
   const userIdFromPath = params.userId as string;
@@ -105,6 +106,23 @@ export default function GroupUserLayout({
 
     if (!isOwner) fetchFollowStatus();
   }, [isOwner, setIsThatOwner, getFollowingList, userIdFromPath]);
+
+  const handleMessageClick = async () => {
+    if (isFollowing) {
+      // If already following, just redirect to the chat page
+      router.push(`/chat`);
+    } else {
+      // If not following, follow the user first, then redirect
+      try {
+        await followUser.mutateAsync({ followerId: userIdFromPath as string });
+        setIsFollowing(true); // Update the follow status
+        // Redirect to the chat page after following
+        router.push(`/chat`);
+      } catch (error: any) {
+        handleErrorApi(error);
+      }
+    }
+  };
 
   if (userLoading || expertLoading)
     return (
@@ -207,7 +225,10 @@ export default function GroupUserLayout({
               <div className="flex flex-wrap gap-2">
                 {!isOwner && (
                   <>
-                    <Button className="flex-1 md:flex-none">
+                    <Button
+                      className="flex-1 md:flex-none"
+                      onClick={handleMessageClick}
+                    >
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Nhắn tin
                     </Button>

@@ -72,3 +72,30 @@ export const UpdateStatusModeratorAccountBody = z.object({
 export type UpdateStatusModeratorAccountBodyType = z.TypeOf<
   typeof UpdateStatusModeratorAccountBody
 >;
+
+export const UserStatisticsSchema = z.object({
+  totalUsers: z.number(),
+  newUsersThisMonth: z.number(),
+  userRolesCount: z.object({
+    Expert: z.number(),
+    Admin: z.number(),
+    Moderator: z.number(),
+    User: z.number(),
+  }),
+});
+
+export type UserStatisticsType = z.TypeOf<typeof UserStatisticsSchema>;
+
+export const UserStatisticsResponseSchema = z.object({
+  id: z.string(),
+  statusCode: z.number(),
+  message: z.string().nullable(),
+  success: z.boolean(),
+  data: UserStatisticsSchema,
+  errors: z.any().nullable(),
+  timestamp: z.string(),
+});
+
+export type UserStatisticsResponseType = z.TypeOf<
+  typeof UserStatisticsResponseSchema
+>;

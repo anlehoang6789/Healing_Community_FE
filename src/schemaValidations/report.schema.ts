@@ -192,7 +192,7 @@ export type GetSystemReportListResType = z.TypeOf<
 >;
 
 export const AddSystemReportBody = z.object({
-  content: z.string(),
+  content: z.string().min(5),
 });
 
 export type AddSystemReportBodyType = z.TypeOf<typeof AddSystemReportBody>;

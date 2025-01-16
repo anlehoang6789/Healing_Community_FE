@@ -14,9 +14,9 @@ import {
 } from "@/queries/useAccount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useUserIsOwnerStore } from "@/store/userStore";
-import { Pencil } from "lucide-react";
+import { MessageCircle, Pencil } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 export default function ProfileTabs({
@@ -26,6 +26,7 @@ export default function ProfileTabs({
   userId: string | null;
   isOwner: boolean;
 }) {
+  const router = useRouter();
   const pathname = usePathname();
   const role = getRoleFromLocalStorage();
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
@@ -66,6 +67,23 @@ export default function ProfileTabs({
     }
   };
 
+  const handleMessageClick = async () => {
+    if (isFollowing) {
+      // If already following, just redirect to the chat page
+      router.push(`/chat`);
+    } else {
+      // If not following, follow the user first, then redirect
+      try {
+        await followUser.mutateAsync({ followerId: userId as string });
+        setIsFollowing(true); // Update the follow status
+        // Redirect to the chat page after following
+        router.push(`/chat`);
+      } catch (error: any) {
+        handleErrorApi(error);
+      }
+    }
+  };
+
   useEffect(() => {
     setIsThatOwner(isOwner);
     const fetchFollowStatus = () => {
@@ -98,7 +116,7 @@ export default function ProfileTabs({
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
       <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center py-4 border-b">
         {isOwner ? (
-          <Button className="w-full sm:w-auto rounded-[20px] bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2">
+          <Button className="w-full sm:w-auto bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2">
             <Link
               href="/user/create-post"
               className="flex items-center justify-center"
@@ -108,17 +126,27 @@ export default function ProfileTabs({
             </Link>
           </Button>
         ) : (
-          <Button
-            className="w-full sm:w-auto rounded-[20px] bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2"
-            onClick={() =>
-              isFollowing ? handleUnfollow(userId!) : handleFollowUser()
-            }
-          >
-            {isFollowing ? "Bỏ theo dõi" : "Theo dõi"}
-          </Button>
+          <div className="flex space-x-2 sm:space-x-4 sm:order-2">
+            <Button
+              className="flex-1 md:flex-none"
+              onClick={handleMessageClick}
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Nhắn tin
+            </Button>
+            <Button
+              variant={"outline"}
+              className="w-full sm:w-auto flex items-center justify-center sm:order-2 text-textChat"
+              onClick={() =>
+                isFollowing ? handleUnfollow(userId!) : handleFollowUser()
+              }
+            >
+              {isFollowing ? "Bỏ theo dõi" : "Theo dõi"}
+            </Button>
+          </div>
         )}
 
-        <div className="flex justify-between sm:justify-start items-center space-x-2 sm:space-x-4 w-full sm:w-auto sm:order-1">
+        <div className="flex justify-between sm:justify-start items-center space-x-2 sm:space-x-4 w-full sm:w-auto sm:order-1 overflow-x-auto pb-2">
           <Link href={`/user/profile/${userId}`} passHref>
             <Button
               variant={

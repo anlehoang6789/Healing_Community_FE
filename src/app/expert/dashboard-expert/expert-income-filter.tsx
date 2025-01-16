@@ -25,43 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-
-const revenueData = {
-  year: [
-    { name: "Tháng 1", total: 120000 },
-    { name: "Tháng 2", total: 190000 },
-    { name: "Tháng 3", total: 300000 },
-    { name: "Tháng 4", total: 500000 },
-    { name: "Tháng 5", total: 200000 },
-    { name: "Tháng 6", total: 300000 },
-    { name: "Tháng 7", total: 400000 },
-    { name: "Tháng 8", total: 450000 },
-    { name: "Tháng 9", total: 500000 },
-    { name: "Tháng 10", total: 350000 },
-    { name: "Tháng 11", total: 400000 },
-    { name: "Tháng 12", total: 480000 },
-  ],
-  month: [
-    { name: "Tuần 1", total: 50000 },
-    { name: "Tuần 2", total: 75000 },
-    { name: "Tuần 3", total: 120000 },
-    { name: "Tuần 4", total: 100000 },
-  ],
-  week: [
-    { name: "Thứ 2", total: 10000 },
-    { name: "Thứ 3", total: 15000 },
-    { name: "Thứ 4", total: 20000 },
-    { name: "Thứ 5", total: 18000 },
-    { name: "Thứ 6", total: 22000 },
-    { name: "Thứ 7", total: 25000 },
-    { name: "Chủ nhật", total: 18000 },
-  ],
-};
+import { ChartContainer, ChartTooltip } from "@/components/ui/chart";
+import { useGetRevenueDetailsForExpertQuery } from "@/queries/usePayment";
 
 type RevenueTimeframe = "year" | "month" | "week";
 
@@ -71,9 +36,29 @@ const timeframeLabels = {
   week: "Tuần này",
 };
 
+const timeframeFilters = {
+  year: "month",
+  month: "week",
+  week: "day",
+};
+
+const dayOfWeekLabels = {
+  Monday: "Thứ hai",
+  Tuesday: "Thứ ba",
+  Wednesday: "Thứ tư",
+  Thursday: "Thứ năm",
+  Friday: "Thứ sáu",
+  Saturday: "Thứ bảy",
+  Sunday: "Chủ nhật",
+};
+
 export default function ExpertIncomeFilter() {
   const [revenueTimeframe, setRevenueTimeframe] =
     useState<RevenueTimeframe>("year");
+
+  const { data: expertRevenueData } = useGetRevenueDetailsForExpertQuery({
+    filterType: timeframeFilters[revenueTimeframe],
+  });
 
   const chartConfig = {
     total: {
@@ -82,14 +67,48 @@ export default function ExpertIncomeFilter() {
     },
   };
 
-  const currentData = revenueData[revenueTimeframe];
+  const currentData = useMemo(() => {
+    if (!expertRevenueData) return [];
 
-  const trendPercentage = useMemo(() => {
-    if (currentData.length < 2) return 0;
-    const lastValue = currentData[currentData.length - 1].total;
-    const previousValue = currentData[currentData.length - 2].total;
-    return ((lastValue - previousValue) / previousValue) * 100;
-  }, [currentData]);
+    if (timeframeFilters[revenueTimeframe] === "month") {
+      const months = Array(12)
+        .fill(0)
+        .map((_, index) => ({
+          name: `Tháng ${index + 1}`,
+          total:
+            expertRevenueData.payload.data.find(
+              (item: any) => item.month === index + 1
+            )?.totalRevenue || 0,
+        }));
+      return months;
+    }
+
+    if (timeframeFilters[revenueTimeframe] === "week") {
+      const weeks = Array(4)
+        .fill(0)
+        .map((_, index) => ({
+          name: `Tuần ${index + 1}`,
+          total:
+            expertRevenueData.payload.data.find(
+              (item: any) => item.weekOfMonth === index + 1
+            )?.totalRevenue || 0,
+        }));
+      return weeks;
+    }
+
+    if (timeframeFilters[revenueTimeframe] === "day") {
+      const days = Object.keys(dayOfWeekLabels).map((day: string) => ({
+        name: dayOfWeekLabels[day as keyof typeof dayOfWeekLabels],
+        total:
+          expertRevenueData.payload.data.find(
+            (item: any) => item.dayOfWeek === day
+          )?.totalRevenue || 0,
+      }));
+      return days;
+    }
+
+    return [];
+  }, [expertRevenueData, revenueTimeframe]);
 
   return (
     <Card className="w-full max-w-[550px] sm:max-w-[800px] lg:max-w-[700px]">
@@ -163,27 +182,11 @@ export default function ExpertIncomeFilter() {
       <CardFooter className="flex flex-col sm:flex-row justify-between items-center">
         <div className="text-sm text-muted-foreground mb-2 sm:mb-0">
           Tổng doanh thu:{" "}
-          {currentData
-            .reduce((sum, item) => sum + item.total, 0)
-            .toLocaleString()}{" "}
-          đ
-        </div>
-        <div
-          className={`flex items-center gap-1 ${
-            trendPercentage >= 0 ? "text-green-600" : "text-red-600"
-          }`}
-        >
-          {trendPercentage >= 0 ? (
-            <div className="flex items-center">
-              Tăng <TrendingUp className="h-4 w-4 ml-2" />
-            </div>
-          ) : (
-            <div className="flex items-center">
-              Giảm <TrendingDown className="h-4 w-4 ml-2" />
-            </div>
-          )}
-          <span className="text-sm font-medium">
-            {Math.abs(trendPercentage).toFixed(1)}%
+          <span className="font-semibold text-green-500">
+            {currentData
+              .reduce((sum, item) => sum + item.total, 0)
+              .toLocaleString()}{" "}
+            đ
           </span>
         </div>
       </CardFooter>

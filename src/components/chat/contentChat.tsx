@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Message } from "@/hooks/use-web-socket";
 import { formatTime } from "@/lib/utils";
+import EmojiPicker from "@emoji-mart/react";
+
+import data from "@emoji-mart/data";
 import { SendHorizontal, Smile as Emoji } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -24,6 +27,7 @@ export default function ContentChat({
 }: ContentChatProps) {
   const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -135,7 +139,27 @@ export default function ContentChat({
                 }
               }}
             />
-            <Emoji className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Emoji
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground"
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            />
+            {showEmojiPicker && typeof window !== "undefined" && (
+              <div className="absolute bottom-full right-0 z-50">
+                <EmojiPicker
+                  data={data}
+                  onEmojiSelect={(emoji: any) => {
+                    setInputMessage((prev) => prev + emoji.native);
+                    setShowEmojiPicker(false);
+                  }}
+                  theme="light"
+                  previewPosition="none"
+                  skinTonePosition="none"
+                  autoFocus={true}
+                  locale="vi"
+                  defaultSkinTone="neutral"
+                />
+              </div>
+            )}
           </div>
           <Button
             variant="ghost"

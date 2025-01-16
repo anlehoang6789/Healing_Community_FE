@@ -218,6 +218,7 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     cell: function Actions({ row }) {
       const approveOrRejectReportPostMutation =
         useApproveOrRejectReportPostMutation();
+      if (row.original.isApprove !== null) return null;
 
       const handleApproveReportPost = async () => {
         if (approveOrRejectReportPostMutation.isPending) return;

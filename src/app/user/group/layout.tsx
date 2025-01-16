@@ -64,9 +64,10 @@ export default function GroupLayout({
     }
   }, [groupJoinList, groupIdFromPath]);
 
-  const joinGroupMutation = useJoinGroupMutation(
-    userIdFromLocalStorage as string
-  );
+  const joinGroupMutation = useJoinGroupMutation({
+    userId: userIdFromLocalStorage as string,
+    groupId: groupIdFromPath,
+  });
   const handleJoinGroup = async (groupId: string) => {
     try {
       const result = await joinGroupMutation.mutateAsync({ groupId });
@@ -74,15 +75,22 @@ export default function GroupLayout({
         description: result.payload.message || "Tham gia nhóm thành công!",
         variant: "success",
       });
-      setIsMemberState(true);
+      // setIsMemberState(true);
+      if (
+        result.payload.message !==
+        "Yêu cầu gia nhập đã được gửi. Chờ phê duyệt từ quản trị viên."
+      ) {
+        setIsMemberState(true);
+      }
     } catch (error) {
       handleErrorApi({ error });
     }
   };
 
-  const leaveGroupMutation = useLeaveGroupByGroupIdMutation(
-    userIdFromLocalStorage as string
-  );
+  const leaveGroupMutation = useLeaveGroupByGroupIdMutation({
+    userId: userIdFromLocalStorage as string,
+    groupId: groupIdFromPath,
+  });
   const handleLeaveGroup = async (groupId: string) => {
     try {
       const result = await leaveGroupMutation.mutateAsync({ groupId });

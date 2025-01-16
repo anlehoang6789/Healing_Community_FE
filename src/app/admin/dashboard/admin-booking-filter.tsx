@@ -1,6 +1,5 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   Bar,
@@ -30,7 +29,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { useGetRevenueDetailsForExpertQuery } from "@/queries/usePayment";
+import { useGetRevenueDetailsForAdminQuery } from "@/queries/usePayment";
 
 type RevenueTimeframe = "year" | "month" | "week";
 
@@ -56,11 +55,11 @@ const dayOfWeekLabels = {
   Sunday: "Chủ nhật",
 };
 
-export default function ExpertBookingFilter() {
+export default function AdminBookingFilter() {
   const [bookingsTimeframe, setBookingsTimeframe] =
     useState<RevenueTimeframe>("year");
 
-  const { data: expertRevenueData } = useGetRevenueDetailsForExpertQuery({
+  const { data: expertRevenueData } = useGetRevenueDetailsForAdminQuery({
     filterType: timeframeFilters[bookingsTimeframe],
   });
 

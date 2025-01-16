@@ -29,6 +29,7 @@ export const useGetUserProfileQuery = (userId: string, enabled?: boolean) => {
     queryKey: ["userProfile", userId],
     queryFn: () => accountApiRequest.getUserProfile(userId),
     enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -55,6 +56,23 @@ export const useGetFollowingQuery = (userId: string) => {
   return useQuery({
     queryKey: ["following", userId],
     queryFn: () => accountApiRequest.getFollowing(userId),
+    refetchOnWindowFocus: true,
+  });
+};
+
+export const useGetFollowerCountQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["followerCount", userId],
+    queryFn: () => accountApiRequest.getFollowerCount(userId),
+    refetchOnWindowFocus: true,
+  });
+};
+
+export const useGetFollowingCountQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["followingCount", userId],
+    queryFn: () => accountApiRequest.getFollowingCount(userId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -65,6 +83,14 @@ export const useFollowUserMutation = (userId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["following", userId],
+        exact: true,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["followerCount", userId],
+        exact: true,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["followingCount", userId],
         exact: true,
       });
     },
@@ -80,6 +106,14 @@ export const useUnfollowUserMutation = (userId: string) => {
         queryKey: ["following", userId],
         exact: true,
       });
+      queryClient.invalidateQueries({
+        queryKey: ["followerCount", userId],
+        exact: true,
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["followingCount", userId],
+        exact: true,
+      });
     },
   });
 };
@@ -88,6 +122,7 @@ export const useGetPaymentInfoQuery = () => {
   return useQuery({
     queryKey: ["paymentInfo"],
     queryFn: accountApiRequest.getPaymentInfo,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -100,5 +135,13 @@ export const useUpdatePaymentInfoMutation = () => {
         queryKey: ["paymentInfo"],
       });
     },
+  });
+};
+
+export const useGetRegistrationQuery = (userId: string) => {
+  return useQuery({
+    queryKey: ["registration", userId],
+    queryFn: () => accountApiRequest.getRegistrationCount(userId),
+    refetchOnWindowFocus: true,
   });
 };

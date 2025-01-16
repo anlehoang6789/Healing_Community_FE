@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import { useGetDass21ResultQuery } from "@/queries/useQuizz";
+import { useGetMBTIResultQuery } from "@/queries/useQuizz";
 
-export default function Solution() {
-  const { data: quizResult } = useGetDass21ResultQuery();
+export default function SolutionMBTI() {
+  const { data: quizResult } = useGetMBTIResultQuery();
 
   // Hàm phân tách và render các tác động ngắn hạn
   const renderLongTermEffects = (effects: any[]) => {

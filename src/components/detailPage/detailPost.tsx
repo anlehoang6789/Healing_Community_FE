@@ -23,6 +23,7 @@ import { useTheme } from "next-themes";
 import {
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
+  useGetAllCategoryQuery,
   useGetCommentCountQuery,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
@@ -42,8 +43,10 @@ import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import ShareCount from "@/components/shareSection/shareCount";
 import ReportPostSection from "@/components/reportSection/report-post-section";
+import { useAppContext } from "@/components/app-provider";
 
 export default function DetailPost() {
+  const { isAuth } = useAppContext();
   const { theme } = useTheme();
   const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
@@ -83,6 +86,37 @@ export default function DetailPost() {
   const { data: commentsData } = useGetCommentsByPostIdQuery(
     postIdFromUrl as string
   );
+
+  const { data: categoryData } = useGetAllCategoryQuery();
+
+  const categoryColors: { [key: string]: string } = {
+    "01JCZM72A9K5176BQT82T821V1":
+      "bg-gradient-to-r from-[#FAA6FF] to-[#E90000] ",
+    "01JCZM8JW9YQC9TGBM8Q8TJ14C":
+      "bg-gradient-to-r from-[#9ceda7] to-[#18A5A7] ",
+    "01JCZM90KFECJ8EV9BETF6X4EA":
+      "bg-gradient-to-r from-[#f6d365] to-[#fda085] ",
+    "01JCZM99K9SC97S16ZG64APWF2":
+      "bg-gradient-to-r from-[#30cfd0] to-[#330867] ",
+    "01JFSFQ92FBQXYXSTPDQA45KFR":
+      "bg-gradient-to-r from-[#0250c5] to-[#d43f8d] ",
+  };
+
+  const categoryId = postById?.payload?.data?.categoryId;
+
+  // Lấy tên và màu của category
+  const category = categoryData?.payload?.data
+    ? categoryData.payload.data.find(
+        (cat: { categoryId: string; name: string }) =>
+          cat.categoryId === categoryId
+      )
+    : null;
+
+  const categoryName = category?.name || "Không xác định";
+  const categoryColor =
+    categoryId && categoryColors[categoryId]
+      ? categoryColors[categoryId]
+      : "bg-gray-500";
 
   const { mutate: createComment } = useCreateCommentMutation();
 
@@ -219,32 +253,46 @@ export default function DetailPost() {
         <span className="text-xs font-semibold text-muted-foreground">
           {commentCount?.payload.data?.countTotalComment || 0}
         </span>
-        <ShareSection postId={postIdFromUrl}>
-          <div className="flex flex-col items-center">
-            <Button variant="ghost" size="icon" className="rounded-full mt-5">
-              <Share2 className="h-8 w-8 text-green-500" />
+        {isAuth && (
+          <>
+            <ShareSection postId={postIdFromUrl}>
+              <div className="flex flex-col items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full mt-5"
+                >
+                  <Share2 className="h-8 w-8 text-green-500" />
+                </Button>
+                <ShareCount postId={postIdFromUrl as string} showText={false} />
+              </div>
+            </ShareSection>
+            <BookmarkDialog postId={postIdFromUrl as string} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full mt-7"
+              onClick={openReportPostDialog}
+            >
+              <Flag className="h-8 w-8 text-red-500" />
             </Button>
-            <ShareCount postId={postIdFromUrl as string} showText={false} />
-          </div>
-        </ShareSection>
-        <BookmarkDialog postId={postIdFromUrl as string} />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full mt-7"
-          onClick={openReportPostDialog}
-        >
-          <Flag className="h-8 w-8 text-red-500" />
-        </Button>
-        <ReportPostSection
-          postId={postIdFromUrl as string}
-          isOpen={isReportDialogOpen}
-          setIsOpen={setIsReportDialogOpen}
-        />
+            <ReportPostSection
+              postId={postIdFromUrl as string}
+              isOpen={isReportDialogOpen}
+              setIsOpen={setIsReportDialogOpen}
+            />
+          </>
+        )}
       </div>
 
       {/* Main content */}
-      <div className="lg:ml-16 w-auto mx-auto border shadow-md rounded-md overflow-hidden">
+      <div className="lg:ml-16 w-auto mx-auto border shadow-md rounded-md overflow-hidden relative">
+        {/* Category */}
+        <div
+          className={`absolute top-[450px] right-0 text-base text-gray-100 font-semibold px-2 py-1   ${categoryColor}`}
+        >
+          {categoryName}
+        </div>
         {postById?.payload.data && (
           <Image
             src={
@@ -378,7 +426,10 @@ export default function DetailPost() {
             <Link href="#">
               <Avatar className="w-9 h-9 border-2 border-rose-300">
                 <AvatarImage
-                  src={imageComment.data?.payload.data.profilePicture}
+                  src={
+                    imageComment.data?.payload.data.profilePicture ||
+                    "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                  }
                   alt={
                     imageComment.data?.payload.data.fullName ||
                     imageComment.data?.payload.data.userName

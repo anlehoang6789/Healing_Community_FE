@@ -343,7 +343,7 @@ export default function CommentSection({
           <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
             {isExpert
               ? expertProfile?.payload.data.fullname ||
-                expertProfile?.payload.data.email
+                userProfile?.payload.data.userName
               : userProfile?.payload.data.fullName ||
                 userProfile?.payload.data.userName ||
                 "Anonymous"}

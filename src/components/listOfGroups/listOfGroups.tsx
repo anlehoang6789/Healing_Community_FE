@@ -44,9 +44,11 @@ export default function ListOfGroups() {
   const groups = response?.payload?.data || [];
   const [userId, setUserId] = useState<string | null>(null);
 
-  const joinGroupMutation = useJoinGroupMutation(userId as string);
+  const joinGroupMutation = useJoinGroupMutation({ userId: userId as string });
 
-  const leaveGroupMutation = useLeaveGroupByGroupIdMutation(userId as string);
+  const leaveGroupMutation = useLeaveGroupByGroupIdMutation({
+    userId: userId as string,
+  });
 
   useEffect(() => {
     const storedUserId = getUserIdFromLocalStorage();
