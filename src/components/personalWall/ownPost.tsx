@@ -27,6 +27,7 @@ import {
   useCreateSharedCommentMutation,
   useDeleteCommentByCommnetIdMutation,
   useDeletePostByPostIdMutation,
+  useGetAllCategoryQuery,
   useGetCommentCountQuery,
   useGetPostByUserIdQuery,
   useGetSharedPostByUserIdQuery,
@@ -109,6 +110,8 @@ export default function OwnPost() {
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
   const { data } = useGetPostByUserIdQuery(userId as string);
+
+  const { data: categoryData } = useGetAllCategoryQuery();
 
   const { data: sharedPostsData } = useGetSharedPostByUserIdQuery(
     userId as string
@@ -713,11 +716,43 @@ export default function OwnPost() {
               const shouldRenderDropdown = userIdFromLocalStorage === userId;
               const isPostPublic = post.status === 0;
 
+              // màu của category
+              const categoryColors: { [key: string]: string } = {
+                "01JCZM72A9K5176BQT82T821V1":
+                  "bg-gradient-to-r from-[#FAA6FF] to-[#E90000] ",
+                "01JCZM8JW9YQC9TGBM8Q8TJ14C":
+                  "bg-gradient-to-r from-[#9ceda7] to-[#18A5A7] ",
+                "01JCZM90KFECJ8EV9BETF6X4EA":
+                  "bg-gradient-to-r from-[#f6d365] to-[#fda085] ",
+                "01JCZM99K9SC97S16ZG64APWF2":
+                  "bg-gradient-to-r from-[#30cfd0] to-[#330867] ",
+                "01JFSFQ92FBQXYXSTPDQA45KFR":
+                  "bg-gradient-to-r from-[#0250c5] to-[#d43f8d] ",
+              };
+
+              // Lấy tên và màu của category
+              const category = categoryData?.payload?.data
+                ? categoryData.payload.data.find(
+                    (cat: { categoryId: string; name: string }) =>
+                      cat.categoryId === post.categoryId
+                  )
+                : null;
+
+              const categoryName = category?.name || "Không xác định";
+              const categoryColor =
+                categoryColors[post.categoryId] || "bg-gray-500";
+
               return (
                 <div
                   key={post.postId}
-                  className=" rounded-lg shadow-lg border mb-6"
+                  className=" rounded-lg shadow-lg border mb-6 relative"
                 >
+                  {/* category */}
+                  <div
+                    className={`absolute top-[250px] right-0 text-sm text-gray-100 font-semibold px-2 py-1  ${categoryColor}`}
+                  >
+                    {categoryName}
+                  </div>
                   <Image
                     src={post.coverImgUrl}
                     alt="Banner"
@@ -958,6 +993,32 @@ export default function OwnPost() {
               const originalPostUserProfile =
                 sharedPostUserProfiles[sharedPost.shareId];
 
+              // màu của category
+              const categoryColors: { [key: string]: string } = {
+                "01JCZM72A9K5176BQT82T821V1":
+                  "bg-gradient-to-r from-[#FAA6FF] to-[#E90000] ",
+                "01JCZM8JW9YQC9TGBM8Q8TJ14C":
+                  "bg-gradient-to-r from-[#9ceda7] to-[#18A5A7] ",
+                "01JCZM90KFECJ8EV9BETF6X4EA":
+                  "bg-gradient-to-r from-[#f6d365] to-[#fda085] ",
+                "01JCZM99K9SC97S16ZG64APWF2":
+                  "bg-gradient-to-r from-[#30cfd0] to-[#330867] ",
+                "01JFSFQ92FBQXYXSTPDQA45KFR":
+                  "bg-gradient-to-r from-[#0250c5] to-[#d43f8d] ",
+              };
+
+              // Lấy tên và màu của category
+              const category = categoryData?.payload?.data
+                ? categoryData.payload.data.find(
+                    (cat: { categoryId: string; name: string }) =>
+                      cat.categoryId === sharedPost.categoryId
+                  )
+                : null;
+
+              const categoryName = category?.name || "Không xác định";
+              const categoryColor =
+                categoryColors[sharedPost.categoryId] || "bg-gray-500";
+
               return (
                 <div
                   key={sharedPost.shareId}
@@ -989,12 +1050,21 @@ export default function OwnPost() {
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-                        {userById?.payload.data.fullName ||
-                          userById?.payload.data.userName ||
-                          expertProfile?.payload.data.fullname ||
-                          "Anonymous"}
-                      </h2>
+                      <div className="flex items-center space-x-2">
+                        <h2 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                          {isExpert
+                            ? expertProfile?.payload.data.fullname ||
+                              userById?.payload.data.userName
+                            : userById?.payload.data.fullName ||
+                              userById?.payload.data.userName ||
+                              "Anonymous"}
+                        </h2>
+                        {isExpert && (
+                          <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
+                            Chuyên gia
+                          </div>
+                        )}
+                      </div>
                       <div className="flex items-center gap-2">
                         <p className="text-sm text-gray-500">
                           {formatDateTime(sharedPost.shareAt)}
@@ -1073,7 +1143,12 @@ export default function OwnPost() {
 
                   {/* Bài viết gốc */}
                   <Link href={`/content/${sharedPost.postId}`}>
-                    <Card className="mx-4 mb-4 border rounded-lg overflow-hidden">
+                    <Card className="mx-4 mb-4 border rounded-lg overflow-hidden relative">
+                      <div
+                        className={`absolute top-o right-0 text-sm text-gray-100 font-semibold px-2 py-1   ${categoryColor}`}
+                      >
+                        {categoryName}
+                      </div>
                       <div className="flex items-center gap-4 p-4">
                         <Avatar className="w-10 h-10 border-2 border-rose-300">
                           <AvatarImage

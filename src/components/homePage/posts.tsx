@@ -6,6 +6,7 @@ import { Bookmark, Ellipsis, Flag, Globe, LockKeyhole } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import {
   useAddUserReferenceMutation,
+  useGetAllCategoryQuery,
   useGetHomePageLazyLoadQuery,
 } from "@/queries/usePost";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
@@ -113,6 +114,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
         {/* Ngày tạo acc người dùng */}
         <div className="flex items-center gap-2">
           <p className="text-sm text-gray-500">{formatDateTime(postDate)}</p>
+
           <p className="text-gray-500">
             {isPostPublic ? (
               <Globe className="h-4 w-4" />
@@ -180,6 +182,7 @@ export default function Posts() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
     useGetHomePageLazyLoadQuery(pageSizes);
   const router = useRouter();
+  const { data: categoryData } = useGetAllCategoryQuery();
 
   //hành vi người dùng
   const { mutateAsync } = useAddUserReferenceMutation();
@@ -271,14 +274,46 @@ export default function Posts() {
             ? article.description.slice(0, 300) + "..."
             : article.description;
         const isPostPublic = article.status === 0;
+
+        const categoryColors: { [key: string]: string } = {
+          "01JCZM72A9K5176BQT82T821V1":
+            "bg-gradient-to-r from-[#FAA6FF] to-[#E90000] ",
+          "01JCZM8JW9YQC9TGBM8Q8TJ14C":
+            "bg-gradient-to-r from-[#9ceda7] to-[#18A5A7] ",
+          "01JCZM90KFECJ8EV9BETF6X4EA":
+            "bg-gradient-to-r from-[#f6d365] to-[#fda085] ",
+          "01JCZM99K9SC97S16ZG64APWF2":
+            "bg-gradient-to-r from-[#30cfd0] to-[#330867] ",
+          "01JFSFQ92FBQXYXSTPDQA45KFR":
+            "bg-gradient-to-r from-[#0250c5] to-[#d43f8d] ",
+        };
+
+        // Lấy tên và màu của category
+        const category =
+          !isLoading && categoryData?.payload?.data
+            ? categoryData.payload.data.find(
+                (cat: { categoryId: string; name: string }) =>
+                  cat.categoryId === article.categoryId
+              )
+            : null;
+
+        const categoryName = category?.name || "Không xác định";
+        const categoryColor =
+          categoryColors[article.categoryId] || "bg-gray-500";
         return (
           <div
             key={article.postId}
-            className="p-4 rounded-lg shadow-lg border mb-6"
+            className="p-4 rounded-lg shadow-lg border mb-6 relative"
             onClick={(e) =>
               handlePostClick(article.postId, article.categoryId, e)
             }
           >
+            {/* category */}
+            <div
+              className={`absolute top-0 right-0 text-sm text-gray-100 font-semibold px-2 py-1 rounded-lg ${categoryColor}`}
+            >
+              {categoryName}
+            </div>
             <UserProfile
               userId={article.userId}
               postDate={article.createAt}
