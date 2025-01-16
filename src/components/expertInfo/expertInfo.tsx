@@ -93,6 +93,35 @@ export default function ExpertProfile() {
     {} as Record<string, string>
   );
 
+  const certificateImages = {
+    "01JGCC46KCD84GRNKV9789GKMJ":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2FBangcunhan.png?alt=media&token=c43246b0-4146-4849-baf9-a2dbead19541",
+    "01JGCC65AF3ZQ6E6MT5112VAY3":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2FBangcunhan.png?alt=media&token=c43246b0-4146-4849-baf9-a2dbead19541",
+    "01JGCC6B99E5NJ0EG7REMGJW9W":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2FBangtiensi.png?alt=media&token=aa4d4118-b278-402a-b16a-3481442427bb",
+    "01JGCC6K4S44TQBDSW9G1XQCX3":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2FScreenshot%202025-01-16%20132756.png?alt=media&token=2f75a882-3298-43c5-acb0-332246859305",
+    "01JGCC726DNCJCQDXAJQXS63VD":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2FCCCD.png?alt=media&token=22a781df-2321-4344-bff1-804d79033f45",
+    "01JGCC79VX3NH6ZVKA1KSG6D41":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2FHinhthe.png?alt=media&token=2c75e758-77ec-49b4-8c81-75a490f73756",
+    "01JGCC7GS0CYJQ5TGN90Z0TJYZ":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2FAm-nhac-chua-benh-chua-benh-tram-cam.jpg?alt=media&token=976b83e3-a439-4bf0-8d2f-b659407ac7de",
+    "01JGCC7QVP5VAJQDVDAS1416TS":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2Fhoi-tho-trong-yoga-chua-lanh-co-the-jpg.webp?alt=media&token=95f47195-1936-4747-8966-06c029f476f1",
+    "01JGCC7YMEQ0JT5GSWBS9MTX0F":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2Fpositive-psychology-1.webp?alt=media&token=51b193e7-2a76-449a-bcbb-696938b5e80a",
+    "01JGCC85MWRTAGS2GM5VQB6KZG":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2Fyoga.png?alt=media&token=880cd851-02a0-4b10-9929-5813817614b1",
+    "01JGCC8CEP8M8X940RPPE17K0M":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2F1-uk4yrucg-yewyea3f_tnga.webp?alt=media&token=9458ba55-6a8f-482d-bb29-071bf12d76fd",
+    "01JGCC8W6HD0FGFVJG6RVC6QMZ":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2Fchungchikhac.jpg?alt=media&token=5550c9da-e166-447f-887d-a9b86e628c41",
+    "01JGCC6VGQE7HJZJ333Y7N6WYZ":
+      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/certificates%2Fchua-lanh-avatar.jpg?alt=media&token=11fb5a5c-c74b-4a62-ae7f-5de7793855c7",
+  };
+
   return (
     <div className="container mx-auto mb-4">
       <Card>
@@ -170,6 +199,12 @@ export default function ExpertProfile() {
                         certificateTypeMap[certificate.certificateTypeId] ||
                         "Chứng chỉ chưa xác định";
 
+                      const certificateImageUrl =
+                        certificateImages[
+                          certificate.certificateTypeId as keyof typeof certificateImages
+                        ] ||
+                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Fch%E1%BB%A9ngchi3.png?alt=media&token=ba977637-d658-4d41-9eb0-c78bf9397356";
+
                       return (
                         <Card key={certificate.certificateId}>
                           <CardContent className="flex flex-col items-center pt-4">
@@ -180,7 +215,7 @@ export default function ExpertProfile() {
                               className="mb-2"
                             >
                               <Image
-                                src="https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/logo%2Fch%E1%BB%A9ngchi3.png?alt=media&token=ba977637-d658-4d41-9eb0-c78bf9397356"
+                                src={certificateImageUrl}
                                 alt={`Chứng chỉ ${certificateTypeName}`}
                                 width={300}
                                 height={300}
