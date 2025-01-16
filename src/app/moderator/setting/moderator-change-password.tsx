@@ -17,8 +17,16 @@ import {
   ChangePasswordBody,
   ChangePasswordBodyType,
 } from "@/schemaValidations/account.schema";
+import { useState } from "react";
+import { useChangePasswordUserMutation } from "@/queries/useAccount";
+import { toast } from "@/hooks/use-toast";
+import { handleErrorApi } from "@/lib/utils";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function ModeratorChangePassword() {
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const form = useForm<ChangePasswordBodyType>({
     resolver: zodResolver(ChangePasswordBody),
     defaultValues: {
@@ -28,13 +36,30 @@ export default function ModeratorChangePassword() {
     },
   });
 
+  const changePasswordUserMutation = useChangePasswordUserMutation();
+
+  const onSubmit = async (data: ChangePasswordBodyType) => {
+    try {
+      const result = await changePasswordUserMutation.mutateAsync(data);
+      form.reset();
+      toast({
+        title: result.payload.message,
+        description: "Vui lòng đăng nhập lại với mật khẩu mới",
+        variant: "success",
+      });
+    } catch (error) {
+      handleErrorApi({ error, setError: form.setError });
+    }
+  };
+
   return (
     <Form {...form}>
       <form
-        noValidate
         className="grid auto-rows-max items-start gap-4 md:gap-8"
-        // onSubmit={form.handleSubmit(onSubmit, (err) => console.log(err))}
-        // onReset={resetForm}
+        noValidate
+        onSubmit={form.handleSubmit(onSubmit, (errors) => {
+          console.warn(errors);
+        })}
       >
         <Card className="overflow-hidden" x-chunk="dashboard-07-chunk-4">
           <CardHeader>
@@ -53,14 +78,39 @@ export default function ModeratorChangePassword() {
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid gap-3 text-muted-foreground">
-                      <Label htmlFor="oldPassword">Mật khẩu cũ</Label>
-                      <Input
-                        id="oldPassword"
-                        type="password"
-                        className="w-full"
-                        autoComplete="off"
-                        {...field}
-                      />
+                      <Label htmlFor="oldPassword">Mật khẩu hiện tại</Label>
+                      <div className="relative">
+                        <Input
+                          id="oldPassword"
+                          type={showCurrentPassword ? "text" : "password"}
+                          required
+                          {...field}
+                          className="w-full"
+                          autoComplete="current-password"
+                          placeholder="Mk@12345"
+                          {...field}
+                        />
+                        <span
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
+                          className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+                        >
+                          {showCurrentPassword ? (
+                            <Eye
+                              size={"16px"}
+                              strokeWidth="0.5px"
+                              className="text-black"
+                            />
+                          ) : (
+                            <EyeOff
+                              size={"16px"}
+                              strokeWidth="0.5px"
+                              className="text-black"
+                            />
+                          )}
+                        </span>
+                      </div>
                       <FormMessage />
                     </div>
                   </FormItem>
@@ -73,13 +123,35 @@ export default function ModeratorChangePassword() {
                   <FormItem>
                     <div className="grid gap-3 text-muted-foreground">
                       <Label htmlFor="newPassword">Mật khẩu mới</Label>
-                      <Input
-                        id="newPassword"
-                        type="password"
-                        className="w-full"
-                        autoComplete="off"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          required
+                          {...field}
+                          autoComplete="new-password"
+                          placeholder="Mk@12345"
+                          className="w-full"
+                        />
+                        <span
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+                        >
+                          {showNewPassword ? (
+                            <Eye
+                              size={"16px"}
+                              strokeWidth="0.5px"
+                              className="text-black"
+                            />
+                          ) : (
+                            <EyeOff
+                              size={"16px"}
+                              strokeWidth="0.5px"
+                              className="text-black"
+                            />
+                          )}
+                        </span>
+                      </div>
                       <FormMessage />
                     </div>
                   </FormItem>
@@ -94,13 +166,37 @@ export default function ModeratorChangePassword() {
                       <Label htmlFor="confirmPassword">
                         Nhập lại mật khẩu mới
                       </Label>
-                      <Input
-                        id="confirmPassword"
-                        type="password"
-                        className="w-full"
-                        autoComplete="off"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showConfirmNewPassword ? "text" : "password"}
+                          required
+                          {...field}
+                          autoComplete="new-password"
+                          placeholder="Mk@12345"
+                          className="w-full"
+                        />
+                        <span
+                          onClick={() =>
+                            setShowConfirmNewPassword(!showConfirmNewPassword)
+                          }
+                          className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+                        >
+                          {showConfirmNewPassword ? (
+                            <Eye
+                              size={"16px"}
+                              strokeWidth="0.5px"
+                              className="text-black"
+                            />
+                          ) : (
+                            <EyeOff
+                              size={"16px"}
+                              strokeWidth="0.5px"
+                              className="text-black"
+                            />
+                          )}
+                        </span>
+                      </div>
                       <FormMessage />
                     </div>
                   </FormItem>

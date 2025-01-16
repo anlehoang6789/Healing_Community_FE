@@ -12,17 +12,17 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useAppContext } from "@/components/app-provider";
 import { useLogoutMutation } from "@/queries/useAuth";
-import { handleErrorApi } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-
-const account = {
-  name: "Hoàng An",
-  avatar: "https://i.pravatar.cc/150",
-};
+import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 export default function ModeratorAvatar() {
   const router = useRouter();
   const { setIsAuth } = useAppContext();
+
+  const userId = getUserIdFromLocalStorage();
+
+  const { data } = useGetUserProfileQuery(userId as string);
 
   const logoutMutation = useLogoutMutation();
   const handleLogout = async () => {
@@ -45,17 +45,17 @@ export default function ModeratorAvatar() {
         >
           <Avatar>
             <AvatarImage
-              src={account?.avatar ?? undefined}
-              alt={account?.name}
+              src={data?.payload.data.profilePicture}
+              alt={data?.payload.data.fullName}
             />
             <AvatarFallback>
-              {account?.name.slice(0, 2).toUpperCase()}
+              {data?.payload.data.fullName.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>{account?.name}</DropdownMenuLabel>
+        <DropdownMenuLabel>{data?.payload.data.fullName}</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-primary" />
         <DropdownMenuItem asChild>
           <Link href={"/moderator/setting"} className="cursor-pointer">
