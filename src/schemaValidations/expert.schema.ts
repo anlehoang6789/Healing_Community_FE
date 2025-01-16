@@ -457,3 +457,19 @@ export type ExpertActivityReportDashboardListResType = z.TypeOf<
   typeof ExpertActivityReportDashboardListRes
 >;
 //=======================================================
+
+export const GetRatingForUserSchema = z.object({
+  rating: z.number(),
+  comment: z.string(),
+});
+
+export type GetRatingForUserType = z.TypeOf<typeof GetRatingForUserSchema>;
+
+export const GetRatingForUserResponseSchema = z.object({
+  data: GetRatingForUserSchema,
+  message: z.string(),
+});
+
+export type GetRatingForUserResponseType = z.TypeOf<
+  typeof GetRatingForUserResponseSchema
+>;

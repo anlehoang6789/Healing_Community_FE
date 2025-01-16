@@ -19,6 +19,7 @@ import {
   GetExpertListResponseType,
   GetExpertProfileResType,
   GetExpertRatingResponseType,
+  GetRatingForUserResponseType,
   RateExpertBodyType,
   RejectCertificateType,
   UpdateExpertExperienceBodyType,
@@ -133,6 +134,10 @@ const expertApiRequest = {
   getActivityReportDashboard: () =>
     http.get<ExpertActivityReportDashboardListResType>(
       "expert/api/appointment/activity-report"
+    ),
+  getExpertRatingForUser: (appointmentId: string) =>
+    http.get<GetRatingForUserResponseType>(
+      `expert/api/appointment/get-rating-user/${appointmentId}`
     ),
 };
 
