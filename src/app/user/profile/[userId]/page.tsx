@@ -1,7 +1,7 @@
 import FollowedUser from "@/components/personalWall/followedUser";
 import JoinedGroup from "@/components/personalWall/joinedGroup";
 import OwnPost from "@/components/personalWall/ownPost";
-import PostTopics from "@/components/personalWall/postTopics";
+// import PostTopics from "@/components/personalWall/postTopics";
 import React from "react";
 
 export default function PersonalWall() {
@@ -16,7 +16,7 @@ export default function PersonalWall() {
         </div>
 
         <div className="md:col-span-2 col-span-3">
-          <PostTopics />
+          {/* <PostTopics /> */}
           <div className="mt-4">
             <OwnPost />
           </div>

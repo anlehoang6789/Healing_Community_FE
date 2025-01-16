@@ -2,6 +2,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Role } from "@/constants/type";
 import { toast } from "@/hooks/use-toast";
 import {
   formatDate,
@@ -14,6 +15,8 @@ import {
   useGetUserProfileQuery,
   useUnfollowUserMutation,
 } from "@/queries/useAccount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { useGetPostByPostIdQuery } from "@/queries/usePost";
 import {
   Mail,
@@ -46,6 +49,14 @@ export default function ProfileCard() {
     postId: postIdFromUrl as string,
     enabled: true,
   });
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    postById?.payload.data.userId as string
+  );
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    postById?.payload.data.userId as string,
+    isExpert && !!postById?.payload.data.userId
+  );
   const { data: userById } = useGetUserProfileQuery(
     postById?.payload.data.userId as string
   );
@@ -156,16 +167,26 @@ export default function ProfileCard() {
           <Avatar className="w-12 h-12 border-2 border-rose-300">
             <AvatarImage
               src={
-                userById?.payload.data.profilePicture ||
-                "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                isExpert
+                  ? expertProfile?.payload.data.profileImageUrl
+                  : userById?.payload.data.profilePicture ||
+                    "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
               }
               alt={userById?.payload.data.userName}
             />
-            <AvatarFallback>{userById?.payload.data.userName}</AvatarFallback>
+            <AvatarFallback>
+              {isExpert
+                ? expertProfile?.payload.data.fullname ||
+                  expertProfile?.payload.data.email
+                : userById?.payload.data.userName}
+            </AvatarFallback>
           </Avatar>
         </Link>
         <h2 className="lg:text-2xl md:text-4xl sm:text-4xl text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
-          {userById?.payload.data.fullName || userById?.payload.data.userName}
+          {isExpert
+            ? expertProfile?.payload.data.fullname ||
+              expertProfile?.payload.data.email
+            : userById?.payload.data.userName}
         </h2>
       </CardHeader>
       <div className="flex justify-center">
@@ -180,13 +201,17 @@ export default function ProfileCard() {
       </div>
       <CardContent>
         <p className="flex justify-center text-muted-foreground mb-4 lg:text-base md:text-2xl sm:text-2xl">
-          {userById?.payload.data.descrtiption}
+          {isExpert
+            ? expertProfile?.payload.data.bio
+            : userById?.payload.data.descrtiption}
         </p>
         <div className="space-y-2 text-sm">
           <div className="flex items-center gap-2">
             <Mail size={16} className="text-gray-400" />
             <span className="lg:text-sm md:text-xl sm:text-xl">
-              {userById?.payload.data.email}
+              {isExpert
+                ? expertProfile?.payload.data.email
+                : userById?.payload.data.email}
             </span>
           </div>
           <div className="flex items-center gap-2">

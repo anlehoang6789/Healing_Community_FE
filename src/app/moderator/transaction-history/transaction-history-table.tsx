@@ -171,6 +171,8 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
         4: "Đã hủy thanh toán",
         5: "Đã hoàn tiền",
         6: "Chờ xử lý báo cáo",
+        7: "Đã xử lý báo cáo",
+        8: "Báo cáo không hợp lệ",
       };
       const statusLabel = statusMapping[status] || "Không xác định";
 
@@ -182,6 +184,8 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
         4: "bg-gray-100 text-gray-800 text-xs",
         5: "bg-gray-100 text-gray-800 text-xs",
         6: "bg-yellow-100 text-yellow-800 text-xs",
+        7: "bg-green-100 text-green-800 text-xs",
+        8: "bg-red-100 text-red-800 text-xs",
       };
 
       return (
@@ -249,9 +253,11 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
       const status: number = row.original.appointmentStatus;
       const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
       const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
+      const statusPayment: number = row.original.paymemtStatus;
 
       // Status la 0, 1, 4, 5, 6 của trạng thái lịch hẹn thi khong hien thi nut
-      if ([0, 1, 4, 5, 6].includes(status)) return null;
+      if ([0, 1, 4, 5, 6].includes(status) || [2, 4].includes(statusPayment))
+        return null;
 
       return (
         <div className="relative">
@@ -263,7 +269,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {status === 3 && expertPaymentQrCodeLink && (
+              {[3, 8].includes(status) && expertPaymentQrCodeLink && (
                 <DropdownMenuItem
                   onClick={() =>
                     window.open(
@@ -276,7 +282,7 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
                   Chuyển tiền cho chuyên gia
                 </DropdownMenuItem>
               )}
-              {status === 2 && userPaymentQrCodeLink && (
+              {[2, 7].includes(status) && userPaymentQrCodeLink && (
                 <DropdownMenuItem
                   onClick={() =>
                     window.open(

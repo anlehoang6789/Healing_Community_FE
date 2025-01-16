@@ -87,17 +87,19 @@ function FeedbackForm({
       return () => clearTimeout(timeout); // Dọn dẹp timeout khi component unmount hoặc `isSubmitted` thay đổi
     }
   }, [isSubmitted, setIsSubmitted]);
+  const isFeedbackValid = feedback.trim().length >= 5;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Textarea
         placeholder="Chia sẻ ý kiến của bạn để chúng tôi có thể phục vụ bạn tốt hơn..."
         value={feedback}
+        minLength={5}
         onChange={(e) => setFeedback(e.target.value)}
         className="max-h-[150px] overflow-y-auto resize-none"
       />
       <div className="flex justify-end">
-        <Button type="submit">
+        <Button type="submit" disabled={!isFeedbackValid}>
           <Send className="mr-2 h-4 w-4" /> Gửi góp ý
         </Button>
       </div>
