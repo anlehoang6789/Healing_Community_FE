@@ -29,6 +29,7 @@ export const useGetUserProfileQuery = (userId: string, enabled?: boolean) => {
     queryKey: ["userProfile", userId],
     queryFn: () => accountApiRequest.getUserProfile(userId),
     enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -121,6 +122,7 @@ export const useGetPaymentInfoQuery = () => {
   return useQuery({
     queryKey: ["paymentInfo"],
     queryFn: accountApiRequest.getPaymentInfo,
+    refetchOnWindowFocus: true,
   });
 };
 
