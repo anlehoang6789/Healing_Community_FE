@@ -116,7 +116,7 @@ const CrequestGroupDialog = () => {
                     Yêu cầu tạo nhóm mới phải đợi quản trị viên kiểm duyệt. Khi
                     duyệt tạo nhóm thì nhóm đó mặc định sẽ là{" "}
                     <span className="p-1 bg-yellow-300 rounded-lg text-gray-800">
-                      nhóm kín
+                      nhóm riêng tư
                     </span>{" "}
                     và người yêu cầu tạo nhóm sẽ là quản trị viên của nhóm đó.
                   </p>

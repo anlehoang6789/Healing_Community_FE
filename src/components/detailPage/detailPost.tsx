@@ -23,6 +23,7 @@ import { useTheme } from "next-themes";
 import {
   useCreateCommentMutation,
   useDeleteCommentByCommnetIdMutation,
+  useGetAllCategoryQuery,
   useGetCommentCountQuery,
   useGetCommentsByPostIdQuery,
   useGetPostByPostIdQuery,
@@ -83,6 +84,37 @@ export default function DetailPost() {
   const { data: commentsData } = useGetCommentsByPostIdQuery(
     postIdFromUrl as string
   );
+
+  const { data: categoryData } = useGetAllCategoryQuery();
+
+  const categoryColors: { [key: string]: string } = {
+    "01JCZM72A9K5176BQT82T821V1":
+      "bg-gradient-to-r from-[#FAA6FF] to-[#E90000] ",
+    "01JCZM8JW9YQC9TGBM8Q8TJ14C":
+      "bg-gradient-to-r from-[#9ceda7] to-[#18A5A7] ",
+    "01JCZM90KFECJ8EV9BETF6X4EA":
+      "bg-gradient-to-r from-[#f6d365] to-[#fda085] ",
+    "01JCZM99K9SC97S16ZG64APWF2":
+      "bg-gradient-to-r from-[#30cfd0] to-[#330867] ",
+    "01JFSFQ92FBQXYXSTPDQA45KFR":
+      "bg-gradient-to-r from-[#0250c5] to-[#d43f8d] ",
+  };
+
+  const categoryId = postById?.payload?.data?.categoryId;
+
+  // Lấy tên và màu của category
+  const category = categoryData?.payload?.data
+    ? categoryData.payload.data.find(
+        (cat: { categoryId: string; name: string }) =>
+          cat.categoryId === categoryId
+      )
+    : null;
+
+  const categoryName = category?.name || "Không xác định";
+  const categoryColor =
+    categoryId && categoryColors[categoryId]
+      ? categoryColors[categoryId]
+      : "bg-gray-500";
 
   const { mutate: createComment } = useCreateCommentMutation();
 
@@ -244,7 +276,13 @@ export default function DetailPost() {
       </div>
 
       {/* Main content */}
-      <div className="lg:ml-16 w-auto mx-auto border shadow-md rounded-md overflow-hidden">
+      <div className="lg:ml-16 w-auto mx-auto border shadow-md rounded-md overflow-hidden relative">
+        {/* Category */}
+        <div
+          className={`absolute top-[450px] right-0 text-base text-gray-100 font-semibold px-2 py-1   ${categoryColor}`}
+        >
+          {categoryName}
+        </div>
         {postById?.payload.data && (
           <Image
             src={

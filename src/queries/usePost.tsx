@@ -424,6 +424,7 @@ export const useGetSharedPostByUserIdQuery = (userId: string) => {
   return useQuery({
     queryKey: ["shared-post-by-user-id", userId],
     queryFn: () => postApiRequest.getSharedPosts(userId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -432,6 +433,7 @@ export const useGetShareCountQuery = (postId: string) => {
     queryKey: ["share-count", postId],
     queryFn: () => postApiRequest.getShareCount(postId),
     enabled: !!postId,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -464,13 +466,13 @@ export const useDeleteSharedPostMutation = (userId: string) => {
   });
 };
 
-export const useSharePostMutation = () => {
+export const useSharePostMutation = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: postApiRequest.sharePost,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["shared-post-by-user-id"],
+        queryKey: ["shared-post-by-user-id", userId],
       });
       queryClient.invalidateQueries({
         queryKey: ["share-count"],

@@ -182,7 +182,7 @@ export const useCrequestGroupMutation = () => {
   });
 };
 
-export const useApproveOrRejectRequestGroupMutation = () => {
+export const useApproveOrRejectRequestGroupMutation = (groupId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -193,6 +193,9 @@ export const useApproveOrRejectRequestGroupMutation = () => {
       queryClient.invalidateQueries({ queryKey: ["get-all-groups"] });
       queryClient.invalidateQueries({
         queryKey: ["get-list-request-group-by-user-id"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-details-by-group-id", groupId],
       });
     },
   });
