@@ -58,12 +58,12 @@ export default function SidebarChat({
             </Avatar>
             <div className="ml-3">
               <p className="font-semibold">{contact.name}</p>
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 <p className="text-sm text-gray-500">
                   {truncateMessage(contact?.lastMessage ?? "", 6)}
                 </p>
                 <span className="text-sm ml-3">.10h</span>
-              </div>
+              </div> */}
             </div>
           </div>
         ))}

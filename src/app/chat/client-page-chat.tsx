@@ -36,6 +36,12 @@ export default function ClientPageChat() {
     lastMessage: "Last message placeholder",
   }));
 
+  useEffect(() => {
+    if (contacts.length > 0 && !selectedContact) {
+      setSelectedContact(contacts[0]);
+    }
+  }, [contacts, selectedContact]);
+
   const { messages, sendMessage, isConnected } = useWebSocket(
     loggedInUserId,
     selectedContact?.id ?? ""
