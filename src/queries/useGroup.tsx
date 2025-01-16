@@ -50,7 +50,13 @@ export const useDeleteGroupByGroupIdMutation = () => {
   });
 };
 
-export const useJoinGroupMutation = (userId?: string, groupId?: string) => {
+export const useJoinGroupMutation = ({
+  userId,
+  groupId,
+}: {
+  userId?: string;
+  groupId?: string;
+}) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -70,10 +76,13 @@ export const useJoinGroupMutation = (userId?: string, groupId?: string) => {
   });
 };
 
-export const useLeaveGroupByGroupIdMutation = (
-  userId?: string,
-  groupId?: string
-) => {
+export const useLeaveGroupByGroupIdMutation = ({
+  userId,
+  groupId,
+}: {
+  userId?: string;
+  groupId?: string;
+}) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: LeaveGroupRequestType) =>
@@ -173,7 +182,7 @@ export const useCrequestGroupMutation = () => {
   });
 };
 
-export const useApproveOrRejectRequestGroupMutation = (groupId: string) => {
+export const useApproveOrRejectRequestGroupMutation = (groupId?: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -210,6 +219,9 @@ export const useApproveOrRejectRequestJoinGroupMutation = (groupId: string) => {
       });
       queryClient.invalidateQueries({
         queryKey: ["get-all-groups", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-details-by-group-id", groupId],
       });
     },
   });

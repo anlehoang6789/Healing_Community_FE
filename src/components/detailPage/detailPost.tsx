@@ -416,7 +416,10 @@ export default function DetailPost() {
             <Link href="#">
               <Avatar className="w-9 h-9 border-2 border-rose-300">
                 <AvatarImage
-                  src={imageComment.data?.payload.data.profilePicture}
+                  src={
+                    imageComment.data?.payload.data.profilePicture ||
+                    "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                  }
                   alt={
                     imageComment.data?.payload.data.fullName ||
                     imageComment.data?.payload.data.userName

@@ -135,8 +135,8 @@ export default function ConsultationSchedule() {
       completed: filteredAndSortedConsultations.filter(
         (c) => c.tag === "Đã hoàn thành"
       ),
-      cancelled: filteredAndSortedConsultations.filter(
-        (c) => c.tag === "Đã hủy"
+      cancelled: filteredAndSortedConsultations.filter((c) =>
+        ["Đã hủy", "Đã hoàn tiền"].includes(c.tag)
       ),
     };
   }, [filteredAndSortedConsultations]);
@@ -160,10 +160,10 @@ export default function ConsultationSchedule() {
     );
   };
 
-  const checkRatingStatus = useCheckExpertRatingStatusQuery({
-    appointmentId: selectedAppointmentId as string,
-    enabled: !!selectedAppointmentId,
-  });
+  // const checkRatingStatus = useCheckExpertRatingStatusQuery({
+  //   appointmentId: selectedAppointmentId as string,
+  //   enabled: !!selectedAppointmentId,
+  // });
 
   const renderConsultationCard = (consultation: AppointmentUserType) => {
     // Tính toán thời gian bắt đầu của cuộc hẹn
@@ -185,7 +185,7 @@ export default function ConsultationSchedule() {
     };
 
     const shouldShowRating =
-      checkRatingStatus.data?.payload.data === false &&
+      // checkRatingStatus.data?.payload.data === false &&
       consultation.tag === "Đã hoàn thành";
 
     const openReportDialog = () => {

@@ -109,7 +109,7 @@ export default function GroupTabsUser({
               </Button>
             </Link>
           )}
-          {isModeratorInGroup && isPrivateGroup && (
+          {isMember && isModeratorInGroup && isPrivateGroup && (
             <Link href={`/user/group/${groupId}/request-join`} passHref>
               <Button
                 variant={
