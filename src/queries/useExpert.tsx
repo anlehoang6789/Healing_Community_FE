@@ -255,6 +255,20 @@ export const useGetExpertRatingQuery = (expertProfileId: string) => {
   });
 };
 
+export const useGetExpertRatingForUserQuery = ({
+  appointmentId,
+  enabled,
+}: {
+  appointmentId: string;
+  enabled: boolean;
+}) => {
+  return useQuery({
+    queryKey: ["expert-rating-for-user", appointmentId],
+    queryFn: () => expertApiRequest.getExpertRatingForUser(appointmentId),
+    enabled,
+  });
+};
+
 export const useRateExpertMutation = ({
   expertProfileId,
   appointmentId,
@@ -271,6 +285,9 @@ export const useRateExpertMutation = ({
       });
       queryClient.invalidateQueries({
         queryKey: ["expert-rating-status", appointmentId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["expert-rating-for-user", appointmentId],
       });
     },
   });

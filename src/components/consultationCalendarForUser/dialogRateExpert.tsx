@@ -19,7 +19,10 @@ import {
 } from "@/schemaValidations/expert.schema";
 import { Form, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
-import { useRateExpertMutation } from "@/queries/useExpert";
+import {
+  useGetExpertRatingForUserQuery,
+  useRateExpertMutation,
+} from "@/queries/useExpert";
 import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 import { useEffect } from "react";
@@ -44,11 +47,22 @@ export default function DialogRateExpert({
     },
   });
 
+  const { data } = useGetExpertRatingForUserQuery({
+    appointmentId: appointmentId as string,
+    enabled: !!appointmentId,
+  });
   useEffect(() => {
     if (isOpen) {
       form.setValue("appointmentId", appointmentId as string);
+      if (data?.payload.data === null) {
+        form.setValue("rating", 0);
+        form.setValue("comment", "");
+      } else if (data) {
+        form.setValue("rating", data.payload.data.rating);
+        form.setValue("comment", data.payload.data.comment);
+      }
     }
-  }, [isOpen, appointmentId, form]);
+  }, [isOpen, appointmentId, form, data]);
 
   const onReset = () => {
     form.reset();
@@ -72,6 +86,8 @@ export default function DialogRateExpert({
       handleErrorApi({ error, setError: form.setError });
     }
   };
+
+  const rating = form.watch("rating");
 
   return (
     <Dialog open={isOpen} onOpenChange={(value) => setIsOpen(value)}>
@@ -156,7 +172,9 @@ export default function DialogRateExpert({
               >
                 Hủy
               </Button>
-              <Button type="submit">Gửi</Button>
+              <Button type="submit" disabled={rating === 0}>
+                Gửi
+              </Button>
             </DialogFooter>
           </form>
         </Form>

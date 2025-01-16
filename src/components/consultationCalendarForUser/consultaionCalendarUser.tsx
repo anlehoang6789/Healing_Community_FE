@@ -173,10 +173,21 @@ export default function ConsultationSchedule() {
         consultation.timeRange.split(" - ")[0]
       }`
     );
+    const appointmentEnd = new Date(
+      `${consultation.appointmentDate}T${
+        consultation.timeRange.split(" - ")[1]
+      }`
+    );
     const canCancel =
       consultation.tag !== "Đã hủy" &&
       consultation.tag !== "Đã hoàn thành" &&
       appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
+
+    //sau 2 ngày kh còn đc report nữa
+    const canReport =
+      consultation.tag === "Đã hoàn thành" &&
+      appointmentEnd.getTime() + 2 * 24 * 60 * 60 * 1000 >
+        currentTime.getTime();
 
     const shouldDropdown = consultation.tag === "Đã hoàn thành";
     const handleOpenDialog = (appointmentId: string) => {
@@ -264,10 +275,12 @@ export default function ConsultationSchedule() {
                 </DropdownMenuItem>
               )}
 
-              <DropdownMenuItem onClick={openReportDialog}>
-                <MessageSquareWarning className="mr-2 h-4 w-4" />
-                <span>Báo cáo</span>
-              </DropdownMenuItem>
+              {canReport && (
+                <DropdownMenuItem onClick={openReportDialog}>
+                  <MessageSquareWarning className="mr-2 h-4 w-4" />
+                  <span>Báo cáo</span>
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -315,7 +328,7 @@ export default function ConsultationSchedule() {
                   href={consultation.meetLink}
                   className="text-sm hover:underline"
                 >
-                  Tham gia cuộc họp
+                  Tham gia buổi tư vấn
                 </Link>
               </div>
             )}

@@ -75,7 +75,13 @@ export default function GroupLayout({
         description: result.payload.message || "Tham gia nhóm thành công!",
         variant: "success",
       });
-      setIsMemberState(true);
+      // setIsMemberState(true);
+      if (
+        result.payload.message !==
+        "Yêu cầu gia nhập đã được gửi. Chờ phê duyệt từ quản trị viên."
+      ) {
+        setIsMemberState(true);
+      }
     } catch (error) {
       handleErrorApi({ error });
     }

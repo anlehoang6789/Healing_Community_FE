@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export interface Message {
   Id?: string;
@@ -27,28 +27,31 @@ export const useWebSocket = (userId: string, partnerId: string) => {
   };
 
   // Add message if it's unique
-  const addMessageIfUnique = (message: Message, partnerId: string) => {
-    const key = getMessageKey(message);
-    if (!messageKeysRef.current[partnerId]) {
-      messageKeysRef.current[partnerId] = new Set();
-    }
+  const addMessageIfUnique = useCallback(
+    (message: Message, partnerId: string) => {
+      const key = getMessageKey(message);
+      if (!messageKeysRef.current[partnerId]) {
+        messageKeysRef.current[partnerId] = new Set();
+      }
 
-    if (!messageKeysRef.current[partnerId].has(key)) {
-      messageKeysRef.current[partnerId].add(key);
-      setMessages((prev) => ({
-        ...prev,
-        [partnerId]: [...(prev[partnerId] || []), message],
-      }));
-    } else {
-      // Update existing message with server data
-      setMessages((prev) => {
-        const updatedMessages = (prev[partnerId] || []).map((msg) =>
-          getMessageKey(msg) === key ? { ...msg, ...message } : msg
-        );
-        return { ...prev, [partnerId]: updatedMessages };
-      });
-    }
-  };
+      if (!messageKeysRef.current[partnerId].has(key)) {
+        messageKeysRef.current[partnerId].add(key);
+        setMessages((prev) => ({
+          ...prev,
+          [partnerId]: [...(prev[partnerId] || []), message],
+        }));
+      } else {
+        // Update existing message with server data
+        setMessages((prev) => {
+          const updatedMessages = (prev[partnerId] || []).map((msg) =>
+            getMessageKey(msg) === key ? { ...msg, ...message } : msg
+          );
+          return { ...prev, [partnerId]: updatedMessages };
+        });
+      }
+    },
+    []
+  );
 
   const sendMessage = (content: string) => {
     if (!isValidRecipient(userId, partnerId)) {
@@ -169,7 +172,7 @@ export const useWebSocket = (userId: string, partnerId: string) => {
     return () => {
       socketRef.current?.close();
     };
-  }, [userId, partnerId]);
+  }, [userId, partnerId, addMessageIfUnique]);
 
   // Clear message keys when switching contacts
   useEffect(() => {
