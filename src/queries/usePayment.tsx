@@ -64,6 +64,7 @@ export const usePaymentHistoryForModeratorQuery = () => {
   return useQuery({
     queryKey: ["payment-history-moderator"],
     queryFn: paymentApiRequest.getPaymentHistoryForModerator,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -76,6 +77,7 @@ export const usePaymentHistoryForUserQuery = ({
     queryKey: ["payment-history-user"],
     queryFn: paymentApiRequest.getPaymentHistoryForUser,
     enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -88,6 +90,7 @@ export const usePaymentHistoryForExpertQuery = ({
     queryKey: ["payment-history-expert"],
     queryFn: paymentApiRequest.getPaymentHistoryForExpert,
     enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
