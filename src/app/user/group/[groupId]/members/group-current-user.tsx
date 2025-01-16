@@ -105,7 +105,7 @@ export default function GroupCurrentUser({
           </p>
         </div>
       </div>
-      <DropdownMenu modal={false} aria-hidden={false}>
+      {/* <DropdownMenu modal={false} aria-hidden={false}>
         <DropdownMenuTrigger asChild>
           <Button variant="iconSend">
             <EllipsisVertical />
@@ -121,7 +121,7 @@ export default function GroupCurrentUser({
             <span>Rời nhóm</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+      </DropdownMenu> */}
     </div>
   );
 }
