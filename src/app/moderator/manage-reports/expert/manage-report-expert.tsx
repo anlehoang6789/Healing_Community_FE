@@ -191,6 +191,7 @@ const columns: ColumnDef<GetReportExpertSchemaType>[] = [
     cell: function Actions({ row }) {
       const approveOrRejectReportExpertMutation =
         useApproveOrRejectReportExpertMutation();
+      if (row.original.isApprove !== null) return null;
 
       const handleApproveReportPost = async () => {
         if (approveOrRejectReportExpertMutation.isPending) return;
