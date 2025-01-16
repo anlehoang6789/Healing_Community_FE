@@ -138,6 +138,7 @@ export const useGetGroupMembersByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["get-group-members-by-group-id", groupId],
     queryFn: () => groupApiRequest.getGroupMemberByGroupId(groupId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -145,6 +146,7 @@ export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["get-role-count-by-group-id", groupId],
     queryFn: () => groupApiRequest.getRoleCountByGroupId(groupId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -215,6 +217,9 @@ export const useApproveOrRejectRequestJoinGroupMutation = (groupId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["get-all-groups", groupId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-details-by-group-id", groupId],
+      });
     },
   });
 };
@@ -237,6 +242,7 @@ export const useGetGroupInfoQuery = ({
     queryKey: ["get-group-info", userId],
     queryFn: () => groupApiRequest.getGroupInfo(userId),
     enabled: enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -244,6 +250,7 @@ export const useGetRecommendGroupQuery = () => {
   return useQuery({
     queryKey: ["get-recommend-group"],
     queryFn: groupApiRequest.getRecommendGroup,
+    refetchOnWindowFocus: true,
   });
 };
 
