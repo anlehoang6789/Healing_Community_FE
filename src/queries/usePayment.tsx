@@ -11,6 +11,7 @@ export const usePaymentHistoryQuery = () => {
   return useQuery({
     queryKey: ["payment-history-list"],
     queryFn: paymentApiRequest.listPaymentHistory,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -45,6 +46,7 @@ export const useGetFeeServiceQuery = () => {
   return useQuery({
     queryKey: ["fee-service"],
     queryFn: paymentApiRequest.getFeeService,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -98,6 +100,7 @@ export const useGetTotalRevenueForExpert = () => {
   return useQuery({
     queryKey: ["totalRevenueForExpert"],
     queryFn: paymentApiRequest.getTotalRevenueForExpert,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -107,6 +110,7 @@ export const useGetRevenueDetailsForExpertQuery = (
   return useQuery({
     queryKey: ["revenue-details-expert", filterType],
     queryFn: () => paymentApiRequest.getRevenueDetailsForExpert(filterType),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -114,6 +118,7 @@ export const useGetTotalRevenueForAdmin = () => {
   return useQuery({
     queryKey: ["totalRevenueForAdmin"],
     queryFn: paymentApiRequest.getTotalRevenueForAdmin,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -123,5 +128,6 @@ export const useGetRevenueDetailsForAdminQuery = (
   return useQuery({
     queryKey: ["revenue-details-admin", filterType],
     queryFn: () => paymentApiRequest.getRevenueDetailsForAdmin(filterType),
+    refetchOnWindowFocus: true,
   });
 };

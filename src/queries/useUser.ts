@@ -6,6 +6,7 @@ export const useGetAllUsers = () => {
     queryKey: ["users"],
     queryFn: userApiRequest.getAllUsers,
     select: (response) => response.payload.data,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -13,6 +14,7 @@ export const useGetToManageUser = () => {
   return useQuery({
     queryKey: ["manage-users"],
     queryFn: userApiRequest.getToManageUser,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -56,5 +58,6 @@ export const useGetUserStatistics = () => {
   return useQuery({
     queryKey: ["user-statistics"],
     queryFn: userApiRequest.getUserStatistics,
+    refetchOnWindowFocus: true,
   });
 };

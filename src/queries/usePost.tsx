@@ -20,6 +20,7 @@ export const useGetAllCategoryQuery = () => {
   return useQuery({
     queryKey: ["category-list"],
     queryFn: () => postApiRequest.getAllCategory(),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -34,6 +35,7 @@ export const useGetDetailsCategoryQuery = ({
     queryKey: ["details-category", categoryId],
     queryFn: () => postApiRequest.getDetailsCategory(categoryId),
     enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -117,6 +119,7 @@ export const useGetPostByPostIdQuery = ({
     queryKey: ["post-by-post-id", postId],
     queryFn: () => postApiRequest.getPostByPostId(postId),
     enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -133,6 +136,7 @@ export const useGetPostByUserIdQuery = (userId: string) => {
   return useQuery({
     queryKey: ["post-by-user-id", userId],
     queryFn: () => postApiRequest.getPostByUserId(userId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -155,6 +159,7 @@ export const useGetQuickPostHomePageQuery = () => {
   return useQuery({
     queryKey: ["quick-post"],
     queryFn: () => postApiRequest.getQuickPostHomePage(),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -175,6 +180,7 @@ export const useGetHomePageLazyLoadQuery = (pageSize: number) => {
       return hasNextPage ? allPages.length + 1 : undefined;
     },
     initialPageParam: 1, // Giá trị khởi tạo của pageParam
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -231,6 +237,7 @@ export const useGetReactionCountQuery = (postId: string) => {
   return useQuery({
     queryKey: ["reaction-count", postId],
     queryFn: () => postApiRequest.getReactionCount(postId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -246,6 +253,7 @@ export const useGetCommentCountQuery = (postId: string) => {
   return useQuery({
     queryKey: ["comment-count", postId],
     queryFn: () => postApiRequest.getCommentCount(postId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -323,6 +331,7 @@ export const useGetUserReactionByPostIdQuery = (postId: string) => {
   return useQuery({
     queryKey: ["user-reaction-by-post-id", postId],
     queryFn: () => postApiRequest.getUserReactionByPostId(postId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -330,6 +339,7 @@ export const useGetBookmarkListQuery = () => {
   return useQuery({
     queryKey: ["bookmark-list"],
     queryFn: postApiRequest.getBookmarkList,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -344,6 +354,7 @@ export const useGetBookmarkListDetailsQuery = ({
     queryKey: ["bookmark-list-details", bookmarkId],
     queryFn: () => postApiRequest.getBookmarkListDetails(bookmarkId),
     enabled,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -399,6 +410,7 @@ export const useGetAllReactionTypeQuery = () => {
   return useQuery({
     queryKey: ["reaction-type"],
     queryFn: postApiRequest.getAllReactionType,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -489,6 +501,7 @@ export const useGetAuthorOtherPostQuery = ({
   return useQuery({
     queryKey: ["author-other-post", body],
     queryFn: () => postApiRequest.getAuthorOtherPost(body),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -500,6 +513,7 @@ export const useGetOtherPostWithSameCategoryQuery = ({
   return useQuery({
     queryKey: ["other-post-with-same-category", body],
     queryFn: () => postApiRequest.getOtherPostWithSameCategory(body),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -508,6 +522,7 @@ export const useGetCommentsByShareIdQuery = (shareId: string) => {
     queryKey: ["shared-comments", shareId],
     queryFn: () => postApiRequest.getCommentsByShareId(shareId),
     enabled: !!shareId,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -515,9 +530,9 @@ export const useGetSharedCommentCountQuery = (shareId: string) => {
   return useQuery({
     queryKey: ["shared-comment-count", shareId],
     queryFn: async () => {
-      console.log("Fetching shared comment count...");
       return await postApiRequest.getSharedCommentCount(shareId);
     },
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -576,6 +591,7 @@ export const useGetPersonalPostGroupQuery = ({
   return useQuery({
     queryKey: ["personal-post-group", userId, groupId],
     queryFn: () => postApiRequest.getPersonalPostGroup(userId, groupId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -624,6 +640,7 @@ export const useGetReactionSharedCountQuery = (shareId: string) => {
   return useQuery({
     queryKey: ["reaction-shared-count", shareId],
     queryFn: () => postApiRequest.getReactionSharedCount(shareId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -631,6 +648,7 @@ export const useGetUserReactionByShareIdQuery = (shareId: string) => {
   return useQuery({
     queryKey: ["user-reaction-by-share-id", shareId],
     queryFn: () => postApiRequest.getUserReactionByShareId(shareId),
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -668,6 +686,7 @@ export const useGetTopPostInGroupQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["top-post-in-group", groupId],
     queryFn: () => postApiRequest.getTopPostInGroup(groupId),
+    refetchOnWindowFocus: true,
   });
 };
 
