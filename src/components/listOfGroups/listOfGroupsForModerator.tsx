@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { Check, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useTheme } from "next-themes";
@@ -18,7 +18,12 @@ import EditGroup from "@/app/moderator/manage-groups/edit-group";
 
 import AutoPagination from "@/components/auto-pagination";
 import { useSearchParams } from "next/navigation";
-import { useGetAllGroupsQuery } from "@/queries/useGroup";
+import {
+  useGetAllGroupsQuery,
+  useGetGroupsByUserIdQuery,
+} from "@/queries/useGroup";
+import { Badge } from "@/components/ui/badge";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
 
 export default function ListOfGroupsForModerator() {
   const { theme } = useTheme();
@@ -33,6 +38,23 @@ export default function ListOfGroupsForModerator() {
   const indexOfFirstGroup = indexOfLastGroup - groupsPerPage;
 
   const { data: response, isLoading, error } = useGetAllGroupsQuery();
+
+  const userId = getUserIdFromLocalStorage();
+
+  const { data: joinedGroupsResponse } = useGetGroupsByUserIdQuery(
+    userId as string
+  );
+
+  const joinedGroupIds = joinedGroupsResponse
+    ? (joinedGroupsResponse as any).payload.data.map(
+        (group: any) => group.groupId
+      )
+    : [];
+
+  // Kiểm tra xem một nhóm có được tham gia không
+  const isGroupJoined = (groupId: string) => {
+    return joinedGroupIds.includes(groupId);
+  };
 
   if (isLoading) {
     return (
@@ -71,6 +93,14 @@ export default function ListOfGroupsForModerator() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
         {getCurrentPageGroups().map((group) => (
           <Card key={group.groupId} className="transition-shadow relative">
+            {isGroupJoined(group.groupId) && (
+              <Badge
+                className="absolute bottom-2 right-2 bg-rose-300 text-black"
+                variant="outline"
+              >
+                <Check className="mr-1 h-3 w-3" /> Chủ nhóm
+              </Badge>
+            )}
             <CardContent className="p-4 flex items-center space-x-4 relative">
               <Link href={`/moderator/group/${group.groupId}`}>
                 <Image

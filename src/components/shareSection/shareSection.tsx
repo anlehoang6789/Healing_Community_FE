@@ -36,7 +36,7 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
   const sharePostMutation = useSharePostMutation(userIdFromParams as string);
 
   const handleShare = (platform: "facebook" | "gmail") => {
-    const url = `http://localhost:3000/content/${postId}`;
+    const url = `https://fe-production-6205.up.railway.app/content/${postId}`;
     const text = "Xem bài viết này nè";
 
     switch (platform) {

@@ -1,12 +1,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { handleErrorApi } from "@/lib/utils";
 import {
   useGetFollowingQuery,
   useUnfollowUserMutation,
 } from "@/queries/useAccount";
+import { useGetPostCountQuery } from "@/queries/usePost";
 import { useUserIsOwnerStore } from "@/store/userStore";
 import { BadgeCheck } from "lucide-react";
 
@@ -32,6 +33,17 @@ export default function FollowedUser() {
     }
   };
 
+  // Số bài viết của người theo dõi
+  const PostCount = ({ userId }: { userId: string }) => {
+    const { data: postCountData } = useGetPostCountQuery(userId);
+
+    return (
+      <p className="text-xs text-gray-500">
+        {postCountData?.payload.data.postCount} bài viết
+      </p>
+    );
+  };
+
   if (!getFollowingList)
     return (
       <div className="text-center text-textChat">
@@ -45,72 +57,63 @@ export default function FollowedUser() {
         Đã theo dõi
       </h2>
 
-      <ScrollArea
-        className={`${
-          getFollowingList?.length
-            ? "max-h-[300px] min-h-[100px] h-auto"
-            : "h-[100px]"
-        }`}
-      >
-        <ul className="space-y-5">
-          {!getFollowingList.length ? (
-            <div className="text-muted-foreground text-center text-sm">
-              Hiện tại bạn chưa có theo dõi người dùng nào
-            </div>
-          ) : (
-            <>
-              {getFollowingList.map((user) => (
-                <li
-                  key={user.userId}
-                  className="flex justify-between items-center my-2"
+      <ul className="space-y-5 overflow-y-auto max-h-[300px] min-h-[100px]">
+        {!getFollowingList.length ? (
+          <div className="text-muted-foreground text-center text-sm">
+            Hiện tại bạn chưa có theo dõi người dùng nào
+          </div>
+        ) : (
+          <>
+            {getFollowingList.map((user) => (
+              <li
+                key={user.userId}
+                className="flex justify-between items-center my-2"
+              >
+                <Link
+                  href={`/user/profile/${user.userId}`}
+                  className="flex items-center space-x-2 sm:space-x-2 md:space-x-1 lg:space-x-3"
                 >
-                  <Link
-                    href={`/user/profile/${user.userId}`}
-                    className="flex items-center space-x-2 sm:space-x-2 md:space-x-1 lg:space-x-3"
-                  >
-                    <Image
-                      src={
-                        user.profilePicture ||
-                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-                      }
-                      alt={`${user.userName}'s avatar`}
-                      width={40}
-                      height={40}
-                      className="rounded-full object-cover w-10 h-10 md:w-7 md:h-7 sm:w-10 sm:h-10 lg:w-10 lg:h-10"
-                      priority
-                    />
-                    <div className="flex flex-col">
-                      <p className="truncate max-w-[100px] bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 text-base sm:text-base md:text-xs lg:text-base">
-                        {user.fullName || user.userName}
-                      </p>
-                      <p className="text-xs text-gray-500">10 bài viết mới</p>
-                    </div>
-                  </Link>
+                  <Image
+                    src={
+                      user.profilePicture ||
+                      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                    }
+                    alt={`${user.userName}'s avatar`}
+                    width={40}
+                    height={40}
+                    className="rounded-full object-cover w-10 h-10 md:w-7 md:h-7 sm:w-10 sm:h-10 lg:w-10 lg:h-10"
+                    priority
+                  />
+                  <div className="flex flex-col">
+                    <p className="truncate max-w-[100px] bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 text-base sm:text-base md:text-xs lg:text-base">
+                      {user.fullName || user.userName}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      <PostCount userId={user.userId} />
+                    </p>
+                  </div>
+                </Link>
 
-                  {isThatOwner && (
-                    <div className="flex items-center space-x-1 sm:space-x-1 md:space-x-1 lg:space-x-2">
-                      <Button
-                        variant="outline"
-                        className="flex items-center bg-[#c2eaf7] hover:bg-[#d2f5ff] text-black text-xs rounded-full border-none px-4 py-2 md:px-1 md:py-0 sm:px-4 sm:py-2 lg:px-3 lg:py-1 sm:text-xs md:text-[10px] lg:text-xs"
-                        onClick={() => handleUnfollow(user.userId)}
-                      >
-                        <BadgeCheck
-                          className="w-5 h-5 mr-1 text-green-700 lg:w-5 lg:h-5 md:w-4 md:h-4 sm:w-5 sm:h-5"
-                          strokeWidth="3px"
-                        />
-                        Đã theo dõi
-                      </Button>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </>
-          )}
-        </ul>
-      </ScrollArea>
-      <Link href="#" className="flex justify-end mt-6 text-sm sm:text-xs">
-        <span className="text-gray-500">Xem tất cả</span>
-      </Link>
+                {isThatOwner && (
+                  <div className="flex items-center space-x-1 sm:space-x-1 md:space-x-1 lg:space-x-2">
+                    <Button
+                      variant="outline"
+                      className="flex items-center bg-[#c2eaf7] hover:bg-[#d2f5ff] text-black text-xs rounded-full border-none px-4 py-2 md:px-1 md:py-0 sm:px-4 sm:py-2 lg:px-3 lg:py-1 sm:text-xs md:text-[10px] lg:text-xs"
+                      onClick={() => handleUnfollow(user.userId)}
+                    >
+                      <BadgeCheck
+                        className="w-5 h-5 mr-1 text-green-700 lg:w-5 lg:h-5 md:w-4 md:h-4 sm:w-5 sm:h-5"
+                        strokeWidth="3px"
+                      />
+                      Đã theo dõi
+                    </Button>
+                  </div>
+                )}
+              </li>
+            ))}
+          </>
+        )}
+      </ul>
     </div>
   );
 }
