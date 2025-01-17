@@ -201,7 +201,7 @@ export default function MBTITestForm() {
       <div className="sticky top-0 z-10 mb-4 p-4 shadow-md">
         <Progress
           value={progressValue}
-          className="w-full bg-gradient-to-r from-[#d4fc79] to-[#96e6a1] h-4 opacity-100"
+          className="w-full bg-gray-200 h-4 opacity-100"
         />
         <p className="text-right mt-2 text-muted-foreground">{`${
           Object.keys(selectedOptions).length

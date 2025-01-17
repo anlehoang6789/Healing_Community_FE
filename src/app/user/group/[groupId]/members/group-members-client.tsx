@@ -109,6 +109,15 @@ export default function GroupMembersClient() {
             </h3>
           )}
           <div className="space-y-4">
+            {currentUser && currentUser.roleInGroup === "User" && (
+              <div className="flex items-center justify-between">
+                <GroupMemberDetails
+                  userId={currentUser.userId}
+                  roleInGroup={currentUser.roleInGroup}
+                  groupId={groupIdFromPath}
+                />
+              </div>
+            )}
             {otherMembers
               .filter((member) => member.roleInGroup === "User")
               .map((member, index) => (
