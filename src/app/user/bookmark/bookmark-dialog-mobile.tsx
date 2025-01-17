@@ -3,20 +3,20 @@ import { toast } from "@/hooks/use-toast";
 import { handleErrorApi } from "@/lib/utils";
 import {
   useAddBookmarkListDetailsMutation,
+  useCreateBookmarkListMutation,
   useDeleteBookmarkListDetailsMutation,
   useGetBookmarkListDetailsQuery,
   useGetBookmarkListQuery,
 } from "@/queries/usePost";
 import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
   DialogDescription,
 } from "@/components/ui/dialog";
-import React, { useState } from "react";
+import React, { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Bookmark } from "lucide-react";
 import { BookmarkFilledIcon } from "@radix-ui/react-icons";
@@ -33,6 +33,10 @@ export default function BookmarkDialogMobile({
   isOpen,
   setIsOpen,
 }: BookmarkDialogMobileProps) {
+  const [isCreatingBookmark, setIsCreatingBookmark] = useState(false);
+  const [newBookmarkName, setNewBookmarkName] = useState("");
+  const [isCreatingBookmarkLoading, setIsCreatingBookmarkLoading] =
+    useState(false);
   const [selectedBookmark, setSelectedBookmark] = useState<string | null>(null);
   //show bookmark list
   const {
@@ -86,6 +90,26 @@ export default function BookmarkDialogMobile({
         variant: "success",
       });
       setIsOpen(false);
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
+
+  const createBookmarkListMutation = useCreateBookmarkListMutation();
+  const handleCreateBookmark = async (e: FormEvent) => {
+    try {
+      setIsCreatingBookmarkLoading(true);
+      // Gọi API tạo bookmark list
+      const result = await createBookmarkListMutation.mutateAsync({
+        name: newBookmarkName,
+      });
+      e.stopPropagation();
+      toast({
+        description: result.payload.message,
+        variant: "success",
+      });
+      setNewBookmarkName("");
+      setIsCreatingBookmark(false);
     } catch (error: any) {
       handleErrorApi(error);
     }
@@ -156,9 +180,46 @@ export default function BookmarkDialogMobile({
               </div>
             ))
           ) : (
-            <p className="text-center text-textChat font-semibold">
-              Không có danh sách bookmark nào.
-            </p>
+            <div className="flex flex-col items-center space-y-4">
+              <p className="text-center text-textChat font-semibold">
+                Bạn chưa có danh sách bookmark nào.
+              </p>
+              <Button
+                variant="default"
+                onClick={(e) => {
+                  setIsCreatingBookmark(true);
+                  e.stopPropagation();
+                }}
+              >
+                Tạo danh sách mới
+              </Button>
+              {isCreatingBookmark && (
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    className="border rounded px-2 py-1 text-textChat"
+                    placeholder="Nhập tên danh sách"
+                    value={newBookmarkName}
+                    onChange={(e) => {
+                      setNewBookmarkName(e.target.value);
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  />
+                  <Button
+                    variant="default"
+                    onClick={handleCreateBookmark}
+                    disabled={
+                      !newBookmarkName.trim() || isCreatingBookmarkLoading
+                    }
+                  >
+                    {isCreatingBookmarkLoading ? "Đang tạo..." : "Lưu"}
+                  </Button>
+                </div>
+              )}
+            </div>
           )}
         </div>
         <DialogFooter>
@@ -187,16 +248,20 @@ export default function BookmarkDialogMobile({
                 : "Xóa khỏi Bookmark"}
             </Button>
           ) : (
-            <Button
-              onClick={handleAddPostToBookmark}
-              disabled={
-                !selectedBookmark || addPostToBookmarkMutation.isPending
-              }
-            >
-              {addPostToBookmarkMutation.isPending
-                ? "Đang thêm..."
-                : "Thêm vào Bookmark"}
-            </Button>
+            <>
+              {bookmarkListArray.length && (
+                <Button
+                  onClick={handleAddPostToBookmark}
+                  disabled={
+                    !selectedBookmark || addPostToBookmarkMutation.isPending
+                  }
+                >
+                  {addPostToBookmarkMutation.isPending
+                    ? "Đang thêm..."
+                    : "Thêm vào Bookmark"}
+                </Button>
+              )}
+            </>
           )}
         </DialogFooter>
       </DialogContent>

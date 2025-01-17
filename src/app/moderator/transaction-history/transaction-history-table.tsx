@@ -36,6 +36,98 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useStatusTimestampStore } from "@/store/paymentStore";
+
+const TransactionCell = ({ row }: { row: any }) => {
+  const status: number = row.original.appointmentStatus;
+  const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
+  const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
+  const statusPayment: number = row.original.paymemtStatus;
+  const rowId = row.original.appointmentId;
+
+  const { timestamps, setTimestamp, getTimestamp } = useStatusTimestampStore();
+
+  if (!timestamps[rowId] && status === 3) {
+    if (!getTimestamp(rowId)) {
+      const now = new Date().toISOString();
+      setTimestamp(rowId, now);
+    }
+  }
+
+  // Kiểm tra đã đủ 3 ngày kể từ khi trạng thái chuyển thành 3 chưa
+  const isThreeDaysPassed = () => {
+    const savedTimestamp = getTimestamp(rowId);
+    if (!savedTimestamp) return false;
+    const statusDate = new Date(savedTimestamp);
+    const currentDate = new Date();
+    const diffInMs = currentDate.getTime() - statusDate.getTime();
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    return diffInDays >= 3;
+  };
+
+  if (status === 3 && !isThreeDaysPassed()) {
+    return null;
+  }
+  // Status la 0, 1, 4, 5, 6 của trạng thái lịch hẹn thi khong hien thi nut
+  if ([0, 1, 4, 5, 6].includes(status) || [2, 4].includes(statusPayment))
+    return null;
+
+  return (
+    <div className="relative">
+      <DropdownMenu modal={false}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          {[3].includes(status) &&
+            expertPaymentQrCodeLink &&
+            isThreeDaysPassed() && (
+              <DropdownMenuItem
+                onClick={() =>
+                  window.open(
+                    expertPaymentQrCodeLink,
+                    "_blank",
+                    "noopener,noreferrer"
+                  )
+                }
+              >
+                Chuyển tiền cho chuyên gia
+              </DropdownMenuItem>
+            )}
+          {[8].includes(status) && expertPaymentQrCodeLink && (
+            <DropdownMenuItem
+              onClick={() =>
+                window.open(
+                  expertPaymentQrCodeLink,
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+            >
+              Chuyển tiền cho chuyên gia
+            </DropdownMenuItem>
+          )}
+          {[2, 7].includes(status) && userPaymentQrCodeLink && (
+            <DropdownMenuItem
+              onClick={() =>
+                window.open(
+                  userPaymentQrCodeLink,
+                  "_blank",
+                  "noopener,noreferrer"
+                )
+              }
+            >
+              Hoàn tiền cho người dùng
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+};
 
 export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
   {
@@ -249,58 +341,61 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
   {
     id: "transaction",
     header: "Giao dịch",
-    cell: ({ row }) => {
-      const status: number = row.original.appointmentStatus;
-      const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
-      const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
-      const statusPayment: number = row.original.paymemtStatus;
-
-      // Status la 0, 1, 4, 5, 6 của trạng thái lịch hẹn thi khong hien thi nut
-      if ([0, 1, 4, 5, 6].includes(status) || [2, 4].includes(statusPayment))
-        return null;
-
-      return (
-        <div className="relative">
-          <DropdownMenu modal={false}>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {[3, 8].includes(status) && expertPaymentQrCodeLink && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
-                      expertPaymentQrCodeLink,
-                      "_blank",
-                      "noopener,noreferrer"
-                    )
-                  }
-                >
-                  Chuyển tiền cho chuyên gia
-                </DropdownMenuItem>
-              )}
-              {[2, 7].includes(status) && userPaymentQrCodeLink && (
-                <DropdownMenuItem
-                  onClick={() =>
-                    window.open(
-                      userPaymentQrCodeLink,
-                      "_blank",
-                      "noopener,noreferrer"
-                    )
-                  }
-                >
-                  Hoàn tiền cho người dùng
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      );
-    },
+    cell: ({ row }) => <TransactionCell row={row} />,
   },
+  //   cell: ({ row }) => {
+  //     const status: number = row.original.appointmentStatus;
+  //     const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
+  //     const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
+  //     const statusPayment: number = row.original.paymemtStatus;
+  //     const rowId = row.original.appointmentId;
+
+  //     // Status la 0, 1, 4, 5, 6 của trạng thái lịch hẹn thi khong hien thi nut
+  //     if ([0, 1, 4, 5, 6].includes(status) || [2, 4].includes(statusPayment))
+  //       return null;
+
+  //     return (
+  //       <div className="relative">
+  //         <DropdownMenu modal={false}>
+  //           <DropdownMenuTrigger asChild>
+  //             <Button variant="ghost" className="h-8 w-8 p-0">
+  //               <span className="sr-only">Open menu</span>
+  //               <DotsHorizontalIcon className="h-4 w-4 text-muted-foreground" />
+  //             </Button>
+  //           </DropdownMenuTrigger>
+  //           <DropdownMenuContent align="end">
+  //             {[3, 8].includes(status) && expertPaymentQrCodeLink && (
+  //               <DropdownMenuItem
+  //                 onClick={() =>
+  //                   window.open(
+  //                     expertPaymentQrCodeLink,
+  //                     "_blank",
+  //                     "noopener,noreferrer"
+  //                   )
+  //                 }
+  //               >
+  //                 Chuyển tiền cho chuyên gia
+  //               </DropdownMenuItem>
+  //             )}
+  //             {[2, 7].includes(status) && userPaymentQrCodeLink && (
+  //               <DropdownMenuItem
+  //                 onClick={() =>
+  //                   window.open(
+  //                     userPaymentQrCodeLink,
+  //                     "_blank",
+  //                     "noopener,noreferrer"
+  //                   )
+  //                 }
+  //               >
+  //                 Hoàn tiền cho người dùng
+  //               </DropdownMenuItem>
+  //             )}
+  //           </DropdownMenuContent>
+  //         </DropdownMenu>
+  //       </div>
+  //     );
+  //   },
+  // },
 ];
 
 // Số lượng item trên 1 trang

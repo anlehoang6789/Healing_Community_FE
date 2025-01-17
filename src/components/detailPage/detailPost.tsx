@@ -43,8 +43,10 @@ import { Role } from "@/constants/type";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import ShareCount from "@/components/shareSection/shareCount";
 import ReportPostSection from "@/components/reportSection/report-post-section";
+import { useAppContext } from "@/components/app-provider";
 
 export default function DetailPost() {
+  const { isAuth } = useAppContext();
   const { theme } = useTheme();
   const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
@@ -251,28 +253,36 @@ export default function DetailPost() {
         <span className="text-xs font-semibold text-muted-foreground">
           {commentCount?.payload.data?.countTotalComment || 0}
         </span>
-        <ShareSection postId={postIdFromUrl}>
-          <div className="flex flex-col items-center">
-            <Button variant="ghost" size="icon" className="rounded-full mt-5">
-              <Share2 className="h-8 w-8 text-green-500" />
+        {isAuth && (
+          <>
+            <ShareSection postId={postIdFromUrl}>
+              <div className="flex flex-col items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full mt-5"
+                >
+                  <Share2 className="h-8 w-8 text-green-500" />
+                </Button>
+                <ShareCount postId={postIdFromUrl as string} showText={false} />
+              </div>
+            </ShareSection>
+            <BookmarkDialog postId={postIdFromUrl as string} />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full mt-7"
+              onClick={openReportPostDialog}
+            >
+              <Flag className="h-8 w-8 text-red-500" />
             </Button>
-            <ShareCount postId={postIdFromUrl as string} showText={false} />
-          </div>
-        </ShareSection>
-        <BookmarkDialog postId={postIdFromUrl as string} />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full mt-7"
-          onClick={openReportPostDialog}
-        >
-          <Flag className="h-8 w-8 text-red-500" />
-        </Button>
-        <ReportPostSection
-          postId={postIdFromUrl as string}
-          isOpen={isReportDialogOpen}
-          setIsOpen={setIsReportDialogOpen}
-        />
+            <ReportPostSection
+              postId={postIdFromUrl as string}
+              isOpen={isReportDialogOpen}
+              setIsOpen={setIsReportDialogOpen}
+            />
+          </>
+        )}
       </div>
 
       {/* Main content */}

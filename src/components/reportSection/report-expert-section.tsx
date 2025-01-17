@@ -60,7 +60,7 @@ export default function ReportExpertSection({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={reportExpertMutation.isPending}
+            disabled={reportExpertMutation.isPending || !reportContent.trim()}
           >
             {reportExpertMutation.isPending ? "Đang gửi..." : "Gửi báo cáo"}
           </Button>
