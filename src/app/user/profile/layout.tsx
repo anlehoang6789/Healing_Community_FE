@@ -241,7 +241,7 @@ export default function ProfileUserLayout({
               <div className="flex space-x-2 sm:space-x-4 items-center">
                 <div className="flex items-center">
                   <span className="mr-1 sm:mr-2 text-[#707B7C]">
-                    Tuổi của bạn:
+                    Số ngày tham gia:
                   </span>
                   <span className="text-[#2E4053]">
                     {registrationCountData.payload.data.totalDays} ngày

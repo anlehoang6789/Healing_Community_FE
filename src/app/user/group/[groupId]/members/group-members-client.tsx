@@ -74,6 +74,7 @@ export default function GroupMembersClient() {
                   <GroupMemberDetails
                     userId={currentUser.userId}
                     roleInGroup={currentUser.roleInGroup}
+                    groupId={groupIdFromPath}
                   />
                 </div>
               )}
@@ -90,6 +91,7 @@ export default function GroupMembersClient() {
                   <GroupMemberDetails
                     userId={admin.userId}
                     roleInGroup={admin.roleInGroup}
+                    groupId={groupIdFromPath}
                   />
                 </div>
               ))}
@@ -114,6 +116,7 @@ export default function GroupMembersClient() {
                   <GroupMemberDetails
                     userId={member.userId}
                     roleInGroup={member.roleInGroup}
+                    groupId={groupIdFromPath}
                   />
                 </div>
               ))}

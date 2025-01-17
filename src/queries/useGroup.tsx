@@ -223,6 +223,9 @@ export const useApproveOrRejectRequestJoinGroupMutation = (groupId: string) => {
       queryClient.invalidateQueries({
         queryKey: ["get-group-details-by-group-id", groupId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-members-by-group-id", groupId],
+      });
     },
   });
 };
@@ -272,6 +275,27 @@ export const useAssignRoleMutation = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["get-groups-by-user-id"],
+      });
+    },
+  });
+};
+
+export const useRemoveMemberMutation = (groupId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: groupApiRequest.removeMemberQuery,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-details-by-group-id", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-role-count-by-group-id", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-all-groups"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-members-by-group-id"],
       });
     },
   });
