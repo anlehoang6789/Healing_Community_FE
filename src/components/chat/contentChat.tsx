@@ -11,6 +11,8 @@ import EmojiPicker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
 import { SendHorizontal, Smile as Emoji } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
+import AvatarChat from "@/app/chat/avatar-chat";
+import NameChat from "@/app/chat/name-chat";
 
 interface ContentChatProps {
   selectedContact: Contact;
@@ -54,17 +56,25 @@ export default function ContentChat({
       <div className="sticky top-0 z-10 bg-backgroundChat shadow-lg rounded-t-lg flex items-center justify-between p-4">
         <div className="flex items-center">
           <div className="relative">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={selectedContact.avatar} />
+            {/* <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={
+                  typeof selectedContact.avatar === "string"
+                    ? selectedContact.avatar
+                    : undefined
+                }
+              />
               <AvatarFallback>
                 {selectedContact.name.substring(0, 2)}
               </AvatarFallback>
-            </Avatar>
+            </Avatar> */}
+            <AvatarChat userId={selectedContact.id} />
             <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 rounded-full border-2 border-white"></div>
           </div>
 
           <div className="ml-3">
-            <p className="font-semibold">{selectedContact.name}</p>
+            {/* <p className="font-semibold">{selectedContact.name}</p> */}
+            <NameChat userId={selectedContact.id} />
             <p className="text-sm text-gray-500">Đang hoạt động</p>
           </div>
         </div>
@@ -88,12 +98,19 @@ export default function ContentChat({
                   }`}
                 >
                   {message.SenderId === selectedContact.id && (
-                    <Avatar className="h-8 w-8 mr-2">
-                      <AvatarImage src={selectedContact.avatar} />
-                      <AvatarFallback>
-                        {selectedContact.name.substring(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
+                    // <Avatar className="h-8 w-8 mr-2">
+                    //   <AvatarImage
+                    //     src={
+                    //       typeof selectedContact.avatar === "string"
+                    //         ? selectedContact.avatar
+                    //         : undefined
+                    //     }
+                    //   />
+                    //   <AvatarFallback>
+                    //     {selectedContact.name.substring(0, 2)}
+                    //   </AvatarFallback>
+                    // </Avatar>
+                    <AvatarChat userId={selectedContact.id} />
                   )}
                   {/* chỗ sẽ hiển thị tin nhắn của mình */}
                   <div
