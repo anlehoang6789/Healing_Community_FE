@@ -39,7 +39,7 @@ export default function JoinedGroup() {
             <Card key={group.groupName} className="overflow-hidden bg-gray-200">
               <CardContent className="p-2">
                 <Link
-                  href={`/group/${encodeURIComponent(group.groupId)}`}
+                  href={`/user/group/${encodeURIComponent(group.groupId)}`}
                   className="block"
                 >
                   <Image

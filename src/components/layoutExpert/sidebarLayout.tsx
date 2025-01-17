@@ -11,7 +11,7 @@ export default function SidebarLayout() {
 
   return (
     <div>
-      <aside className="w-14 flex-col justify-center h-full border-r text-muted-foreground sm:flex hidden">
+      <aside className="w-14 flex-col justify-center h-full text-muted-foreground sm:flex hidden">
         <nav className="flex flex-col items-center gap-4 px-2 py-4">
           {sidebarItems.map((Item, index) => {
             const isActive = pathname === Item.href;

@@ -174,29 +174,31 @@ export default function GroupMemberDetails({
           </div>
         </div>
       </div>
-      <Button
-        variant="outline"
-        asChild
-        onClick={() =>
-          isFollowing ? handleUnfollow(userId!) : handleFollowUser()
-        }
-      >
-        {!isFollowing ? (
-          <div className="flex items-center space-x-2 hover:cursor-pointer">
-            <UserPlus className="h-3 w-3 sm:w-4 sm:h-4" />
-            <span className="text-xs sm:text-base hidden sm:block">
-              Theo dõi người dùng
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-2 hover:cursor-pointer">
-            <UserCheck className="h-3 w-3 sm:w-4 sm:h-4" />
-            <span className="text-xs sm:text-base hidden sm:block">
-              Theo dõi người dùng
-            </span>
-          </div>
-        )}
-      </Button>
+      {!isOwner && (
+        <Button
+          variant="outline"
+          asChild
+          onClick={() =>
+            isFollowing ? handleUnfollow(userId!) : handleFollowUser()
+          }
+        >
+          {!isFollowing ? (
+            <div className="flex items-center space-x-2 hover:cursor-pointer">
+              <UserPlus className="h-3 w-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-base hidden sm:block">
+                Theo dõi người dùng
+              </span>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2 hover:cursor-pointer">
+              <UserCheck className="h-3 w-3 sm:w-4 sm:h-4" />
+              <span className="text-xs sm:text-base hidden sm:block">
+                Bỏ theo dõi người dùng
+              </span>
+            </div>
+          )}
+        </Button>
+      )}
     </>
   );
 }

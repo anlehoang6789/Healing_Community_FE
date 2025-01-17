@@ -8,8 +8,10 @@ export default function ExpertLayout({
   return (
     <div className="flex min-h-screen w-full flex-col relative">
       <HeaderService />
-      <div className="flex flex-grow">
-        <SidebarLayout />
+      <div className="flex flex-grow relative">
+        <div className=" border-r border-gray-200 pt-20">
+          <SidebarLayout />
+        </div>
 
         <main className="flex-grow flex flex-col sm:gap-4 sm:py-4 sm:pl-4 max-w-full">
           {children}
