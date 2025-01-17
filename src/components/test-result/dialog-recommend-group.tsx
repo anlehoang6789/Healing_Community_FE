@@ -107,7 +107,7 @@ const RecommendGroup = ({
           </Avatar>
           <div>
             <h3 className="font-bold">{data?.payload.data.groupName}</h3>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm ">
               Hiện có: {data?.payload.data.currentMemberCount} thành viên
             </p>
           </div>
@@ -157,9 +157,11 @@ export default function DialogRecommendGroup() {
           <div className="flex items-center px-3">
             <UserIcon className="text-green-500 mr-2" />
             <div className="flex flex-col items-start">
-              <strong className="text-green-500 text-sm">10 nhóm</strong>
+              <strong className="text-green-500 text-sm">
+                {totalRecommendGroup} nhóm
+              </strong>
               <div className="flex items-center text-xs text-gray-600">
-                <p>Phù hợp với</p> <b className="pl-1">Tâm lý của bạn</b>
+                <p>Được </p> <b className="pl-1">đề cử</b>
               </div>
             </div>
           </div>

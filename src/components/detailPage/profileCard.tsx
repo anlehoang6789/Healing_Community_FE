@@ -185,8 +185,9 @@ export default function ProfileCard() {
         <h2 className="lg:text-2xl md:text-4xl sm:text-4xl text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-violet-500">
           {isExpert
             ? expertProfile?.payload.data.fullname ||
-              expertProfile?.payload.data.email
-            : userById?.payload.data.userName}
+              userById?.payload.data.userName
+            : userById?.payload.data.fullName ||
+              userById?.payload.data.userName}
         </h2>
       </CardHeader>
       <div className="flex justify-center">

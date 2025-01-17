@@ -5,6 +5,7 @@ import { formatDateTime } from "@/lib/utils";
 import { useGetOtherPostWithSameCategoryQuery } from "@/queries/usePost";
 import { CalendarIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import React from "react";
 
@@ -49,34 +50,36 @@ export default function SameTopicPost() {
       <div className="space-y-4">
         {otherPostWithSameCategory.map((post) => (
           <Card key={post.postId} className="overflow-hidden">
-            <CardContent className="flex flex-col py-2 px-2">
-              <Image
-                src={post.coverImgUrl}
-                alt={post.title}
-                width={4000}
-                height={120}
-                className="md:h-72 sm:h-60 h-60 rounded-lg object-cover"
-                priority
-              />
-              <div className="ml-4 flex flex-col justify-between">
-                <div>
-                  <h3 className="lg:text-lg md:text-2xl sm:text-2xl text-lg mt-2 font-medium text-textChat">
-                    {post.title}
-                  </h3>
-                  <div className="lg:text-sm md:text-xl sm:text-xl text-sm text-muted-foreground line-clamp-2">
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: post.description,
-                      }}
-                    />
+            <Link href={`/content/${post.postId}`}>
+              <CardContent className="flex flex-col py-2 px-2">
+                <Image
+                  src={post.coverImgUrl}
+                  alt={post.title}
+                  width={4000}
+                  height={120}
+                  className="md:h-72 sm:h-60 h-60 rounded-lg object-cover"
+                  priority
+                />
+                <div className="ml-4 flex flex-col justify-between">
+                  <div>
+                    <h3 className="lg:text-lg md:text-2xl sm:text-2xl text-lg mt-2 font-medium text-textChat">
+                      {post.title}
+                    </h3>
+                    <div className="lg:text-sm md:text-xl sm:text-xl text-sm text-muted-foreground line-clamp-2">
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: post.description,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center text-gray-500 text-xs mt-2">
+                    <CalendarIcon className="mr-1 h-4 w-4" />
+                    <span>{formatDateTime(post.createAt)}</span>
                   </div>
                 </div>
-                <div className="flex items-center text-gray-500 text-xs mt-2">
-                  <CalendarIcon className="mr-1 h-4 w-4" />
-                  <span>{formatDateTime(post.createAt)}</span>
-                </div>
-              </div>
-            </CardContent>
+              </CardContent>
+            </Link>
           </Card>
         ))}
       </div>
