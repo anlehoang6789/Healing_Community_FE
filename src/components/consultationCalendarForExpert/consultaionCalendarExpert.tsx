@@ -113,8 +113,13 @@ export default function ConsultationScheduleExpert() {
       upcoming: filteredAndSortedConsultations.filter((c) =>
         ["Đang diễn ra", "Sắp diễn ra"].includes(c.tag)
       ),
-      completed: filteredAndSortedConsultations.filter(
-        (c) => c.tag === "Đã hoàn thành"
+      completed: filteredAndSortedConsultations.filter((c) =>
+        [
+          "Đã hoàn thành",
+          "Chuyển tiền cho chuyên gia",
+          "Chờ báo cáo",
+          "Hoàn tiền cho người dùng",
+        ].includes(c.tag)
       ),
       cancelled: filteredAndSortedConsultations.filter(
         (c) => c.tag === "Đã hủy"
