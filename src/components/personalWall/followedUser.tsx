@@ -35,7 +35,6 @@ export default function FollowedUser() {
 
   // Số bài viết của người theo dõi
   const PostCount = ({ userId }: { userId: string }) => {
-    // Fetch role của người dùng
     const { data: postCountData } = useGetPostCountQuery(userId);
 
     return (

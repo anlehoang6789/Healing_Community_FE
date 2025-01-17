@@ -16,13 +16,19 @@ import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { useUserIsOwnerStore } from "@/store/userStore";
+import {
+  useCheckRoleInGroupQuery,
+  useRemoveMemberMutation,
+} from "@/queries/useGroup";
 
 export default function GroupMemberDetails({
   userId,
   roleInGroup,
+  groupId,
 }: {
   userId: string;
   roleInGroup: string;
+  groupId: string;
 }) {
   const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
@@ -39,6 +45,33 @@ export default function GroupMemberDetails({
 
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const isOwner = userIdFromLocalStorage === userId;
+
+  const { data: checkRole } = useCheckRoleInGroupQuery(
+    userIdFromLocalStorage as string,
+    groupId
+  );
+
+  const isModeratorInGroup =
+    checkRole?.payload.data.roleInGroup === "Moderator";
+
+  const isOwnerInGroup = checkRole?.payload.data.roleInGroup === "Owner";
+
+  const remooveMemberMutation = useRemoveMemberMutation(groupId);
+  const handleRemoveMember = async () => {
+    if (remooveMemberMutation.isPending) return;
+    try {
+      const res = await remooveMemberMutation.mutateAsync({
+        groupId: groupId,
+        memberUserId: userId,
+      });
+      toast({
+        description: res.payload.message,
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
 
   //logic follow and unfollow
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
@@ -174,31 +207,38 @@ export default function GroupMemberDetails({
           </div>
         </div>
       </div>
-      {!isOwner && (
-        <Button
-          variant="outline"
-          asChild
-          onClick={() =>
-            isFollowing ? handleUnfollow(userId!) : handleFollowUser()
-          }
-        >
-          {!isFollowing ? (
-            <div className="flex items-center space-x-2 hover:cursor-pointer">
-              <UserPlus className="h-3 w-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-base hidden sm:block">
-                Theo dõi người dùng
-              </span>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2 hover:cursor-pointer">
-              <UserCheck className="h-3 w-3 sm:w-4 sm:h-4" />
-              <span className="text-xs sm:text-base hidden sm:block">
-                Bỏ theo dõi người dùng
-              </span>
-            </div>
-          )}
-        </Button>
-      )}
+      <div className="flex items-center gap-2">
+        {!isOwner && isOwnerInGroup && (
+          <Button
+            variant="outline"
+            asChild
+            onClick={() =>
+              isFollowing ? handleUnfollow(userId!) : handleFollowUser()
+            }
+          >
+            {!isFollowing ? (
+              <div className="flex items-center space-x-2 hover:cursor-pointer">
+                <UserPlus className="h-3 w-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-base hidden sm:block">
+                  Theo dõi người dùng
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2 hover:cursor-pointer">
+                <UserCheck className="h-3 w-3 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-base hidden sm:block">
+                  Bỏ theo dõi người dùng
+                </span>
+              </div>
+            )}
+          </Button>
+        )}
+        {isModeratorInGroup && !isOwner && isOwnerInGroup && (
+          <Button variant="destructive" onClick={() => handleRemoveMember()}>
+            Xóa thành viên
+          </Button>
+        )}
+      </div>
     </>
   );
 }

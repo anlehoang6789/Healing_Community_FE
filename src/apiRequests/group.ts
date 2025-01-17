@@ -17,6 +17,7 @@ import {
   GetRoleCountByGroupIdResType,
   JoinGroupRequestType,
   LeaveGroupRequestType,
+  RemoveMemberBodySchemaType,
 } from "@/schemaValidations/group.schema";
 
 const groupApiRequest = {
@@ -105,6 +106,11 @@ const groupApiRequest = {
     http.post<{ message: string }>(
       `group/api/managegroup/assign-role?groupId=${payload.groupId}&userId=${payload.userId}&role=${payload.role}`,
       {}
+    ),
+
+  removeMemberQuery: (body: RemoveMemberBodySchemaType) =>
+    http.delete<{ message: string }>(
+      `group/api/managegroup/remove-member?groupId=${body.groupId}&memberUserId=${body.memberUserId}`
     ),
 };
 

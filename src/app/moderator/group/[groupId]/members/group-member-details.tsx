@@ -5,11 +5,12 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { Role } from "@/constants/type";
-import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import {
   useAssignRoleMutation,
   useCheckRoleInGroupQuery,
+  useRemoveMemberMutation,
 } from "@/queries/useGroup";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { toast } from "@/hooks/use-toast";
 
 export default function GroupMemberDetailsForModerator({
   userId,
@@ -55,6 +57,23 @@ export default function GroupMemberDetailsForModerator({
   const [selectedRole, setSelectedRole] = useState(
     roleInGroup === "Moderator" ? 2 : 1
   );
+
+  const remooveMemberMutation = useRemoveMemberMutation(groupId);
+  const handleRemoveMember = async () => {
+    if (remooveMemberMutation.isPending) return;
+    try {
+      const res = await remooveMemberMutation.mutateAsync({
+        groupId: groupId,
+        memberUserId: userId,
+      });
+      toast({
+        description: res.payload.message,
+        variant: "success",
+      });
+    } catch (error: any) {
+      handleErrorApi(error);
+    }
+  };
 
   const [role, setRole] = useState<string>(String(selectedRole)); // Ép kiểu thành string
 
@@ -165,9 +184,14 @@ export default function GroupMemberDetailsForModerator({
       </div>
 
       {isOwnerInGroup && userIdFromLocalStorage !== userId && (
-        <Button variant="outline" onClick={() => setDialogOpen(true)}>
-          Thay đổi vai trò
-        </Button>
+        <div className="space-x-2">
+          <Button variant="outline" onClick={() => setDialogOpen(true)}>
+            Thay đổi vai trò
+          </Button>
+          <Button variant="destructive" onClick={() => handleRemoveMember()}>
+            Xóa thành viên
+          </Button>
+        </div>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
