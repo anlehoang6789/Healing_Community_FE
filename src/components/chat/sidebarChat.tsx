@@ -1,5 +1,8 @@
 "use client";
+import AvatarChat from "@/app/chat/avatar-chat";
 import { Contact } from "@/app/chat/client-page-chat";
+import NameChat from "@/app/chat/name-chat";
+import NameSidebarChat from "@/app/chat/name-sidebar-chat";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -52,18 +55,26 @@ export default function SidebarChat({
             }`}
             onClick={() => setSelectedContact(contact)}
           >
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={contact.avatar} />
+            {/* <Avatar className="h-10 w-10">
+              <AvatarImage
+                src={
+                  typeof contact.avatar === "string"
+                    ? contact.avatar
+                    : undefined
+                }
+              />
               <AvatarFallback>{contact.name.substring(0, 2)}</AvatarFallback>
-            </Avatar>
+            </Avatar> */}
+            <AvatarChat userId={contact.id} />
             <div className="ml-3">
-              <p className="font-semibold">{contact.name}</p>
+              {/* <p className="font-semibold">{contact.name}</p> */}
               {/* <div className="flex items-center">
                 <p className="text-sm text-gray-500">
                   {truncateMessage(contact?.lastMessage ?? "", 6)}
                 </p>
                 <span className="text-sm ml-3">.10h</span>
               </div> */}
+              <NameSidebarChat userId={contact.id} />
             </div>
           </div>
         ))}
