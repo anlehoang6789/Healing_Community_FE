@@ -50,7 +50,8 @@ export default function ProfileCard() {
     enabled: true,
   });
   const { data: roleByUserId } = useGetRoleByUserIdQuery(
-    postById?.payload.data.userId as string
+    postById?.payload.data.userId as string,
+    !!postById?.payload.data.userId
   );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data: expertProfile } = useGetExpertProfileQuery(

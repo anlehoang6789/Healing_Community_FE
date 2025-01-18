@@ -34,11 +34,14 @@ export default function ProfileUserLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const params = useParams();
-  const userIdFromPath = params.userId as string | undefined;
-  const expertIdFromPath = params.expertId as string | undefined;
+  const userIdFromPath = params.userId;
+  const expertIdFromPath = params.expertId;
   const currentUserId = getUserIdFromLocalStorage();
   const [userId, setUserId] = useState<string | null>(null);
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    (userIdFromPath as string) || (expertIdFromPath as string),
+    !!userIdFromPath || !!expertIdFromPath
+  );
 
   const { data: followerCountData } = useGetFollowerCountQuery(
     (userIdFromPath as string) || (expertIdFromPath as string)
@@ -63,9 +66,9 @@ export default function ProfileUserLayout({
   const isOwner = userIdFromPath === currentUserId;
   useEffect(() => {
     if (userIdFromPath) {
-      setUserId(userIdFromPath);
+      setUserId(userIdFromPath as string);
     } else if (expertIdFromPath) {
-      setUserId(expertIdFromPath);
+      setUserId(expertIdFromPath as string);
     }
   }, [userIdFromPath, expertIdFromPath]);
 

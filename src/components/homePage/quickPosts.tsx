@@ -7,9 +7,13 @@ import { useQuickPostStore } from "@/store/postStore";
 import Image from "next/image";
 import Link from "next/link";
 
-export default function QuickViewNews() {
-  const { data } = useGetQuickPost();
-  const quickPostList = data?.payload.data || [];
+export default function QuickViewNews({
+  quickPostList,
+}: {
+  quickPostList: QuickPostType[];
+}) {
+  // const { data } = useGetQuickPost();
+  // const quickPostList = data?.payload.data || [];
   const { setPostData } = useQuickPostStore();
   const handleClickedPost = (postId: string, userId: string) => {
     setPostData(postId, userId);

@@ -19,9 +19,10 @@ export const useLogoutMutation = () => {
   });
 };
 
-export const useGetRoleByUserIdQuery = (userId: string) => {
+export const useGetRoleByUserIdQuery = (userId: string, enabled?: boolean) => {
   return useQuery({
     queryKey: ["role-by-user-id", userId],
     queryFn: () => authApiRequest.getRoleByUserId(userId),
+    enabled,
   });
 };

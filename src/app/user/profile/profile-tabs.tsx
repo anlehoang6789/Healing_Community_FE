@@ -29,7 +29,10 @@ export default function ProfileTabs({
   const router = useRouter();
   const pathname = usePathname();
   const role = getRoleFromLocalStorage();
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    userId as string,
+    !!userId
+  );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { setIsThatOwner } = useUserIsOwnerStore();
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
