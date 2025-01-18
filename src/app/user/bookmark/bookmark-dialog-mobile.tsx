@@ -125,7 +125,7 @@ export default function BookmarkDialogMobile({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent>
+      <DialogContent onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle className="text-textChat">
             Chọn danh sách Bookmark
@@ -249,7 +249,7 @@ export default function BookmarkDialogMobile({
             </Button>
           ) : (
             <>
-              {bookmarkListArray.length && (
+              {bookmarkListArray.length ? (
                 <Button
                   onClick={handleAddPostToBookmark}
                   disabled={
@@ -260,7 +260,7 @@ export default function BookmarkDialogMobile({
                     ? "Đang thêm..."
                     : "Thêm vào Bookmark"}
                 </Button>
-              )}
+              ) : null}
             </>
           )}
         </DialogFooter>
