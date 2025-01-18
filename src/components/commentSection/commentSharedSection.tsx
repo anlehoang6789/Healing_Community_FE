@@ -265,94 +265,6 @@ export default function CommentSharedSection({
     }
   };
 
-  // Avatar của người comment
-  const AvatarUserCommentProfile = ({ userId }: { userId: string }) => {
-    // Fetch role của người dùng
-    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
-
-    // Fetch thông tin người dùng bình thường
-    const { data: userProfile } = useGetUserProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.User && !!userId
-    );
-
-    // Fetch thông tin chuyên gia
-    const { data: expertProfile } = useGetExpertProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.Expert && !!userId
-    );
-
-    // Hiển thị Avatar người comment
-    return (
-      <Link href={`/user/profile/${userId}`}>
-        <Avatar className="w-8 h-8 border-2 border-rose-300">
-          <AvatarImage
-            src={
-              userProfile?.payload.data.profilePicture ||
-              expertProfile?.payload.data.profileImageUrl ||
-              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-            }
-            alt={
-              userProfile?.payload.data.fullName ||
-              userProfile?.payload.data.userName ||
-              expertProfile?.payload.data.fullname ||
-              "User"
-            }
-          />
-          <AvatarFallback>
-            {userProfile?.payload.data.fullName ||
-              userProfile?.payload.data.userName ||
-              expertProfile?.payload.data.fullname ||
-              expertProfile?.payload.data.email}
-          </AvatarFallback>
-        </Avatar>
-      </Link>
-    );
-  };
-
-  // Tên của người comment
-  const FullNameUserCommentProfile = ({ userId }: { userId: string }) => {
-    // Fetch role của người dùng
-    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
-
-    // Fetch thông tin người dùng bình thường
-    const { data: userProfile } = useGetUserProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.User && !!userId
-    );
-
-    // Fetch thông tin chuyên gia
-    const { data: expertProfile } = useGetExpertProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.Expert && !!userId
-    );
-
-    // Kiểm tra xem người dùng có phải là chuyên gia không
-    const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
-
-    // Hiển thị tên người comment
-    return (
-      <Link href={`/user/profile/${userId}`}>
-        <div className="flex items-center space-x-2">
-          <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-            {isExpert
-              ? expertProfile?.payload.data.fullname ||
-                expertProfile?.payload.data.email
-              : userProfile?.payload.data.fullName ||
-                userProfile?.payload.data.userName ||
-                "Anonymous"}
-          </span>
-
-          {isExpert && (
-            <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
-              Chuyên gia
-            </div>
-          )}
-        </div>
-      </Link>
-    );
-  };
-
   const renderComments = (comments: SharedCommentType[], depth = 0) => {
     return comments.map((comment) => {
       // Kiểm tra xem comment có phải của người dùng hiện tại không
@@ -371,7 +283,18 @@ export default function CommentSharedSection({
           onMouseLeave={() => setHoveredCommentId(null)} // Reset ID khi rời khỏi hover
         >
           {/* Avatar người comment */}
-          <AvatarUserCommentProfile userId={comment.userId} />
+          <Link href={`/user/profile/${comment.userId}`}>
+            <Avatar className="w-8 h-8 border-2 border-rose-300">
+              <AvatarImage
+                src={
+                  comment.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt={comment.userId}
+              />
+              <AvatarFallback>{comment.userId}</AvatarFallback>
+            </Avatar>
+          </Link>
 
           <div className="flex-1">
             <div
@@ -425,7 +348,13 @@ export default function CommentSharedSection({
               )}
 
               {/* Tên người comment */}
-              <FullNameUserCommentProfile userId={comment.userId} />
+              <Link href={`/user/profile/${comment.userId}`}>
+                <div className="flex items-center space-x-2">
+                  <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                    {comment.userName}
+                  </span>
+                </div>
+              </Link>
 
               <p className=" whitespace-pre-wrap break-all">
                 {comment.content}

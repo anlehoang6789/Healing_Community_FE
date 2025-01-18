@@ -117,7 +117,7 @@ export default function ProfileTabs({
 
   return (
     <main className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 my-6">
-      <div className="flex flex-col space-y-4 sm:space-y-0 sm:flex-row sm:justify-between sm:items-center py-4 border-b">
+      <div className="flex flex-col space-y-4 sm:space-y-0 lg:flex-row sm:justify-between sm:items-center py-4 border-b">
         {isOwner ? (
           <Button className="w-full sm:w-auto bg-[#707B7C] hover:bg-[#A0A6A8] flex items-center justify-center sm:order-2">
             <Link
