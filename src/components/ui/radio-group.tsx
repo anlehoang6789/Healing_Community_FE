@@ -35,10 +35,10 @@ const RadioGroupItem = React.forwardRef<
       )}
       {...props}
     >
-      <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
+      <RadioGroupPrimitive.Indicator className=" items-center justify-center relative">
         <Dot
-          className="h-5 w-5 rounded-full"
-          strokeWidth={"20px"}
+          className="h-5 w-5 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+          strokeWidth={"15px"}
           color={dotColor}
         />
       </RadioGroupPrimitive.Indicator>

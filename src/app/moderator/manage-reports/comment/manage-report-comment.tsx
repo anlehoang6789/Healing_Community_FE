@@ -195,6 +195,7 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
+      const { refetch } = useGetReportCommentQuery();
       const approveOrRejectReportCommentMutation =
         useApproveOrRejectReportCommentMutation();
       if (row.original.isApprove !== null) return null;
@@ -210,6 +211,7 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
             description: res.payload.message,
             variant: "success",
           });
+          await refetch();
         } catch (error: any) {
           handleErrorApi(error);
         }
@@ -226,6 +228,7 @@ export const columns: ColumnDef<ReportCommentDataType>[] = [
             description: res.payload.message,
             variant: "success",
           });
+          await refetch();
         } catch (error: any) {
           handleErrorApi(error);
         }
