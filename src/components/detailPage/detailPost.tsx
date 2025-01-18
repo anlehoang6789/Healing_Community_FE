@@ -70,7 +70,7 @@ export default function DetailPost() {
     enabled: true,
   });
   const { data: roleByUserId } = useGetRoleByUserIdQuery(
-    postById?.payload.data.userId as string
+    userIdComment as string
   );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   //data của user theo userId lấy từ api postById
@@ -79,8 +79,8 @@ export default function DetailPost() {
     !isExpert && !!postById?.payload.data.userId
   );
   const { data: expertProfile } = useGetExpertProfileQuery(
-    postById?.payload.data.userId as string,
-    isExpert && !!postById?.payload.data.userId
+    userIdComment as string,
+    isExpert && !!userIdComment
   );
   const imageComment = useGetUserProfileQuery(userIdComment);
   const { data: commentsData } = useGetCommentsByPostIdQuery(
