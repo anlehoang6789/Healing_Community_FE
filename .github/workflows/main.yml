@@ -26,9 +26,10 @@ jobs:
       # Step 3: Inject GitHub Secrets vào môi trường
       - name: Inject
         run: |
-          echo "${{ secrets.NEXT_PUBLIC_API_ENDPOINT }}" > .env
-          echo "${{ secrets.NEXT_PUBLIC_URL }}" > .env
-          cat .env
+          touch .env
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" >> .env
+          echo "NEXT_PUBLIC_URL=${{ secrets.NEXT_PUBLIC_URL }}" >> .env
+          cat .
 
       # Step 4: Cài đặt dependencies
       - name: Install dependencies
