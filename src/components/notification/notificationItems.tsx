@@ -31,7 +31,7 @@ export default function NotificationItems({
     if (maskAsReadNotificationMutation.isPending) return;
     try {
       await maskAsReadNotificationMutation.mutateAsync(notificationId);
-      if (notificationTypeId === "11") {
+      if (notificationTypeId === "06") {
         router.push(`/user/profile/${userId}`);
       }
       router.push(`/content/${postId}`);
