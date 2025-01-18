@@ -28,6 +28,7 @@ export const useGetUserProfileQuery = (userId: string, enabled?: boolean) => {
   return useQuery({
     queryKey: ["userProfile", userId],
     queryFn: () => accountApiRequest.getUserProfile(userId),
+
     enabled,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
