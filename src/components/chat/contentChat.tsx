@@ -81,7 +81,7 @@ export default function ContentChat({
       </div>
       {/* Phần nội dung chat */}
       <ScrollArea className="p-4 h-[600px] flex flex-col justify-end relative">
-        <div className="space-y-4">
+        <div className="space-y-4 absolute bottom-0 right-0 px-2 w-full">
           {messages.length === 0 ? (
             <div className="flex justify-center items-center text-gray-400">
               Hãy bắt đầu cuộc trò chuyện!
@@ -93,7 +93,7 @@ export default function ContentChat({
               return (
                 <div
                   key={message.Id || index}
-                  className={`flex ${
+                  className={`flex gap-2 ${
                     message.SenderId === selectedContact.id ? "" : "justify-end"
                   }`}
                 >
@@ -124,8 +124,7 @@ export default function ContentChat({
                         : ""
                     }`}
                     style={{
-                      marginTop:
-                        isMyMessage && isFirstMessage ? "auto" : "inherit", // Đẩy lên góc phải nếu tin nhắn đầu tiên
+                      marginTop: isMyMessage && isFirstMessage ? "auto" : "", // Đẩy lên góc phải nếu tin nhắn đầu tiên
                     }}
                   >
                     <p>{message.Content}</p>
