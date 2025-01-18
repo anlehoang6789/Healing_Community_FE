@@ -123,7 +123,7 @@ export default function PersonalInformationForm() {
         <div className="w-full md:w-1/3 space-y-6">
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-muted-foreground">
-              Ảnh đại diện
+              Ảnh đại diện <span className="text-red-500">*</span>
             </h2>
             <FormField
               control={form.control}
@@ -204,7 +204,7 @@ export default function PersonalInformationForm() {
                         htmlFor="fullName"
                         className="text-right text-muted-foreground"
                       >
-                        Tên hiển thị
+                        Tên hiển thị <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="fullName"
@@ -251,7 +251,7 @@ export default function PersonalInformationForm() {
                         htmlFor="phoneNumber"
                         className="text-right text-muted-foreground"
                       >
-                        Số điện thoại
+                        Số điện thoại <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="phoneNumber"
