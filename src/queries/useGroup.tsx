@@ -142,6 +142,7 @@ export const useGetGroupMembersByGroupIdQuery = (groupId: string) => {
     queryKey: ["get-group-members-by-group-id", groupId],
     queryFn: () => groupApiRequest.getGroupMemberByGroupId(groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -150,6 +151,7 @@ export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
     queryKey: ["get-role-count-by-group-id", groupId],
     queryFn: () => groupApiRequest.getRoleCountByGroupId(groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 

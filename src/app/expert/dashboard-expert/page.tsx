@@ -22,67 +22,52 @@ export default function DashboardExpert() {
           Thống kê của bạn
         </h1>
         {/* Tổng doanh thu, lượt đặt lịch, đánh giá, lượt xem hồ sơ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Tổng doanh thu */}
-          <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-textChat">
-                Tổng Doanh Thu
-              </CardTitle>
-              <Banknote className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-textChat">
-                {formatCurrency(expertTotalRevenue?.payload.data || 0)}
-              </div>
-              <p className="text-xs text-green-500"></p>
-            </CardContent>
-          </Card>
-          {/* lượt đặt lịch */}
-          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-textChat">
-                Lượt Đặt Lịch
-              </CardTitle>
-              <CalendarDays className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-textChat">
-                {expertStatistic?.payload.data.totalAppointments}
-              </div>
-              <p className="text-xs text-blue-500">
-                +180.1% so với tháng trước
-              </p>
-            </CardContent>
-          </Card>
-          {/* đánh giá */}
-          <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-textChat">
-                Đánh Giá
-              </CardTitle>
-              <Star className="h-4 w-4 text-yellow-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-textChat">
-                {expertStatistic?.payload.data.averageRating}
-              </div>
-              <p className="text-xs text-yellow-500">+201 đánh giá mới</p>
-            </CardContent>
-          </Card>
-          {/* lượt xem hồ sơ */}
-          <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-textChat">
-                Lượt Xem Hồ Sơ
-              </CardTitle>
-              <Users className="h-4 w-4 text-purple-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-textChat">1,234</div>
-              <p className="text-xs text-purple-500">+49% so với tháng trước</p>
-            </CardContent>
-          </Card>
+        <div className="flex justify-center w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 w-[900px]">
+            {/* Tổng doanh thu */}
+            <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-textChat">
+                  Tổng Doanh Thu
+                </CardTitle>
+                <Banknote className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-textChat">
+                  {formatCurrency(expertTotalRevenue?.payload.data || 0)}
+                </div>
+                <p className="text-xs text-green-500"></p>
+              </CardContent>
+            </Card>
+            {/* lượt đặt lịch */}
+            <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-textChat">
+                  Lượt Đặt Lịch
+                </CardTitle>
+                <CalendarDays className="h-4 w-4 text-blue-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-textChat">
+                  {expertStatistic?.payload.data.totalAppointments}
+                </div>
+              </CardContent>
+            </Card>
+            {/* đánh giá */}
+            <Card className=" shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-textChat">
+                  Đánh Giá
+                </CardTitle>
+                <Star className="h-4 w-4 text-yellow-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-textChat">
+                  {expertStatistic?.payload.data.averageRating}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">

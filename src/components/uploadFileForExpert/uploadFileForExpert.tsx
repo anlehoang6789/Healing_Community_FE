@@ -299,7 +299,6 @@ export default function UploadFileForExpert() {
         <h2 className="mb-2 text-2xl font-bold text-muted-foreground">
           Tải lên tài liệu
         </h2>
-        <DialogExpertInfo />
       </div>
       <p className="text-muted-foreground">Tải lên tài liệu bạn muốn chia sẻ</p>
 
@@ -307,54 +306,70 @@ export default function UploadFileForExpert() {
         <h4 className="text-lg font-semibold mb-2 text-muted-foreground">
           Chọn loại tài liệu
         </h4>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="headerIcon"
-              role="combobox"
-              aria-expanded={open}
-              className="w-[210px] justify-between border-gray-500 whitespace-normal"
-            >
-              {documentType
-                ? documentTypes.find((type) => type.value === documentType)
-                    ?.label
-                : "Chọn loại tệp"}
-              <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[200px] p-0">
-            <Command>
-              <CommandInput placeholder="Search document..." className="h-9" />
-              <CommandList>
-                <CommandEmpty>No document type found.</CommandEmpty>
-                <CommandGroup>
-                  {documentTypes.map((type) => (
-                    <CommandItem
-                      key={type.value}
-                      value={type.value}
-                      onSelect={(currentValue) => {
-                        setDocumentType(
-                          currentValue === documentType ? "" : currentValue
-                        );
-                        setOpen(false);
-                      }}
-                    >
-                      {type.label}
-                      <CheckIcon
-                        className={cn(
-                          "ml-auto h-4 w-4",
-                          documentType === type.value
-                            ? "opacity-100"
-                            : "opacity-0"
-                        )}
-                      />
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </CommandList>
-            </Command>
-          </PopoverContent>
-        </Popover>
+        <div className=" flex gap-7 items-center">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="headerIcon"
+                role="combobox"
+                aria-expanded={open}
+                className="w-[210px] justify-between border-gray-500 whitespace-normal"
+              >
+                {documentType
+                  ? documentTypes.find((type) => type.value === documentType)
+                      ?.label
+                  : "Chọn loại tệp"}
+                <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0">
+              <Command>
+                <CommandInput
+                  placeholder="Search document..."
+                  className="h-9"
+                />
+                <CommandList>
+                  <CommandEmpty>No document type found.</CommandEmpty>
+                  <CommandGroup>
+                    {documentTypes.map((type) => (
+                      <CommandItem
+                        key={type.value}
+                        value={type.value}
+                        onSelect={(currentValue) => {
+                          setDocumentType(
+                            currentValue === documentType ? "" : currentValue
+                          );
+                          setOpen(false);
+                        }}
+                      >
+                        {type.label}
+                        <CheckIcon
+                          className={cn(
+                            "ml-auto h-4 w-4",
+                            documentType === type.value
+                              ? "opacity-100"
+                              : "opacity-0"
+                          )}
+                        />
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </CommandList>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          <div>
+            <span>
+              Bạn phải cung cấp đủ các chứng chỉ{" "}
+              <span className="font-bold text-red-500">cần thiết sau đây </span>
+              trước khi tạo lịch tư vấn:{" "}
+              <span className="font-bold">Bằng cử nhân</span>,{" "}
+              <span className="font-bold">Giấy phép hành nghề</span>,{" "}
+              <span className="font-bold">CCCD</span>,{" "}
+              <span className="font-bold">Ảnh thẻ</span>.
+            </span>
+          </div>
+        </div>
       </div>
 
       <div
