@@ -503,6 +503,8 @@ export const SharedCommentSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
   replies: z.array(ReplySharedCommentSchema).nullable().optional(),
+  profilePicture: z.string().url().optional(),
+  userName: z.string().optional(),
 });
 
 export type SharedCommentType = z.TypeOf<typeof SharedCommentSchema>;

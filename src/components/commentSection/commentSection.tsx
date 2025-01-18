@@ -290,7 +290,13 @@ export default function CommentSection({
 
           <Link href={`/user/profile/${comment.userId}`}>
             <Avatar className="w-8 h-8 border-2 border-rose-300">
-              <AvatarImage src={comment.profilePicture} alt={comment.userId} />
+              <AvatarImage
+                src={
+                  comment.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt={comment.userId}
+              />
               <AvatarFallback>{comment.userId}</AvatarFallback>
             </Avatar>
           </Link>
