@@ -14,6 +14,7 @@ export const useGetAllGroupsQuery = () => {
     queryKey: ["get-all-groups"],
     queryFn: groupApiRequest.getAllGroups,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -23,6 +24,7 @@ export const useGetGroupsByUserIdQuery = (userId: string) => {
     queryFn: () => groupApiRequest.getGroupsJoinedByUserId(userId),
     enabled: !!userId,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -131,6 +133,7 @@ export const useGetGroupDetailsByGroupIdQuery = ({
     queryFn: () => groupApiRequest.getGroupDetailsByGroupId(groupId),
     enabled: enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -157,6 +160,7 @@ export const useGetListRequestGroupQuery = () => {
     queryKey: ["get-list-request-group"],
     queryFn: groupApiRequest.getApprovalRequestsCreateGroup,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -166,6 +170,7 @@ export const useGetListRequestedGroupByUserIdQuery = (userId: string) => {
     queryFn: () => groupApiRequest.getRequestsCreateGroupByUserId(userId),
     enabled: !!userId,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -208,6 +213,7 @@ export const useGetRequestJoinGroupQuery = (groupId: string) => {
     queryKey: ["get-request-join-group", groupId],
     queryFn: () => groupApiRequest.getRequestJoinGroup(groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -251,6 +257,7 @@ export const useGetGroupInfoQuery = ({
     queryFn: () => groupApiRequest.getGroupInfo(userId),
     enabled: enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -259,6 +266,7 @@ export const useGetRecommendGroupQuery = () => {
     queryKey: ["get-recommend-group"],
     queryFn: groupApiRequest.getRecommendGroup,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 

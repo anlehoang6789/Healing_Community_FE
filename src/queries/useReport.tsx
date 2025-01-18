@@ -6,6 +6,7 @@ export const useGetReportPostQuery = () => {
     queryKey: ["reportPost"],
     queryFn: reportApiRequest.getReportPost,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -41,6 +42,7 @@ export const useGetModeratorActivityReportPostQuery = () => {
     queryKey: ["moderatorActivityReportPost"],
     queryFn: reportApiRequest.getModeratorActivityReportPost,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -49,6 +51,7 @@ export const useGetReportExpertQuery = () => {
     queryKey: ["reportExpert"],
     queryFn: reportApiRequest.getReportExpert,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -72,6 +75,7 @@ export const useGetModeratorActivityReportExpertQuery = () => {
     queryKey: ["moderatorActivityReportExpert"],
     queryFn: reportApiRequest.getModeratorActivityReportExpert,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -92,6 +96,7 @@ export const useGetModeratorActivityReportCommentQuery = () => {
     queryKey: ["moderatorActivityReportComment"],
     queryFn: reportApiRequest.getModeratorActivityReportComment,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -100,6 +105,7 @@ export const useGetSystemReportQuery = () => {
     queryKey: ["systemReport"],
     queryFn: reportApiRequest.getSystemReport,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 

@@ -12,6 +12,7 @@ export const usePaymentHistoryQuery = () => {
     queryKey: ["payment-history-list"],
     queryFn: paymentApiRequest.listPaymentHistory,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -47,6 +48,7 @@ export const useGetFeeServiceQuery = () => {
     queryKey: ["fee-service"],
     queryFn: paymentApiRequest.getFeeService,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -67,6 +69,7 @@ export const usePaymentHistoryForModeratorQuery = () => {
     queryKey: ["payment-history-moderator"],
     queryFn: paymentApiRequest.getPaymentHistoryForModerator,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -80,6 +83,7 @@ export const usePaymentHistoryForUserQuery = ({
     queryFn: paymentApiRequest.getPaymentHistoryForUser,
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -93,6 +97,7 @@ export const usePaymentHistoryForExpertQuery = ({
     queryFn: paymentApiRequest.getPaymentHistoryForExpert,
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -101,6 +106,7 @@ export const useGetTotalRevenueForExpert = () => {
     queryKey: ["totalRevenueForExpert"],
     queryFn: paymentApiRequest.getTotalRevenueForExpert,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -111,6 +117,7 @@ export const useGetRevenueDetailsForExpertQuery = (
     queryKey: ["revenue-details-expert", filterType],
     queryFn: () => paymentApiRequest.getRevenueDetailsForExpert(filterType),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -119,6 +126,7 @@ export const useGetTotalRevenueForAdmin = () => {
     queryKey: ["totalRevenueForAdmin"],
     queryFn: paymentApiRequest.getTotalRevenueForAdmin,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -129,5 +137,6 @@ export const useGetRevenueDetailsForAdminQuery = (
     queryKey: ["revenue-details-admin", filterType],
     queryFn: () => paymentApiRequest.getRevenueDetailsForAdmin(filterType),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };

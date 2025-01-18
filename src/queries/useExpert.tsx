@@ -14,6 +14,7 @@ export const useGetCertificateTypesQuery = () => {
     queryKey: ["certificate-types"],
     queryFn: () => expertApiRequest.getCertificateTypes(),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -22,6 +23,7 @@ export const useGetAllCertificates = () => {
     queryKey: ["certificates"],
     queryFn: () => expertApiRequest.getAllCertificates(),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -30,6 +32,7 @@ export const useGetCertificatesByExpertId = (expertId: string) => {
     queryKey: ["certificate-by-expertId", expertId],
     queryFn: () => expertApiRequest.getCertificatesByExpertId(expertId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -70,6 +73,7 @@ export const useGetExpertProfileQuery = (
     queryFn: () => expertApiRequest.getExpertProfile(expertId),
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -105,6 +109,7 @@ export const useGetAppointmentForUser = () => {
     queryKey: ["appointments-for-user"],
     queryFn: expertApiRequest.getAppointmentForUser,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -113,6 +118,7 @@ export const useGetAppointmentForExpert = () => {
     queryKey: ["appointments-for-expert"],
     queryFn: expertApiRequest.getAppointmentForExpert,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -140,6 +146,7 @@ export const useGetExpertAvailability = (expertProfileId: string) => {
     // Thêm cấu hình để xử lý trường hợp không có dữ liệu
     enabled: !!expertProfileId, // Chỉ chạy query khi expertProfileId có giá trị
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -162,6 +169,7 @@ export const useGetExpertExperienceList = () => {
     queryKey: ["expert-experience-list"],
     queryFn: expertApiRequest.getExpertExperienceList,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -201,6 +209,7 @@ export const useGetExpertExperienceDetail = ({
     queryFn: () => expertApiRequest.getExpertExperienceDetail(workExperienceId),
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -244,6 +253,7 @@ export const useGetExpertListInfiniteQuery = (pageSize: number) => {
     },
     refetchOnWindowFocus: true,
     initialPageParam: 1, // Giá trị khởi tạo của pageParam
+    refetchOnMount: true,
   });
 };
 
@@ -252,6 +262,7 @@ export const useGetExpertRatingQuery = (expertProfileId: string) => {
     queryKey: ["expert-rating", expertProfileId],
     queryFn: () => expertApiRequest.getExpertRating(expertProfileId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -266,6 +277,8 @@ export const useGetExpertRatingForUserQuery = ({
     queryKey: ["expert-rating-for-user", appointmentId],
     queryFn: () => expertApiRequest.getExpertRatingForUser(appointmentId),
     enabled,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 };
 
@@ -342,6 +355,7 @@ export const useGetDashboardRecentRatingQuery = () => {
     queryKey: ["dashboard-recent-rating"],
     queryFn: expertApiRequest.getDashboardRecentRating,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -350,6 +364,7 @@ export const useGetDashboardStatisticsQuery = () => {
     queryKey: ["dashboard-statistics"],
     queryFn: expertApiRequest.getDashboardStatistics,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -358,5 +373,6 @@ export const useGetActivityReportDashboardQuery = () => {
     queryKey: ["activity-report-dashboard"],
     queryFn: expertApiRequest.getActivityReportDashboard,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
