@@ -21,6 +21,7 @@ export const useGetAllCategoryQuery = () => {
     queryKey: ["category-list"],
     queryFn: () => postApiRequest.getAllCategory(),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -36,6 +37,7 @@ export const useGetDetailsCategoryQuery = ({
     queryFn: () => postApiRequest.getDetailsCategory(categoryId),
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -90,6 +92,7 @@ export const useGetPostCountQuery = (userId: string) => {
     queryKey: ["postsCount", userId],
     queryFn: () => postApiRequest.getPostCountByUserId(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -120,6 +123,7 @@ export const useGetPostByPostIdQuery = ({
     queryFn: () => postApiRequest.getPostByPostId(postId),
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -137,6 +141,7 @@ export const useGetPostByUserIdQuery = (userId: string) => {
     queryKey: ["post-by-user-id", userId],
     queryFn: () => postApiRequest.getPostByUserId(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -160,6 +165,7 @@ export const useGetQuickPostHomePageQuery = () => {
     queryKey: ["quick-post"],
     queryFn: () => postApiRequest.getQuickPostHomePage(),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -181,6 +187,7 @@ export const useGetHomePageLazyLoadQuery = (pageSize: number) => {
     },
     initialPageParam: 1, // Giá trị khởi tạo của pageParam
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -238,6 +245,7 @@ export const useGetReactionCountQuery = (postId: string) => {
     queryKey: ["reaction-count", postId],
     queryFn: () => postApiRequest.getReactionCount(postId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -246,6 +254,7 @@ export const useGetReactionCountByUserIdQuery = (userId: string) => {
     queryKey: ["reactionCount", userId],
     queryFn: () => postApiRequest.getReactionCountByUserId(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -254,6 +263,7 @@ export const useGetCommentCountQuery = (postId: string) => {
     queryKey: ["comment-count", postId],
     queryFn: () => postApiRequest.getCommentCount(postId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -332,6 +342,7 @@ export const useGetUserReactionByPostIdQuery = (postId: string) => {
     queryKey: ["user-reaction-by-post-id", postId],
     queryFn: () => postApiRequest.getUserReactionByPostId(postId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -340,6 +351,7 @@ export const useGetBookmarkListQuery = () => {
     queryKey: ["bookmark-list"],
     queryFn: postApiRequest.getBookmarkList,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -355,6 +367,7 @@ export const useGetBookmarkListDetailsQuery = ({
     queryFn: () => postApiRequest.getBookmarkListDetails(bookmarkId),
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -411,6 +424,7 @@ export const useGetAllReactionTypeQuery = () => {
     queryKey: ["reaction-type"],
     queryFn: postApiRequest.getAllReactionType,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -437,6 +451,7 @@ export const useGetSharedPostByUserIdQuery = (userId: string) => {
     queryKey: ["shared-post-by-user-id", userId],
     queryFn: () => postApiRequest.getSharedPosts(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -446,6 +461,7 @@ export const useGetShareCountQuery = (postId: string) => {
     queryFn: () => postApiRequest.getShareCount(postId),
     enabled: !!postId,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -502,6 +518,7 @@ export const useGetAuthorOtherPostQuery = ({
     queryKey: ["author-other-post", body],
     queryFn: () => postApiRequest.getAuthorOtherPost(body),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -514,6 +531,7 @@ export const useGetOtherPostWithSameCategoryQuery = ({
     queryKey: ["other-post-with-same-category", body],
     queryFn: () => postApiRequest.getOtherPostWithSameCategory(body),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -523,6 +541,7 @@ export const useGetCommentsByShareIdQuery = (shareId: string) => {
     queryFn: () => postApiRequest.getCommentsByShareId(shareId),
     enabled: !!shareId,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -533,6 +552,7 @@ export const useGetSharedCommentCountQuery = (shareId: string) => {
       return await postApiRequest.getSharedCommentCount(shareId);
     },
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -557,6 +577,8 @@ export const useViewPostInGroupByGroupIdQuery = (groupId: string) => {
   return useQuery({
     queryKey: ["post-in-group", groupId],
     queryFn: () => postApiRequest.viewPostInGroupByGroupId(groupId),
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -592,6 +614,7 @@ export const useGetPersonalPostGroupQuery = ({
     queryKey: ["personal-post-group", userId, groupId],
     queryFn: () => postApiRequest.getPersonalPostGroup(userId, groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -641,6 +664,7 @@ export const useGetReactionSharedCountQuery = (shareId: string) => {
     queryKey: ["reaction-shared-count", shareId],
     queryFn: () => postApiRequest.getReactionSharedCount(shareId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -649,6 +673,7 @@ export const useGetUserReactionByShareIdQuery = (shareId: string) => {
     queryKey: ["user-reaction-by-share-id", shareId],
     queryFn: () => postApiRequest.getUserReactionByShareId(shareId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -687,6 +712,7 @@ export const useGetTopPostInGroupQuery = (groupId: string) => {
     queryKey: ["top-post-in-group", groupId],
     queryFn: () => postApiRequest.getTopPostInGroup(groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -695,6 +721,7 @@ export const useGetReportCommentQuery = () => {
     queryKey: ["report-comment"],
     queryFn: () => postApiRequest.getReportComment(),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 

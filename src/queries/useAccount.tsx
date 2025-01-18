@@ -30,6 +30,7 @@ export const useGetUserProfileQuery = (userId: string, enabled?: boolean) => {
     queryFn: () => accountApiRequest.getUserProfile(userId),
     enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -57,6 +58,7 @@ export const useGetFollowingQuery = (userId: string) => {
     queryKey: ["following", userId],
     queryFn: () => accountApiRequest.getFollowing(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -65,6 +67,7 @@ export const useGetFollowerCountQuery = (userId: string) => {
     queryKey: ["followerCount", userId],
     queryFn: () => accountApiRequest.getFollowerCount(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -73,6 +76,7 @@ export const useGetFollowingCountQuery = (userId: string) => {
     queryKey: ["followingCount", userId],
     queryFn: () => accountApiRequest.getFollowingCount(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -123,6 +127,7 @@ export const useGetPaymentInfoQuery = () => {
     queryKey: ["paymentInfo"],
     queryFn: accountApiRequest.getPaymentInfo,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -143,5 +148,6 @@ export const useGetRegistrationQuery = (userId: string) => {
     queryKey: ["registration", userId],
     queryFn: () => accountApiRequest.getRegistrationCount(userId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };

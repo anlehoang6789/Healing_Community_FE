@@ -1,12 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Role } from "@/constants/type";
 
 import { handleErrorApi } from "@/lib/utils";
 import {
   useGetFollowingQuery,
   useUnfollowUserMutation,
 } from "@/queries/useAccount";
+import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
+import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { useGetPostCountQuery } from "@/queries/usePost";
 import { useUserIsOwnerStore } from "@/store/userStore";
 import { BadgeCheck } from "lucide-react";
@@ -21,6 +24,12 @@ export default function FollowedUser() {
   const { data } = useGetFollowingQuery(userId as string);
   const getFollowingList = data?.payload.data;
   const { isThatOwner } = useUserIsOwnerStore();
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
+  const { data: expertProfile } = useGetExpertProfileQuery(
+    userId as string,
+    isExpert && !!userId
+  );
 
   //handle unfollow
   const unFollowUser = useUnfollowUserMutation(userId as string);
@@ -75,8 +84,11 @@ export default function FollowedUser() {
                 >
                   <Image
                     src={
-                      user.profilePicture ||
-                      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                      isExpert
+                        ? (expertProfile?.payload.data
+                            .profileImageUrl as string)
+                        : user.profilePicture ||
+                          "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                     }
                     alt={`${user.userName}'s avatar`}
                     width={40}
@@ -86,7 +98,10 @@ export default function FollowedUser() {
                   />
                   <div className="flex flex-col">
                     <p className="truncate max-w-[100px] bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500 text-base sm:text-base md:text-xs lg:text-base">
-                      {user.fullName || user.userName}
+                      {isExpert
+                        ? expertProfile?.payload.data.fullname ||
+                          expertProfile?.payload.data.email
+                        : user.fullName || user.userName}
                     </p>
                     <p className="text-xs text-gray-500">
                       <PostCount userId={user.userId} />

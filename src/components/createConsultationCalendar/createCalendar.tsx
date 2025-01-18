@@ -45,6 +45,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import PolicyExpertDialog from "@/components/privacy-policy/policy-expert-dialog";
 
 export default function CreateCalendar() {
   const { theme } = useTheme();
@@ -166,7 +167,7 @@ export default function CreateCalendar() {
         <h1 className="pt-3 text-2xl font-bold mb-4 text-muted-foreground">
           Quản lý lịch tư vấn
         </h1>
-        <HoverCard>
+        {/* <HoverCard>
           <HoverCardTrigger asChild>
             <CircleHelp className="ml-2 h-5 w-5 text-textChat" />
           </HoverCardTrigger>
@@ -193,7 +194,8 @@ export default function CreateCalendar() {
               </p>
             </div>
           </HoverCardContent>
-        </HoverCard>
+        </HoverCard> */}
+        <PolicyExpertDialog />
       </div>
       <div className="flex flex-col md:flex-row md:space-x-4 text-muted-foreground">
         <div className="flex justify-center items-center mb-4 w-full md:w-1/2 ">

@@ -427,8 +427,10 @@ export default function DetailPost() {
               <Avatar className="w-9 h-9 border-2 border-rose-300">
                 <AvatarImage
                   src={
-                    imageComment.data?.payload.data.profilePicture ||
-                    "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                    isExpert
+                      ? expertProfile?.payload.data.profileImageUrl
+                      : imageComment.data?.payload.data.profilePicture ||
+                        "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                   }
                   alt={
                     imageComment.data?.payload.data.fullName ||
@@ -436,8 +438,11 @@ export default function DetailPost() {
                   }
                 />
                 <AvatarFallback>
-                  {imageComment.data?.payload.data.fullName ||
-                    imageComment.data?.payload.data.userName}
+                  {isExpert
+                    ? expertProfile?.payload.data.fullname ||
+                      expertProfile?.payload.data.email
+                    : imageComment.data?.payload.data.fullName ||
+                      imageComment.data?.payload.data.userName}
                 </AvatarFallback>
               </Avatar>
             </Link>

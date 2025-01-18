@@ -8,7 +8,6 @@ import {
   ImageIcon,
   X,
   Smile,
-  ThumbsUp,
   Trash2,
   ChevronUp,
   ChevronDown,
@@ -16,12 +15,7 @@ import {
 } from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
-import {
-  CommentType,
-  SharedCommentType,
-} from "@/schemaValidations/post.schema";
-import { useGetAllUsers } from "@/queries/useUser";
-import { UserType } from "@/schemaValidations/user.schema";
+import { SharedCommentType } from "@/schemaValidations/post.schema";
 import { useUploadAvatarCoverFromFileMutation } from "@/queries/usePost";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import {
