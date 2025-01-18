@@ -33,7 +33,10 @@ export default function PostInGroupModerator() {
         <CreatePostInGroup groupId={groupId as string} />
       )}
 
-      <ViewPostInGroupForModerator groupId={groupId as string} />
+      <ViewPostInGroupForModerator
+        groupId={groupId as string}
+        userId={userId as string}
+      />
     </div>
   );
 }
