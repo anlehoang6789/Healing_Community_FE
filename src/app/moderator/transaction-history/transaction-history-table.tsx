@@ -36,32 +36,45 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useStatusTimestampStore } from "@/store/paymentStore";
 
 const TransactionCell = ({ row }: { row: any }) => {
   const status: number = row.original.appointmentStatus;
   const userPaymentQrCodeLink = row.original.userPaymentQrCodeLink;
   const expertPaymentQrCodeLink = row.original.expertPaymentQrCodeLink;
   const statusPayment: number = row.original.paymemtStatus;
-  const rowId = row.original.appointmentId;
 
-  const { timestamps, setTimestamp, getTimestamp } = useStatusTimestampStore();
+  const appointmentDate = row.original.appointmentDate;
+  const endTime = row.original.endTime;
+  // const rowId = row.original.appointmentId;
 
-  if (!timestamps[rowId] && status === 3) {
-    if (!getTimestamp(rowId)) {
-      const now = new Date().toISOString();
-      setTimestamp(rowId, now);
-    }
-  }
+  // const { timestamps, setTimestamp, getTimestamp } = useStatusTimestampStore();
+
+  // if (!timestamps[rowId] && status === 3) {
+  //   if (!getTimestamp(rowId)) {
+  //     const now = new Date().toISOString();
+  //     setTimestamp(rowId, now);
+  //   }
+  // }
 
   // Kiểm tra đã đủ 3 ngày kể từ khi trạng thái chuyển thành 3 chưa
   const isThreeDaysPassed = () => {
-    const savedTimestamp = getTimestamp(rowId);
-    if (!savedTimestamp) return false;
-    const statusDate = new Date(savedTimestamp);
+    // const savedTimestamp = getTimestamp(rowId);
+    // if (!savedTimestamp) return false;
+    // const statusDate = new Date(savedTimestamp);
+    // const currentDate = new Date();
+    // const diffInMs = currentDate.getTime() - statusDate.getTime();
+    // const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    // return diffInDays >= 3;
+    if (!appointmentDate || !endTime) return false;
+
+    const [hours, minutes] = endTime.split(":").map(Number);
+    const appointmentEndTime = new Date(appointmentDate);
+    appointmentEndTime.setHours(hours, minutes, 0, 0);
+
     const currentDate = new Date();
-    const diffInMs = currentDate.getTime() - statusDate.getTime();
+    const diffInMs = currentDate.getTime() - appointmentEndTime.getTime();
     const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+
     return diffInDays >= 3;
   };
 
