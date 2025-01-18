@@ -148,7 +148,7 @@ export default function BookExpert() {
             createPayment(
               {
                 appointmentId,
-                redirectUrl: `https://fe-production-6205.up.railway.app/user/profile/${userId}/expert-info`,
+                redirectUrl: `https://fe-production-1a01.up.railway.app/user/profile/${userId}/expert-info`,
               },
               {
                 onSuccess: (paymentResponse) => {
