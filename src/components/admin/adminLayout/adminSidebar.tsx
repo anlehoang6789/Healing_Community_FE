@@ -57,28 +57,6 @@ export default function AdminSidebar() {
             );
           })}
         </nav>
-        {/* nút cài đặt nằm bên dưới của thanh sidebar */}
-        <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-4">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="/admin/setting"
-                className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-lg  transition-colors hover:text-foreground md:h-8 md:w-8",
-                  {
-                    "bg-accent text-accent-foreground":
-                      pathname === "/admin/setting",
-                    "text-muted-foreground": pathname !== "/admin/setting",
-                  }
-                )}
-              >
-                <Settings className="h-5 w-5" />
-                <span className="sr-only">Cài đặt</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Cài đặt</TooltipContent>
-          </Tooltip>
-        </nav>
       </aside>
     </TooltipProvider>
   );

@@ -9,11 +9,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+
 import { useAppContext } from "@/components/app-provider";
 import { useLogoutMutation } from "@/queries/useAuth";
-import { handleErrorApi } from "@/lib/utils";
+import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { useGetUserProfileQuery } from "@/queries/useAccount";
 
 const account = {
   name: "Hoàng An",
@@ -22,6 +23,10 @@ const account = {
 export default function AdminAvatar() {
   const router = useRouter();
   const { setIsAuth } = useAppContext();
+
+  const userId = getUserIdFromLocalStorage();
+
+  const { data } = useGetUserProfileQuery(userId as string);
 
   const logoutMutation = useLogoutMutation();
   const handleLogout = async () => {
@@ -44,23 +49,19 @@ export default function AdminAvatar() {
         >
           <Avatar>
             <AvatarImage
-              src={account?.avatar ?? undefined}
-              alt={account?.name}
+              src={data?.payload.data.profilePicture}
+              alt={data?.payload.data.fullName}
             />
             <AvatarFallback>
-              {account?.name.slice(0, 2).toUpperCase()}
+              {data?.payload.data.fullName.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>{account?.name}</DropdownMenuLabel>
+        <DropdownMenuLabel>{data?.payload.data.fullName}</DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-primary" />
-        <DropdownMenuItem asChild>
-          <Link href={"/admin/setting"} className="cursor-pointer">
-            Cài đặt
-          </Link>
-        </DropdownMenuItem>
+
         <DropdownMenuItem onClick={handleLogout}>Đăng xuất</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
