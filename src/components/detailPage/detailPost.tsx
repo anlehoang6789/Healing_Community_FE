@@ -253,6 +253,10 @@ export default function DetailPost() {
     setIsReportDialogOpen(true);
   };
 
+  const shouldRenderReport =
+    postById?.payload.data.description ===
+    "[Bài viết đã bị ban do vi phạm qui định nền tảng]";
+
   return (
     <div className="w-full relative">
       {/* Vertical icon bar */}
@@ -284,14 +288,17 @@ export default function DetailPost() {
               </div>
             </ShareSection>
             <BookmarkDialog postId={postIdFromUrl as string} />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full mt-7"
-              onClick={openReportPostDialog}
-            >
-              <Flag className="h-8 w-8 text-red-500" />
-            </Button>
+            {!shouldRenderReport && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full mt-7"
+                onClick={openReportPostDialog}
+              >
+                <Flag className="h-8 w-8 text-red-500" />
+              </Button>
+            )}
+
             <ReportPostSection
               postId={postIdFromUrl as string}
               isOpen={isReportDialogOpen}
