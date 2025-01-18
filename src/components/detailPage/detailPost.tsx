@@ -334,7 +334,8 @@ export default function DetailPost() {
             <Link href={`/user/profile/${postById?.payload.data.userId}`}>
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                 {isExpert
-                  ? expertProfile?.payload.data.fullname
+                  ? expertProfile?.payload.data.fullname ||
+                    expertProfile?.payload.data.email
                   : userById?.payload.data.fullName ||
                     userById?.payload.data.userName}
               </p>
