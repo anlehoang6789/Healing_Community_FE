@@ -19,6 +19,7 @@ import Link from "next/link";
 import { getUserIdFromLocalStorage, handleErrorApi } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { useUserIsOwnerStore } from "@/store/userStore";
+import { useCheckRoleInGroupQuery } from "@/queries/useGroup";
 
 const GroupUserContext = createContext<{
   groupId: string | null;
@@ -57,6 +58,12 @@ export default function GroupUserLayout({
   } = useGetExpertProfileQuery(userIdFromPath, isExpert && !!userIdFromPath);
 
   const isOwner = userIdFromLocalStorage === userIdFromPath;
+
+  const { data: checkRoleInGroup } = useCheckRoleInGroupQuery(
+    userIdFromPath as string,
+    groupIdFromPath
+  );
+  const isOwnerInGroup = checkRoleInGroup?.payload.data.roleInGroup === "Owner";
 
   //logic follow and unfollow
   const [isFollowing, setIsFollowing] = useState<boolean>(false);
@@ -226,7 +233,7 @@ export default function GroupUserLayout({
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2">
-                {!isOwner && (
+                {!isOwner && !isOwnerInGroup ? (
                   <>
                     <Button
                       className="flex-1 md:flex-none"
@@ -257,17 +264,19 @@ export default function GroupUserLayout({
                       )}
                     </Button>
                   </>
+                ) : null}
+                {!isOwnerInGroup && (
+                  <Button
+                    variant="outline"
+                    className="flex-1 md:flex-none text-textChat"
+                    asChild
+                  >
+                    <Link href={`/user/profile/${userIdFromPath}`}>
+                      <User className="w-4 h-4 mr-2" />
+                      Xem trang cá nhân
+                    </Link>
+                  </Button>
                 )}
-                <Button
-                  variant="outline"
-                  className="flex-1 md:flex-none text-textChat"
-                  asChild
-                >
-                  <Link href={`/user/profile/${userIdFromPath}`}>
-                    <User className="w-4 h-4 mr-2" />
-                    Xem trang cá nhân
-                  </Link>
-                </Button>
               </div>
             </div>
           </div>

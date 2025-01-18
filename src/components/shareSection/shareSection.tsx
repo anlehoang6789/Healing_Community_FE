@@ -131,7 +131,10 @@ export default function ShareSection({ postId, children }: ShareSectionProps) {
           <div className="flex items-center gap-2">
             <Avatar className="w-10 h-10 border-2 border-rose-300">
               <AvatarImage
-                src={userData?.profilePicture || "/default-avatar.png"}
+                src={
+                  userData?.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
               />
               <AvatarFallback>
                 {userData?.fullName || userData?.userName}
