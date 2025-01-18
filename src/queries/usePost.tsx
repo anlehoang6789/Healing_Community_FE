@@ -632,6 +632,9 @@ export const useDeletePersonalPostInGroupMutation = ({
       queryClient.invalidateQueries({
         queryKey: ["personal-post-group", userId, groupId],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["post-in-group", groupId],
+      });
     },
   });
 };
