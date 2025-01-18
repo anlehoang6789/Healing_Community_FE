@@ -89,6 +89,8 @@ export default function DetailPost() {
 
   const { data: categoryData } = useGetAllCategoryQuery();
 
+  const [isApiChanged, setIsApiChanged] = useState(false);
+
   const categoryColors: { [key: string]: string } = {
     "01JCZM72A9K5176BQT82T821V1":
       "bg-gradient-to-r from-[#FAA6FF] to-[#E90000] ",
@@ -154,14 +156,81 @@ export default function DetailPost() {
     );
   };
 
+  // const handleAddComment = (comment: {
+  //   content: string;
+  //   coverImgUrl?: string | null;
+  // }) => {
+  //   // Gọi API để tạo bình luận
+  //   createComment(
+  //     {
+  //       postId: postIdFromUrl as string,
+  //       parentId: null,
+  //       content: comment.content,
+  //       coverImgUrl: comment.coverImgUrl,
+  //     },
+  //     {
+  //       onSuccess: (data) => {
+  //         const newCommentId = data.payload.data;
+
+  //         // Tạo comment mới với commentId từ API
+  //         const newComment: CommentType = {
+  //           commentId: newCommentId, // Sử dụng commentId từ API
+  //           postId: postIdFromUrl as string,
+  //           parentId: null,
+  //           userId: userIdComment as string,
+  //           content: comment.content,
+  //           createdAt: new Date().toISOString(),
+  //           updatedAt: null,
+  //           replies: [],
+  //           coverImgUrl: comment.coverImgUrl,
+  //         };
+
+  //         // Cập nhật state comments với bình luận mới từ API
+  //         setComments((prevComments) => [...prevComments, newComment]);
+  //       },
+  //       onError: (error) => {
+  //         console.error("Error creating comment:", error);
+  //       },
+  //     }
+  //   );
+  // };
+
+  // const handleAddReply = (
+  //   parentId: string,
+  //   reply: { content: string; coverImgUrl?: string | null }
+  // ) => {
+  //   createComment(
+  //     {
+  //       postId: postIdFromUrl as string,
+  //       parentId: parentId,
+  //       content: reply.content,
+  //       coverImgUrl: reply.coverImgUrl,
+  //     },
+  //     {
+  //       onSuccess: async (data) => {
+  //         try {
+  //           // Fetch lại toàn bộ comments của post này
+  //           const commentsResponse = await postApiRequest.getCommentsByPostId(
+  //             postIdFromUrl as string
+  //           );
+
+  //           // Cập nhật lại toàn bộ comments
+  //           setComments(commentsResponse.payload.data);
+  //         } catch (error) {
+  //           console.error("Error refetching comments:", error);
+  //         }
+  //       },
+  //       onError: (error) => {
+  //         console.error("Error creating reply:", error);
+  //       },
+  //     }
+  //   );
+  // };
+
   const handleAddComment = (comment: {
     content: string;
     coverImgUrl?: string | null;
   }) => {
-    console.log("Comment Image URL in DetailPost:", comment.coverImgUrl);
-    console.log("Comment content in DetailPost:", comment.content);
-    console.log("Comment data being sent to API:", comment);
-
     // Gọi API để tạo bình luận
     createComment(
       {
@@ -189,6 +258,7 @@ export default function DetailPost() {
 
           // Cập nhật state comments với bình luận mới từ API
           setComments((prevComments) => [...prevComments, newComment]);
+          setIsApiChanged(true);
         },
         onError: (error) => {
           console.error("Error creating comment:", error);
@@ -197,7 +267,7 @@ export default function DetailPost() {
     );
   };
 
-  const handleAddReply = (
+  const handleAddReply = async (
     parentId: string,
     reply: { content: string; coverImgUrl?: string | null }
   ) => {
@@ -210,17 +280,7 @@ export default function DetailPost() {
       },
       {
         onSuccess: async (data) => {
-          try {
-            // Fetch lại toàn bộ comments của post này
-            const commentsResponse = await postApiRequest.getCommentsByPostId(
-              postIdFromUrl as string
-            );
-
-            // Cập nhật lại toàn bộ comments
-            setComments(commentsResponse.payload.data);
-          } catch (error) {
-            console.error("Error refetching comments:", error);
-          }
+          setIsApiChanged(true);
         },
         onError: (error) => {
           console.error("Error creating reply:", error);
@@ -228,6 +288,27 @@ export default function DetailPost() {
       }
     );
   };
+
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (isApiChanged) {
+        try {
+          // Fetch lại toàn bộ comments của post này
+          const commentsResponse = await postApiRequest.getCommentsByPostId(
+            postIdFromUrl as string
+          );
+
+          // Cập nhật lại toàn bộ comments
+          setComments(commentsResponse.payload.data);
+          setIsApiChanged(false);
+        } catch (error) {
+          console.error("Error refetching comments:", error);
+        }
+      }
+    };
+
+    fetchComments();
+  }, [isApiChanged]);
 
   const openBookmarkDialog = () => {
     setIsBookmarkDialogOpen(true);
@@ -453,6 +534,7 @@ export default function DetailPost() {
                 onAddComment={handleAddComment}
                 onAddReply={handleAddReply}
                 deleteComment={handleDeleteComment}
+                isAdmin={false}
               />
             </div>
           </div>

@@ -68,6 +68,8 @@ export const ReplyCommentSchema = z.object({
 export type ReplyCommentType = z.TypeOf<typeof ReplyCommentSchema>;
 
 export const CommentSchema = z.object({
+  profilePicture: z.string().url().optional(),
+  userName: z.string().optional(),
   commentId: z.string(),
   postId: z.string(),
   parentId: z.string().nullable(), // parentId có thể là null
