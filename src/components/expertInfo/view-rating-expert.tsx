@@ -99,11 +99,36 @@ export default function ViewRatingExpert({
                 {Array(5)
                   .fill(null)
                   .map((_, i) => {
-                    const fullStar =
-                      i < Math.floor(data?.payload.data.averageRating || 0);
-                    const halfStar =
-                      i < (data?.payload.data.averageRating ?? 0) &&
-                      i >= Math.floor(data?.payload.data.averageRating || 0);
+                    // const fullStar =
+                    //   i < Math.floor(data?.payload.data.averageRating || 0);
+                    // const halfStar =
+                    //   i < (data?.payload.data.averageRating ?? 0) &&
+                    //   i >= Math.floor(data?.payload.data.averageRating || 0);
+                    let adjustedRating = 0;
+                    const averageRating = data?.payload.data.averageRating || 0;
+
+                    if (averageRating >= 4.6) {
+                      adjustedRating = 5;
+                    } else if (averageRating >= 4.1) {
+                      adjustedRating = 4.5;
+                    } else if (averageRating >= 3.6) {
+                      adjustedRating = 4;
+                    } else if (averageRating >= 3.1) {
+                      adjustedRating = 3.5;
+                    } else if (averageRating >= 2.6) {
+                      adjustedRating = 3;
+                    } else if (averageRating >= 2.1) {
+                      adjustedRating = 2.5;
+                    } else if (averageRating >= 1.6) {
+                      adjustedRating = 2;
+                    } else if (averageRating >= 1.1) {
+                      adjustedRating = 1.5;
+                    } else {
+                      adjustedRating = 1;
+                    }
+
+                    const fullStar = i < Math.floor(adjustedRating);
+                    const halfStar = adjustedRating - i === 0.5;
 
                     return (
                       <svg
