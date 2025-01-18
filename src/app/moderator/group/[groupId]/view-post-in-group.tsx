@@ -11,16 +11,30 @@ import ReactionCount from "@/components/homePage/reactionCount";
 
 import CommentCount from "@/components/commentSection/commentCount";
 import { Button } from "@/components/ui/button";
-import { MessageSquare } from "lucide-react";
+import { Ellipsis, FilePenLine, MessageSquare, Trash2 } from "lucide-react";
 import CommentSection from "@/components/commentSection/commentSection";
-import { CommentType } from "@/schemaValidations/post.schema";
+import {
+  CommentType,
+  GetPersonalPostGroupListResType,
+} from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
 import UserHeaderInGroupForModerator from "@/app/moderator/group/[groupId]/user-header-in-group";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { getUserIdFromLocalStorage } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
+type PersonalPostInGroupItem = GetPersonalPostGroupListResType["data"][0];
 export default function ViewPostInGroupForModerator({
   groupId,
+  userId,
 }: {
   groupId: string;
+  userId: string;
 }) {
   // Trạng thái lưu thông tin mở rộng của từng bài viết
   const [expandedPosts, setExpandedPosts] = useState<{
@@ -32,6 +46,8 @@ export default function ViewPostInGroupForModerator({
     const MAX_LENGTH = 300; // Chiều dài tối đa trước khi rút gọn
     return description.length > MAX_LENGTH;
   };
+
+  const { theme } = useTheme();
 
   // Hàm chuyển đổi trạng thái mở rộng cho từng bài viết
   const toggleExpand = (postId: string, shouldExpand: boolean) => {
@@ -52,6 +68,11 @@ export default function ViewPostInGroupForModerator({
   //data cua bai viet trong group theo groupId
   const { data } = useViewPostInGroupByGroupIdQuery(groupId);
   const postListInGroup = data?.payload.data || [];
+  const [postDelete, setPostDelete] = useState<PersonalPostInGroupItem | null>(
+    null
+  );
+  const [postId, setPostId] = useState<string | undefined>(undefined);
+  const userIdFromLocalStorage = getUserIdFromLocalStorage();
 
   const { mutate: deleteComment } = useDeleteCommentByCommnetIdMutation();
 
@@ -149,6 +170,13 @@ export default function ViewPostInGroupForModerator({
         postListInGroup.map((post) => {
           const isExpanded = expandedPosts[post.postId] || false;
           const truncate = shouldTruncateDescription(post.description);
+          const isOwner = userIdFromLocalStorage === post.userId;
+          const openDeletePost = () => {
+            setPostDelete(post);
+          };
+          const openEditPost = () => {
+            setPostId(post.postId);
+          };
 
           return (
             <div
@@ -171,6 +199,32 @@ export default function ViewPostInGroupForModerator({
                   groupId={groupId}
                 />
                 {/* Chỗ này có thể là dropdown nếu cần */}
+                <DropdownMenu modal={false} aria-hidden={false}>
+                  <DropdownMenuTrigger asChild className="ml-auto">
+                    <Button variant="iconSend">
+                      <Ellipsis />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    className={`w-56 mt-4 ${
+                      theme === "dark"
+                        ? "bg-black text-white"
+                        : "bg-white text-black"
+                    }`}
+                  >
+                    {isOwner && (
+                      <DropdownMenuItem onClick={openEditPost}>
+                        <FilePenLine className="mr-2 h-4 w-4" />
+                        <span>Sửa bài viết</span>
+                      </DropdownMenuItem>
+                    )}
+
+                    <DropdownMenuItem onClick={openDeletePost}>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      <span>Xóa bài viết</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               {/* Title and content */}
               <motion.div
