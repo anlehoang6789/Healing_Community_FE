@@ -16,6 +16,7 @@ import CommentSection from "@/components/commentSection/commentSection";
 import {
   CommentType,
   GetPersonalPostGroupListResType,
+  GetPostByGroupIdListResType,
 } from "@/schemaValidations/post.schema";
 import postApiRequest from "@/apiRequests/post";
 import UserHeaderInGroupForModerator from "@/app/moderator/group/[groupId]/user-header-in-group";
@@ -27,14 +28,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getUserIdFromLocalStorage } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import { createContext } from "vm";
+import AlertDialogDeletePersonalPostInGroup from "@/app/user/group-user/[groupId]/user/[userId]/delete-personal-post-in-group";
+import EditPersonalPostInGroup from "@/app/user/group-user/[groupId]/user/[userId]/edit-personal-post-in-group";
 
-type PersonalPostInGroupItem = GetPersonalPostGroupListResType["data"][0];
+type PostInGroupItem = GetPostByGroupIdListResType["data"][0];
+
 export default function ViewPostInGroupForModerator({
   groupId,
-  userId,
 }: {
   groupId: string;
-  userId: string;
 }) {
   // Trạng thái lưu thông tin mở rộng của từng bài viết
   const [expandedPosts, setExpandedPosts] = useState<{
@@ -68,9 +71,7 @@ export default function ViewPostInGroupForModerator({
   //data cua bai viet trong group theo groupId
   const { data } = useViewPostInGroupByGroupIdQuery(groupId);
   const postListInGroup = data?.payload.data || [];
-  const [postDelete, setPostDelete] = useState<PersonalPostInGroupItem | null>(
-    null
-  );
+  const [postDelete, setPostDelete] = useState<PostInGroupItem | null>(null);
   const [postId, setPostId] = useState<string | undefined>(undefined);
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
 
@@ -226,6 +227,17 @@ export default function ViewPostInGroupForModerator({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
+              <AlertDialogDeletePersonalPostInGroup
+                postDelete={postDelete}
+                setPostDelete={setPostDelete}
+                userId={post.userId}
+                groupId={groupId}
+              />
+              <EditPersonalPostInGroup
+                postId={postId}
+                setPostId={setPostId}
+                onSubmitSuccess={() => {}}
+              />
               {/* Title and content */}
               <motion.div
                 animate={{ height: isExpanded ? "auto" : 300 }} // auto cho phép nội dung mở rộng tự nhiên
@@ -292,6 +304,7 @@ export default function ViewPostInGroupForModerator({
                         deleteComment={(commentId) =>
                           handleDeleteComment(commentId)
                         }
+                        isAdmin={true}
                       />
                     </div>
                   </motion.div>
