@@ -1,0 +1,34 @@
+name: Build Next.js App
+
+on:
+  push:
+    branches:
+      - main # Thay đổi nếu bạn muốn chạy trên nhánh khác
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout mã nguồn từ repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Thiết lập Node.js
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Sử dụng phiên bản Node.js phù hợp với dự án của bạn
+          cache: 'yarn' # Hoặc 'npm' nếu bạn dùng npm
+
+      # Step 3: Cài đặt dependencies
+      - name: Install dependencies
+        run: npm install # Hoặc `npm install` nếu bạn dùng npm
+
+      # Step 4: Build ứng dụng
+      - name: Build Next.js app
+        run: npm build # Hoặc `npm run build`
+    
