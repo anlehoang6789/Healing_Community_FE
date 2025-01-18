@@ -40,6 +40,7 @@ import {
   handleErrorApi,
 } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
+import PolicyUserDialog from "@/components/privacy-policy/policy-user-dialog";
 
 type TimeSlot = {
   id: string;
@@ -178,7 +179,12 @@ export default function BookExpert() {
     <div className="container mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl font-bold">Đặt lịch tư vấn</CardTitle>
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-2xl font-bold ">
+              Đặt lịch tư vấn
+            </CardTitle>
+            <PolicyUserDialog />
+          </div>
           <CardDescription>Chọn ngày và giờ phù hợp với bạn</CardDescription>
         </CardHeader>
         <CardContent>
