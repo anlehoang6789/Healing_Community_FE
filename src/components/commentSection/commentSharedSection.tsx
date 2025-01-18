@@ -268,7 +268,7 @@ export default function CommentSharedSection({
   // Avatar của người comment
   const AvatarUserCommentProfile = ({ userId }: { userId: string }) => {
     // Fetch role của người dùng
-    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
 
     // Fetch thông tin người dùng bình thường
     const { data: userProfile } = useGetUserProfileQuery(
@@ -313,7 +313,7 @@ export default function CommentSharedSection({
   // Tên của người comment
   const FullNameUserCommentProfile = ({ userId }: { userId: string }) => {
     // Fetch role của người dùng
-    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
 
     // Fetch thông tin người dùng bình thường
     const { data: userProfile } = useGetUserProfileQuery(

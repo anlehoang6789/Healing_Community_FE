@@ -24,7 +24,8 @@ export default function ReportStoryDetails({ postId }: { postId: string }) {
   });
 
   const { data: roleByUserId } = useGetRoleByUserIdQuery(
-    postById?.payload.data.userId as string
+    postById?.payload.data.userId as string,
+    !!postById?.payload.data.userId
   );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   //data của user theo userId lấy từ api postById

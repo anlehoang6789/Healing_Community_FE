@@ -45,7 +45,10 @@ export default function UpdateSharedPostDialog({
 
   const userId = getUserIdFromLocalStorage();
   const { data: userById } = useGetUserProfileQuery(userId as string);
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    userId as string,
+    !!userId
+  );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data: expertProfile } = useGetExpertProfileQuery(
     userId as string,

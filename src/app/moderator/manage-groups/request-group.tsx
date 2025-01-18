@@ -64,7 +64,7 @@ const RequestGroupTableContext = createContext<{
 
 const RequesterNameCell = ({ userId }: { userId: string }) => {
   // Fetch role của người dùng
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
 
   // Fetch thông tin người dùng bình thường
   const { data: userProfile } = useGetUserProfileQuery(
@@ -95,7 +95,7 @@ const RequesterNameCell = ({ userId }: { userId: string }) => {
 
 const RequesterEmailCell = ({ userId }: { userId: string }) => {
   // Fetch role của người dùng
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
 
   // Fetch thông tin người dùng bình thường
   const { data: userProfile } = useGetUserProfileQuery(

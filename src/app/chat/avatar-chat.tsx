@@ -7,7 +7,7 @@ import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import React from "react";
 
 export default function AvatarChat({ userId }: { userId: string }) {
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const { data: userProfile } = useGetUserProfileQuery(
     userId,
     roleByUserId?.payload.data.roleName === Role.User && !!userId

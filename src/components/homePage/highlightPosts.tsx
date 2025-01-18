@@ -14,7 +14,7 @@ import Link from "next/link";
 import React from "react";
 
 const UserProfile = ({ userId }: { userId: string }) => {
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data: userProfile } = useGetUserProfileQuery(
     userId,
@@ -56,9 +56,13 @@ const CategoryBadge = ({ categoryId }: { categoryId: string }) => {
   );
 };
 
-export default function HighlightPosts() {
-  const { data } = useGetHighlightPostQuery(4);
-  const highlightPostList = data?.payload.data || [];
+export default function HighlightPosts({
+  highlightPostList,
+}: {
+  highlightPostList: QuickPostType[];
+}) {
+  // const { data } = useGetHighlightPostQuery(4);
+  // const highlightPostList = data?.payload.data || [];
   return (
     <div className="w-full mx-auto">
       <div>

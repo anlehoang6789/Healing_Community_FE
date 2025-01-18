@@ -51,7 +51,7 @@ const UserProfile: React.FC<UserProfileProps> = ({
   const { theme } = useTheme();
   const [isBookmarkDialogOpen, setIsBookmarkDialogOpen] = useState(false);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data, isLoading, isError } = useGetUserProfileQuery(
     userId,
@@ -217,8 +217,8 @@ export default function Posts() {
     ? data.pages.flatMap((page) => page.payload?.data || [])
     : [];
 
-  console.log("Data:", data);
-  console.log("Articles:", articles);
+  // console.log("Data:", data);
+  // console.log("Articles:", articles);
 
   const handlePostClick = async (
     postId: string,

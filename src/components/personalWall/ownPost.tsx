@@ -106,7 +106,10 @@ export default function OwnPost() {
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const { theme } = useTheme();
   const { isThatOwner } = useUserIsOwnerStore();
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    userId as string,
+    !!userId
+  );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
 
   const { data } = useGetPostByUserIdQuery(userId as string);

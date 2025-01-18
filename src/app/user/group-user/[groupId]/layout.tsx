@@ -40,7 +40,10 @@ export default function GroupUserLayout({
   const groupIdFromPath = params.groupId as string;
   const userIdFromPath = params.userId as string;
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userIdFromPath);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    userIdFromPath,
+    !!userIdFromPath
+  );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const {
     data: userProfile,

@@ -22,7 +22,7 @@ export default function GroupCurrentUserForModerator({
   roleInGroup: string;
 }) {
   const { theme } = useTheme();
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const {
     data: userProfile,

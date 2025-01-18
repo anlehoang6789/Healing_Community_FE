@@ -24,7 +24,10 @@ export default function FollowedUser() {
   const { data } = useGetFollowingQuery(userId as string);
   const getFollowingList = data?.payload.data;
   const { isThatOwner } = useUserIsOwnerStore();
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId as string);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(
+    userId as string,
+    !!userId
+  );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data: expertProfile } = useGetExpertProfileQuery(
     userId as string,

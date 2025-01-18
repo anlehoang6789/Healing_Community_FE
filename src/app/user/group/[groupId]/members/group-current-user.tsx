@@ -1,12 +1,5 @@
 "use client";
-import { EllipsisVertical, LogOut } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
@@ -22,7 +15,7 @@ export default function GroupCurrentUser({
   roleInGroup: string;
 }) {
   const { theme } = useTheme();
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const {
     data: userProfile,
