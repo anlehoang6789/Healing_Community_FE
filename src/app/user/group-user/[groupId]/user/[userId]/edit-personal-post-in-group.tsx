@@ -1,5 +1,4 @@
 "use client";
-import RichTextEditor from "@/app/user/create-post/rich-text-editor";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,10 +33,18 @@ import {
 } from "@/schemaValidations/post.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageUp } from "lucide-react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+
+const RichTextEditor = dynamic(
+  () => import("@/app/user/create-post/rich-text-editor"),
+  {
+    ssr: false,
+  }
+);
 
 export default function EditPersonalPostInGroup({
   postId,

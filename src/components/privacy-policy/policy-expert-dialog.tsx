@@ -135,7 +135,8 @@ export default function PolicyExpertDialog() {
               </li>
               <li>
                 Hệ thống sẽ duyệt và phản hồi cho người dùng, hoàn tiền nếu báo
-                cáo là đúng sự thật trong khoảng từ 3 - 5 ngày.
+                cáo là đúng sự thật trong khoảng từ 3 - 5 ngày và chuyên gia sẽ
+                bị trừ <span className="bg-yellow-300">0.1 điểm sao</span>.
               </li>
             </ul>
           </p>
@@ -146,6 +147,17 @@ export default function PolicyExpertDialog() {
             Sau khi buổi tư vấn kết thúc, người dùng có thể đánh giá chất lượng
             buổi tư vấn với chuyên gia. Kết quả đánh giá sẽ giúp chuyên gia được
             đề cử và tăng uy tín trên nền tảng Healing Community.
+          </p>
+          <h1 className="font-bold text-textChat">
+            9. Chuyên gia hủy lịch tư vấn (Tùy chọn):
+          </h1>
+          <p className="pl-2 text-muted-foreground">
+            Sau khi người dùng đã thanh toán cho buổi tư vấn, nếu thời gian bắt
+            đầu diễn ra của buổi tư vấn sau thời điểm hiện tại{" "}
+            <span className="font-bold">24 giờ</span>, chuyên gia có thể{" "}
+            <span className="text-red-500 font-bold">hủy</span> buổi tư vấn đó.
+            Nhưng chuyên gia sẽ bị{" "}
+            <span className="bg-yellow-300">0.1 điểm sao</span>.
           </p>
         </div>
       </DialogContent>

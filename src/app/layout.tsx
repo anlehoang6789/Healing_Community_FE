@@ -17,6 +17,10 @@ export const metadata: Metadata = {
   title: "HC - Cộng đồng chia sẻ câu chuyện chữa lành",
   description:
     "Nơi mọi suy nghĩ đều tìm thấy một ngôi nhà và mỗi hình ảnh đều kể một câu chuyện",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({

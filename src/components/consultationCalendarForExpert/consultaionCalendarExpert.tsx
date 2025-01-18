@@ -61,6 +61,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { formatDate, handleErrorApi } from "@/lib/utils";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
+import CustomerNameForExpert from "@/components/consultationCalendarForExpert/customerNameForExpert";
 
 const UserAvatar = ({ userId }: { userId: string }) => {
   const { data } = useGetUserProfileQuery(userId);
@@ -156,8 +157,8 @@ export default function ConsultationScheduleExpert() {
       }`
     );
     const canCancel =
-      consultation.tag !== "Đã hủy" &&
-      appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
+      consultation.tag !== "Đã hủy" && consultation.tag !== "Đã hoàn thành";
+    appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
 
     return (
       <Card key={consultation.appointmentId} className="mb-4 relative">
@@ -204,8 +205,9 @@ export default function ConsultationScheduleExpert() {
         <CardHeader className="flex flex-row items-center gap-4">
           <UserAvatar userId={consultation.userId} />
           <div>
-            <CardTitle className="text-lg">{consultation.name}</CardTitle>
-            <CardDescription>Khách hàng</CardDescription>
+            {/* <CardTitle className="text-lg">{consultation.name}</CardTitle> */}
+            <CustomerNameForExpert userId={consultation.userId} />
+            <CardDescription className="sr-only">Khách hàng</CardDescription>
           </div>
         </CardHeader>
         <CardContent>

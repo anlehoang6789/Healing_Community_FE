@@ -199,7 +199,7 @@ export default function ViewPersonalPostInGroupForModerator({
               setPostId(post.postId);
             };
 
-            const shouldRenderDropdown = userIdFromLocalStorage === userId;
+            const isOwner = userIdFromLocalStorage === userId;
 
             return (
               <div
@@ -222,31 +222,33 @@ export default function ViewPersonalPostInGroupForModerator({
                     groupId={groupId}
                   />
                   {/* Chỗ này có thể là dropdown nếu cần */}
-                  {shouldRenderDropdown ? (
-                    <DropdownMenu modal={false} aria-hidden={false}>
-                      <DropdownMenuTrigger asChild className="ml-auto">
-                        <Button variant="iconSend">
-                          <Ellipsis />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        className={`w-56 mt-4 ${
-                          theme === "dark"
-                            ? "bg-black text-white"
-                            : "bg-white text-black"
-                        }`}
-                      >
+
+                  <DropdownMenu modal={false} aria-hidden={false}>
+                    <DropdownMenuTrigger asChild className="ml-auto">
+                      <Button variant="iconSend">
+                        <Ellipsis />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className={`w-56 mt-4 ${
+                        theme === "dark"
+                          ? "bg-black text-white"
+                          : "bg-white text-black"
+                      }`}
+                    >
+                      {isOwner && (
                         <DropdownMenuItem onClick={openEditPost}>
                           <FilePenLine className="mr-2 h-4 w-4" />
                           <span>Sửa bài viết</span>
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={openDeletePost}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Xóa bài viết</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  ) : null}
+                      )}
+
+                      <DropdownMenuItem onClick={openDeletePost}>
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>Xóa bài viết</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 <AlertDialogDeletePersonalPostInGroupForModerator
                   postDelete={postDelete}
