@@ -97,6 +97,7 @@ export const useGetDass21ResultQuery = () => {
   return useQuery({
     queryKey: ["dass21-quiz-result"],
     queryFn: quizApiRequest.getDass21Result,
+    refetchOnMount: true,
   });
 };
 
@@ -104,5 +105,6 @@ export const useGetMBTIResultQuery = () => {
   return useQuery({
     queryKey: ["mbti-quiz-result"],
     queryFn: quizApiRequest.getMBTIResult,
+    refetchOnMount: true,
   });
 };
