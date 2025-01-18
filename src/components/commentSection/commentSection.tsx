@@ -378,7 +378,9 @@ export default function CommentSection({
               {/* Hiển thị icon Flag khi hover và comment không phải của người đăng nhập */}
               {!isCurrentUserComment &&
                 !isAdmin &&
-                hoveredCommentId === comment.commentId && (
+                hoveredCommentId === comment.commentId &&
+                comment.content !==
+                  "[Bình luận này đã bị ban do vi phạm quy định của hệ thống]" && (
                   <ReportComment commentId={comment.commentId} />
                 )}
             </div>
