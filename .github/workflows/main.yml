@@ -24,17 +24,10 @@ jobs:
           node-version: 18 # Sử dụng phiên bản Node.js phù hợp với dự án của bạn
           cache: 'npm' # Hoặc 'npm' nếu bạn dùng npm
       # Step 3: Inject GitHub Secrets vào môi trường
-      - name: Setup environment variables
+      - name: Inject
         run: |
-          echo "${{ secrets.env }}" > .env
-
-        
-      - name: Check secret
-        run: |
-          if [ -z "${{ secrets.env }}" ]; then
-          echo "Secret 'env' is not set or empty."
-          exit 1
-          fi
+          echo "NEXT_PUBLIC_API_URL=https://api.example.com" > .env
+          echo "DATABASE_URL=postgresql://user:password@localhost:5432/dbname" >> .env
 
       # Step 4: Cài đặt dependencies
       - name: Install dependencies
