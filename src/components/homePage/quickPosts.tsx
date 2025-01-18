@@ -1,5 +1,6 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
+import { useGetQuickPost } from "@/queries/usePost";
 // import { useGetQuickPostHomePageQuery } from "@/queries/usePost";
 import { QuickPostType } from "@/schemaValidations/post.schema";
 import { useQuickPostStore } from "@/store/postStore";
@@ -11,7 +12,7 @@ export default function QuickViewNews({
 }: {
   quickPostList: QuickPostType[];
 }) {
-  // const { data } = useGetQuickPostHomePageQuery();
+  // const { data } = useGetQuickPost();
   // const quickPostList = data?.payload.data || [];
   const { setPostData } = useQuickPostStore();
   const handleClickedPost = (postId: string, userId: string) => {

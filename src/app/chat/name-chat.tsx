@@ -6,7 +6,7 @@ import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 
 export default function NameChat({ userId }: { userId: string }) {
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const { data: userProfile } = useGetUserProfileQuery(
     userId,
     roleByUserId?.payload.data.roleName === Role.User && !!userId

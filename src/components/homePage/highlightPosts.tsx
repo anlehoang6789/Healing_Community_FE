@@ -6,12 +6,15 @@ import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
 import { useGetDetailsCategoryQuery } from "@/queries/usePost";
-import { QuickPostType } from "@/schemaValidations/post.schema";
+import {
+  PostByIdSchemaType,
+  QuickPostType,
+} from "@/schemaValidations/post.schema";
 import Link from "next/link";
 import React from "react";
 
 const UserProfile = ({ userId }: { userId: string }) => {
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data: userProfile } = useGetUserProfileQuery(
     userId,
@@ -56,8 +59,10 @@ const CategoryBadge = ({ categoryId }: { categoryId: string }) => {
 export default function HighlightPosts({
   highlightPostList,
 }: {
-  highlightPostList: QuickPostType[];
+  highlightPostList: PostByIdSchemaType[];
 }) {
+  // const { data } = useGetHighlightPostQuery(4);
+  // const highlightPostList = data?.payload.data || [];
   return (
     <div className="w-full mx-auto">
       <div>

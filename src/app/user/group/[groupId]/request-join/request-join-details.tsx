@@ -18,7 +18,7 @@ export default function RequestJoinDetails({
   userId,
   requestedAt,
 }: RequestJoinGroupType) {
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data: userProfile } = useGetUserProfileQuery(
     userId,

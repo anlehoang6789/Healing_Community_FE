@@ -756,3 +756,21 @@ export const useApproveOrRejectReportCommentMutation = () => {
     },
   });
 };
+
+export const useGetHighlightPostQuery = (limit: number) => {
+  return useQuery({
+    queryKey: ["highlight-post"],
+    queryFn: () => postApiRequest.getHighlightPost(limit),
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
+};
+
+export const useGetQuickPost = () => {
+  return useQuery({
+    queryKey: ["quick-post"],
+    queryFn: postApiRequest.getQuickPostHomePage,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+  });
+};

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Image from "next/image";
@@ -11,7 +11,6 @@ import {
   Trash2,
   ChevronUp,
   ChevronDown,
-  Flag,
 } from "lucide-react";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
@@ -33,10 +32,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useCheckContentByAIMutation } from "@/queries/useDetector";
 import { toast } from "@/hooks/use-toast";
-import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
-import { useGetUserProfileQuery } from "@/queries/useAccount";
-import { Role } from "@/constants/type";
-import { useGetExpertProfileQuery } from "@/queries/useExpert";
+
 import ReportComment from "@/components/commentSection/reportComment";
 
 interface CommentSectionProps {
@@ -273,94 +269,6 @@ export default function CommentSection({
     }
   };
 
-  // Avatar của người comment
-  const AvatarUserCommentProfile = ({ userId }: { userId: string }) => {
-    // Fetch role của người dùng
-    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
-
-    // Fetch thông tin người dùng bình thường
-    const { data: userProfile } = useGetUserProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.User && !!userId
-    );
-
-    // Fetch thông tin chuyên gia
-    const { data: expertProfile } = useGetExpertProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.Expert && !!userId
-    );
-
-    // Hiển thị Avatar người comment
-    return (
-      <Link href={`/user/profile/${userId}`}>
-        <Avatar className="w-8 h-8 border-2 border-rose-300">
-          <AvatarImage
-            src={
-              userProfile?.payload.data.profilePicture ||
-              expertProfile?.payload.data.profileImageUrl ||
-              "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
-            }
-            alt={
-              userProfile?.payload.data.fullName ||
-              userProfile?.payload.data.userName ||
-              expertProfile?.payload.data.fullname ||
-              "User"
-            }
-          />
-          <AvatarFallback>
-            {userProfile?.payload.data.fullName ||
-              userProfile?.payload.data.userName ||
-              expertProfile?.payload.data.fullname ||
-              expertProfile?.payload.data.email}
-          </AvatarFallback>
-        </Avatar>
-      </Link>
-    );
-  };
-
-  // Tên của người comment
-  const FullNameUserCommentProfile = ({ userId }: { userId: string }) => {
-    // Fetch role của người dùng
-    const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
-
-    // Fetch thông tin người dùng bình thường
-    const { data: userProfile } = useGetUserProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.User && !!userId
-    );
-
-    // Fetch thông tin chuyên gia
-    const { data: expertProfile } = useGetExpertProfileQuery(
-      userId,
-      roleByUserId?.payload.data.roleName === Role.Expert && !!userId
-    );
-
-    // Kiểm tra xem người dùng có phải là chuyên gia không
-    const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
-
-    // Hiển thị tên người comment
-    return (
-      <Link href={`/user/profile/${userId}`}>
-        <div className="flex items-center space-x-2">
-          <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
-            {isExpert
-              ? expertProfile?.payload.data.fullname ||
-                userProfile?.payload.data.userName
-              : userProfile?.payload.data.fullName ||
-                userProfile?.payload.data.userName ||
-                "Anonymous"}
-          </span>
-
-          {isExpert && (
-            <div className="text-xs text-gray-100 font-semibold px-2 py-1 bg-gradient-to-r from-[#00c6ff] to-[#0072ff] rounded-full shadow-md">
-              Chuyên gia
-            </div>
-          )}
-        </div>
-      </Link>
-    );
-  };
-
   const renderComments = (comments: CommentType[], depth = 0) => {
     return comments.map((comment) => {
       // Kiểm tra xem comment có phải của người dùng hiện tại không
@@ -379,7 +287,19 @@ export default function CommentSection({
           onMouseLeave={() => setHoveredCommentId(null)} // Reset ID khi rời khỏi hover
         >
           {/* Avatar người comment */}
-          <AvatarUserCommentProfile userId={comment.userId} />
+
+          <Link href={`/user/profile/${comment.userId}`}>
+            <Avatar className="w-8 h-8 border-2 border-rose-300">
+              <AvatarImage
+                src={
+                  comment.profilePicture ||
+                  "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
+                }
+                alt={comment.userId}
+              />
+              <AvatarFallback>{comment.userId}</AvatarFallback>
+            </Avatar>
+          </Link>
 
           <div className="flex-1">
             <div
@@ -389,52 +309,57 @@ export default function CommentSection({
                   : "bg-gray-100 text-black"
               }`}
             >
-              {isCurrentUserComment ||
-                (isAdmin && (
-                  <>
-                    <AlertDialog
-                      open={commentToDelete === comment.commentId}
-                      onOpenChange={() => setCommentToDelete(null)}
-                    >
-                      <AlertDialogContent className="bg-backgroundChat text-red-500">
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>
-                            Bạn có chắc chắn muốn xóa bình luận này?
-                          </AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Hành động này không thể hoàn tác. Bình luận sẽ bị
-                            xóa <b className="text-red-500">vĩnh viễn</b>.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel
-                            onClick={() => setCommentToDelete(null)}
-                          >
-                            Hủy
-                          </AlertDialogCancel>
-                          <AlertDialogAction
-                            className="bg-red-500 text-white"
-                            onClick={handleDeleteComment}
-                          >
-                            Xóa
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+              {isCurrentUserComment || isAdmin ? (
+                <>
+                  <AlertDialog
+                    open={commentToDelete === comment.commentId}
+                    onOpenChange={() => setCommentToDelete(null)}
+                  >
+                    <AlertDialogContent className="bg-backgroundChat text-red-500">
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Bạn có chắc chắn muốn xóa bình luận này?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Hành động này không thể hoàn tác. Bình luận sẽ bị xóa{" "}
+                          <b className="text-red-500">vĩnh viễn</b>.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel
+                          onClick={() => setCommentToDelete(null)}
+                        >
+                          Hủy
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-red-500 text-white"
+                          onClick={handleDeleteComment}
+                        >
+                          Xóa
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
 
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute top-1 right-1 text-red-500 hover:text-red-700"
-                      onClick={() => setCommentToDelete(comment.commentId)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </>
-                ))}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-1 right-1 text-red-500 hover:text-red-700"
+                    onClick={() => setCommentToDelete(comment.commentId)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : null}
 
               {/* Tên người comment */}
-              <FullNameUserCommentProfile userId={comment.userId} />
+              <Link href={`/user/profile/${comment.userId}`}>
+                <div className="flex items-center space-x-2">
+                  <span className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
+                    {comment.userName}
+                  </span>
+                </div>
+              </Link>
 
               <p className=" whitespace-pre-wrap break-all">
                 {comment.content}

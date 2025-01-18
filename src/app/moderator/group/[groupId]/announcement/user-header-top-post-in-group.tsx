@@ -20,7 +20,7 @@ export default function UserHeaderTopPostInGroupForModerator({
   roleInGroup: string;
 }) {
   const router = useRouter();
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const {
     data: userProfile,

@@ -69,8 +69,10 @@ export default function DetailPost() {
     postId: postIdFromUrl as string,
     enabled: true,
   });
+  //data của role theo userId lấy từ api postById
   const { data: roleByUserId } = useGetRoleByUserIdQuery(
-    postById?.payload.data.userId as string
+    postById?.payload.data.userId as string,
+    !!postById?.payload.data.userId
   );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   //data của user theo userId lấy từ api postById
@@ -78,16 +80,34 @@ export default function DetailPost() {
     postById?.payload.data.userId as string,
     !isExpert && !!postById?.payload.data.userId
   );
-  const { data: expertProfile } = useGetExpertProfileQuery(
+  const { data: expertProfileById } = useGetExpertProfileQuery(
     postById?.payload.data.userId as string,
     isExpert && !!postById?.payload.data.userId
   );
-  const imageComment = useGetUserProfileQuery(userIdComment);
+
+  //data của role theo userId lấy từ api userIdComment (local storage)
+  const { data: roleByUserIdLocal } = useGetRoleByUserIdQuery(
+    userIdComment as string,
+    !!userIdComment
+  );
+  const isExpertOwner =
+    roleByUserIdLocal?.payload.data.roleName === Role.Expert;
+  const imageComment = useGetUserProfileQuery(
+    userIdComment,
+    !isExpertOwner && !!userIdComment
+  );
+  const expertProfileOwner = useGetExpertProfileQuery(
+    userIdComment,
+    isExpertOwner && !!userIdComment
+  );
+
   const { data: commentsData } = useGetCommentsByPostIdQuery(
     postIdFromUrl as string
   );
 
   const { data: categoryData } = useGetAllCategoryQuery();
+
+  const [isApiChanged, setIsApiChanged] = useState(false);
 
   const categoryColors: { [key: string]: string } = {
     "01JCZM72A9K5176BQT82T821V1":
@@ -158,10 +178,6 @@ export default function DetailPost() {
     content: string;
     coverImgUrl?: string | null;
   }) => {
-    console.log("Comment Image URL in DetailPost:", comment.coverImgUrl);
-    console.log("Comment content in DetailPost:", comment.content);
-    console.log("Comment data being sent to API:", comment);
-
     // Gọi API để tạo bình luận
     createComment(
       {
@@ -312,19 +328,19 @@ export default function DetailPost() {
               <AvatarImage
                 src={
                   userById?.payload.data.profilePicture ||
-                  expertProfile?.payload.data.profileImageUrl ||
+                  expertProfileById?.payload.data.profileImageUrl ||
                   "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                 }
                 alt={
                   isExpert
-                    ? expertProfile?.payload.data.fullname
+                    ? expertProfileById?.payload.data.fullname
                     : userById?.payload.data.fullName ||
                       userById?.payload.data.userName
                 }
               />
               <AvatarFallback>
                 {isExpert
-                  ? expertProfile?.payload.data.fullname
+                  ? expertProfileById?.payload.data.fullname
                   : userById?.payload.data.fullName ||
                     userById?.payload.data.userName}
               </AvatarFallback>
@@ -334,7 +350,8 @@ export default function DetailPost() {
             <Link href={`/user/profile/${postById?.payload.data.userId}`}>
               <p className="font-semibold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-violet-500">
                 {isExpert
-                  ? expertProfile?.payload.data.fullname
+                  ? expertProfileById?.payload.data.fullname ||
+                    expertProfileById?.payload.data.email
                   : userById?.payload.data.fullName ||
                     userById?.payload.data.userName}
               </p>
@@ -428,7 +445,7 @@ export default function DetailPost() {
                 <AvatarImage
                   src={
                     isExpert
-                      ? expertProfile?.payload.data.profileImageUrl
+                      ? expertProfileOwner?.data?.payload.data.profileImageUrl
                       : imageComment.data?.payload.data.profilePicture ||
                         "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d"
                   }
@@ -439,8 +456,8 @@ export default function DetailPost() {
                 />
                 <AvatarFallback>
                   {isExpert
-                    ? expertProfile?.payload.data.fullname ||
-                      expertProfile?.payload.data.email
+                    ? expertProfileOwner.data?.payload.data.fullname ||
+                      expertProfileOwner.data?.payload.data.email
                     : imageComment.data?.payload.data.fullName ||
                       imageComment.data?.payload.data.userName}
                 </AvatarFallback>
@@ -452,6 +469,7 @@ export default function DetailPost() {
                 onAddComment={handleAddComment}
                 onAddReply={handleAddReply}
                 deleteComment={handleDeleteComment}
+                isAdmin={false}
               />
             </div>
           </div>

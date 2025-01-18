@@ -94,7 +94,8 @@ export default function CreatePostInGroup({ groupId }: { groupId: string }) {
   };
 
   const { data: roleByUserId } = useGetRoleByUserIdQuery(
-    userIdFromLocalStorage as string
+    userIdFromLocalStorage as string,
+    !!userIdFromLocalStorage
   );
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const { data: userProfile } = useGetUserProfileQuery(

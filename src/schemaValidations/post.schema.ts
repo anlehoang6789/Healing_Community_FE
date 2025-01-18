@@ -68,6 +68,8 @@ export const ReplyCommentSchema = z.object({
 export type ReplyCommentType = z.TypeOf<typeof ReplyCommentSchema>;
 
 export const CommentSchema = z.object({
+  profilePicture: z.string().url().optional(),
+  userName: z.string().optional(),
   commentId: z.string(),
   postId: z.string(),
   parentId: z.string().nullable(), // parentId có thể là null
@@ -501,6 +503,8 @@ export const SharedCommentSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string().nullable(),
   replies: z.array(ReplySharedCommentSchema).nullable().optional(),
+  profilePicture: z.string().url().optional(),
+  userName: z.string().optional(),
 });
 
 export type SharedCommentType = z.TypeOf<typeof SharedCommentSchema>;

@@ -1,5 +1,7 @@
 import CarouselHome from "@/components/homePage/carouselHome";
+// import HighlightPosts from "@/components/homePage/highlightPosts";
 import HighlightPostSEO from "@/components/homePage/highlightPostSEO";
+// import QuickViewNews from "@/components/homePage/quickPosts";
 import QuickPostSEO from "@/components/homePage/quickPostSEO";
 import dynamic from "next/dynamic";
 import React from "react";
@@ -31,6 +33,7 @@ export default function HomePage() {
           {/* <QuickPosts /> */}
           <div className="sticky top-6">
             <QuickPostSEO />
+            {/* <QuickViewNews /> */}
           </div>
         </div>
       </div>

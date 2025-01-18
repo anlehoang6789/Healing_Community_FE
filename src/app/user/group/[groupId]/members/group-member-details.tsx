@@ -30,7 +30,7 @@ export default function GroupMemberDetails({
   roleInGroup: string;
   groupId: string;
 }) {
-  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId);
+  const { data: roleByUserId } = useGetRoleByUserIdQuery(userId, !!userId);
   const isExpert = roleByUserId?.payload.data.roleName === Role.Expert;
   const {
     data: userProfile,

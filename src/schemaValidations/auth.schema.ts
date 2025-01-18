@@ -126,7 +126,7 @@ export type RegisterExpertBodyType = z.TypeOf<typeof RegisterExpertBody>;
 
 export const GetRoleByUserIdSchema = z.object({
   roleId: z.number(),
-  roleName: z.string(),
+  roleName: z.string().nullable(),
 });
 
 export type GetRoleByUserIdSchemaType = z.TypeOf<typeof GetRoleByUserIdSchema>;
