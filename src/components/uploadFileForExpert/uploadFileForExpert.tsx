@@ -359,7 +359,7 @@ export default function UploadFileForExpert() {
             </PopoverContent>
           </Popover>
           <div>
-            <span>
+            <span className="text-textChat">
               Bạn phải cung cấp đủ các chứng chỉ{" "}
               <span className="font-bold text-red-500">cần thiết sau đây </span>
               trước khi tạo lịch tư vấn:{" "}
