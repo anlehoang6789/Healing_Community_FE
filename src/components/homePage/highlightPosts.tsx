@@ -5,7 +5,10 @@ import { Role } from "@/constants/type";
 import { useGetUserProfileQuery } from "@/queries/useAccount";
 import { useGetRoleByUserIdQuery } from "@/queries/useAuth";
 import { useGetExpertProfileQuery } from "@/queries/useExpert";
-import { useGetDetailsCategoryQuery } from "@/queries/usePost";
+import {
+  useGetDetailsCategoryQuery,
+  useGetHighlightPostQuery,
+} from "@/queries/usePost";
 import { QuickPostType } from "@/schemaValidations/post.schema";
 import Link from "next/link";
 import React from "react";
@@ -53,11 +56,9 @@ const CategoryBadge = ({ categoryId }: { categoryId: string }) => {
   );
 };
 
-export default function HighlightPosts({
-  highlightPostList,
-}: {
-  highlightPostList: QuickPostType[];
-}) {
+export default function HighlightPosts() {
+  const { data } = useGetHighlightPostQuery(4);
+  const highlightPostList = data?.payload.data || [];
   return (
     <div className="w-full mx-auto">
       <div>
