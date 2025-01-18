@@ -58,9 +58,9 @@ export default function NotificationPopover() {
             </div>
           ))}
         </ScrollArea>
-        <div className="mt-2 text-xs text-right text-muted-foreground cursor-pointer hover:underline hover:text-blue-500">
+        {/* <div className="mt-2 text-xs text-right text-muted-foreground cursor-pointer hover:underline hover:text-blue-500">
           Xem tất cả thông báo
-        </div>
+        </div> */}
       </PopoverContent>
     </Popover>
   );
