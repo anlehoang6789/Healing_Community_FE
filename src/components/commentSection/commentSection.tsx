@@ -53,6 +53,7 @@ interface CommentSectionProps {
     }
   ) => void;
   deleteComment: (commentId: string, options?: any) => void; // Thêm prop này
+  isAdmin?: boolean;
 }
 
 export default function CommentSection({
@@ -60,6 +61,7 @@ export default function CommentSection({
   onAddComment,
   onAddReply,
   deleteComment,
+  isAdmin = false,
 }: CommentSectionProps) {
   const { theme } = useTheme();
 
@@ -387,48 +389,49 @@ export default function CommentSection({
                   : "bg-gray-100 text-black"
               }`}
             >
-              {isCurrentUserComment && (
-                <>
-                  <AlertDialog
-                    open={commentToDelete === comment.commentId}
-                    onOpenChange={() => setCommentToDelete(null)}
-                  >
-                    <AlertDialogContent className="bg-backgroundChat text-red-500">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Bạn có chắc chắn muốn xóa bình luận này?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Hành động này không thể hoàn tác. Bình luận sẽ bị xóa{" "}
-                          <b className="text-red-500">vĩnh viễn</b>.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel
-                          onClick={() => setCommentToDelete(null)}
-                        >
-                          Hủy
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-500 text-white"
-                          onClick={handleDeleteComment}
-                        >
-                          Xóa
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+              {isCurrentUserComment ||
+                (isAdmin && (
+                  <>
+                    <AlertDialog
+                      open={commentToDelete === comment.commentId}
+                      onOpenChange={() => setCommentToDelete(null)}
+                    >
+                      <AlertDialogContent className="bg-backgroundChat text-red-500">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Bạn có chắc chắn muốn xóa bình luận này?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Hành động này không thể hoàn tác. Bình luận sẽ bị
+                            xóa <b className="text-red-500">vĩnh viễn</b>.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel
+                            onClick={() => setCommentToDelete(null)}
+                          >
+                            Hủy
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-red-500 text-white"
+                            onClick={handleDeleteComment}
+                          >
+                            Xóa
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
 
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="absolute top-1 right-1 text-red-500 hover:text-red-700"
-                    onClick={() => setCommentToDelete(comment.commentId)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute top-1 right-1 text-red-500 hover:text-red-700"
+                      onClick={() => setCommentToDelete(comment.commentId)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                ))}
 
               {/* Tên người comment */}
               <FullNameUserCommentProfile userId={comment.userId} />
@@ -449,6 +452,7 @@ export default function CommentSection({
 
               {/* Hiển thị icon Flag khi hover và comment không phải của người đăng nhập */}
               {!isCurrentUserComment &&
+                !isAdmin &&
                 hoveredCommentId === comment.commentId && (
                   <ReportComment commentId={comment.commentId} />
                 )}
