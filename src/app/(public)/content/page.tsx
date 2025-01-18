@@ -1,6 +1,6 @@
 import CarouselHome from "@/components/homePage/carouselHome";
-import HighlightPostSEO from "@/components/homePage/highlightPostSEO";
-import QuickPostSEO from "@/components/homePage/quickPostSEO";
+import HighlightPosts from "@/components/homePage/highlightPosts";
+import QuickViewNews from "@/components/homePage/quickPosts";
 import dynamic from "next/dynamic";
 import React from "react";
 
@@ -17,8 +17,8 @@ export default function HomePage() {
       <div className="grid grid-cols-12 md:gap-20 space-y-4 ">
         <div className="col-span-12 md:col-span-3 justify-self-start">
           <div className="sticky top-6">
-            {/* <HighlightPosts /> */}
-            <HighlightPostSEO />
+            <HighlightPosts />
+            {/* <HighlightPostSEO /> */}
           </div>
         </div>
 
@@ -30,7 +30,8 @@ export default function HomePage() {
         <div className="col-span-12 md:col-span-3 justify-self-end ">
           {/* <QuickPosts /> */}
           <div className="sticky top-6">
-            <QuickPostSEO />
+            {/* <QuickPostSEO /> */}
+            <QuickViewNews />
           </div>
         </div>
       </div>
