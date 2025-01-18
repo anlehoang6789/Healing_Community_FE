@@ -23,8 +23,9 @@ jobs:
         with:
           node-version: 18 # Sử dụng phiên bản Node.js phù hợp với dự án của bạn
           cache: 'npm' # Hoặc 'npm' nếu bạn dùng npm
+
       # Step 3: Inject GitHub Secrets vào môi trường
-      - name: Inject
+      - name: Inject environment variables
         run: |
           touch .env
           echo "NEXT_PUBLIC_API_ENDPOINT=${{ secrets.NEXT_PUBLIC_API_ENDPOINT }}" >> .env
@@ -33,9 +34,8 @@ jobs:
 
       # Step 4: Cài đặt dependencies
       - name: Install dependencies
-        run: npm install # Hoặc `npm install` nếu bạn dùng npm
+        run: npm install
 
       # Step 5: Build ứng dụng
       - name: Build Next.js app
-        run: npm run build # Hoặc `npm run build`
-    
+        run: npm run build
