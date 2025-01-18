@@ -25,7 +25,9 @@ jobs:
           cache: 'npm' # Hoặc 'npm' nếu bạn dùng npm
       # Step 3: Inject GitHub Secrets vào môi trường
       - name: Setup environment variables
-        run: echo "${{ secrets.env }}" > .env ; cat .env
+        run: echo "${{ vars.env }}" > .env
+      - name: Print env
+        run : cat .env;
       # Step 4: Cài đặt dependencies
       - name: Install dependencies
         run: npm install # Hoặc `npm install` nếu bạn dùng npm
