@@ -157,8 +157,8 @@ export default function ConsultationScheduleExpert() {
       }`
     );
     const canCancel =
-      consultation.tag !== "Đã hủy" &&
-      appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
+      consultation.tag !== "Đã hủy" && consultation.tag !== "Đã hoàn thành";
+    appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
 
     return (
       <Card key={consultation.appointmentId} className="mb-4 relative">
