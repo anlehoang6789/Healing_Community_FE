@@ -1,4 +1,5 @@
 "use client";
+import AvatarChat from "@/app/chat/avatar-chat";
 import ContentChat from "@/components/chat/contentChat";
 import SidebarChat from "@/components/chat/sidebarChat";
 import { useWebSocket } from "@/hooks/use-web-socket";
@@ -9,7 +10,7 @@ import React, { useEffect, useState } from "react";
 export interface Contact {
   id: string;
   name: string;
-  avatar: string;
+  avatar: string | JSX.Element;
   lastMessage?: string;
 }
 
@@ -30,9 +31,7 @@ export default function ClientPageChat() {
   const contacts: Contact[] = followingList.map((user) => ({
     id: user.userId,
     name: user.fullName || user.userName,
-    avatar:
-      user.profilePicture ||
-      "https://firebasestorage.googleapis.com/v0/b/healing-community.appspot.com/o/banner%2Flotus-login.jpg?alt=media&token=b948162c-1908-43c1-8307-53ea209efc4d",
+    avatar: <AvatarChat userId={user.userId} />,
     lastMessage: "Last message placeholder",
   }));
 

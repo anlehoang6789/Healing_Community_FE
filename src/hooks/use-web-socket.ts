@@ -87,7 +87,7 @@ export const useWebSocket = (userId: string, partnerId: string) => {
     let ws: WebSocket | null = null;
 
     if (userId && partnerId && isValidRecipient(userId, partnerId)) {
-      const socketUrl = `ws://localhost:8000/chat/ws?userId=${userId}&partnerId=${partnerId}`;
+      const socketUrl = `ws://chat-service-production-1f41.up.railway.app/ws?userId=${userId}&partnerId=${partnerId}`;
       ws = new WebSocket(socketUrl);
       socketRef.current = ws;
 

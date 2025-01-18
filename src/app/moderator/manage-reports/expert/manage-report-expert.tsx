@@ -189,6 +189,7 @@ const columns: ColumnDef<GetReportExpertSchemaType>[] = [
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
+      const { refetch } = useGetReportExpertQuery();
       const approveOrRejectReportExpertMutation =
         useApproveOrRejectReportExpertMutation();
       if (row.original.isApprove !== null) return null;
@@ -204,6 +205,7 @@ const columns: ColumnDef<GetReportExpertSchemaType>[] = [
             description: res.payload.message,
             variant: "success",
           });
+          await refetch();
         } catch (error: any) {
           handleErrorApi(error);
         }
@@ -220,6 +222,7 @@ const columns: ColumnDef<GetReportExpertSchemaType>[] = [
             description: res.payload.message,
             variant: "success",
           });
+          await refetch();
         } catch (error: any) {
           handleErrorApi(error);
         }

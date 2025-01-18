@@ -113,11 +113,12 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
       const postTitle = row.original.postTitle;
       const postId = row.original.postId;
       return (
-        <>
-          <div className="font-bold">{postTitle}</div>
+        <TableCell style={{ width: "250px" }}>
+          <div className="font-bold line-clamp-2">{postTitle}</div>
+
           {/* Dialog xem bai viet */}
           <ReportStoryDetails postId={postId} />
-        </>
+        </TableCell>
       );
     },
   },
@@ -216,6 +217,7 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
     id: "actions",
     enableHiding: false,
     cell: function Actions({ row }) {
+      const { refetch } = useGetReportPostQuery();
       const approveOrRejectReportPostMutation =
         useApproveOrRejectReportPostMutation();
       if (row.original.isApprove !== null) return null;
@@ -231,6 +233,7 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
             description: res.payload.message,
             variant: "success",
           });
+          await refetch();
         } catch (error: any) {
           handleErrorApi(error);
         }
@@ -247,6 +250,7 @@ const columns: ColumnDef<GetReportPostSchemaType>[] = [
             description: res.payload.message,
             variant: "success",
           });
+          await refetch();
         } catch (error: any) {
           handleErrorApi(error);
         }

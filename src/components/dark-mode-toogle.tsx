@@ -41,9 +41,9 @@ export default function DarkModeToggle() {
         <DropdownMenuItem onClick={() => setTheme("dark")}>
           Giao diện tối
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>
+        {/* <DropdownMenuItem onClick={() => setTheme("system")}>
           Tự động
-        </DropdownMenuItem>
+        </DropdownMenuItem> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );

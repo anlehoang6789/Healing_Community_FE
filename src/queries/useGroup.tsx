@@ -14,6 +14,7 @@ export const useGetAllGroupsQuery = () => {
     queryKey: ["get-all-groups"],
     queryFn: groupApiRequest.getAllGroups,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -23,6 +24,7 @@ export const useGetGroupsByUserIdQuery = (userId: string) => {
     queryFn: () => groupApiRequest.getGroupsJoinedByUserId(userId),
     enabled: !!userId,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -131,6 +133,7 @@ export const useGetGroupDetailsByGroupIdQuery = ({
     queryFn: () => groupApiRequest.getGroupDetailsByGroupId(groupId),
     enabled: enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -139,6 +142,7 @@ export const useGetGroupMembersByGroupIdQuery = (groupId: string) => {
     queryKey: ["get-group-members-by-group-id", groupId],
     queryFn: () => groupApiRequest.getGroupMemberByGroupId(groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -147,6 +151,7 @@ export const useGetRoleCountByGroupIdQuery = (groupId: string) => {
     queryKey: ["get-role-count-by-group-id", groupId],
     queryFn: () => groupApiRequest.getRoleCountByGroupId(groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -155,6 +160,7 @@ export const useGetListRequestGroupQuery = () => {
     queryKey: ["get-list-request-group"],
     queryFn: groupApiRequest.getApprovalRequestsCreateGroup,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -164,6 +170,7 @@ export const useGetListRequestedGroupByUserIdQuery = (userId: string) => {
     queryFn: () => groupApiRequest.getRequestsCreateGroupByUserId(userId),
     enabled: !!userId,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -206,6 +213,7 @@ export const useGetRequestJoinGroupQuery = (groupId: string) => {
     queryKey: ["get-request-join-group", groupId],
     queryFn: () => groupApiRequest.getRequestJoinGroup(groupId),
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -222,6 +230,9 @@ export const useApproveOrRejectRequestJoinGroupMutation = (groupId: string) => {
       });
       queryClient.invalidateQueries({
         queryKey: ["get-group-details-by-group-id", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-members-by-group-id", groupId],
       });
     },
   });
@@ -246,6 +257,7 @@ export const useGetGroupInfoQuery = ({
     queryFn: () => groupApiRequest.getGroupInfo(userId),
     enabled: enabled,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -254,6 +266,7 @@ export const useGetRecommendGroupQuery = () => {
     queryKey: ["get-recommend-group"],
     queryFn: groupApiRequest.getRecommendGroup,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -272,6 +285,27 @@ export const useAssignRoleMutation = () => {
       });
       queryClient.invalidateQueries({
         queryKey: ["get-groups-by-user-id"],
+      });
+    },
+  });
+};
+
+export const useRemoveMemberMutation = (groupId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: groupApiRequest.removeMemberQuery,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-details-by-group-id", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-role-count-by-group-id", groupId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-all-groups"],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["get-group-members-by-group-id"],
       });
     },
   });

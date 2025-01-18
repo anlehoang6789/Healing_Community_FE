@@ -295,3 +295,12 @@ export const AssignRoleRequestSchema = z.object({
 });
 
 export type AssignRoleRequestType = z.TypeOf<typeof AssignRoleRequestSchema>;
+
+export const RemoveMemberBodySchema = z.object({
+  groupId: z.string(),
+  memberUserId: z.string(),
+});
+
+export type RemoveMemberBodySchemaType = z.TypeOf<
+  typeof RemoveMemberBodySchema
+>;
