@@ -138,6 +138,9 @@ export default function ConsultationSchedule() {
           "Chuyển tiền cho chuyên gia",
           "Chờ báo cáo",
           "Hoàn tiền cho người dùng",
+          "Duyệt báo cáo người dùng thành công",
+          "Duyệt báo cáo người dùng thất bại",
+          "Chuyển tiền cho người dùng",
         ].includes(c.tag)
       ),
       cancelled: filteredAndSortedConsultations.filter((c) =>
@@ -184,8 +187,7 @@ export default function ConsultationSchedule() {
       }`
     );
     const canCancel =
-      consultation.tag !== "Đã hủy" &&
-      consultation.tag !== "Đã hoàn thành" &&
+      consultation.tag === "Sắp diễn ra" &&
       appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
 
     //sau 2 ngày kh còn đc report nữa

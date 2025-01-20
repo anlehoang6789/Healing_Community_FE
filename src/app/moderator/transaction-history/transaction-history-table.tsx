@@ -82,7 +82,7 @@ const TransactionCell = ({ row }: { row: any }) => {
     return null;
   }
   // Status la 0, 1, 4, 5, 6 của trạng thái lịch hẹn thi khong hien thi nut
-  if ([0, 1, 4, 5, 6].includes(status) || [2, 4].includes(statusPayment))
+  if ([0, 1, 4, 5, 6, 9, 10].includes(status) || [2, 4].includes(statusPayment))
     return null;
 
   return (
@@ -278,6 +278,8 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
         6: "Chờ xử lý báo cáo",
         7: "Đã xử lý báo cáo",
         8: "Báo cáo không hợp lệ",
+        9: "Đã hoàn tiền cho người dùng",
+        10: "Đã thanh toán tiền cho chuyên gia",
       };
       const statusLabel = statusMapping[status] || "Không xác định";
 
@@ -291,6 +293,8 @@ export const columns: ColumnDef<GetManagerPaymentForModeratorType>[] = [
         6: "bg-yellow-100 text-yellow-800 text-xs",
         7: "bg-green-100 text-green-800 text-xs",
         8: "bg-red-100 text-red-800 text-xs",
+        9: "bg-lime-100 text-lime-800 text-xs",
+        10: "bg-green-100 text-green-800 text-xs",
       };
 
       return (
