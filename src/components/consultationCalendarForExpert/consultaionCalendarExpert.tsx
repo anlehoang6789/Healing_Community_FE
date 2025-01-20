@@ -120,6 +120,9 @@ export default function ConsultationScheduleExpert() {
           "Chuyển tiền cho chuyên gia",
           "Chờ báo cáo",
           "Hoàn tiền cho người dùng",
+          "Duyệt báo cáo người dùng thành công",
+          "Duyệt báo cáo người dùng thất bại",
+          "Chuyển tiền cho người dùng",
         ].includes(c.tag)
       ),
       cancelled: filteredAndSortedConsultations.filter(
@@ -157,8 +160,8 @@ export default function ConsultationScheduleExpert() {
       }`
     );
     const canCancel =
-      consultation.tag !== "Đã hủy" && consultation.tag !== "Đã hoàn thành";
-    appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
+      consultation.tag === "Sắp diễn ra" &&
+      appointmentStart.getTime() - currentTime.getTime() > 24 * 60 * 60 * 1000;
 
     return (
       <Card key={consultation.appointmentId} className="mb-4 relative">
