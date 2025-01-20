@@ -52,8 +52,15 @@ export default function GroupMemberDetails({
     userIdFromLocalStorage as string,
     groupId
   );
+  const { data: checkRoleOtherModerator } = useCheckRoleInGroupQuery(
+    userId as string,
+    groupId
+  );
   const isModeratorInGroup =
     checkRoleModer?.payload.data.roleInGroup === "Moderator";
+
+  const isOtherModeratorInGroup =
+    checkRoleOtherModerator?.payload.data.roleInGroup === "Moderator";
 
   const isOwnerInGroup = checkRole?.payload.data.roleInGroup === "Owner";
 
@@ -234,11 +241,14 @@ export default function GroupMemberDetails({
             )}
           </Button>
         )}
-        {isModeratorInGroup && !isOwner && !isOwnerInGroup && (
-          <Button variant="destructive" onClick={() => handleRemoveMember()}>
-            Xóa thành viên
-          </Button>
-        )}
+        {isModeratorInGroup &&
+          !isOwner &&
+          !isOwnerInGroup &&
+          !isOtherModeratorInGroup && (
+            <Button variant="destructive" onClick={() => handleRemoveMember()}>
+              Xóa thành viên
+            </Button>
+          )}
       </div>
     </>
   );

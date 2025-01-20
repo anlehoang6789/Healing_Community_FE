@@ -32,6 +32,7 @@ export default function GroupLayout({
   const params = useParams();
   const userIdFromLocalStorage = getUserIdFromLocalStorage();
   const groupIdFromPath = params.groupId as string;
+  const [isLoading, setIsLoading] = useState(false);
   //data group detail
   const { data: groupDetails } = useGetGroupDetailsByGroupIdQuery({
     groupId: groupIdFromPath,
@@ -93,6 +94,7 @@ export default function GroupLayout({
   });
   const handleLeaveGroup = async (groupId: string) => {
     try {
+      setIsLoading(true);
       const result = await leaveGroupMutation.mutateAsync({ groupId });
       toast({
         description: result.payload.message || "Rời nhóm thành công!",
@@ -102,6 +104,8 @@ export default function GroupLayout({
       router.push(`/user/group/${groupId}`);
     } catch (error) {
       handleErrorApi({ error });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -137,7 +141,7 @@ export default function GroupLayout({
                 </h1>
                 <div className="flex flex-col sm:flex-row items-center gap-2 mt-2 sm:mt-0">
                   {/* <Button className="w-full sm:w-auto">+ Mời</Button> */}
-                  {isMemberState === null ? (
+                  {isLoading ? (
                     <Button
                       variant="outline"
                       className="w-full sm:w-auto text-textChat"
